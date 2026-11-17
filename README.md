@@ -59,6 +59,10 @@ npm run build      # static build in dist/ (works on GitHub Pages)
 
 **Demo path:** click **⚡ Quick demo** → **Run tests** → the helper tells a child the Battle of Hastings was in **1067** → explain the failure → drag **🔍 Check against a trusted source** *below* Ask AI → Run again → it's caught and corrected to 1066 → open **My profile** and **Teacher view**.
 
+## Presenting
+
+Open `#/present` (or press **Shift+P** anywhere) for presenter mode: a bar along the bottom with a 6-step demo script and speaker notes, Back/Next, a "do it for me" fallback on the interactive steps, replay speed (1×/2×/4×) for recording, and **Reset demo** to clear all progress. Shift+P or × hides it.
+
 ## Tech
 
 React + TypeScript + Vite, Tailwind, Framer Motion (animations), dnd-kit (drag and drop), Recharts (radar), Zustand (state persisted to localStorage).

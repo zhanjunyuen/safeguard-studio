@@ -7,6 +7,7 @@ import { CHALLENGES } from '../data/challenges';
 import { SEED_STUDENTS, simulateBreak, simulateStudent } from '../data/seedClass';
 import { breakSummary } from '../engine/breaker';
 import { averageScores, DIMS, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
+import { usePresenter } from '../store/presenter';
 import { useSession } from '../store/session';
 
 const heat = (v: number | null) =>
@@ -23,7 +24,7 @@ export default function Teacher() {
   const [cid, setCid] = useState(CHALLENGES[0].id);
   const live = useSession((s) => s.progress[cid]);
   const liveBreak = useSession((s) => s.breakProgress[cid]);
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(() => (usePresenter.getState().active ? 'You (live)' : null));
 
   const rows: Row[] = useMemo(() => {
     const ch = CHALLENGES.find((c) => c.id === cid)!;

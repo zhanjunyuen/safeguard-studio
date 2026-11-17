@@ -24,10 +24,11 @@ import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge } from '../engine/run';
 import { describeAdd, freshProgress, newUid, useSession } from '../store/session';
+import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, FailureKey, RunReport, StepStatus } from '../types';
 
-const STEP_MS = 520;
-const TEST_PAUSE_MS = 1500;
+const BASE_STEP_MS = 520;
+const BASE_PAUSE_MS = 1500;
 
 const collision: CollisionDetection = (args) => {
   const p = pointerWithin(args);
@@ -48,6 +49,7 @@ export default function Builder() {
   const [reflectFor, setReflectFor] = useState<{ testId: string; expected: FailureKey } | null>(null);
   const [dirty, setDirty] = useState(false);
   const timer = useRef<number>();
+  const runRef = useRef<() => void>();
 
   // make sure the challenge has a progress entry persisted
   useEffect(() => {
@@ -58,6 +60,10 @@ export default function Builder() {
   }, [id]);
 
   // ---- replay animation ----
+  const speed = useReplaySpeed();
+  const STEP_MS = BASE_STEP_MS / speed;
+  const TEST_PAUSE_MS = BASE_PAUSE_MS / speed;
+  const pending = usePresenter((st) => st.pending);
   useEffect(() => {
     if (!replay || !report) return;
     const r = report.results[replay.testIdx];
@@ -76,6 +82,14 @@ export default function Builder() {
     return () => window.clearTimeout(timer.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replay, report]);
+
+  // presenter-mode command (one-shot)
+  useEffect(() => {
+    if (pending !== 'run') return;
+    usePresenter.getState().command(null);
+    setTimeout(() => runRef.current?.(), 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending]);
 
   const finishReplay = () => {
     window.clearTimeout(timer.current);
@@ -168,6 +182,7 @@ export default function Builder() {
     setReplay({ testIdx: 0, stepIdx: 0 });
   };
 
+  runRef.current = run;
   const skip = () => {
     window.clearTimeout(timer.current);
     finishReplay();

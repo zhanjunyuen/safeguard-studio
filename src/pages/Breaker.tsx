@@ -18,12 +18,13 @@ import Block from '../components/Block';
 import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { getChallenge } from '../data/challenges';
-import { ATTACK_BUDGET, breakSummary, launch, targetScript, type LaunchReport } from '../engine/breaker';
+import { ATTACK_BUDGET, breakSummary, launch, targetScript, weakSpots, type LaunchReport } from '../engine/breaker';
 import { useSession } from '../store/session';
+import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { StepStatus } from '../types';
 
-const STEP_MS = 520;
-const TEST_PAUSE_MS = 1400;
+const BASE_STEP_MS = 520;
+const BASE_PAUSE_MS = 1400;
 const ATTACK_COLOR = '#2A2A33';
 const ATTACK_ICON_COLOR = '#FFC629';
 
@@ -105,6 +106,10 @@ export default function Breaker() {
   const timer = useRef<number>();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
+  const speed = useReplaySpeed();
+  const STEP_MS = BASE_STEP_MS / speed;
+  const TEST_PAUSE_MS = BASE_PAUSE_MS / speed;
+  const pending = usePresenter((st) => st.pending);
   useEffect(() => {
     if (!replay || !report) return;
     const r = report.results[replay.testIdx];
@@ -119,6 +124,18 @@ export default function Breaker() {
     return () => window.clearTimeout(timer.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replay, report]);
+
+  // presenter-mode command (one-shot)
+  useEffect(() => {
+    if (pending !== 'fill-attacks') return;
+    usePresenter.getState().command(null);
+    if (challenge) {
+      const weak = weakSpots(challenge);
+      const decoy = challenge.tests.find((t) => !weak.includes(t.id));
+      setPlan([...weak, ...(decoy ? [decoy.id] : [])].slice(0, ATTACK_BUDGET));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending]);
 
   const highlights = useMemo(() => {
     const h: Record<string, StepStatus> = {};

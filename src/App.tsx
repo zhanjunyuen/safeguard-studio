@@ -1,4 +1,7 @@
-import { NavLink, Route, Routes, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, NavLink, Route, Routes, useParams } from 'react-router-dom';
+import PresenterBar from './components/PresenterBar';
+import { usePresenter } from './store/presenter';
 import Breaker from './pages/Breaker';
 import Builder from './pages/Builder';
 import Home from './pages/Home';
@@ -28,7 +31,15 @@ function BreakerRoute() {
   return <Breaker key={id} />;
 }
 
+function PresentRoute() {
+  useEffect(() => {
+    usePresenter.setState({ active: true, step: 0 });
+  }, []);
+  return <Navigate to="/" replace />;
+}
+
 export default function App() {
+  const presenting = usePresenter((s) => s.active);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b-1.5 border-ink bg-paper">
@@ -44,15 +55,17 @@ export default function App() {
           </nav>
         </div>
       </header>
-      <main className="flex-1">
+      <main className={`flex-1 ${presenting ? 'pb-28' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/build/:id" element={<BuilderRoute />} />
           <Route path="/break/:id" element={<BreakerRoute />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />
+          <Route path="/present" element={<PresentRoute />} />
         </Routes>
       </main>
+      <PresenterBar />
     </div>
   );
 }
