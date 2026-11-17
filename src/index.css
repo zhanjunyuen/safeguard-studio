@@ -3,17 +3,32 @@
 @tailwind utilities;
 
 :root { color-scheme: light; }
-body { background: #F5F3FF; color: #1E1B4B; font-family: Nunito, system-ui, sans-serif; }
-h1, h2, h3, .font-display { font-family: "Baloo 2", system-ui, sans-serif; }
+body { background: #F4F1EA; color: #16161A; font-family: "Atkinson Hyperlegible", system-ui, sans-serif; font-size: 16px; }
+h1, h2, h3, .font-display { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.02em; }
 
-.workspace {
-  background-color: #FBFAFF;
-  background-image: radial-gradient(#D9D4F5 1.2px, transparent 1.2px);
-  background-size: 22px 22px;
+:focus-visible { outline: 3px solid #16161A; outline-offset: 2px; border-radius: 4px; }
+
+/* graph paper for the build area */
+.graph {
+  background-color: #FFFDF8;
+  background-image:
+    linear-gradient(#E9E3D4 1px, transparent 1px),
+    linear-gradient(90deg, #E9E3D4 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
 }
-.block-text { text-shadow: 0 1px 0 rgba(0,0,0,0.18); }
+.label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.btn { display: inline-flex; align-items: center; gap: .5rem; border: 1.5px solid #16161A; border-radius: 6px; padding: .6rem 1rem; font-weight: 700; box-shadow: 3px 3px 0 0 #16161A; transition: transform .08s, box-shadow .08s; min-height: 44px; }
+.btn:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 0 #16161A; }
+.btn:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 #16161A; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.stamp { font-family: "JetBrains Mono", monospace; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 2px solid currentColor; border-radius: 4px; padding: 1px 6px; transform: rotate(-4deg); display: inline-block; }
+
 @keyframes pulse-glow { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
 .glow { animation: pulse-glow 0.9s ease-in-out infinite; }
 .typing span { animation: blink 1.2s infinite both; }
 .typing span:nth-child(2) { animation-delay: .2s } .typing span:nth-child(3) { animation-delay: .4s }
 @keyframes blink { 0%, 80%, 100% { opacity: .2 } 40% { opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .glow, .typing span { animation: none } }

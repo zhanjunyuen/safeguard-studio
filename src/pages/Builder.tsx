@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Play, RotateCcw } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Block from '../components/Block';
 import Palette from '../components/Palette';
@@ -177,47 +178,43 @@ export default function Builder() {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
-      <div className="flex flex-wrap items-start gap-4 mb-5">
-        <Link to="/" className="mt-1 text-sm font-bold text-indigo-900/60 hover:text-indigo-900">← Challenges</Link>
+      <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{challenge.emoji}</span>
-            <h1 className="text-3xl font-extrabold leading-none">{challenge.title}</h1>
-          </div>
-          <p className="text-indigo-900/70 mt-1 max-w-3xl">{challenge.story}</p>
+          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+            <ArrowLeft size={16} aria-hidden /> All challenges
+          </Link>
+          <h1 className="text-4xl font-extrabold leading-none">{challenge.title}</h1>
+          <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">{challenge.story}</p>
         </div>
-        <button
-          onClick={() => { reset(id); setReport(null); setReplay(null); }}
-          className="text-sm font-bold px-3 py-1.5 rounded-full border-2 border-indigo-100 hover:border-rose-300 bg-white"
-        >
-          ↺ Start over
+        <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
+          <RotateCcw size={16} aria-hidden /> Start again
         </button>
       </div>
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
         <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
-          <Palette used={used} onAdd={(t) => addAt(t, script.length)} />
+          <Palette blocks={challenge.palette} used={used} onAdd={(t) => addAt(t, script.length)} />
 
-          <section className="workspace rounded-3xl border-2 border-indigo-100 p-6 flex flex-col items-center min-h-[560px]">
-            <div className="w-full flex items-center justify-between mb-5" style={{ maxWidth: STACK_W + 40 }}>
+          <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
+            <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
               <div>
-                <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-900/50">Your helper</div>
-                <div className="text-sm text-indigo-900/60">{attemptNo ? `Attempt ${attemptNo + (dirty ? 1 : 0)}` : 'First attempt'}</div>
+                <h2 className="text-lg font-extrabold leading-none">Your helper</h2>
+                <div className="text-sm text-ink-2 mt-1">{attemptNo ? `Run ${attemptNo + (dirty ? 1 : 0)}` : 'Not run yet'}</div>
               </div>
               <button
                 onClick={run}
                 disabled={locked || mustReflect}
                 title={mustReflect ? 'Explain the last failure first' : undefined}
-                className="relative px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white text-lg font-extrabold shadow-lg shadow-emerald-200 transition active:scale-95"
+                className="btn bg-pass text-white text-lg px-5"
                 data-testid="run"
               >
-                {locked ? 'Running…' : '▶ Run tests'}
+                <Play size={18} fill="currentColor" aria-hidden /> {locked ? 'Running…' : 'Run tests'}
               </button>
             </div>
             <ScriptStack script={script} highlights={highlights} onRemove={remove} locked={locked} />
             {mustReflect && !reflectFor && !locked && (
-              <button onClick={() => setReflectFor(progress.pendingReflection)} className="mt-2 text-sm font-bold text-violet-700 underline">
-                Explain the last failure to unlock Run
+              <button onClick={() => setReflectFor(progress.pendingReflection)} className="mt-2 font-bold underline underline-offset-2">
+                Explain the last failure to run again
               </button>
             )}
           </section>
@@ -227,8 +224,8 @@ export default function Builder() {
 
         <DragOverlay dropAnimation={{ duration: 180 }}>
           {activeDrag ? (
-            <div className="rotate-2 drop-shadow-xl">
-              <Block label={BLOCKS[activeDrag].label} icon={BLOCKS[activeDrag].icon} color={BLOCKS[activeDrag].color} width={STACK_W} />
+            <div className="rotate-2" style={{ filter: "drop-shadow(3px 3px 0 #16161A)" }}>
+              <Block kind={activeDrag} label={BLOCKS[activeDrag].label} color={BLOCKS[activeDrag].color} width={STACK_W} />
             </div>
           ) : null}
         </DragOverlay>

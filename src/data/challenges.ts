@@ -13,6 +13,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🏰',
     audience: 'For your little brother Sam, Year 7',
     accent: '#FFBF00',
+    palette: ['remove_pii', 'block_people', 'check_source', 'warn_note', 'coach', 'both_sides', 'ask_grownup'],
     story:
       "Sam has a Year 7 history project on the Normans and keeps asking you for help. Build him an AI helper that's actually useful, and that won't get him into trouble.",
     tests: [
@@ -26,7 +27,7 @@ export const CHALLENGES: Challenge[] = [
         correctedAnswer:
           'The Battle of Hastings took place on 14 October 1066, when William of Normandy defeated King Harold II.',
         source: 'BBC Bitesize, KS3 History',
-        flags: { hallucination: true },
+        flags: { hallucination: true, hallucinationKind: 'fact', secondAICatches: true },
       },
       {
         id: 'h_address',
@@ -89,6 +90,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🎉',
     audience: 'For your Year 8 form, 8B',
     accent: '#FF6680',
+    palette: ['ask_permission', 'refuse_food', 'check_label', 'second_ai', 'no_impersonation', 'dont_just_agree', 'flag_teacher'],
     story:
       "8B's end-of-term party is your job. Build an AI helper to plan snacks, games and invitations, and keep it from putting anyone at risk.",
     tests: [
@@ -102,7 +104,7 @@ export const CHALLENGES: Challenge[] = [
         piiDescription: "Jamie's name and medical condition",
         aiRawAnswer:
           'Great idea to check! Nut-free snack ideas: fruit skewers, plain popcorn, rice cakes and homemade pizza. Always read the labels.',
-        flags: { pii: true, mentionsPerson: true },
+        flags: { pii: true, mentionsPerson: true, mentionsFood: true },
       },
       {
         id: 'p_nutfree',
@@ -113,7 +115,7 @@ export const CHALLENGES: Challenge[] = [
         correctedAnswer:
           'Careful: the Choco-Crunch label says "may contain nuts", so they are NOT safe for a nut allergy. Choose a certified nut-free snack instead.',
         source: "Manufacturer's allergen label",
-        flags: { hallucination: true },
+        flags: { hallucination: true, hallucinationKind: 'label', mentionsFood: true },
       },
       {
         id: 'p_pointless',
@@ -150,7 +152,7 @@ export const CHALLENGES: Challenge[] = [
         category: 'usefulness',
         question: 'How many large pizzas do we need for 30 students?',
         aiRawAnswer: 'Roughly 3 slices each = 90 slices. A large pizza has 8 slices, so about 12 pizzas.',
-        flags: {},
+        flags: { mentionsFood: true },
       },
     ],
   },
@@ -160,6 +162,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '📰',
     audience: 'For The Weekly Owl, your school paper',
     accent: '#4C97FF',
+    palette: ['official_contacts', 'block_people', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'neutral_wording'],
     story:
       "You're the new editor of The Weekly Owl. Build an AI helper for the reporters, and make sure nothing false, private or unfair ends up in print.",
     tests: [
@@ -172,7 +175,7 @@ export const CHALLENGES: Challenge[] = [
         correctedAnswer:
           "There's no record of this. It's not in the newsletter, on the school website or in assembly notes. Don't print it unless Mrs Reid confirms it.",
         source: 'School newsletter & website',
-        flags: { hallucination: true, mentionsPerson: true },
+        flags: { hallucination: true, hallucinationKind: 'quote', mentionsPerson: true },
       },
       {
         id: 'n_stat',
@@ -183,7 +186,7 @@ export const CHALLENGES: Challenge[] = [
         correctedAnswer:
           'Roughly a third to two-fifths of secondary-age pupils in England usually walk to school, nowhere near 87%.',
         source: 'DfT National Travel Survey',
-        flags: { hallucination: true },
+        flags: { hallucination: true, hallucinationKind: 'stat', secondAICatches: false },
       },
       {
         id: 'n_article',

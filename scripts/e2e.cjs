@@ -42,7 +42,7 @@ const BASE = process.argv[3] || 'http://localhost:4173';
   await p.click('text=Skip');
   await p.waitForTimeout(400);
   console.log('run2 h_date', await p.getAttribute('[data-testid=result-h_date]', 'data-outcome'));
-  if (await p.$('[data-testid=reflect-modal]')) { await p.locator('[data-testid^=reflect-]').first().click(); await p.click('[data-testid=reflect-submit]'); await p.screenshot({ path: SP + '/shots/6-reflect2.png' }); await p.click('[data-testid=reflect-continue]'); }
+  if (await p.$('[data-testid=reflect-modal]')) { await p.locator('[role=dialog] fieldset button').first().click(); await p.click('[data-testid=reflect-submit]'); await p.screenshot({ path: SP + '/shots/6-reflect2.png' }); await p.click('[data-testid=reflect-continue]'); }
   await p.click('[data-testid=result-h_date]');
   await p.screenshot({ path: SP + '/shots/6-results.png' });
   await p.goto(BASE + '/#/profile');

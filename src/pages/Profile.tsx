@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom';
+import { DIM_ICON } from '../components/icons';
 import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
-import { averageScores, DIMS, feedbackFor, profileChallenge } from '../engine/profile';
+import { averageScores, DIMS, feedbackFor, profileChallenge, type Dim } from '../engine/profile';
 import { useSession } from '../store/session';
+
+const NEXT_QUESTION: Record<Dim, string> = {
+  verification: 'What if the AI just makes this up?',
+  privacy: "Is anyone's personal info about to be sent?",
+  integrity: 'Is the AI doing the thinking they should be doing?',
+  bias: 'Who would disagree with this answer?',
+  usefulness: 'Am I blocking questions that are actually fine?',
+};
 
 export default function Profile() {
   const progress = useSession((s) => s.progress);
@@ -12,11 +21,10 @@ export default function Profile() {
 
   if (!profiles.length) {
     return (
-      <div className="max-w-xl mx-auto text-center py-24 px-4">
-        <div className="text-6xl">🧩</div>
-        <h1 className="text-3xl font-extrabold mt-3">No profile yet</h1>
-        <p className="text-indigo-900/70 mt-2">Build a helper and run it against the hidden tests. Your AI literacy profile appears here.</p>
-        <Link to="/" className="inline-block mt-6 px-6 py-3 rounded-2xl bg-violet-600 text-white font-extrabold">Pick a challenge</Link>
+      <div className="max-w-xl mx-auto py-24 px-4">
+        <h1 className="text-4xl font-extrabold">No results yet</h1>
+        <p className="text-ink-2 mt-3 text-lg">Your results appear here after you run a helper against the hidden tests.</p>
+        <Link to="/" className="btn bg-signal mt-6">Choose a challenge</Link>
       </div>
     );
   }
@@ -30,76 +38,69 @@ export default function Profile() {
   const weakest = DIMS.filter((d) => now[d] !== null).sort((a, b) => (now[a] ?? 0) - (now[b] ?? 0))[0];
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-8" data-testid="profile">
-      <div className="text-xs font-extrabold uppercase tracking-wider text-violet-600">My AI literacy profile</div>
-      <h1 className="text-4xl font-extrabold">How you think about AI</h1>
-      <p className="text-indigo-900/70 mt-1">
-        Based on {attempts} run{attempts === 1 ? '' : 's'} across {profiles.length} challenge{profiles.length === 1 ? '' : 's'}. The dashed shape is what you
-        <b> anticipated</b> on your first try. The solid shape is where you got to after fixing.
+    <div className="max-w-[1200px] mx-auto px-4 py-10" data-testid="profile">
+      <h1 className="text-5xl font-extrabold">My results</h1>
+      <p className="text-ink-2 mt-2 text-lg max-w-3xl">
+        From {attempts} run{attempts === 1 ? '' : 's'} across {profiles.length} challenge{profiles.length === 1 ? '' : 's'}. The dashed line is your first run,
+        before you had seen any tests. The yellow shape is your latest run.
       </p>
 
-      <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6 mt-6">
-        <div className="bg-white rounded-3xl border-2 border-indigo-100 p-4">
+      <div className="grid lg:grid-cols-[1fr_1.15fr] gap-6 mt-8">
+        <div className="rounded-md border-1.5 border-ink bg-paper-card p-4">
           <CompetencyRadar first={first} now={now} height={360} />
         </div>
-        <div className="grid sm:grid-cols-2 gap-3 content-start">
+        <div className="rounded-md border-1.5 border-ink bg-paper-card divide-y-1.5 divide-line">
           {DIMS.map((d) => {
             const m = COMPETENCY_META[d];
+            const Icon = DIM_ICON[d];
             const v = now[d];
             return (
-              <div key={d} className="bg-white rounded-2xl border-2 border-indigo-100 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-display font-extrabold text-lg">{m.icon} {m.label}</span>
-                  <span className="font-display font-extrabold text-2xl" style={{ color: m.color }}>{v ?? '–'}{v !== null && '%'}</span>
+              <div key={d} className="p-4">
+                <div className="flex items-center gap-3">
+                  <Icon size={20} aria-hidden style={{ color: m.color }} />
+                  <span className="font-display font-bold text-lg flex-1">{m.label}</span>
+                  <span className="font-mono font-bold text-xl">{v ?? '–'}</span>
                 </div>
-                <div className="h-2 rounded-full bg-indigo-50 mt-1 overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${v ?? 0}%`, background: m.color }} />
+                <div className="h-2 rounded-sm bg-paper-deep mt-2 overflow-hidden" aria-hidden>
+                  <div className="h-full" style={{ width: `${v ?? 0}%`, background: m.color }} />
                 </div>
-                <p className="text-[13px] text-indigo-900/75 mt-2">{feedbackFor(d, v, first[d])}</p>
+                <p className="text-ink-2 mt-2 leading-snug">{feedbackFor(d, v, first[d])}</p>
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4 mt-6">
-        <div className="bg-indigo-950 text-white rounded-3xl p-5">
-          <div className="text-xs uppercase tracking-wider font-extrabold text-indigo-200">Explaining failures</div>
-          <div className="font-display text-4xl font-extrabold mt-1">{reflAcc ?? '–'}{reflAcc !== null && '%'}</div>
-          <p className="text-sm text-indigo-100/80">of the time you correctly explained why your helper failed. That shows understanding, not trial and error.</p>
+      <div className="grid md:grid-cols-3 gap-6 mt-6">
+        <div className="rounded-md border-1.5 border-ink bg-ink text-paper p-5">
+          <div className="label text-paper/70">Explaining failures</div>
+          <div className="font-mono text-4xl font-bold mt-2">{reflAcc ?? '–'}{reflAcc !== null && '%'}</div>
+          <p className="text-paper/85 mt-1">of your explanations for why a test failed were right.</p>
         </div>
-        <div className="bg-white rounded-3xl border-2 border-indigo-100 p-5">
-          <div className="text-xs uppercase tracking-wider font-extrabold text-indigo-900/50">Watch out for</div>
+        <div className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+          <div className="label text-ink-2">Mistakes to watch for</div>
           {misconceptions.length ? (
-            <ul className="mt-2 space-y-1.5 text-sm">
-              {misconceptions.map((m) => <li key={m} className="flex gap-2"><span>⚠️</span>{m}</li>)}
-            </ul>
+            <ul className="mt-2 space-y-1.5 list-disc pl-5">{misconceptions.map((m) => <li key={m}>{m}</li>)}</ul>
           ) : (
-            <p className="mt-2 text-sm text-indigo-900/70">No repeated mistakes spotted. Nice!</p>
+            <p className="mt-2 text-ink-2">Nothing that came up more than once.</p>
           )}
         </div>
-        <div className="bg-gradient-to-br from-violet-600 to-pink-500 text-white rounded-3xl p-5">
-          <div className="text-xs uppercase tracking-wider font-extrabold text-white/80">Next time, try…</div>
-          <p className="mt-2 font-semibold">
-            {weakest
-              ? `Your weakest area is ${COMPETENCY_META[weakest].label}. Before you press Run, ask yourself: "${{
-                  verification: 'What if the AI just makes something up?',
-                  privacy: "Is anyone's personal info about to leave this device?",
-                  integrity: 'Is the AI doing the thinking that they should be doing?',
-                  bias: 'Who would disagree with this answer?',
-                  usefulness: 'Am I blocking questions that are actually fine?',
-                }[weakest]}"`
-              : 'Try a new challenge.'}
-          </p>
-          <Link to="/" className="inline-block mt-3 text-sm font-extrabold underline">Try another challenge →</Link>
+        <div className="rounded-md border-1.5 border-ink bg-signal p-5">
+          <div className="label">Before your next run</div>
+          {weakest && (
+            <p className="mt-2 text-lg font-bold leading-snug">
+              Your lowest score is {COMPETENCY_META[weakest].label.toLowerCase()}. Ask yourself: "{NEXT_QUESTION[weakest]}"
+            </p>
+          )}
+          <Link to="/" className="inline-block mt-3 font-bold underline underline-offset-2">Try another challenge</Link>
         </div>
       </div>
 
-      <h2 className="text-2xl font-extrabold mt-10 mb-3">Your journey</h2>
-      <div className="grid md:grid-cols-2 gap-4">
+      <h2 className="text-3xl font-extrabold mt-12 mb-4">Run by run</h2>
+      <div className="grid md:grid-cols-2 gap-6">
         {profiles.map(({ c, p }) => (
-          <div key={c.id} className="bg-white rounded-3xl border-2 border-indigo-100 p-5">
-            <div className="font-display font-extrabold text-lg">{c.emoji} {c.title}</div>
+          <div key={c.id} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+            <h3 className="text-xl font-extrabold">{c.title}</h3>
             <Timeline profile={p} />
           </div>
         ))}

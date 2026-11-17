@@ -5,21 +5,31 @@ import Profile from './pages/Profile';
 import Teacher from './pages/Teacher';
 
 const link = ({ isActive }: { isActive: boolean }) =>
-  `px-3 py-1.5 rounded-full text-sm font-bold transition ${isActive ? 'bg-white text-indigo-950' : 'text-indigo-100 hover:bg-white/10'}`;
+  `px-3 py-2 text-[15px] font-bold border-b-[3px] transition-colors ${isActive ? 'border-ink text-ink' : 'border-transparent text-ink-2 hover:text-ink'}`;
+
+function Logo() {
+  // a single Scratch-style block as the mark
+  return (
+    <svg width="34" height="26" viewBox="0 0 34 26" aria-hidden>
+      <path d="M0 4 Q0 0 4 0 H8 L11 3 H19 L22 0 H30 Q34 0 34 4 V18 Q34 22 30 22 H22 L19 25 H11 L8 22 H4 Q0 22 0 18 Z" fill="#FFC629" stroke="#16161A" strokeWidth="1.5" />
+      <path d="M9 11.5 l3.5 3.5 l7 -7" fill="none" stroke="#16161A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-indigo-950 text-white">
-        <div className="max-w-[1400px] mx-auto px-4 h-14 flex items-center gap-4">
-          <NavLink to="/" className="flex items-center gap-2 mr-auto">
-            <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-amber-300 to-pink-400 text-lg">🧩</span>
-            <span className="font-display text-xl font-extrabold tracking-tight">Safeguard Studio</span>
+      <header className="border-b-1.5 border-ink bg-paper">
+        <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center gap-4">
+          <NavLink to="/" className="flex items-center gap-2.5 mr-auto">
+            <Logo />
+            <span className="font-display text-xl font-extrabold">Safeguard Studio</span>
           </NavLink>
-          <nav className="flex gap-1">
-            <NavLink to="/" end className={link}>Challenges</NavLink>
-            <NavLink to="/profile" className={link}>My profile</NavLink>
-            <NavLink to="/teacher" className={link}>Teacher view</NavLink>
+          <nav className="flex gap-2 self-stretch items-stretch" aria-label="Main">
+            <NavLink to="/" end className={link}><span className="flex items-center h-full">Challenges</span></NavLink>
+            <NavLink to="/profile" className={link}><span className="flex items-center h-full">My results</span></NavLink>
+            <NavLink to="/teacher" className={link}><span className="flex items-center h-full">Teacher view</span></NavLink>
           </nav>
         </div>
       </header>

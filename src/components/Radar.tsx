@@ -6,8 +6,8 @@ export default function CompetencyRadar({
   first,
   now,
   height = 320,
-  firstLabel = 'First try (anticipated)',
-  nowLabel = 'After fixing',
+  firstLabel = 'First run',
+  nowLabel = 'Latest run',
 }: {
   first: Record<Dim, number | null> | null;
   now: Record<Dim, number | null>;
@@ -15,21 +15,17 @@ export default function CompetencyRadar({
   firstLabel?: string;
   nowLabel?: string;
 }) {
-  const data = DIMS.map((d) => ({
-    dim: `${COMPETENCY_META[d].icon} ${COMPETENCY_META[d].label}`,
-    first: first?.[d] ?? 0,
-    now: now[d] ?? 0,
-  }));
+  const data = DIMS.map((d) => ({ dim: COMPETENCY_META[d].short, first: first?.[d] ?? 0, now: now[d] ?? 0 }));
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RadarChart data={data} outerRadius="72%">
-        <PolarGrid stroke="#DCD7F5" />
-        <PolarAngleAxis dataKey="dim" tick={{ fill: '#312E81', fontSize: 12, fontWeight: 700 }} />
+      <RadarChart data={data} outerRadius="70%">
+        <PolarGrid stroke="#D6CFBF" />
+        <PolarAngleAxis dataKey="dim" tick={{ fill: '#16161A', fontSize: 13, fontWeight: 700, fontFamily: 'Atkinson Hyperlegible' }} />
         <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-        {first && <Radar name={firstLabel} dataKey="first" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.15} strokeDasharray="4 3" strokeWidth={2} />}
-        <Radar name={nowLabel} dataKey="now" stroke="#7C3AED" fill="#7C3AED" fillOpacity={0.35} strokeWidth={2.5} />
-        <Tooltip formatter={(v: number) => `${v}%`} />
-        <Legend wrapperStyle={{ fontSize: 12, fontWeight: 700 }} />
+        {first && <Radar name={firstLabel} dataKey="first" stroke="#5E5E66" fill="#5E5E66" fillOpacity={0.08} strokeDasharray="5 4" strokeWidth={2} />}
+        <Radar name={nowLabel} dataKey="now" stroke="#16161A" fill="#FFC629" fillOpacity={0.55} strokeWidth={2} />
+        <Tooltip formatter={(v: number) => `${v}`} contentStyle={{ border: '1.5px solid #16161A', borderRadius: 6, fontFamily: 'Atkinson Hyperlegible' }} />
+        <Legend wrapperStyle={{ fontSize: 13, fontWeight: 700 }} />
       </RadarChart>
     </ResponsiveContainer>
   );

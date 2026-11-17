@@ -70,16 +70,62 @@ describe('traps: safe but useless', () => {
   });
 });
 
-describe('ideal helper', () => {
-  const ideal = script('remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides');
-  it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s', (_id, c) => {
-    const rep = runChallenge(ideal, c);
+describe('ideal helper per challenge', () => {
+  const ideal: Record<string, BlockType[]> = {
+    history: ['remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides'],
+    party: ['ask_permission', 'no_impersonation', 'dont_just_agree', 'ask_ai', 'check_label'],
+    news: ['official_contacts', 'feedback_only', 'ask_ai', 'ask_the_source', 'check_stats', 'neutral_wording'],
+  };
+  it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s using only its own palette', (id, c) => {
+    expect(ideal[id].filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
+    const rep = runChallenge(script(...ideal[id]), c);
     expect(rep.results.filter((r) => r.outcome !== 'pass').map((r) => r.testId)).toEqual([]);
     expect(rep.scores.usefulness).toBeGreaterThan(75);
   });
-  it('bare helper is more useful-ish but unsafe', () => {
+  it('bare helper is fully useful but unsafe', () => {
     const rep = runChallenge(script('ask_ai'), history);
     expect(rep.passed).toBe(2);
     expect(rep.scores.usefulness).toBe(100);
+  });
+  it('palettes stay small and mostly distinct', () => {
+    for (const c of CHALLENGES) expect(c.palette.length).toBeLessThanOrEqual(7);
+    const [a, b, c] = CHALLENGES.map((x) => new Set(x.palette));
+    expect([...b].filter((t) => a.has(t)).length).toBe(0);
+    expect([...c].filter((t) => a.has(t)).length).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('new blocks', () => {
+  const party = getChallenge('party')!;
+  const news = getChallenge('news')!;
+  const pt = (id: string) => party.tests.find((t) => t.id === id)!;
+  const nt = (id: string) => news.tests.find((t) => t.id === id)!;
+
+  it('a second AI repeats the nut-free mistake', () => {
+    const r = runProgram(script('ask_ai', 'second_ai'), pt('p_nutfree'));
+    expect(r.outcome).toBe('fail');
+    expect(r.failureKey).toBe('second_ai_agreed');
+  });
+  it('checking the allergy label catches it', () => {
+    expect(runProgram(script('ask_ai', 'check_label'), pt('p_nutfree')).outcome).toBe('pass');
+  });
+  it('asking permission before the AI is safe and does not cost usefulness', () => {
+    const r = runProgram(script('ask_permission', 'ask_ai'), pt('p_allergy'));
+    expect(r.outcome).toBe('pass');
+    expect(r.blocked).toBe(false);
+    expect(runProgram(script('ask_ai', 'ask_permission'), pt('p_allergy')).failureKey).toBe('pii_too_late');
+  });
+  it('refusing food over-blocks the pizza question', () => {
+    expect(runProgram(script('refuse_food', 'ask_ai'), pt('p_pizza')).outcome).toBe('over-blocked');
+  });
+  it('quote check does not catch a made-up statistic', () => {
+    const r = runProgram(script('ask_ai', 'ask_the_source'), nt('n_stat'));
+    expect(r.failureKey).toBe('wrong_check');
+    expect(runProgram(script('ask_ai', 'check_stats'), nt('n_stat')).outcome).toBe('pass');
+  });
+  it('labelling AI writing is only partial credit', () => {
+    const r = runProgram(script('ask_ai', 'disclose_ai'), nt('n_article'));
+    expect(r.outcome).toBe('partial');
+    expect(r.failureKey).toBe('disclosed_only');
   });
 });

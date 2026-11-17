@@ -10,7 +10,40 @@ export type BlockType =
   | 'flag_teacher'
   | 'warn_note'
   | 'ask_grownup'
-  | 'block_people';
+  | 'block_people'
+  // party planner
+  | 'ask_permission'
+  | 'refuse_food'
+  | 'check_label'
+  | 'second_ai'
+  | 'no_impersonation'
+  | 'dont_just_agree'
+  // newspaper
+  | 'official_contacts'
+  | 'ask_the_source'
+  | 'check_stats'
+  | 'feedback_only'
+  | 'disclose_ai'
+  | 'neutral_wording';
+
+/** What a block does to a message. Several blocks share an effect. */
+export type Effect =
+  | 'ai'
+  | 'strip_pii'
+  | 'consent'
+  | 'verify'
+  | 'second_opinion'
+  | 'coach'
+  | 'disclose'
+  | 'balance'
+  | 'warn'
+  | 'flag'
+  | 'block_all'
+  | 'block_people'
+  | 'block_food';
+
+/** The kind of made-up content in a hallucination test. */
+export type HallucKind = 'fact' | 'label' | 'quote' | 'stat';
 
 export interface ScriptBlock {
   uid: string;
@@ -20,7 +53,6 @@ export interface ScriptBlock {
 export interface BlockDef {
   type: BlockType;
   label: string;
-  icon: string;
   color: string;
   textColor?: string;
   category: string;
@@ -28,6 +60,13 @@ export interface BlockDef {
   cost: number;
   hint: string;
   removable: boolean;
+  effect: Effect;
+  /** for verify blocks: which kinds of made-up content this check can catch */
+  catches?: HallucKind[];
+  /** where it needs to go to work, shown in the README and teacher notes */
+  position: 'before' | 'after' | 'either' | 'anywhere';
+  /** message when the block fixes something */
+  acted?: string;
 }
 
 export interface HiddenTest {
@@ -57,6 +96,11 @@ export interface HiddenTest {
     essayRequest?: boolean;
     oneSided?: boolean;
     mentionsPerson?: boolean;
+    mentionsFood?: boolean;
+    /** what kind of thing was made up (default 'fact') */
+    hallucinationKind?: HallucKind;
+    /** would a second AI spot the mistake? Usually not: they share blind spots */
+    secondAICatches?: boolean;
   };
 }
 
@@ -67,6 +111,8 @@ export interface Challenge {
   story: string;
   audience: string;
   accent: string;
+  /** the safeguard blocks offered in this challenge */
+  palette: BlockType[];
   tests: HiddenTest[];
 }
 
@@ -91,7 +137,10 @@ export type FailureKey =
   | 'coach_too_late'
   | 'one_sided'
   | 'no_answer'
-  | 'over_blocked';
+  | 'over_blocked'
+  | 'wrong_check'
+  | 'second_ai_agreed'
+  | 'disclosed_only';
 
 export interface TestResult {
   testId: string;

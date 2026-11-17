@@ -1,9 +1,17 @@
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Block from '../components/Block';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
 import { newUid, useSession } from '../store/session';
+
+const STEPS = [
+  ['The tests are hidden.', 'Students have to think about what could go wrong before they see it happen.'],
+  ['Where a block goes matters.', 'Removing an address after it has been sent to the AI is too late, and the replay shows why.'],
+  ['Blocking everything costs marks.', 'A helper that refuses normal questions scores low on usefulness, so "always ask an adult" is not a winning strategy.'],
+  ['Every failure has to be explained.', 'Students say why their helper failed before they can run it again. Teachers see the reasoning as well as the score.'],
+];
 
 export default function Home() {
   const nav = useNavigate();
@@ -16,94 +24,107 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-10">
-      <section className="grid md:grid-cols-[1.2fr_1fr] gap-10 items-center">
+    <div className="max-w-[1200px] mx-auto px-4 py-12">
+      <section className="grid md:grid-cols-[1.15fr_1fr] gap-12 items-center">
         <div>
-          <p className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider mb-4">
-            AI literacy, shown by doing
-          </p>
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-[1.02] text-indigo-950">
-            Build an AI helper.<br />
-            <span className="bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">See if it survives.</span>
+          <p className="label text-ink-2 mb-4">AI literacy assessment · Ages 11 to 14</p>
+          <h1 className="text-5xl md:text-[64px] font-extrabold leading-[0.98]">
+            Can your AI helper handle a <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">bad answer</span>?
           </h1>
-          <p className="mt-5 text-lg text-indigo-900/80 max-w-xl">
-            Snap together safeguard blocks, then run your helper against <b>hidden tests</b>: made-up facts, leaked addresses,
-            “write my essay” requests and loaded questions. Watch what breaks, fix it, and see your AI literacy profile grow.
+          <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
+            Pick a job, like helping a Year 7 with history homework, and build a helper out of blocks. It then faces six hidden
+            tests, including a made-up date, a friend's home address and a request to write a whole essay. You see exactly what
+            it told them, fix it, and run it again.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <button onClick={quickDemo} className="px-6 py-3 rounded-2xl bg-violet-600 text-white font-extrabold shadow-lg shadow-violet-300 hover:bg-violet-700 transition" data-testid="quick-demo">
-              ⚡ Quick demo
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button onClick={quickDemo} className="btn bg-signal text-ink" data-testid="quick-demo">
+              Try the history demo <ArrowRight size={18} aria-hidden />
             </button>
-            <a href="#challenges" className="px-6 py-3 rounded-2xl bg-white border-2 border-indigo-100 font-extrabold hover:border-violet-300 transition">
-              Pick a challenge ↓
-            </a>
+            <a href="#challenges" className="btn bg-paper-card">See all challenges</a>
           </div>
         </div>
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="workspace rounded-3xl border-2 border-indigo-100 p-8 flex justify-center">
-          <div>
-            {[
-              <Block key="t" shape="hat" label="When someone asks…" icon="💬" color={TRIGGER_COLOR} textColor="#3b2a00" width={280} />,
-              <Block key="p" label={BLOCKS.remove_pii.label} icon={BLOCKS.remove_pii.icon} color={BLOCKS.remove_pii.color} width={280} />,
-              <Block key="a" label="Ask AI" icon="✨" color={BLOCKS.ask_ai.color} width={280} />,
-              <Block key="c" label={BLOCKS.check_source.label} icon={BLOCKS.check_source.icon} color={BLOCKS.check_source.color} width={280} highlight="acted" />,
-              <Block key="r" shape="cap" label="Reply" icon="📤" color={REPLY_COLOR} width={280} />,
-            ].map((b, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.12, type: 'spring' }}>
-                {b}
-              </motion.div>
-            ))}
+
+        <div className="relative">
+          <div className="graph border-1.5 border-ink rounded-md p-8 pb-10 flex justify-center">
+            <div>
+              {[
+                <Block key="t" kind="trigger" shape="hat" label="When someone asks…" color={TRIGGER_COLOR} textColor="#16161A" width={270} />,
+                <Block key="a" kind="ask_ai" label="Ask AI" color={BLOCKS.ask_ai.color} width={270} />,
+                <Block key="r" kind="reply" shape="cap" label="Reply to them" color={REPLY_COLOR} width={270} highlight="stop" />,
+              ].map((b, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.1 }}>
+                  {b}
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, rotate: 0, y: 10 }}
+            animate={{ opacity: 1, rotate: 2, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="absolute -bottom-10 right-4 w-[290px] bg-paper-card border-1.5 border-ink rounded shadow-hard p-4"
+          >
+            <div className="flex items-center justify-between">
+              <span className="label text-ink-3">Test 1 of 6</span>
+              <span className="stamp text-fail text-xs">Fail</span>
+            </div>
+            <p className="mt-2 text-sm text-ink-2">"When was the Battle of Hastings?"</p>
+            <p className="mt-1 text-[15px] font-bold">"It took place in 1067, when William of Normandy defeated King Harold II."</p>
+          </motion.div>
+        </div>
       </section>
 
-      <section id="challenges" className="mt-16">
-        <h2 className="text-3xl font-extrabold mb-1">Choose a challenge</h2>
-        <p className="text-indigo-900/70 mb-6">Each one hides 6 tests. You won’t see them until you run your helper, so think ahead.</p>
-        <div className="grid md:grid-cols-3 gap-5">
-          {CHALLENGES.map((c) => {
+      <section id="challenges" className="mt-28">
+        <div className="flex items-end justify-between flex-wrap gap-2 border-b-1.5 border-ink pb-3 mb-6">
+          <h2 className="text-3xl font-extrabold">Challenges</h2>
+          <p className="text-ink-2">Each one has six hidden tests. You only see them after your first run.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {CHALLENGES.map((c, i) => {
             const p = progress[c.id];
-            const last = p?.attempts.at(-1);
+            const best = p?.attempts.length ? Math.max(...p.attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length)) : null;
             return (
-              <motion.button
-                whileHover={{ y: -4 }}
+              <button
                 key={c.id}
                 onClick={() => nav(`/build/${c.id}`)}
-                className="flex flex-col text-left bg-white rounded-3xl p-6 border-2 border-indigo-100 hover:border-violet-300 shadow-sm transition"
+                className="group flex flex-col text-left bg-paper-card border-1.5 border-ink rounded-md p-5 shadow-hard hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg transition"
                 data-testid={`challenge-${c.id}`}
               >
-                <div className="w-14 h-14 rounded-2xl grid place-items-center text-3xl mb-4" style={{ background: c.accent + '33' }}>{c.emoji}</div>
-                <h3 className="text-2xl font-extrabold leading-tight">{c.title}</h3>
-                <p className="text-xs font-extrabold uppercase tracking-wider text-violet-600 mt-1">{c.audience}</p>
-                <p className="mt-3 text-indigo-900/75 text-[15px]">{c.story}</p>
+                <div className="flex items-center justify-between w-full">
+                  <span className="label text-ink-3">Challenge {String(i + 1).padStart(2, '0')}</span>
+                  <span className="w-3 h-3 rounded-full border-1.5 border-ink" style={{ background: c.accent }} aria-hidden />
+                </div>
+                <h3 className="text-2xl font-extrabold leading-tight mt-3">{c.title}</h3>
+                <p className="text-sm font-bold text-ink-2 mt-1">{c.audience}</p>
+                <p className="mt-3 text-ink-2 leading-relaxed">{c.story}</p>
                 <div className="mt-auto pt-5 w-full flex items-center justify-between text-sm font-bold">
-                  <span className="text-indigo-900/60">🔒 {c.tests.length} hidden tests</span>
-                  {last ? (
-                    <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
-                      Best so far: {Math.max(...p.attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length))}/{c.tests.length}
-                    </span>
+                  <span className="text-ink-3">6 hidden tests</span>
+                  {best !== null ? (
+                    <span className="text-pass">Best: {best} of {c.tests.length} passed</span>
                   ) : (
-                    <span className="text-violet-600">Start →</span>
+                    <span className="flex items-center gap-1 group-hover:gap-2 transition-all">Start <ArrowRight size={16} aria-hidden /></span>
                   )}
                 </div>
-              </motion.button>
+              </button>
             );
           })}
         </div>
       </section>
 
-      <section className="mt-16 grid md:grid-cols-4 gap-4">
-        {[
-          ['🙈', 'Hidden tests', 'Students have to anticipate what could go wrong, not just react to it.'],
-          ['🧠', 'Every block is a decision', 'When to trust AI, when to check it, and when to protect someone.'],
-          ['⚖️', 'Safe AND useful', 'Over-building is penalised. "Ask a grown-up every time" doesn’t win.'],
-          ['✍️', 'Explain before you fix', 'After each failure, students say why it failed. No blind trial and error.'],
-        ].map(([i, t, d]) => (
-          <div key={t} className="bg-white/70 rounded-2xl p-5 border border-indigo-100">
-            <div className="text-2xl">{i}</div>
-            <h4 className="font-display font-extrabold text-lg mt-1">{t}</h4>
-            <p className="text-sm text-indigo-900/70">{d}</p>
-          </div>
-        ))}
+      <section className="mt-24 grid md:grid-cols-[280px_1fr] gap-8">
+        <div>
+          <h2 className="text-3xl font-extrabold leading-tight">How it assesses AI literacy</h2>
+          <p className="text-ink-2 mt-2">The score comes from what students build and fix, rather than what they say they would do.</p>
+        </div>
+        <ol className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
+          {STEPS.map(([t, d], i) => (
+            <li key={t} className="border-t-1.5 border-ink pt-3">
+              <span className="label text-ink-3">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="text-lg font-extrabold mt-1">{t}</h3>
+              <p className="text-ink-2 mt-1 leading-relaxed">{d}</p>
+            </li>
+          ))}
+        </ol>
       </section>
     </div>
   );

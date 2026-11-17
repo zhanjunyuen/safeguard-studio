@@ -4,42 +4,63 @@ import type { BlockType, FailureKey } from '../types';
 import { getChallenge } from './challenges';
 
 /**
- * A fake class for the teacher view. Each student is a sequence of scripts
- * (their attempts) plus whether each reflection was right. We run the real
- * engine over them, so the dashboard numbers are genuine, not hand-typed.
+ * A fake class for the teacher view. Each student is a sequence of attempts
+ * written as roles ("privacy block", "fact check", ...). Each challenge maps
+ * those roles onto its own blocks, then the real engine scores them, so the
+ * dashboard numbers are computed rather than typed in.
  */
+type Role = 'ai' | 'privacy' | 'verify' | 'integrity' | 'bias' | 'weak' | 'flag' | 'trap1' | 'trap2';
+
+const ROLE_BLOCKS: Record<string, Record<Role, BlockType[]>> = {
+  history: {
+    ai: ['ask_ai'], privacy: ['remove_pii'], verify: ['check_source'], integrity: ['coach'], bias: ['both_sides'],
+    weak: ['warn_note'], flag: [], trap1: ['ask_grownup'], trap2: ['block_people'],
+  },
+  party: {
+    ai: ['ask_ai'], privacy: ['ask_permission'], verify: ['check_label'], integrity: ['no_impersonation'], bias: ['dont_just_agree'],
+    weak: ['second_ai'], flag: ['flag_teacher'], trap1: ['refuse_food'], trap2: [],
+  },
+  news: {
+    ai: ['ask_ai'], privacy: ['official_contacts'], verify: ['ask_the_source', 'check_stats'], integrity: ['feedback_only'], bias: ['neutral_wording'],
+    weak: ['disclose_ai'], flag: [], trap1: ['block_people'], trap2: [],
+  },
+};
+
 interface SeedStudent {
   name: string;
-  attempts: BlockType[][];
+  attempts: Role[][];
   reflections: boolean[];
 }
 
-const S = (...t: BlockType[]) => t;
+const R = (...r: Role[]) => r;
 
 export const SEED_STUDENTS: SeedStudent[] = [
-  { name: 'Amara O.', attempts: [S('remove_pii', 'ask_ai', 'check_source'), S('remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides')], reflections: [true] },
-  { name: 'Ben T.', attempts: [S('ask_ai'), S('ask_ai', 'warn_note'), S('ask_ai', 'check_source', 'warn_note'), S('remove_pii', 'ask_ai', 'check_source')], reflections: [false, true, true] },
-  { name: 'Chloe W.', attempts: [S('ask_grownup', 'ask_ai'), S('block_people', 'ask_ai', 'check_source'), S('remove_pii', 'ask_ai', 'check_source', 'both_sides')], reflections: [true, true] },
-  { name: 'Dev P.', attempts: [S('ask_ai', 'remove_pii', 'check_source'), S('ask_ai', 'remove_pii', 'check_source', 'coach'), S('remove_pii', 'coach', 'ask_ai', 'check_source')], reflections: [false, true] },
-  { name: 'Ella M.', attempts: [S('remove_pii', 'coach', 'both_sides', 'ask_ai', 'check_source')], reflections: [] },
-  { name: 'Finn R.', attempts: [S('ask_ai', 'flag_teacher'), S('ask_ai', 'flag_teacher', 'warn_note')], reflections: [false] },
-  { name: 'Grace L.', attempts: [S('check_source', 'ask_ai'), S('ask_ai', 'check_source'), S('remove_pii', 'ask_ai', 'check_source', 'both_sides')], reflections: [true, true] },
-  { name: 'Hamza A.', attempts: [S('ask_ai'), S('remove_pii', 'ask_ai'), S('remove_pii', 'ask_ai', 'check_source'), S('remove_pii', 'coach', 'ask_ai', 'check_source'), S('remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides')], reflections: [true, true, true, true] },
-  { name: 'Isla K.', attempts: [S('block_people', 'ask_grownup', 'ask_ai'), S('block_people', 'ask_grownup', 'ask_ai', 'check_source')], reflections: [false] },
-  { name: 'Jacob S.', attempts: [S('ask_ai', 'check_source', 'both_sides'), S('coach', 'ask_ai', 'check_source', 'both_sides', 'remove_pii')], reflections: [true] },
-  { name: 'Keira N.', attempts: [S('remove_pii', 'ask_ai', 'warn_note'), S('remove_pii', 'ask_ai', 'check_source', 'warn_note')], reflections: [true] },
-  { name: 'Leo D.', attempts: [S('ask_ai'), S('ask_ai', 'coach'), S('coach', 'ask_ai'), S('coach', 'ask_ai', 'check_source')], reflections: [false, false, true] },
+  { name: 'Amara O.', attempts: [R('privacy', 'ai', 'verify'), R('privacy', 'integrity', 'ai', 'verify', 'bias')], reflections: [true] },
+  { name: 'Ben T.', attempts: [R('ai'), R('ai', 'weak'), R('ai', 'verify', 'weak'), R('privacy', 'ai', 'verify')], reflections: [false, true, true] },
+  { name: 'Chloe W.', attempts: [R('trap1', 'ai'), R('trap2', 'ai', 'verify'), R('privacy', 'ai', 'verify', 'bias')], reflections: [true, true] },
+  { name: 'Dev P.', attempts: [R('ai', 'privacy', 'verify'), R('ai', 'privacy', 'verify', 'integrity'), R('privacy', 'integrity', 'ai', 'verify')], reflections: [false, true] },
+  { name: 'Ella M.', attempts: [R('privacy', 'integrity', 'bias', 'ai', 'verify')], reflections: [] },
+  { name: 'Finn R.', attempts: [R('ai', 'flag'), R('ai', 'flag', 'weak')], reflections: [false] },
+  { name: 'Grace L.', attempts: [R('verify', 'ai'), R('ai', 'verify'), R('privacy', 'ai', 'verify', 'bias')], reflections: [true, true] },
+  { name: 'Hamza A.', attempts: [R('ai'), R('privacy', 'ai'), R('privacy', 'ai', 'verify'), R('privacy', 'integrity', 'ai', 'verify'), R('privacy', 'integrity', 'ai', 'verify', 'bias')], reflections: [true, true, true, true] },
+  { name: 'Isla K.', attempts: [R('trap2', 'trap1', 'ai'), R('trap2', 'trap1', 'ai', 'verify')], reflections: [false] },
+  { name: 'Jacob S.', attempts: [R('ai', 'verify', 'bias'), R('integrity', 'ai', 'verify', 'bias', 'privacy')], reflections: [true] },
+  { name: 'Keira N.', attempts: [R('privacy', 'ai', 'weak'), R('privacy', 'ai', 'verify', 'weak')], reflections: [true] },
+  { name: 'Leo D.', attempts: [R('ai'), R('ai', 'integrity'), R('integrity', 'ai'), R('integrity', 'ai', 'verify')], reflections: [false, false, true] },
 ];
 
 const DAY = 86_400_000;
 
 export function simulateStudent(st: SeedStudent, challengeId: string, idx: number): ChallengeProgress {
   const ch = getChallenge(challengeId)!;
+  const map = ROLE_BLOCKS[challengeId];
   const t0 = Date.now() - DAY * 2 - idx * 3_600_000;
   const attempts: Attempt[] = [];
   const reflections: Reflection[] = [];
   const alt: FailureKey[] = ['one_sided', 'pii_sent', 'essay_written', 'hallucination_unchecked'];
-  st.attempts.forEach((types, i) => {
+  st.attempts.forEach((roles, i) => {
+    const types = [...new Set(roles.flatMap((r) => map[r]))];
+    if (!types.includes('ask_ai')) types.push('ask_ai');
     const script = types.map((type, j) => ({ uid: `${type}-${j}`, type }));
     const rep = runChallenge(script, ch);
     attempts.push({
