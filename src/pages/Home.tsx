@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Block from '../components/Block';
@@ -10,6 +10,7 @@ const STEPS = [
   ['The tests are hidden.', 'Students have to think about what could go wrong before they see it happen.'],
   ['Where a block goes matters.', 'Removing an address after it has been sent to the AI is too late, and the replay shows why.'],
   ['Blocking everything costs marks.', 'A helper that refuses normal questions scores low on usefulness, so "always ask an adult" is not a winning strategy.'],
+  ['Students also break other helpers.', 'In Break mode they read a locked helper and plan a few attacks to find its weak spots. Wasted attacks count, so guessing scores badly.'],
   ['Every failure has to be explained.', 'Students say why their helper failed before they can run it again. Teachers see the reasoning as well as the score.'],
 ];
 
@@ -84,11 +85,9 @@ export default function Home() {
             const p = progress[c.id];
             const best = p?.attempts.length ? Math.max(...p.attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length)) : null;
             return (
-              <button
+              <div
                 key={c.id}
-                onClick={() => nav(`/build/${c.id}`)}
-                className="group flex flex-col text-left bg-paper-card border-1.5 border-ink rounded-md p-5 shadow-hard hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg transition"
-                data-testid={`challenge-${c.id}`}
+                className="flex flex-col bg-paper-card border-1.5 border-ink rounded-md p-5 shadow-hard"
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="label text-ink-3">Challenge {String(i + 1).padStart(2, '0')}</span>
@@ -97,15 +96,18 @@ export default function Home() {
                 <h3 className="text-2xl font-extrabold leading-tight mt-3">{c.title}</h3>
                 <p className="text-sm font-bold text-ink-2 mt-1">{c.audience}</p>
                 <p className="mt-3 text-ink-2 leading-relaxed">{c.story}</p>
-                <div className="mt-auto pt-5 w-full flex items-center justify-between text-sm font-bold">
-                  <span className="text-ink-3">6 hidden tests</span>
-                  {best !== null ? (
-                    <span className="text-pass">Best: {best} of {c.tests.length} passed</span>
-                  ) : (
-                    <span className="flex items-center gap-1 group-hover:gap-2 transition-all">Start <ArrowRight size={16} aria-hidden /></span>
-                  )}
+                <div className="mt-auto pt-5 text-sm font-bold text-ink-3">
+                  {best !== null ? <span className="text-pass">Best build: {best} of {c.tests.length} passed</span> : '6 hidden tests'}
                 </div>
-              </button>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button onClick={() => nav(`/build/${c.id}`)} className="btn bg-signal text-sm justify-center" data-testid={`challenge-${c.id}`}>
+                    Build a helper
+                  </button>
+                  <button onClick={() => nav(`/break/${c.id}`)} className="btn bg-paper-card text-sm justify-center" data-testid={`break-${c.id}`}>
+                    <Zap size={15} aria-hidden /> Break one
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>

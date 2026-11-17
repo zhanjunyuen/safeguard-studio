@@ -4,7 +4,8 @@ import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
-import { SEED_STUDENTS, simulateStudent } from '../data/seedClass';
+import { SEED_STUDENTS, simulateBreak, simulateStudent } from '../data/seedClass';
+import { breakSummary } from '../engine/breaker';
 import { averageScores, DIMS, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
 import { useSession } from '../store/session';
 
@@ -15,18 +16,28 @@ interface Row {
   name: string;
   live?: boolean;
   profile: ChallengeProfile;
+  spot: ReturnType<typeof breakSummary>;
 }
 
 export default function Teacher() {
   const [cid, setCid] = useState(CHALLENGES[0].id);
   const live = useSession((s) => s.progress[cid]);
+  const liveBreak = useSession((s) => s.breakProgress[cid]);
   const [sel, setSel] = useState<string | null>(null);
 
   const rows: Row[] = useMemo(() => {
-    const seeded = SEED_STUDENTS.map((s, i) => ({ name: s.name, profile: profileChallenge(cid, simulateStudent(s, cid, i)) }));
-    const me = live?.attempts.length ? [{ name: 'You (live)', live: true, profile: profileChallenge(cid, live) }] : [];
+    const ch = CHALLENGES.find((c) => c.id === cid)!;
+    const seeded = SEED_STUDENTS.map((s, i) => ({
+      name: s.name,
+      profile: profileChallenge(cid, simulateStudent(s, cid, i)),
+      spot: breakSummary(ch, simulateBreak(i, cid)),
+    }));
+    const hasLive = live?.attempts.length || liveBreak?.length;
+    const me = hasLive
+      ? [{ name: 'You (live)', live: true, profile: profileChallenge(cid, live ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }), spot: breakSummary(ch, liveBreak ?? []) }]
+      : [];
     return [...me, ...seeded];
-  }, [cid, live]);
+  }, [cid, live, liveBreak]);
 
   const selected = rows.find((r) => r.name === sel) ?? null;
   const n = rows.length;
@@ -80,6 +91,7 @@ export default function Teacher() {
               <tr className="text-left border-b-1.5 border-ink">
                 <th scope="col" className="px-4 py-3 label">Student</th>
                 {DIMS.map((d) => <th scope="col" key={d} className="px-2 py-3 text-center label">{COMPETENCY_META[d].short}</th>)}
+                <th scope="col" className="px-2 py-3 text-center label" title="Break mode: weak spots found, and share of attacks that hit">Spot</th>
                 <th scope="col" className="px-2 py-3 text-center label">Runs</th>
                 <th scope="col" className="px-2 py-3 text-center label">Explained</th>
                 <th scope="col" className="px-4 py-3 label">Mistakes</th>
@@ -112,6 +124,12 @@ export default function Teacher() {
                       </td>
                     );
                   })}
+                  <td className="px-1 py-1.5 text-center">
+                    <div className={`rounded-sm py-1 font-mono font-bold ${heat(r.spot?.foundPct ?? null)}`}>
+                      {r.spot ? `${r.spot.found}/${r.spot.total}` : '–'}
+                      {r.spot && <div className="text-[10px] font-sans font-bold opacity-80">{r.spot.precision}% hit</div>}
+                    </div>
+                  </td>
                   <td className="px-2 text-center font-mono">{r.profile.attempts}</td>
                   <td className="px-2 text-center font-mono">{r.profile.reflectionAccuracy ?? '–'}{r.profile.reflectionAccuracy !== null && '%'}</td>
                   <td className="px-4 py-2 text-xs text-ink-2 max-w-[260px]">

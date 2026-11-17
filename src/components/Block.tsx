@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { BlockType, StepStatus } from '../types';
 import { BLOCK_ICON } from './icons';
@@ -32,7 +33,10 @@ const GLOW: Record<StepStatus, string> = {
 
 interface Props {
   label: ReactNode;
-  kind: BlockType | 'trigger' | 'reply';
+  kind: BlockType | 'trigger' | 'reply' | 'attack';
+  /** overrides the icon for this kind */
+  icon?: LucideIcon;
+  iconColor?: string;
   color: string;
   textColor?: string;
   width?: number;
@@ -42,9 +46,9 @@ interface Props {
   right?: ReactNode;
 }
 
-export default function Block({ label, kind, color, textColor = '#fff', width = 300, shape = 'stack', highlight, dim, right }: Props) {
+export default function Block({ label, kind, icon, iconColor, color, textColor = '#fff', width = 300, shape = 'stack', highlight, dim, right }: Props) {
   const { d, h, top } = path(width, shape);
-  const Icon = BLOCK_ICON[kind];
+  const Icon = icon ?? BLOCK_ICON[kind as keyof typeof BLOCK_ICON];
   return (
     <div className="relative select-none" style={{ width, height: h, opacity: dim ? 0.35 : 1 }}>
       <svg width={width} height={h + 5} className="absolute inset-0 overflow-visible" aria-hidden>
@@ -52,7 +56,7 @@ export default function Block({ label, kind, color, textColor = '#fff', width = 
         <path d={d} fill={color} stroke="#16161A" strokeOpacity={0.55} strokeWidth={1.5} />
       </svg>
       <div className="absolute inset-x-0 flex items-center gap-2.5 px-3 font-bold text-[15px] leading-tight" style={{ top, height: H, color: textColor }}>
-        <Icon size={18} strokeWidth={2.25} aria-hidden className="shrink-0" />
+        <Icon size={18} strokeWidth={2.25} aria-hidden className="shrink-0" style={iconColor ? { color: iconColor } : undefined} />
         <span className="flex-1 min-w-0">{label}</span>
         {right}
       </div>

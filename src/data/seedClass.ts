@@ -1,5 +1,6 @@
+import { launch, weakSpots } from '../engine/breaker';
 import { runChallenge } from '../engine/run';
-import type { Attempt, ChallengeProgress, Reflection } from '../store/session';
+import type { Attempt, BreakAttempt, ChallengeProgress, Reflection } from '../store/session';
 import type { BlockType, FailureKey } from '../types';
 import { getChallenge } from './challenges';
 
@@ -89,4 +90,29 @@ export function simulateStudent(st: SeedStudent, challengeId: string, idx: numbe
     }
   });
   return { script: [], attempts, reflections, events: [], pendingReflection: null, seen: [] };
+}
+
+/** How many weak spots each seeded student spots on their first Break attempt (same order as SEED_STUDENTS). */
+const BREAK_SKILL = [2, 1, 0, 1, 3, 0, 2, 3, 0, 1, 2, 1];
+
+/** Deterministic Break-mode attempts for a seeded student, scored by the real engine. */
+export function simulateBreak(idx: number, challengeId: string): BreakAttempt[] {
+  const c = getChallenge(challengeId)!;
+  const weak = weakSpots(c);
+  const held = c.tests.map((t) => t.id).filter((id) => !weak.includes(id));
+  const skill = BREAK_SKILL[idx % BREAK_SKILL.length];
+  const out: BreakAttempt[] = [];
+  let found: string[] = [];
+  let guess = 0;
+  for (let n = 0; n < 3 && found.length < weak.length; n++) {
+    const right = weak.filter((w) => !found.includes(w)).slice(0, Math.max(1, n === 0 ? skill : 1));
+    const plan = [...right];
+    while (plan.length < 3 && held.length) plan.push(held[(idx + guess++) % held.length]);
+    const uniq = [...new Set(plan)];
+    const rep = launch(c, uniq);
+    found = [...new Set([...found, ...rep.broke])];
+    out.push({ at: Date.now() - 86_400_000 - n * 60_000, attacks: uniq, broke: rep.broke });
+    if (skill === 0 && n === 1) break;
+  }
+  return out;
 }

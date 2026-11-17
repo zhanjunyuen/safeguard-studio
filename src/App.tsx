@@ -1,4 +1,5 @@
 import { NavLink, Route, Routes, useParams } from 'react-router-dom';
+import Breaker from './pages/Breaker';
 import Builder from './pages/Builder';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -22,6 +23,10 @@ function BuilderRoute() {
   const { id } = useParams();
   return <Builder key={id} />;
 }
+function BreakerRoute() {
+  const { id } = useParams();
+  return <Breaker key={id} />;
+}
 
 export default function App() {
   return (
@@ -43,6 +48,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/build/:id" element={<BuilderRoute />} />
+          <Route path="/break/:id" element={<BreakerRoute />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />
         </Routes>

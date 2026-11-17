@@ -4,6 +4,7 @@ import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
+import { breakSummary } from '../engine/breaker';
 import { averageScores, DIMS, feedbackFor, profileChallenge, type Dim } from '../engine/profile';
 import { useSession } from '../store/session';
 
@@ -17,9 +18,11 @@ const NEXT_QUESTION: Record<Dim, string> = {
 
 export default function Profile() {
   const progress = useSession((s) => s.progress);
+  const breakProgress = useSession((s) => s.breakProgress);
+  const breaks = CHALLENGES.map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
   const profiles = CHALLENGES.filter((c) => progress[c.id]?.attempts.length).map((c) => ({ c, p: profileChallenge(c.id, progress[c.id]) }));
 
-  if (!profiles.length) {
+  if (!profiles.length && !breaks.length) {
     return (
       <div className="max-w-xl mx-auto py-24 px-4">
         <h1 className="text-4xl font-extrabold">No results yet</h1>
@@ -95,6 +98,21 @@ export default function Profile() {
           <Link to="/" className="inline-block mt-3 font-bold underline underline-offset-2">Try another challenge</Link>
         </div>
       </div>
+
+      <h2 className="text-3xl font-extrabold mt-12 mb-4">Spotting weak spots</h2>
+      {breaks.length ? (
+        <div className="grid md:grid-cols-3 gap-4">
+          {breaks.map(({ c, s }) => (
+            <div key={c.id} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+              <h3 className="font-extrabold">{c.title}</h3>
+              <div className="font-mono text-3xl font-bold mt-2">{s!.found}/{s!.total}</div>
+              <p className="text-ink-2 text-sm mt-1">weak spots found in {s!.attempts} attempt{s!.attempts === 1 ? '' : 's'}. {s!.precision}% of your attacks broke the helper.</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-ink-2">You haven't tried Break mode yet. On any challenge, choose "Break one" to find the weak spots in someone else's helper.</p>
+      )}
 
       <h2 className="text-3xl font-extrabold mt-12 mb-4">Run by run</h2>
       <div className="grid md:grid-cols-2 gap-6">

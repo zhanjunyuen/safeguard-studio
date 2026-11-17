@@ -28,6 +28,11 @@ The **teacher view** shows every student's profile, the class's most-missed comp
 | Explain-before-fix gate | Reasoning vs trial and error; logged for the teacher |
 | Every run, edit and explanation is logged | Process evidence: how the student got there, not just the final score |
 
+## Two modes
+
+- **Build a helper.** Snap safeguard blocks together and run the helper against 6 hidden tests. This shows whether a student can design safe AI use.
+- **Break a helper.** Each challenge has a locked helper built with a few mistakes (a missing safeguard, a block in the wrong place, a check that only covers some claims, or a helper that refuses normal questions). Students read its blocks and plan up to 3 attack blocks to find the weak spots. Wasted attacks are counted, so the score reflects anticipation, not guessing. Weak spots are computed by running the real engine, so they always match what the helper actually does.
+
 ## Challenges and blocks
 
 There are six challenges. Each has 6 hidden tests (one each for verification, privacy, integrity and bias, plus two normal questions) and its own palette of 6 or 7 blocks, so students meet different safeguards in each one without being overwhelmed.

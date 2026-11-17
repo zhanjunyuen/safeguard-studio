@@ -94,6 +94,8 @@ export interface BlockDef {
 
 export interface HiddenTest {
   id: string;
+  /** the attack block that creates this situation in Break mode */
+  attackLabel: string;
   /** revealed name, shown after the student has met this test */
   title: string;
   category: TestCategory;
@@ -135,6 +137,8 @@ export interface Challenge {
   story: string;
   audience: string;
   accent: string;
+  /** the locked helper students try to break in Break mode */
+  breakTarget: BlockType[];
   /** the safeguard blocks offered in this challenge */
   palette: BlockType[];
   tests: HiddenTest[];

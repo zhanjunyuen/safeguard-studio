@@ -43,9 +43,17 @@ export const freshProgress = (): ChallengeProgress => ({
   seen: [],
 });
 
+export interface BreakAttempt {
+  at: number;
+  attacks: string[];
+  broke: string[];
+}
+
 interface SessionState {
   studentName: string;
   progress: Record<string, ChallengeProgress>;
+  breakProgress: Record<string, BreakAttempt[]>;
+  recordBreak: (cid: string, attacks: string[], broke: string[]) => void;
   get: (cid: string) => ChallengeProgress;
   setScript: (cid: string, script: ScriptBlock[], event?: Omit<LogEvent, 't'>) => void;
   recordRun: (cid: string, report: RunReport) => void;
@@ -60,6 +68,11 @@ export const useSession = create<SessionState>()(
     (set, get) => ({
       studentName: 'You',
       progress: {},
+      breakProgress: {},
+      recordBreak: (cid, attacks, broke) =>
+        set((st) => ({
+          breakProgress: { ...st.breakProgress, [cid]: [...(st.breakProgress[cid] ?? []), { at: Date.now(), attacks, broke }] },
+        })),
       get: (cid) => get().progress[cid] ?? freshProgress(),
       setScript: (cid, script, event) =>
         set((st) => {
@@ -132,7 +145,7 @@ export const useSession = create<SessionState>()(
         return correct;
       },
       reset: (cid) => set((st) => ({ progress: { ...st.progress, [cid]: freshProgress() } })),
-      resetAll: () => set({ progress: {} }),
+      resetAll: () => set({ progress: {}, breakProgress: {} }),
       setName: (studentName) => set({ studentName }),
     }),
     { name: 'safeguard-studio-v1' },

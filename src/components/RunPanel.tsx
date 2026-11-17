@@ -72,18 +72,24 @@ interface Props {
   onSelect: (id: string) => void;
   seen: string[];
   onSkip: () => void;
+  /** 'break' relabels results from the attacker's side */
+  mode?: 'build' | 'break';
+  weakTotal?: number;
 }
+
+const BREAK_STAMP = (o: Outcome) => (o === 'pass' ? { label: 'Held', text: 'text-neutral' } : { label: 'Broke it', text: 'text-pass' });
 
 const panel = 'rounded-md border-1.5 border-ink bg-paper-card p-5';
 
-export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip }: Props) {
+export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip, mode = 'build', weakTotal = 0 }: Props) {
+  const testsIn = report ? report.results.map((r) => challenge.tests.find((t) => t.id === r.testId)!) : challenge.tests;
   if (replay && report) {
     const r = report.results[replay.testIdx];
-    const t = challenge.tests[replay.testIdx];
+    const t = testsIn[replay.testIdx];
     return (
       <div className={panel} data-testid="replay" aria-live="polite">
         <div className="flex items-center justify-between">
-          <span className="label text-ink-2">Test {replay.testIdx + 1} of {report.total}</span>
+          <span className="label text-ink-2">{mode === 'break' ? 'Attack' : 'Test'} {replay.testIdx + 1} of {report.total}</span>
           <button onClick={onSkip} className="text-sm font-bold underline underline-offset-2 hover:no-underline">Skip to results</button>
         </div>
         <div className="flex gap-1 mt-2 mb-4" aria-hidden>
@@ -128,13 +134,17 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
   return (
     <div className={panel} data-testid="results">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-xl font-extrabold">{report.passed} of {report.total} passed</h2>
+        <h2 className="text-xl font-extrabold">
+          {mode === 'break'
+            ? `Broke it ${report.total - report.passed} of ${report.total} times`
+            : `${report.passed} of ${report.total} passed`}
+        </h2>
         <Link to="/profile" className="text-sm font-bold underline underline-offset-2 hover:no-underline">My results</Link>
       </div>
       <ol className="mt-3 divide-y-1.5 divide-dashed divide-line border-y-1.5 border-dashed border-line">
         {report.results.map((r, i) => {
           const t = challenge.tests.find((x) => x.id === r.testId)!;
-          const st = OUTCOME_STYLE[r.outcome];
+          const st = mode === 'break' ? BREAK_STAMP(r.outcome) : OUTCOME_STYLE[r.outcome];
           const active = sel.testId === r.testId;
           return (
             <li key={r.testId}>
@@ -145,9 +155,9 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
                 data-testid={`result-${r.testId}`}
                 data-outcome={r.outcome}
               >
-                <span className="font-mono text-sm font-bold text-ink-3 w-6">T{i + 1}</span>
+                <span className="font-mono text-sm font-bold text-ink-3 w-6">{mode === 'break' ? 'A' : 'T'}{i + 1}</span>
                 <span className="flex-1 min-w-0">
-                  <span className="block font-bold leading-tight">{t.title}</span>
+                  <span className="block font-bold leading-tight">{mode === 'break' ? t.attackLabel : t.title}</span>
                   <span className="text-xs text-ink-3">{COMPETENCY_META[t.category].label}</span>
                 </span>
                 <span className={`stamp text-[11px] ${st.text}`}>{st.label}</span>
