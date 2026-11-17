@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes } from 'react-router-dom';
+import { NavLink, Route, Routes, useParams } from 'react-router-dom';
 import Builder from './pages/Builder';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -15,6 +15,12 @@ function Logo() {
       <path d="M9 11.5 l3.5 3.5 l7 -7" fill="none" stroke="#16161A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+// Remount the builder for each challenge so results from one never render against another.
+function BuilderRoute() {
+  const { id } = useParams();
+  return <Builder key={id} />;
 }
 
 export default function App() {
@@ -36,7 +42,7 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/build/:id" element={<Builder />} />
+          <Route path="/build/:id" element={<BuilderRoute />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />
         </Routes>

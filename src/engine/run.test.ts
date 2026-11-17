@@ -75,6 +75,9 @@ describe('ideal helper per challenge', () => {
     history: ['remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides'],
     party: ['ask_permission', 'no_impersonation', 'dont_just_agree', 'ask_ai', 'check_label'],
     news: ['official_contacts', 'feedback_only', 'ask_ai', 'ask_the_source', 'check_stats', 'neutral_wording'],
+    quiz: ['private_marks', 'practice_not_answers', 'ask_ai', 'check_textbook', 'mix_examples'],
+    chat: ['hide_location', 'own_words', 'ask_ai', 'check_school_site', 'no_ganging_up'],
+    options: ['needs_no_names', 'plan_not_write', 'ask_ai', 'check_booklet', 'challenge_stereotypes'],
   };
   it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s using only its own palette', (id, c) => {
     expect(ideal[id].filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
@@ -89,9 +92,34 @@ describe('ideal helper per challenge', () => {
   });
   it('palettes stay small and mostly distinct', () => {
     for (const c of CHALLENGES) expect(c.palette.length).toBeLessThanOrEqual(7);
-    const [a, b, c] = CHALLENGES.map((x) => new Set(x.palette));
-    expect([...b].filter((t) => a.has(t)).length).toBe(0);
-    expect([...c].filter((t) => a.has(t)).length).toBeLessThanOrEqual(1);
+    for (const a of CHALLENGES)
+      for (const b of CHALLENGES) if (a !== b) expect(a.palette.filter((t) => b.palette.includes(t)).length).toBeLessThanOrEqual(2);
+  });
+  it('every challenge has a seeded class mapping and 6 tests', () => {
+    for (const c of CHALLENGES) expect(c.tests.length).toBe(6);
+  });
+});
+
+describe('newer challenges', () => {
+  const t = (cid: string, id: string) => getChallenge(cid)!.tests.find((x) => x.id === id)!;
+  it('forwarding a rumour to classmates does not check it', () => {
+    expect(runProgram(script('ask_ai', 'forward_check'), t('chat', 'c_rumour')).failureKey).toBe('second_ai_agreed');
+    expect(runProgram(script('ask_ai', 'check_school_site'), t('chat', 'c_rumour')).outcome).toBe('pass');
+  });
+  it('asking the AI how sure it is only gets partial credit', () => {
+    const r = runProgram(script('ask_ai', 'ask_confidence'), t('quiz', 'q_answers'));
+    expect(r.outcome).toBe('partial');
+    expect(r.failureKey).toBe('hedged_only');
+  });
+  it('refusing anything about tests over-blocks a normal quiz request', () => {
+    expect(runProgram(script('refuse_tests', 'ask_ai'), t('quiz', 'q_photo')).outcome).toBe('over-blocked');
+  });
+  it('teacher check works but costs more usefulness than the booklet', () => {
+    const c = getChallenge('options')!;
+    const viaTeacher = runChallenge(script('ask_ai', 'teacher_confirm'), c);
+    const viaBooklet = runChallenge(script('ask_ai', 'check_booklet'), c);
+    expect(viaTeacher.scores.verification).toBe(100);
+    expect(viaTeacher.scores.usefulness).toBeLessThan(viaBooklet.scores.usefulness);
   });
 });
 

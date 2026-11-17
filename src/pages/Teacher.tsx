@@ -50,14 +50,14 @@ export default function Teacher() {
           <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
         </div>
-        <div role="tablist" aria-label="Challenge" className="flex border-1.5 border-ink rounded overflow-hidden">
+        <div role="tablist" aria-label="Challenge" className="flex flex-wrap gap-2 max-w-[760px] justify-end">
           {CHALLENGES.map((c) => (
             <button
               key={c.id}
               role="tab"
               aria-selected={cid === c.id}
               onClick={() => { setCid(c.id); setSel(null); }}
-              className={`px-4 py-2.5 text-sm font-bold border-r-1.5 border-ink last:border-r-0 ${cid === c.id ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`}
+              className={`px-3 py-2 text-sm font-bold border-1.5 border-ink rounded ${cid === c.id ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`}
             >
               {c.title}
             </button>

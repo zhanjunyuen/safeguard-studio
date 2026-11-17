@@ -35,7 +35,8 @@ const MISCONCEPTION: Partial<Record<FailureKey, string>> = {
   check_too_early: 'Checks sources before the AI has answered',
   coach_too_late: 'Gives the AI instructions after it has already written the work',
   over_blocked: 'Over-cautious: blocks normal, harmless questions',
-  second_ai_agreed: 'Trusts a second AI to fact-check the first',
+  second_ai_agreed: 'Trusts other people or another AI agreeing as a fact-check',
+  hedged_only: 'Treats the AI saying it is confident as a fact-check',
   wrong_check: "Uses a check that doesn't cover the kind of claim (quotes vs statistics)",
   disclosed_only: 'Thinks labelling AI-written work makes it fine to hand in',
 };

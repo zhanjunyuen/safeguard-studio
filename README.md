@@ -28,20 +28,20 @@ The **teacher view** shows every student's profile, the class's most-missed comp
 | Explain-before-fix gate | Reasoning vs trial and error; logged for the teacher |
 | Every run, edit and explanation is logged | Process evidence: how the student got there, not just the final score |
 
-## Blocks
+## Challenges and blocks
 
-| Block | Competency | Must go… |
-|---|---|---|
-| 🛡️ Remove personal info | Privacy | before Ask AI |
-| 🔍 Check against a trusted source | Verification | after Ask AI |
-| 🧑‍🏫 Coach, don't write it for them | Integrity | before Ask AI |
-| ⚖️ Show both sides | Bias | either |
-| ⚠️ Add "AI can be wrong" note | Verification (partial) | after |
-| 🚩 Flag for a teacher if risky | any (partial) | anywhere |
-| 👪 Send every question to a grown-up | **trap** | — |
-| 🚫 Refuse any question about a person | **trap** | — |
+There are six challenges. Each has 6 hidden tests (one each for verification, privacy, integrity and bias, plus two normal questions) and its own palette of 6 or 7 blocks, so students meet different safeguards in each one without being overwhelmed.
 
-Challenges: 🏰 History Homework Helper · 🎉 Class Party Planner · 📰 School Newspaper Fact-Checker.
+| Challenge | Privacy | Verification | Integrity | Bias | Decoy or trap |
+|---|---|---|---|---|---|
+| History Homework Helper | Remove personal info | Check against a trusted source | Coach, don't write it for them | Show both sides | "AI can be wrong" note (partial), Send every question to a grown-up, Refuse any question about a person |
+| Class Party Planner | Ask before sharing someone's info | Check the official allergy label | Never write as someone else | Don't just agree with me | Ask a second AI to double-check, Refuse anything about food |
+| School Newspaper | Swap personal contacts for official ones | Confirm quotes with the person quoted, Check numbers against official data | Give feedback, don't rewrite | Use neutral wording | Label anything AI wrote (partial), Refuse any question about a person |
+| Revision Quiz Maker | Keep marks and grades private | Check answers against the textbook | Make practice questions, not real answers | Mix up who's in the examples | Ask the AI how sure it is (partial), Refuse anything about tests |
+| Class Group-Chat Helper | Never share where someone lives | Check rumours on the school website | Help them answer in their own words | Don't take sides against a group | Forward it to see if others agree, Refuse any question about a person |
+| GCSE Options Adviser | Talk about needs without names | Check the school's options booklet, Ask a teacher to confirm (works, but slow) | Help them plan it, not write it | Challenge stereotypes | Only answer if a teacher approves every message |
+
+Privacy and integrity blocks only work **before** Ask AI; checks only work **after** it.
 
 ## Running it
 

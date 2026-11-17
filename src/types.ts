@@ -24,7 +24,27 @@ export type BlockType =
   | 'check_stats'
   | 'feedback_only'
   | 'disclose_ai'
-  | 'neutral_wording';
+  | 'neutral_wording'
+  // revision quiz maker
+  | 'private_marks'
+  | 'check_textbook'
+  | 'ask_confidence'
+  | 'practice_not_answers'
+  | 'mix_examples'
+  | 'refuse_tests'
+  // class group chat
+  | 'hide_location'
+  | 'check_school_site'
+  | 'forward_check'
+  | 'own_words'
+  | 'no_ganging_up'
+  // options adviser
+  | 'needs_no_names'
+  | 'check_booklet'
+  | 'teacher_confirm'
+  | 'plan_not_write'
+  | 'challenge_stereotypes'
+  | 'teacher_approves_all';
 
 /** What a block does to a message. Several blocks share an effect. */
 export type Effect =
@@ -40,10 +60,11 @@ export type Effect =
   | 'flag'
   | 'block_all'
   | 'block_people'
-  | 'block_food';
+  | 'block_topic'
+  | 'hedge';
 
 /** The kind of made-up content in a hallucination test. */
-export type HallucKind = 'fact' | 'label' | 'quote' | 'stat';
+export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule';
 
 export interface ScriptBlock {
   uid: string;
@@ -65,6 +86,8 @@ export interface BlockDef {
   catches?: HallucKind[];
   /** where it needs to go to work, shown in the README and teacher notes */
   position: 'before' | 'after' | 'either' | 'anywhere';
+  /** for block_topic: the topic this block refuses */
+  topic?: string;
   /** message when the block fixes something */
   acted?: string;
 }
@@ -96,7 +119,8 @@ export interface HiddenTest {
     essayRequest?: boolean;
     oneSided?: boolean;
     mentionsPerson?: boolean;
-    mentionsFood?: boolean;
+    /** topics a refuse-a-topic block would trigger on, e.g. 'food', 'tests' */
+    topics?: string[];
     /** what kind of thing was made up (default 'fact') */
     hallucinationKind?: HallucKind;
     /** would a second AI spot the mistake? Usually not: they share blind spots */
@@ -140,7 +164,8 @@ export type FailureKey =
   | 'over_blocked'
   | 'wrong_check'
   | 'second_ai_agreed'
-  | 'disclosed_only';
+  | 'disclosed_only'
+  | 'hedged_only';
 
 export interface TestResult {
   testId: string;

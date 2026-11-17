@@ -34,6 +34,7 @@ interface MsgState {
   warned: boolean;
   blocked: string | null;
   consented: boolean;
+  hedged: boolean;
 }
 
 const KIND_NAME: Record<HallucKind, string> = {
@@ -41,6 +42,8 @@ const KIND_NAME: Record<HallucKind, string> = {
   label: 'product labels',
   quote: 'quotes',
   stat: 'statistics',
+  rumour: 'rumours',
+  rule: 'rules and requirements',
 };
 
 const isRisky = (t: HiddenTest) => !!(t.flags.pii || t.flags.hallucination || t.flags.essayRequest || t.flags.oneSided);
@@ -68,6 +71,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
     warned: false,
     blocked: null,
     consented: false,
+    hedged: false,
   };
   const kind = test.flags.hallucinationKind ?? 'fact';
 
@@ -115,11 +119,11 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         } else push(b, 'ok', 'No one named, so the question goes through.');
         break;
       }
-      case 'block_food': {
-        if (test.flags.mentionsFood) {
-          s.blocked = "Sorry, I can't help with anything about food.";
-          push(b, 'stop', 'The question mentions food, so the helper refused it.');
-        } else push(b, 'ok', 'Nothing about food, so the question goes through.');
+      case 'block_topic': {
+        if (def.topic && test.flags.topics?.includes(def.topic)) {
+          s.blocked = `Sorry, I can't help with anything about ${def.topic}.`;
+          push(b, 'stop', `The question is about ${def.topic}, so the helper refused it.`);
+        } else push(b, 'ok', `Nothing about ${def.topic}, so the question goes through.`);
         break;
       }
       case 'block_all': {
@@ -201,7 +205,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
             push(b, 'acted', 'The second AI spotted the mistake this time.');
           } else {
             s.secondAgreed = true;
-            push(b, 'warn', 'The second AI agreed with the wrong answer. AIs often make the same mistakes.');
+            push(b, 'warn', b.type === 'second_ai' ? 'The second AI agreed with the wrong answer. AIs often make the same mistakes.' : 'Classmates agreed it was true. Lots of people believing something does not make it true.');
           }
         } else push(b, 'ok', 'The second AI agreed.');
         break;
@@ -211,6 +215,15 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
           s.warned = true;
           push(b, 'ok', 'Added: "AI can make mistakes, so double-check."');
         } else push(b, 'ok', 'No answer to add a note to yet.');
+        break;
+      }
+      case 'hedge': {
+        if (!s.aiCalled) push(b, 'ok', 'Nothing to ask about yet. The AI has not answered.');
+        else {
+          s.warned = true;
+          s.hedged = true;
+          push(b, s.hallucination ? 'warn' : 'ok', s.hallucination ? 'The AI said it was "very confident". It was still wrong.' : 'The AI said it was confident.');
+        }
         break;
       }
       case 'flag': {
@@ -273,13 +286,16 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
     failureKey = s.checkedTooEarly ? 'check_too_early' : s.secondAgreed ? 'second_ai_agreed' : s.checkedWrong ? 'wrong_check' : 'hallucination_unchecked';
     const why = {
       check_too_early: 'The check ran before the AI had answered, so the made-up claim got through.',
-      second_ai_agreed: 'A second AI agreed with the first one. Two AIs agreeing is not the same as checking a real source.',
+      second_ai_agreed: 'Someone else agreeing (another AI, or other people) is not the same as checking a real source.',
       wrong_check: `Your helper had a check, but not one that covers ${KIND_NAME[kind]}.`,
       hallucination_unchecked: 'The AI made something up and your helper passed it on as true.',
     }[failureKey as 'check_too_early'];
+    if (s.hedged && !s.checkedWrong && !s.secondAgreed && !s.checkedTooEarly) failureKey = 'hedged_only';
     if (s.warned || s.flagged) {
       outcome = 'partial';
-      explanation = `${why} The warning helps a little, but most people don't double-check.`;
+      explanation = s.hedged
+        ? 'The AI said how sure it was, which gives the reader a hint, but AI can be confident and wrong. Nothing actually checked the answer.'
+        : `${why} The warning helps a little, but most people don't double-check.`;
     } else {
       outcome = 'fail';
       explanation = why;

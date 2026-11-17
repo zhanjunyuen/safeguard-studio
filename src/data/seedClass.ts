@@ -24,6 +24,18 @@ const ROLE_BLOCKS: Record<string, Record<Role, BlockType[]>> = {
     ai: ['ask_ai'], privacy: ['official_contacts'], verify: ['ask_the_source', 'check_stats'], integrity: ['feedback_only'], bias: ['neutral_wording'],
     weak: ['disclose_ai'], flag: [], trap1: ['block_people'], trap2: [],
   },
+  quiz: {
+    ai: ['ask_ai'], privacy: ['private_marks'], verify: ['check_textbook'], integrity: ['practice_not_answers'], bias: ['mix_examples'],
+    weak: ['ask_confidence'], flag: [], trap1: ['refuse_tests'], trap2: [],
+  },
+  chat: {
+    ai: ['ask_ai'], privacy: ['hide_location'], verify: ['check_school_site'], integrity: ['own_words'], bias: ['no_ganging_up'],
+    weak: ['forward_check'], flag: ['flag_teacher'], trap1: ['block_people'], trap2: [],
+  },
+  options: {
+    ai: ['ask_ai'], privacy: ['needs_no_names'], verify: ['check_booklet'], integrity: ['plan_not_write'], bias: ['challenge_stereotypes'],
+    weak: ['teacher_confirm'], flag: [], trap1: ['teacher_approves_all'], trap2: [],
+  },
 };
 
 interface SeedStudent {
