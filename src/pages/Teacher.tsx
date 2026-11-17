@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { ClassStudent } from '../lib/classData';
+import { supabase } from '../lib/supabase';
+import { fetchClass } from '../lib/sync';
 import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
@@ -24,10 +27,36 @@ export default function Teacher() {
   const [cid, setCid] = useState(CHALLENGES[0].id);
   const live = useSession((s) => s.progress[cid]);
   const liveBreak = useSession((s) => s.breakProgress[cid]);
+  const myClass = useSession((s) => s.classCode);
+  const [source, setSource] = useState<'sample' | 'live'>('sample');
+  const [code, setCode] = useState(myClass ?? 'DEMO8B');
+  const [liveClass, setLiveClass] = useState<{ name: string; students: ClassStudent[] } | null>(null);
+  const [liveErr, setLiveErr] = useState<string | null>(null);
+
+  // Live class: poll every 5 seconds so new runs appear during the lesson.
+  useEffect(() => {
+    if (source !== 'live') return;
+    let stop = false;
+    const load = async () => {
+      const c = await fetchClass(code);
+      if (stop) return;
+      if (c) { setLiveClass(c); setLiveErr(null); } else setLiveErr('No class found with that code.');
+    };
+    load();
+    const t = window.setInterval(load, 5000);
+    return () => { stop = true; window.clearInterval(t); };
+  }, [source, code]);
   const [sel, setSel] = useState<string | null>(() => (usePresenter.getState().active ? 'You (live)' : null));
 
   const rows: Row[] = useMemo(() => {
     const ch = CHALLENGES.find((c) => c.id === cid)!;
+    if (source === 'live') {
+      return (liveClass?.students ?? []).map((st) => ({
+        name: st.name,
+        profile: profileChallenge(cid, st.progress[cid] ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }),
+        spot: breakSummary(ch, st.breaks[cid] ?? []),
+      }));
+    }
     const seeded = SEED_STUDENTS.map((s, i) => ({
       name: s.name,
       profile: profileChallenge(cid, simulateStudent(s, cid, i)),
@@ -38,7 +67,7 @@ export default function Teacher() {
       ? [{ name: 'You (live)', live: true, profile: profileChallenge(cid, live ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }), spot: breakSummary(ch, liveBreak ?? []) }]
       : [];
     return [...me, ...seeded];
-  }, [cid, live, liveBreak]);
+  }, [cid, live, liveBreak, source, liveClass]);
 
   const selected = rows.find((r) => r.name === sel) ?? null;
   const n = rows.length;
@@ -58,9 +87,28 @@ export default function Teacher() {
     <div className="max-w-[1400px] mx-auto px-4 py-10" data-testid="teacher">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label text-ink-2">8B Computing · Tuesday period 3</p>
+          <p className="label text-ink-2">{source === 'live' && liveClass ? `${liveClass.name} · live` : '8B Computing · sample class'}</p>
           <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
+          {supabase && (
+            <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="class-source">
+              <div role="group" aria-label="Which class" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
+                {(['sample', 'live'] as const).map((v) => (
+                  <button key={v} aria-pressed={source === v} onClick={() => setSource(v)} className={`px-3 py-1.5 ${source === v ? 'bg-ink text-paper' : 'bg-paper-card'}`}>
+                    {v === 'sample' ? 'Sample class' : 'Live class'}
+                  </button>
+                ))}
+              </div>
+              {source === 'live' && (
+                <label className="text-sm font-bold flex items-center gap-2">
+                  Class code
+                  <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="w-28 rounded border-1.5 border-ink bg-paper-card px-2 py-1 font-mono" />
+                </label>
+              )}
+              {source === 'live' && liveErr && <span className="text-fail text-sm font-bold">{liveErr}</span>}
+              {source === 'live' && liveClass && !liveClass.students.length && <span className="text-ink-2 text-sm">No runs yet. Students join with code {code} on the home page.</span>}
+            </div>
+          )}
         </div>
         <div role="tablist" aria-label="Challenge" className="flex flex-wrap gap-2 max-w-[760px] justify-end">
           {CHALLENGES.map((c) => (

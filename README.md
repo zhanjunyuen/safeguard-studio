@@ -59,6 +59,16 @@ npm run build      # static build in dist/ (works on GitHub Pages)
 
 **Demo path:** click **⚡ Quick demo** → **Run tests** → the helper tells a child the Battle of Hastings was in **1067** → explain the failure → drag **🔍 Check against a trusted source** *below* Ask AI → Run again → it's caught and corrected to 1066 → open **My profile** and **Teacher view**.
 
+## Class backend (optional, Supabase)
+
+Without keys the app runs entirely in the browser. With Supabase, students join with a class code and first name, and the Teacher view gets a **Live class** toggle that shows their real runs (refreshing every 5 seconds).
+
+1. Supabase dashboard → **Project Settings → Integrations → GitHub**: connect `zhanjunyuen/safeguard-studio`, Supabase directory `supabase`, production branch `main`, deploy to production on. The migration in `supabase/migrations/` then runs automatically and creates a demo class `DEMO8B`.
+2. **Project Settings → API**: copy the Project URL and the `anon` public key into GitHub → repo **Settings → Secrets and variables → Actions** as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, then re-run the deploy.
+3. For local dev, put the same two values in `.env.local` (see `.env.example`).
+
+Privacy: only a first name and class code are stored. The browser key cannot read tables directly; all access is through database functions that need the class code.
+
 ## Presenting
 
 Open `#/present` (or press **Shift+P** anywhere) for presenter mode: a bar along the bottom with a 6-step demo script and speaker notes, Back/Next, a "do it for me" fallback on the interactive steps, replay speed (1×/2×/4×) for recording, and **Reset demo** to clear all progress. Shift+P or × hides it.

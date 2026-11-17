@@ -1,7 +1,9 @@
 import { ArrowRight, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Block from '../components/Block';
+import JoinClass from '../components/JoinClass';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
 import { newUid, useSession } from '../store/session';
@@ -14,9 +16,12 @@ const STEPS = [
   ['Every failure has to be explained.', 'Students say why their helper failed before they can run it again. Teachers see the reasoning as well as the score.'],
 ];
 
-export default function Home() {
+export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   const nav = useNavigate();
   const { progress, reset, setScript } = useSession();
+  useEffect(() => {
+    if (scrollTo) document.getElementById(scrollTo)?.scrollIntoView();
+  }, [scrollTo]);
 
   const quickDemo = () => {
     reset('history');
@@ -41,8 +46,9 @@ export default function Home() {
             <button onClick={quickDemo} className="btn bg-signal text-ink" data-testid="quick-demo">
               Try the history demo <ArrowRight size={18} aria-hidden />
             </button>
-            <a href="#challenges" className="btn bg-paper-card">See all challenges</a>
+            <button onClick={() => document.getElementById('challenges')?.scrollIntoView({ behavior: 'smooth' })} className="btn bg-paper-card">See all challenges</button>
           </div>
+          <JoinClass />
         </div>
 
         <div className="relative">

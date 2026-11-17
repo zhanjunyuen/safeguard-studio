@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
+import { pushRun } from '../lib/sync';
 import type { BlockType, FailureKey, Outcome, RunReport, Scores, ScriptBlock } from '../types';
 
 export interface Attempt {
@@ -61,6 +62,12 @@ interface SessionState {
   reset: (cid: string) => void;
   resetAll: () => void;
   setName: (n: string) => void;
+  /** set when the student has joined a class on the backend */
+  classCode: string | null;
+  className: string | null;
+  studentId: string | null;
+  joined: (classCode: string, className: string, studentId: string, name: string) => void;
+  leaveClass: () => void;
 }
 
 export const useSession = create<SessionState>()(
@@ -147,6 +154,11 @@ export const useSession = create<SessionState>()(
       reset: (cid) => set((st) => ({ progress: { ...st.progress, [cid]: freshProgress() } })),
       resetAll: () => set({ progress: {}, breakProgress: {} }),
       setName: (studentName) => set({ studentName }),
+      classCode: null,
+      className: null,
+      studentId: null,
+      joined: (classCode, className, studentId, studentName) => set({ classCode, className, studentId, studentName }),
+      leaveClass: () => set({ classCode: null, className: null, studentId: null, studentName: 'You' }),
     }),
     { name: 'safeguard-studio-v1' },
   ),
@@ -154,3 +166,40 @@ export const useSession = create<SessionState>()(
 
 export const describeAdd = (type: BlockType, index: number) =>
   `Added “${BLOCKS[type].label}” at position ${index + 1}`;
+
+// Also send every run to the class backend when the student has joined one.
+// Local behaviour is unchanged; pushRun does nothing without Supabase keys.
+{
+  const st = useSession.getState();
+  const { recordRun, reflect, recordBreak } = st;
+  useSession.setState({
+    recordRun: (cid, report) => {
+      const script = useSession.getState().get(cid).script.map((b) => b.type);
+      recordRun(cid, report);
+      pushRun(useSession.getState().studentId, {
+        challenge: cid,
+        mode: 'build',
+        script,
+        results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
+        scores: report.scores,
+      });
+    },
+    reflect: (cid, chosen, text) => {
+      const pending = useSession.getState().get(cid).pendingReflection;
+      const correct = reflect(cid, chosen, text);
+      if (pending)
+        pushRun(useSession.getState().studentId, {
+          challenge: cid,
+          mode: 'reflect',
+          script: [],
+          results: [],
+          reflection: { testId: pending.testId, expected: pending.expected, chosen, correct, text },
+        });
+      return correct;
+    },
+    recordBreak: (cid, attacks, broke) => {
+      recordBreak(cid, attacks, broke);
+      pushRun(useSession.getState().studentId, { challenge: cid, mode: 'break', script: attacks, results: broke });
+    },
+  });
+}

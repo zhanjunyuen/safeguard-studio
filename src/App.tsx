@@ -63,6 +63,8 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />
           <Route path="/present" element={<PresentRoute />} />
+          <Route path="/challenges" element={<Home scrollTo="challenges" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <PresenterBar />
