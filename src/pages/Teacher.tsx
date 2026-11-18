@@ -8,8 +8,9 @@ import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
 import { SEED_STUDENTS, simulateBreak, simulateStudent } from '../data/seedClass';
-import { breakSummary } from '../engine/breaker';
-import { averageScores, DIMS, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
+import { breakSummary, breakSummaryAll } from '../engine/breaker';
+import { averageScores, DIMS, overallProfile, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
+import type { BreakAttempt, ChallengeProgress } from '../store/session';
 import { usePresenter } from '../store/presenter';
 import { useSession } from '../store/session';
 
@@ -21,12 +22,24 @@ interface Row {
   live?: boolean;
   profile: ChallengeProfile;
   spot: ReturnType<typeof breakSummary>;
+  /** All-challenges view only: per-challenge breakdown for the drill-down */
+  parts?: { profile: ChallengeProfile; spot: ReturnType<typeof breakSummary> }[];
 }
 
+interface StudentData {
+  name: string;
+  live?: boolean;
+  progress: Record<string, ChallengeProgress | undefined>;
+  breaks: Record<string, BreakAttempt[] | undefined>;
+}
+
+const ALL = 'all';
+const EMPTY: ChallengeProgress = { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] };
+
 export default function Teacher() {
-  const [cid, setCid] = useState(CHALLENGES[0].id);
-  const live = useSession((s) => s.progress[cid]);
-  const liveBreak = useSession((s) => s.breakProgress[cid]);
+  const [cid, setCid] = useState<string>(ALL);
+  const myProgress = useSession((s) => s.progress);
+  const myBreaks = useSession((s) => s.breakProgress);
   const myClass = useSession((s) => s.classCode);
   const [source, setSource] = useState<'sample' | 'live'>('sample');
   const [code, setCode] = useState(myClass ?? 'DEMO8B');
@@ -48,33 +61,52 @@ export default function Teacher() {
   }, [source, code]);
   const [sel, setSel] = useState<string | null>(() => (usePresenter.getState().active ? 'You (live)' : null));
 
-  const rows: Row[] = useMemo(() => {
-    const ch = CHALLENGES.find((c) => c.id === cid)!;
-    if (source === 'live') {
-      return (liveClass?.students ?? [])
-        .filter((st) => st.progress[cid]?.attempts.length || st.breaks[cid]?.length)
-        .map((st) => ({
+  // The sample class across every challenge, computed once (it never changes).
+  const sampleClass: StudentData[] = useMemo(
+    () =>
+      SEED_STUDENTS.map((st, i) => ({
         name: st.name,
-        profile: profileChallenge(cid, st.progress[cid] ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }),
+        progress: Object.fromEntries(CHALLENGES.map((c) => [c.id, simulateStudent(st, c.id, i)])),
+        breaks: Object.fromEntries(CHALLENGES.map((c) => [c.id, simulateBreak(i, c.id)])),
+      })),
+    [],
+  );
+
+  const rows: Row[] = useMemo(() => {
+    const me: StudentData = { name: 'You (live)', live: true, progress: myProgress, breaks: myBreaks };
+    const students: StudentData[] = source === 'live' ? liveClass?.students ?? [] : [me, ...sampleClass];
+
+    if (cid === ALL) {
+      return students
+        .map((st) => {
+          const profile = overallProfile(st.progress);
+          const spot = breakSummaryAll(CHALLENGES.map((c) => ({ challenge: c, attempts: st.breaks[c.id] ?? [] })));
+          const parts = CHALLENGES.filter((c) => st.progress[c.id]?.attempts.length || st.breaks[c.id]?.length).map((c) => ({
+            profile: profileChallenge(c.id, st.progress[c.id] ?? EMPTY),
+            spot: breakSummary(c, st.breaks[c.id] ?? []),
+          }));
+          return { name: st.name, live: st.live, profile, spot, parts };
+        })
+        .filter((r) => r.parts.length);
+    }
+
+    const ch = CHALLENGES.find((c) => c.id === cid)!;
+    return students
+      .filter((st) => st.progress[cid]?.attempts.length || st.breaks[cid]?.length)
+      .map((st) => ({
+        name: st.name,
+        live: st.live,
+        profile: profileChallenge(cid, st.progress[cid] ?? EMPTY),
         spot: breakSummary(ch, st.breaks[cid] ?? []),
       }));
-    }
-    const seeded = SEED_STUDENTS.map((s, i) => ({
-      name: s.name,
-      profile: profileChallenge(cid, simulateStudent(s, cid, i)),
-      spot: breakSummary(ch, simulateBreak(i, cid)),
-    }));
-    const hasLive = live?.attempts.length || liveBreak?.length;
-    const me = hasLive
-      ? [{ name: 'You (live)', live: true, profile: profileChallenge(cid, live ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }), spot: breakSummary(ch, liveBreak ?? []) }]
-      : [];
-    return [...me, ...seeded];
-  }, [cid, live, liveBreak, source, liveClass]);
+  }, [cid, myProgress, myBreaks, source, liveClass, sampleClass]);
 
   const selected = rows.find((r) => r.name === sel) ?? null;
   const built = rows.filter((r) => r.profile.anticipated);
   const hasData = built.length > 0;
-  const challengeTitle = CHALLENGES.find((c) => c.id === cid)!.title;
+  const isAll = cid === ALL;
+  const challengeTitle = isAll ? 'any challenge' : CHALLENGES.find((c) => c.id === cid)!.title;
+  const titleOf = (id: string) => CHALLENGES.find((c) => c.id === id)?.title ?? id;
   const notYet = 'Appears after the first run';
 
   const firstAvg = averageScores(rows.map((r) => r.profile.anticipated));
@@ -115,13 +147,14 @@ export default function Teacher() {
           )}
         </div>
         <div role="tablist" aria-label="Challenge" className="flex flex-wrap gap-2 max-w-[760px] justify-end">
-          {CHALLENGES.map((c) => (
+          {[{ id: ALL, title: 'All challenges' }, ...CHALLENGES].map((c) => (
             <button
               key={c.id}
               role="tab"
               aria-selected={cid === c.id}
               onClick={() => { setCid(c.id); setSel(null); }}
               className={`px-3 py-2 text-sm font-bold border-1.5 border-ink rounded ${cid === c.id ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`}
+              data-testid={`tab-${c.id}`}
             >
               {c.title}
             </button>
@@ -151,10 +184,11 @@ export default function Teacher() {
       <div className="grid xl:grid-cols-[1fr_420px] gap-6 mt-6">
         <div className="rounded-md border-1.5 border-ink bg-paper-card overflow-x-auto">
           <table className="w-full text-sm">
-            <caption className="sr-only">Scores per student for {CHALLENGES.find((c) => c.id === cid)?.title}</caption>
+            <caption className="sr-only">Scores per student for {isAll ? 'all challenges combined' : challengeTitle}</caption>
             <thead>
               <tr className="text-left border-b-1.5 border-ink">
                 <th scope="col" className="px-4 py-3 label">Student</th>
+                {isAll && <th scope="col" className="px-2 py-3 text-center label" title="Challenges attempted">Tried</th>}
                 {DIMS.map((d) => <th scope="col" key={d} className="px-2 py-3 text-center label">{COMPETENCY_META[d].short}</th>)}
                 <th scope="col" className="px-2 py-3 text-center label" title="Break mode: weak spots found, and share of attacks that hit">Spot</th>
                 <th scope="col" className="px-2 py-3 text-center label">Runs</th>
@@ -165,10 +199,10 @@ export default function Teacher() {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-6 py-16 text-center" data-testid="empty-class">
-                    <p className="font-display text-xl font-bold">No runs yet for {challengeTitle}</p>
+                  <td colSpan={isAll ? 11 : 10} className="px-6 py-16 text-center" data-testid="empty-class">
+                    <p className="font-display text-xl font-bold">No runs yet{isAll ? '' : ` for ${challengeTitle}`}</p>
                     <p className="text-ink-2 mt-2 max-w-md mx-auto">
-                      Students join on the home page with code <b className="font-mono text-ink">{code}</b>, then run this challenge. New runs appear here within a few seconds.
+                      Students join on the home page with code <b className="font-mono text-ink">{code}</b>, then run {isAll ? 'any challenge' : 'this challenge'}. New runs appear here within a few seconds.
                     </p>
                   </td>
                 </tr>
@@ -187,6 +221,7 @@ export default function Teacher() {
                     {r.name}
                     {r.live && <span className="ml-2 label text-pass">live</span>}
                   </th>
+                  {isAll && <td className="px-2 text-center font-mono">{r.parts?.length ?? 0}/{CHALLENGES.length}</td>}
                   {DIMS.map((d) => {
                     const v = r.profile.current?.[d] ?? null;
                     const f = r.profile.anticipated?.[d] ?? null;
@@ -231,18 +266,49 @@ export default function Teacher() {
                   <ul className="list-disc pl-5 text-sm mt-1">{selected.profile.misconceptions.map((m) => <li key={m}>{m}</li>)}</ul>
                 </div>
               )}
-              <Timeline profile={selected.profile} />
+              {isAll ? (
+                <table className="w-full text-sm mt-3" data-testid="per-challenge">
+                  <caption className="text-left font-bold mb-1">By challenge</caption>
+                  <thead>
+                    <tr className="text-left border-b-1.5 border-ink">
+                      <th scope="col" className="py-1.5 label">Challenge</th>
+                      <th scope="col" className="py-1.5 label text-center">Runs</th>
+                      <th scope="col" className="py-1.5 label text-center">Latest</th>
+                      <th scope="col" className="py-1.5 label text-center">Spot</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selected.parts ?? []).map(({ profile: p, spot }) => {
+                      const last = p.timeline[p.timeline.length - 1];
+                      return (
+                        <tr key={p.challengeId} className="border-t border-line">
+                          <th scope="row" className="py-1.5 text-left font-normal">
+                            <button onClick={() => setCid(p.challengeId)} className="font-bold underline underline-offset-2 hover:no-underline text-left">
+                              {titleOf(p.challengeId)}
+                            </button>
+                          </th>
+                          <td className="text-center font-mono">{p.attempts || '–'}</td>
+                          <td className="text-center font-mono">{last ? `${last.passed}/${last.total}` : '–'}</td>
+                          <td className="text-center font-mono">{spot ? `${spot.found}/${spot.total}` : '–'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <Timeline profile={selected.profile} />
+              )}
             </motion.div>
           ) : (
             <div>
-              <h2 className="text-xl font-extrabold">Whole class</h2>
+              <h2 className="text-xl font-extrabold">Whole class{isAll ? ', all challenges' : ''}</h2>
               {hasData ? (
                 <>
                   <CompetencyRadar first={firstAvg} now={nowAvg} height={280} firstLabel="First run" nowLabel="Latest run" />
                   <p className="text-ink-2">The gap between the two shapes is what the class picked up by failing and fixing. Select a student to see their runs.</p>
                 </>
               ) : (
-                <p className="text-ink-2 mt-2">The class chart appears once students have run this challenge.</p>
+                <p className="text-ink-2 mt-2">The class chart appears once students have run {isAll ? 'a challenge' : 'this challenge'}.</p>
               )}
             </div>
           )}

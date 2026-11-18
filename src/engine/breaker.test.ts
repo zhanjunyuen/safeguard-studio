@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CHALLENGES, getChallenge } from '../data/challenges';
-import { breakSummary, launch, targetScript, weakSpots } from './breaker';
+import { breakSummary, breakSummaryAll, launch, targetScript, weakSpots } from './breaker';
 import { runProgram } from './run';
 
 const ORDER_KEYS = ['pii_too_late', 'coach_too_late', 'check_too_early'];
@@ -41,5 +41,19 @@ describe('break the helper', () => {
     const r = launch(getChallenge('chat')!, ['c_pe']);
     expect(r.broke).toEqual(['c_pe']);
     expect(r.results[0].outcome).toBe('over-blocked');
+  });
+
+  it('sums break results across challenges', () => {
+    const h = getChallenge('history')!;
+    const c = getChallenge('chat')!;
+    const s = breakSummaryAll([
+      { challenge: h, attempts: [{ attacks: ['h_address', 'h_date'], broke: ['h_address'] }] },
+      { challenge: c, attempts: [{ attacks: ['c_pe'], broke: ['c_pe'] }] },
+      { challenge: getChallenge('party')!, attempts: [] },
+    ])!;
+    expect(s.found).toBe(2);
+    expect(s.total).toBe(weakSpots(h).length + weakSpots(c).length);
+    expect(s.precision).toBe(67);
+    expect(breakSummaryAll([])).toBeNull();
   });
 });

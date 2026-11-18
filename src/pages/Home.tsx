@@ -1,4 +1,4 @@
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight, Check, Circle, CircleDot, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import Block from '../components/Block';
 import JoinClass from '../components/JoinClass';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
+import { breakSummary } from '../engine/breaker';
 import { newUid, useSession } from '../store/session';
 
 const STEPS = [
@@ -19,6 +20,7 @@ const STEPS = [
 export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   const nav = useNavigate();
   const { progress, reset, setScript } = useSession();
+  const breakProgress = useSession((s) => s.breakProgress);
   useEffect(() => {
     if (scrollTo) document.getElementById(scrollTo)?.scrollIntoView();
   }, [scrollTo]);
@@ -90,21 +92,39 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
           {CHALLENGES.map((c, i) => {
             const p = progress[c.id];
             const best = p?.attempts.length ? Math.max(...p.attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length)) : null;
+            const brk = breakSummary(c, breakProgress[c.id] ?? []);
+            const buildState: Status = best === null ? 'todo' : best === c.tests.length ? 'done' : 'started';
+            const breakState: Status = !brk ? 'todo' : brk.found === brk.total ? 'done' : 'started';
+            const allDone = buildState === 'done' && breakState === 'done';
             return (
               <div
                 key={c.id}
-                className="flex flex-col bg-paper-card border-1.5 border-ink rounded-md p-5 shadow-hard"
+                className={`flex flex-col border-1.5 border-ink rounded-md p-5 shadow-hard ${allDone ? 'bg-pass-soft' : 'bg-paper-card'}`}
+                data-testid={`card-${c.id}`}
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="label text-ink-3">Challenge {String(i + 1).padStart(2, '0')}</span>
-                  <span className="w-3 h-3 rounded-full border-1.5 border-ink" style={{ background: c.accent }} aria-hidden />
+                  {allDone ? (
+                    <span className="stamp text-pass text-[11px]">Complete</span>
+                  ) : (
+                    <span className="w-3 h-3 rounded-full border-1.5 border-ink" style={{ background: c.accent }} aria-hidden />
+                  )}
                 </div>
                 <h3 className="text-2xl font-extrabold leading-tight mt-3">{c.title}</h3>
                 <p className="text-sm font-bold text-ink-2 mt-1">{c.audience}</p>
                 <p className="mt-3 text-ink-2 leading-relaxed">{c.story}</p>
-                <div className="mt-auto pt-5 text-sm font-bold text-ink-3">
-                  {best !== null ? <span className="text-pass">Best build: {best} of {c.tests.length} passed</span> : '6 hidden tests'}
-                </div>
+                <dl className="mt-auto pt-5 space-y-1.5 text-sm" aria-label="Your progress">
+                  <StatusLine
+                    label="Build"
+                    state={buildState}
+                    detail={best === null ? 'Not started' : buildState === 'done' ? `Done · all ${c.tests.length} tests passed` : `Best so far: ${best} of ${c.tests.length} passed`}
+                  />
+                  <StatusLine
+                    label="Break"
+                    state={breakState}
+                    detail={!brk ? 'Not started' : breakState === 'done' ? `Done · found all ${brk.total} weak spots` : `Found ${brk.found} of ${brk.total} weak spots`}
+                  />
+                </dl>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <button onClick={() => nav(`/build/${c.id}`)} className="btn bg-signal text-sm justify-center" data-testid={`challenge-${c.id}`}>
                     Build a helper
@@ -134,6 +154,22 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
           ))}
         </ol>
       </section>
+    </div>
+  );
+}
+
+type Status = 'todo' | 'started' | 'done';
+
+function StatusLine({ label, state, detail }: { label: string; state: Status; detail: string }) {
+  const Icon = state === 'done' ? Check : state === 'started' ? CircleDot : Circle;
+  const cls = state === 'done' ? 'text-pass' : state === 'started' ? 'text-partial' : 'text-ink-3';
+  return (
+    <div className="flex items-center gap-2" data-state={state}>
+      <dt className="w-12 font-bold text-ink">{label}</dt>
+      <dd className={`flex items-center gap-1.5 font-bold ${cls}`}>
+        <Icon size={15} strokeWidth={3} aria-hidden />
+        {detail}
+      </dd>
     </div>
   );
 }

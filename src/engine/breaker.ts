@@ -50,3 +50,27 @@ export function breakSummary(c: Challenge, attempts: { attacks: string[]; broke:
     firstTryPct: Math.round((new Set(attempts[0].broke).size / weak.length) * 100),
   };
 }
+
+/** Break-mode results summed across several challenges. */
+export function breakSummaryAll(entries: { challenge: Challenge; attempts: { attacks: string[]; broke: string[] }[] }[]) {
+  const used = entries.filter((e) => e.attempts.length);
+  if (!used.length) return null;
+  let found = 0, total = 0, attacks = 0, hits = 0, attempts = 0, firstFound = 0;
+  for (const { challenge, attempts: a } of used) {
+    const weak = weakSpots(challenge);
+    found += new Set(a.flatMap((x) => x.broke)).size;
+    firstFound += new Set(a[0].broke).size;
+    total += weak.length;
+    attacks += a.reduce((n, x) => n + x.attacks.length, 0);
+    hits += a.reduce((n, x) => n + x.broke.length, 0);
+    attempts += a.length;
+  }
+  return {
+    found,
+    total,
+    foundPct: Math.round((found / total) * 100),
+    precision: attacks ? Math.round((hits / attacks) * 100) : 0,
+    attempts,
+    firstTryPct: Math.round((firstFound / total) * 100),
+  };
+}

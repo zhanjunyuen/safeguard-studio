@@ -155,3 +155,34 @@ export function feedbackFor(d: Dim, score: number | null, first: number | null):
   const band = score >= 80 ? 2 : score >= 45 ? 1 : 0;
   return msg[d][band] + (grew ? ` Up from ${first} on your first run.` : '');
 }
+
+export type OverallProfile = ChallengeProfile & { done: string[]; parts: ChallengeProfile[] };
+
+const toScores = (r: Record<Dim, number | null>): Scores => ({
+  verification: r.verification,
+  privacy: r.privacy,
+  integrity: r.integrity,
+  bias: r.bias,
+  usefulness: r.usefulness ?? 0,
+});
+
+/** One student's profile combined across every challenge they've attempted (same maths as My results). */
+export function overallProfile(progress: Record<string, ChallengeProgress | undefined>): OverallProfile {
+  const parts = Object.entries(progress)
+    .filter(([cid, p]) => p && p.attempts.length && getChallenge(cid))
+    .map(([cid, p]) => profileChallenge(cid, p!));
+  const reflections = Object.values(progress).flatMap((p) => p?.reflections ?? []);
+  return {
+    challengeId: 'all',
+    attempts: parts.reduce((n, p) => n + p.attempts, 0),
+    anticipated: parts.length ? toScores(averageScores(parts.map((p) => p.anticipated))) : null,
+    current: parts.length ? toScores(averageScores(parts.map((p) => p.current))) : null,
+    reflectionAccuracy: reflections.length ? Math.round((reflections.filter((r) => r.correct).length / reflections.length) * 100) : null,
+    misconceptions: [...new Set(parts.flatMap((p) => p.misconceptions))],
+    fixedFirst: null,
+    neverNoticed: [],
+    timeline: [],
+    done: parts.map((p) => p.challengeId),
+    parts,
+  };
+}
