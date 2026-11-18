@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMission } from '../store/mission';
+import { usePresenter } from '../store/presenter';
 import Block from '../components/Block';
 import JoinClass from '../components/JoinClass';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
@@ -11,7 +12,7 @@ import { challengeStatus, type Status } from '../engine/progress';
 import { DIM_ICON } from '../components/icons';
 import { COMPETENCY_META } from '../data/blocks';
 import { challengesIn, THEMES } from '../data/themes';
-import { newUid, useSession } from '../store/session';
+import { useDemoSession, usePracticeStore } from '../store/session';
 
 const STEPS = [
   ['The tests are hidden.', 'Students have to think about what could go wrong before they see it happen.'],
@@ -22,9 +23,11 @@ const STEPS = [
 ];
 
 export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
+  const useSession = usePracticeStore();
   const nav = useNavigate();
   const phase = useMission(s => s.mission.phase);
-  const { progress, reset, setScript } = useSession();
+  const progress = useSession(s => s.progress);
+  const presenting = usePresenter(s => s.active);
   const breakProgress = useSession((s) => s.breakProgress);
 
   const statusOf = (c: (typeof CHALLENGES)[number]) => challengeStatus(c, progress[c.id], breakProgress[c.id], progress[`${c.id}@2`]);
@@ -33,8 +36,8 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   }, [scrollTo]);
 
   const quickDemo = () => {
-    reset('history');
-    setScript('history', [{ uid: newUid('ask_ai'), type: 'ask_ai' }]);
+    useDemoSession.getState().reset('history');
+    usePresenter.setState({ active: true, step: 1, pending: null });
     nav('/build/history');
   };
 
@@ -50,13 +53,13 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
             Complete six challenges drawn from the 21 in the catalogue, one per theme. You choose the order. In each one, build with its safeguard blocks, run its six tests, then use attack blocks to test your own design.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">
+            {!presenting && <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">
               {phase === 'brief' ? 'Start the assessment' : phase === 'complete' || phase === 'expired' ? 'View assessment evidence' : 'Resume assessment'} <ArrowRight size={18} aria-hidden />
-            </button>
+            </button>}
             <button onClick={() => document.getElementById('challenges')?.scrollIntoView({ behavior: 'smooth' })} className="btn bg-paper-card">See all challenges</button>
             <button onClick={quickDemo} className="btn bg-paper-card" data-testid="quick-demo">Try the history demo</button>
           </div>
-          <JoinClass />
+          {!presenting && <JoinClass />}
         </div>
 
         <div className="relative">

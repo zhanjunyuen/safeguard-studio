@@ -2,19 +2,19 @@ import { buildStatus } from '../engine/progress';
 import { runChallenge } from '../engine/run';
 import { idealScript } from '../engine/targets';
 import { usePresenter } from '../store/presenter';
-import { newUid, useSession } from '../store/session';
+import { newUid, useDemoSession } from '../store/session';
 import { getChallenge } from './challenges';
 
 /** Put a ready-made helper on a challenge (and clear any unanswered "why did it fail?" so Run is free). */
 function loadHelper(cid: string, label: string) {
-  const s = useSession.getState();
+  const s = useDemoSession.getState();
   s.setScript(cid, idealScript(cid), { kind: 'add', text: `Loaded ${label} (presenter)` });
-  useSession.setState((st) => ({ progress: { ...st.progress, [cid]: { ...s.get(cid), script: idealScript(cid), pendingReflection: null } } }));
+  useDemoSession.setState((st) => ({ progress: { ...st.progress, [cid]: { ...s.get(cid), script: idealScript(cid), pendingReflection: null } } }));
 }
 
 /** Level 2 only opens once Level 1 is solved; make sure it is, using the ideal helper if needed. */
 function ensureLevel1Solved() {
-  const s = useSession.getState();
+  const s = useDemoSession.getState();
   const h = getChallenge('history')!;
   if (buildStatus('history', h.tests.length, s.progress.history).state === 'done') return;
   loadHelper('history', 'the ideal helper');
@@ -40,7 +40,7 @@ export const DEMO_STEPS: DemoStep[] = [
     path: '/build/history',
     note: 'Sam’s helper is just “Ask AI”. Press Run tests and watch what it tells a Year 7.',
     onEnter: () => {
-      const s = useSession.getState();
+      const s = useDemoSession.getState();
       s.reset('history');
       s.setScript('history', [{ uid: newUid('ask_ai'), type: 'ask_ai' }]);
     },
@@ -53,7 +53,7 @@ export const DEMO_STEPS: DemoStep[] = [
     action: {
       label: 'Add the block for me',
       run: () => {
-        const s = useSession.getState();
+        const s = useDemoSession.getState();
         const script = s.get('history').script;
         if (script.some((b) => b.type === 'check_source')) return;
         const i = script.findIndex((b) => b.type === 'ask_ai');

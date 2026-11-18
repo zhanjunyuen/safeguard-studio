@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DEMO_STEPS } from '../data/demoScript';
 import { usePresenter } from '../store/presenter';
-import { useSession } from '../store/session';
+import { useDemoSession } from '../store/session';
 
 export default function PresenterBar() {
   const nav = useNavigate();
@@ -31,7 +31,7 @@ export default function PresenterBar() {
   };
 
   const reset = () => {
-    useSession.getState().resetAll();
+    useDemoSession.getState().resetAll();
     go(0);
     nav('/');
   };
@@ -41,7 +41,7 @@ export default function PresenterBar() {
       <div className="max-w-[1400px] mx-auto px-4 py-2.5 flex flex-wrap items-center gap-3">
         <Presentation size={18} aria-hidden className="text-signal shrink-0" />
         <div className="flex-1 min-w-[260px]">
-          <div className="label text-paper/60">Step {step + 1} of {DEMO_STEPS.length} · {s.title}</div>
+          <div className="label text-paper/60">Demo · Step {step + 1} of {DEMO_STEPS.length} · {s.title}</div>
           <div className="text-[15px] leading-snug">{s.note}</div>
         </div>
         {s.action && (
@@ -63,7 +63,7 @@ export default function PresenterBar() {
           </button>
         </div>
         <button onClick={reset} className="inline-flex items-center gap-1 text-sm text-paper/80 hover:text-paper" data-testid="presenter-reset"><RotateCcw size={14} aria-hidden /> Reset demo</button>
-        <button onClick={() => setActive(false)} className="p-1.5 rounded hover:bg-paper/10" aria-label="Close presenter mode (Shift+P)"><X size={16} /></button>
+        <button onClick={() => setActive(false)} className="p-1.5 rounded hover:bg-paper/10" aria-label="Close presenter mode (Shift+P)"><X size={16} /> Exit demo</button>
       </div>
     </div>
   );

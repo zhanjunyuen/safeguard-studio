@@ -25,7 +25,7 @@ import { runChallenge } from '../engine/run';
 import { buildStatus } from '../engine/progress';
 import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
 import { usefulnessTarget } from '../engine/targets';
-import { describeAdd, freshProgress, newUid, useAssessmentSession, useSession } from '../store/session';
+import { describeAdd, freshProgress, newUid, useAssessmentSession, usePracticeStore } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
 
@@ -56,7 +56,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const cid = isL2 ? baseCid + '@2' : baseCid;
   // Assessment work is saved per challenge (the level is fixed for the whole assessment); practice keeps Level 1 and 2 apart.
   const id = assessment ? baseCid : cid;
-  const useWork = assessment ? useAssessmentSession : useSession;
+  const usePractice = usePracticeStore();
+  const useWork = assessment ? useAssessmentSession : usePractice;
   const challenge = getChallenge(cid);
   const l1Progress = useWork(s => s.progress[baseCid]);
   const progress = useWork((s) => s.progress[id]) ?? freshProgress();

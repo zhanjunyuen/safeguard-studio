@@ -22,7 +22,7 @@ import TrainingCompanion from '../components/TrainingCompanion';
 import AttackHintPanel from '../components/AttackHintPanel';
 import MarkFeedback from '../components/MarkFeedback';
 import type { Desk, Rule } from '../engine/mission';
-import { useSession } from '../store/session';
+import { usePracticeStore } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { StepStatus } from '../types';
 
@@ -55,6 +55,7 @@ interface AssessmentAttack {
   onRevise: () => void;
 }
 export default function Breaker({ assessment }: { assessment?: AssessmentAttack }) {
+  const useSession = usePracticeStore();
   const route = useParams();
   const id = assessment?.id ?? route.id ?? '';
   const original = getChallenge(assessment?.level2 ? `${id}@2` : id);

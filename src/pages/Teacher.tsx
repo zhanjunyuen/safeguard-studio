@@ -14,7 +14,7 @@ import { breakSummary, breakSummaryAll } from '../engine/breaker';
 import { averageScores, DIMS, overallProfile, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
 import type { BreakAttempt, ChallengeProgress } from '../store/session';
 import { usePresenter } from '../store/presenter';
-import { useSession } from '../store/session';
+import { usePracticeStore } from '../store/session';
 
 const heat = (v: number | null) =>
   v === null ? 'bg-paper text-ink-3' : v >= 80 ? 'bg-pass-soft text-pass' : v >= 45 ? 'bg-partial-soft text-partial' : 'bg-fail-soft text-fail';
@@ -39,6 +39,7 @@ const ALL = 'all';
 const EMPTY: ChallengeProgress = { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] };
 
 export default function Teacher() {
+  const useSession = usePracticeStore();
   const [cid, setCid] = useState<string>(ALL);
   const myProgress = useSession((s) => s.progress);
   const myBreaks = useSession((s) => s.breakProgress);
@@ -132,7 +133,7 @@ export default function Teacher() {
           <p className="label text-ink-2">{source === 'live' && liveClass ? `${liveClass.name} · live` : '8B Computing · sample class'}</p>
           <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
-          {supabase && (
+          {supabase && !usePresenter.getState().active && (
             <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="class-source">
               <div role="group" aria-label="Which class" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
                 {(['sample', 'live'] as const).map((v) => (

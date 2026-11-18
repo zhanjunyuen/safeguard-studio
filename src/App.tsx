@@ -57,9 +57,9 @@ export default function App() {
         </div>
       </header>
       <main className={`flex-1 ${presenting ? 'pb-28' : ''}`}>
-        <Routes>
+        <Routes key={presenting ? 'demo' : 'pupil'}>
           <Route path="/" element={<Home />} />
-          <Route path="/mission" element={<Mission />} />
+          <Route path="/mission" element={presenting ? <Navigate to="/" replace /> : <Mission />} />
           <Route path="/build/:id/:level?" element={<BuilderRoute />} />
           <Route path="/break/:id" element={<BreakerRoute />} />
           <Route path="/profile" element={<Profile />} />

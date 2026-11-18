@@ -1,3 +1,4 @@
+import { usePresenter } from './presenter';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
@@ -166,6 +167,12 @@ const createSession = (name: string) => create<SessionState>()(
 );
 
 export const useSession = createSession('safeguard-studio-v1');
+export const useDemoSession = createSession('safeguard-studio-demo-v1');
+
+export function usePracticeStore() {
+  return usePresenter(s => s.active) ? useDemoSession : useSession;
+}
+
 export const useAssessmentSession = createSession('school-community-challenge-work-v1');
 
 export const describeAdd = (type: BlockType, index: number) =>

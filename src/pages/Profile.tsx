@@ -10,7 +10,7 @@ import { breakSummary } from '../engine/breaker';
 import { challengeStatus } from '../engine/progress';
 import { challengesIn, THEMES } from '../data/themes';
 import { averageScores, DIMS, feedbackFor, profileChallenge, type Dim } from '../engine/profile';
-import { useSession } from '../store/session';
+import { usePracticeStore } from '../store/session';
 
 const NEXT_QUESTION: Record<Dim, string> = {
   verification: 'What if the AI just makes this up?',
@@ -23,6 +23,7 @@ const NEXT_QUESTION: Record<Dim, string> = {
 };
 
 export default function Profile() {
+  const useSession = usePracticeStore();
   const missionPhase = useMission(s => s.mission.phase);
   const progress = useSession((s) => s.progress);
   const breakProgress = useSession((s) => s.breakProgress);
