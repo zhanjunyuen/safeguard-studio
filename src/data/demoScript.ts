@@ -1,5 +1,25 @@
+import { buildStatus } from '../engine/progress';
+import { runChallenge } from '../engine/run';
+import { idealScript } from '../engine/targets';
 import { usePresenter } from '../store/presenter';
 import { newUid, useSession } from '../store/session';
+import { getChallenge } from './challenges';
+
+/** Put a ready-made helper on a challenge (and clear any unanswered "why did it fail?" so Run is free). */
+function loadHelper(cid: string, label: string) {
+  const s = useSession.getState();
+  s.setScript(cid, idealScript(cid), { kind: 'add', text: `Loaded ${label} (presenter)` });
+  useSession.setState((st) => ({ progress: { ...st.progress, [cid]: { ...s.get(cid), script: idealScript(cid), pendingReflection: null } } }));
+}
+
+/** Level 2 only opens once Level 1 is solved; make sure it is, using the ideal helper if needed. */
+function ensureLevel1Solved() {
+  const s = useSession.getState();
+  const h = getChallenge('history')!;
+  if (buildStatus('history', h.tests.length, s.progress.history).state === 'done') return;
+  loadHelper('history', 'the ideal helper');
+  s.recordRun('history', runChallenge(idealScript('history'), h));
+}
 
 export interface DemoStep {
   title: string;
@@ -40,6 +60,31 @@ export const DEMO_STEPS: DemoStep[] = [
         const next = [...script];
         next.splice(i + 1, 0, { uid: newUid('check_source'), type: 'check_source' });
         s.setScript('history', next, { kind: 'add', text: 'Added “Check against a trusted source” (presenter)' });
+      },
+    },
+  },
+  {
+    title: 'Safe and useful',
+    path: '/build/history',
+    note: 'Adding every safeguard fails: the helper gets too slow to be useful. The ideal helper uses only what this job needs, so it passes all 6 and is still useful.',
+    action: {
+      label: 'Load the ideal helper and run it',
+      run: () => {
+        loadHelper('history', 'the ideal helper');
+        usePresenter.getState().command('run');
+      },
+    },
+  },
+  {
+    title: 'Level 2: IF blocks',
+    path: '/build/history/2',
+    note: 'Level 2 adds IF blocks, so safeguards only run when needed. An address with no name slips past "it mentions a person", so this helper uses "it contains numbers".',
+    onEnter: ensureLevel1Solved,
+    action: {
+      label: 'Load the IF helper and run it',
+      run: () => {
+        loadHelper('history@2', 'the Level 2 helper');
+        usePresenter.getState().command('run');
       },
     },
   },

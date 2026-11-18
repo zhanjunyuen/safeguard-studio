@@ -79,7 +79,7 @@ Privacy: only a first name and class code are stored. The browser key cannot rea
 
 ## Presenting
 
-Open `#/present` (or press **Shift+P** anywhere) for presenter mode: a bar along the bottom with a 6-step demo script and speaker notes, Back/Next, a "do it for me" fallback on the interactive steps, replay speed (1×/2×/4×) for recording, and **Reset demo** to clear all progress. Shift+P or × hides it.
+Open `#/present` (or press **Shift+P** anywhere) for presenter mode: a bar along the bottom with an 8-step demo script and speaker notes, Back/Next, a "do it for me" fallback on the interactive steps, replay speed (1×/2×/4×) for recording, and **Reset demo** to clear all progress. Shift+P or × hides it.
 
 ## Tech
 
