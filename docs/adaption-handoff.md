@@ -4,7 +4,24 @@ For a Claude session that has Adaption API access (`ADAPTION_API_KEY`).
 
 **There is no Anthropic API key.** The user runs Claude Code on a Claude Pro subscription. Claude-written data is therefore produced **by you, in the Claude Code session**, the way the ASAP-SAS pilot was done: write rows to files in batches, checkpoint them, and validate them with local scripts. Plan for subscription usage limits: batches of roughly 100–200 rows per turn, resumable from the last checkpoint. Do not ask the user for an Anthropic key, and do not build anything that needs one.
 
-It is self-contained: read this file, then `README.md` ("Evidence and marking"), then `research/asap-sas-pilot/README.md`.
+It is self-contained: read this file, then `README.md` ("The integrated assessment" and "Evidence and marking"), then `research/asap-sas-pilot/README.md`.
+
+## 0. Status at handover (2026-11-18, `main` at `a285d62`)
+
+**Done and on `main`**
+- **Assessment** at two levels. Level 1 is the core challenges. Level 2 adds IF blocks, a seventh edge-case test and a higher usefulness target. Six challenges are drawn per pupil, one per theme, from 21.
+- **Required written answers**, which are the model's inputs: attack prediction, curveball explanation, release rationale.
+- **Six AI-risk curveballs** (for the six original school challenges).
+- **Marker interface** with concept→level rules for three criteria. An offline keyword preview fills it until the model plugs in.
+- **Evidence export** with `level`, `challengeId`, curveballs and preview marks.
+- **ASAP-SAS pilot:** the concept-check method matched human markers on public data (§6).
+- **Tests:** 185 pass (`npm test`), plus a clean type-check and build.
+
+**Not done**
+- **Curveballs** for the other 15 challenges (§7 step 4).
+- **Concept rules for Revision and efficiency.** Only Testing, Anticipation and Judgement have rules in `levelFor`.
+- **More release-decision scenarios.** There is only the ecology club.
+- **All model work:** SDK check, codebook document, data generator, training, evaluation, serving (§7).
 
 ## 1. Goal
 
@@ -16,11 +33,13 @@ Train a model that, for a pupil's open response in the Safeguard Studio assessme
 
 **Justifiable means traceable.** Every point must trace back to quoted evidence and a published rule.
 
-## 2. Where things are (branch `claude/peaceful-bell-8g2qjg`, built on `main` 37b0877)
+## 2. Where things are (`main` at `a285d62`)
 
-- **Assessment ("form 4").** Six challenges are built, evaluated and attacked, followed by one release decision.
+- **Assessment ("form 4").** Six challenges, drawn one per theme from the 21, are built, evaluated, attacked and (where one exists) curveballed, followed by one release decision.
+  - **Level 1 or Level 2,** chosen before the draw (`Mission.level`). Level 2 uses `getChallenge(id + '@2')`: IF / IF-ELSE blocks, a seventh edge-case test (`src/data/level2.ts`) and a higher usefulness target (`usefulnessTarget`). `challengeIdFor(m, desk)` gives the right id.
+  - **Saved builds are block keys** (`blockKey` in `src/engine/scriptText.ts`). An IF block is saved as e.g. `if:numbers:remove_pii:`. `keyToBlock` / `ruleScript` rebuild runnable scripts. Always go through these when generating data, so IF structure is kept.
   - `src/engine/challengeEvidence.ts` produces the exact evidence packet per pupil. Use it as the model's input.
-  - The packet holds the brief, sources, attempts with traces, reflections, design and revision notes, attacks, workload credits and the transfer decision.
+  - The packet holds `level`, the brief, sources, and per challenge: `challengeId`, attempts with traces, reflections, design and revision notes, the attack (cases plus the pupil's `reason`), the curveball (prediction, reason, outcome) and offline `previewMarks`. It also holds workload credits and the transfer decision with its preview mark.
 - **Simulator.** `src/engine/run.ts`, `src/engine/mission.ts`. These are deterministic and compute outcomes, traces and credits. **No model may compute or override these.**
 - **Synthetic attempt histories.** `src/data/seedClass.ts` (`simulateStudent`).
 - **Rubric.** `README.md` has 4 criteria (Anticipation, Testing and diagnosis, Revision and efficiency, Independent judgement). Each has levels 0/1/2 plus "insufficient evidence".
@@ -33,7 +52,7 @@ Train a model that, for a pupil's open response in the Safeguard Studio assessme
   - `offlineMarker` is a keyword preview, labelled as such in the UI (`src/components/MarkFeedback.tsx`). Connect the model with `setMarkingProvider(adapter)`.
   - The evidence export already includes offline `previewMarks` for comparison.
 - **Hint companion.** `src/engine/attackHints.ts` defines the `AttackHintProvider(context, signal)` interface. Currently offline and rule-based.
-- **Practice content.** 21 challenges (`src/data/challenges.ts`, `src/data/moreChallenges.ts`) plus Level 2 IF blocks (`src/data/level2.ts`).
+- **Practice content.** The same 21 challenges (`src/data/challenges.ts`, `src/data/moreChallenges.ts`) and their Level 2 versions (`src/data/level2.ts`) are also playable outside the assessment.
 
 ## 3. Decisions already made, and why
 
@@ -68,7 +87,18 @@ Free text in form 4 now:
 
 **Resolved by the curveballs:** each challenge now ends with a required curveball prediction and explanation, which is the evidence for **Anticipation**. The design note can stay optional. Training rows must match what pupils actually submit, including a realistic share of blank optional fields.
 
-Criteria and their required evidence: Testing and diagnosis ← attack prediction; Anticipation ← curveball explanation; Independent judgement ← release rationale; Revision and efficiency ← revision note (only when the pupil revises).
+Criteria and their evidence:
+
+| Criterion | Evidence | Concept rules |
+|---|---|---|
+| Testing and diagnosis | Attack prediction | T1–T3 |
+| Anticipation | Curveball explanation | A1–A4 |
+| Independent judgement | Release rationale | C1–C4 |
+| Revision and efficiency | Revision note (only when the pupil revises) | **None yet**; add R concepts in §7 step 3 |
+
+Challenges without a curveball (15 of 21 until §7 step 4) give no Anticipation evidence.
+
+**Level 2 adds IF-specific reasoning.** Pupils may write about conditions ("my IF only fires when a name is mentioned, so an address with no name gets through"). Training data must include this at Level 2. A good Level 2 answer names the condition and why it misses.
 
 ## 5. Adaption API facts
 
@@ -120,15 +150,19 @@ From docs.adaptionlabs.ai, read 2026-11-18. **Verify each against the live SDK f
 
 Each step has a check that counts as done.
 
-1. **Branch.** Create a branch from `main`. Never push to `main`.
+1. **Branch.** Create a branch from `main`, and push to `main` only when the user says so.
 2. **SDK check.** Upload a 5-row raw CSV, `list_models()`, read back `row_count`. *Done when* the real method names and row schema are confirmed, and §5 is updated with anything that differs.
 3. **Codebook v1.** The concept IDs and level rules already exist in `src/engine/marking.ts` (`levelFor`, unit tests in `src/engine/marking.test.ts`).
+   - Add Revision and efficiency concepts (R1–R3 or so, from the README anchor: cites a trace, names the change or keep, compares safety, usefulness and workload). Wire them into `levelFor`, `markOffline` and the report, with tests.
    - Write `docs/marking-codebook.md`, defining each concept precisely with boundary examples (what counts, what doesn't). Keep the IDs.
    - The curveball concepts (A2 risk words, A4 next steps) come from `src/data/curveballs.ts`.
    - The model prompt is this codebook plus the evidence packet.
    - Independent judgement example: C1 uses this term's source (10 am); C2 spots the unresolved detail (accessible entrance); C3 assigns the decision to a suitable person (site manager); C4 makes no unsupported claim (e.g. the north gate).
    - *Done when* the README's worked example scores 2 and its "corrected only the time" example scores 1.
-4. **More transfer scenarios.** Write 20–40 new scenarios like the ecology club, each a transcript plus a conflicting source plus an unresolved detail plus a proportionate next step, with checked reference answers. *Done when* each one has a reference answer that passes the codebook.
+4. **Curveballs for the other 15 challenges, then more transfer scenarios.**
+   - Write one curveball per remaining challenge in `src/data/curveballs.ts`, aimed at a risk that challenge's palette can't fully catch.
+   - Extend `src/engine/curveball.test.ts`'s outcome table for them (reference and "every block" builds, at Level 1 and Level 2).
+   - Then write 20–40 new transfer scenarios like the ecology club, each a transcript plus a conflicting source plus an unresolved detail plus a proportionate next step, with checked reference answers. *Done when* each one has a reference answer that passes the codebook.
 5. **Generator** (`scripts/marking-data/`).
    - Input packets come from `challengeEvidence()` and `simulateStudent`. Cover all three written fields: attack predictions (testing), curveball explanations (anticipation), release rationales (judgement). Use the real simulator outcomes: `launch`/`evaluate` for attacks, `runCurveball` for curveballs.
    - Also write **new curveballs** in the same shape as `src/data/curveballs.ts` (one request, scripted AI answer, risk, lesson, cue words) so training covers risks beyond the six shipped ones. Hold some out for testing.
@@ -141,7 +175,7 @@ Each step has a check that counts as done.
    - The validator rejects a row if:
      - a quote in the reasoning or JSON is missing from the response, source or trace,
      - the reasoning's concept verdicts disagree with the JSON,
-     - the stated level disagrees with `marking/rules.ts`,
+     - the stated level disagrees with `levelFor`,
      - any outcome or credit disagrees with the simulator,
      - or the JSON schema fails.
    - Also generate **follow-up Q&A rows** (goal 2): a pupil question about their mark or feedback, and Claude's answer, which must cite the same concepts and evidence and must not change the mark without new evidence.
@@ -172,7 +206,7 @@ Each step has a check that counts as done.
    - The server calls the trained model, validates the concept JSON, and recomputes the level with the same rules as `levelFor`.
    - No keys in the browser.
 10. **Later: hint preference training.**
-    - Mostly Claude-written pairs for the six challenges: a guiding question is preferred; a reply that gives the answer away is rejected.
+    - Mostly Claude-written pairs across the challenges (both levels): a guiding question is preferred; a reply that gives the answer away is rejected.
     - Each pair is built from a real `AttackHintContext` and carries Claude's reasoning about why the preferred hint guides without revealing.
     - `dmacjam/pedagogical-rewardmodel-data` (CC-BY-4.0, maths) can top the set up to the 12,000 minimum if needed.
 
@@ -180,8 +214,8 @@ Each step has a check that counts as done.
 
 ```json
 {
-  "criterion": "independent_judgement",
-  "rubricVersion": "school-community-4",
+  "criterion": "judgement",
+  "rubricVersion": "marking-concepts-1",
   "concepts": [{"id": "C1", "present": true, "evidence": "<exact quote>", "source": "response|source|trace"}],
   "level": 2,
   "insufficientEvidence": false,
@@ -191,7 +225,7 @@ Each step has a check that counts as done.
 }
 ```
 
-`level` is recomputed by `marking/rules.ts`. A model-reported level that disagrees with it is an error.
+This matches the `Mark` type in `src/engine/marking.ts` (criterion is `testing`, `anticipation` or `judgement`; `level: null` means insufficient evidence). `level` is recomputed by `levelFor`. A model-reported level that disagrees with it is an error.
 
 In training rows, Claude's per-concept reasoning goes in the separate `reasoning_trace` column, and the completion is this JSON. Every quote in the reasoning must also pass the evidence check.
 
