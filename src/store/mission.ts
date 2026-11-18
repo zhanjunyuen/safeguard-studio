@@ -1,0 +1,30 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { newMission, type Mission, type Probe } from '../engine/mission';
+
+interface MissionState {
+  mission: Mission;
+  pending: Partial<Probe>;
+  setPending: (patch: Partial<Probe>) => void;
+  update: (patch: Partial<Mission>) => void;
+  tick: (seconds: number) => void;
+  submitProbe: (probe: Probe) => void;
+  restart: () => void;
+}
+
+export const useMission = create<MissionState>()(persist((set) => ({
+  mission: newMission(), pending: {},
+  setPending: patch => set(s => ({ pending: { ...s.pending, ...patch } })),
+  update: patch => set(s => ({ mission: { ...s.mission, ...patch } })),
+  tick: seconds => set(s => {
+    const m = s.mission;
+    if (!['build', 'attack', 'revise', 'release'].includes(m.phase)) return s;
+    const elapsed = m.elapsed + seconds;
+    const expired = m.minutes > 0 && elapsed >= m.minutes * 60;
+    return { mission: { ...m, elapsed: expired ? m.minutes * 60 : elapsed, phase: expired ? 'expired' : m.phase } };
+  }),
+  submitProbe: probe => set(s => ({
+    mission: { ...s.mission, probes: [...s.mission.probes, probe] }, pending: {},
+  })),
+  restart: () => set({ mission: newMission(), pending: {} }),
+}), { name: 'school-community-assessment-v1' }));

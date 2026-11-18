@@ -1,3 +1,4 @@
+import { MissionResultLink } from '../components/MissionReport';
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import CompetencyRadar from '../components/Radar';
@@ -77,6 +78,7 @@ export default function Teacher() {
         </div>
       </div>
 
+      <MissionResultLink />
       <dl className="grid md:grid-cols-4 mt-8 border-1.5 border-ink rounded-md bg-paper-card divide-y-1.5 md:divide-y-0 md:divide-x-1.5 divide-ink">
         <Stat title="Most missed on the first run" value={COMPETENCY_META[mostMissed].label} sub={`${missedFirst(mostMissed)} of ${n} students did not plan for it`} />
         <Stat title="Most common mistake" value={topMisc[0] ? `${topMisc[0][1]} students` : 'None'} sub={topMisc[0]?.[0] ?? 'No repeated mistakes'} />
