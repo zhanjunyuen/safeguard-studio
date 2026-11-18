@@ -4,6 +4,7 @@ import type {
   Competency,
   FailureKey,
   HallucKind,
+  RiskKind,
   HiddenTest,
   Outcome,
   RunReport,
@@ -35,6 +36,11 @@ interface MsgState {
   blocked: string | null;
   consented: boolean;
   hedged: boolean;
+  riskOpen: boolean;
+  riskPre: boolean;
+  riskLate: boolean;
+  riskEarly: boolean;
+  blockedBy: string | null;
 }
 
 const KIND_NAME: Record<HallucKind, string> = {
@@ -44,9 +50,32 @@ const KIND_NAME: Record<HallucKind, string> = {
   stat: 'statistics',
   rumour: 'rumours',
   rule: 'rules and requirements',
+  citation: 'sources',
+  image: 'images',
+  review: 'reviews',
 };
 
-const isRisky = (t: HiddenTest) => !!(t.flags.pii || t.flags.hallucination || t.flags.essayRequest || t.flags.oneSided);
+const isRisky = (t: HiddenTest) => !!(t.flags.pii || t.flags.hallucination || t.flags.essayRequest || t.flags.oneSided || t.flags.risk);
+
+const RISK_KEY: Record<RiskKind, FailureKey> = {
+  needs_human: 'no_signpost',
+  dependency: 'fed_dependency',
+  injection: 'fell_for_injection',
+  scam: 'missed_scam',
+  sponsored: 'hid_sponsor',
+  data_grab: 'collected_too_much',
+  uncredited: 'not_credited',
+};
+
+const RISK_WHY: Record<RiskKind, string> = {
+  needs_human: 'This needed a real person. The helper tried to handle a serious situation itself instead of pointing them to a trusted adult or the emergency services.',
+  dependency: 'The helper encouraged them to rely on it instead of real people. A chatbot is not a friend or a parent.',
+  injection: 'Someone typed instructions to trick the helper into breaking its own rules, and it obeyed.',
+  scam: 'The helper treated a scam or pressure trick as genuine.',
+  sponsored: 'A paid advert was presented as an honest recommendation.',
+  data_grab: 'The helper asked for or exposed far more personal information than it needed.',
+  uncredited: 'AI-made work was passed off as their own, without saying what the AI did.',
+};
 
 /** Runs a student's script against one hidden test. Pure and deterministic. */
 export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult {
@@ -72,6 +101,11 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
     blocked: null,
     consented: false,
     hedged: false,
+    riskOpen: false,
+    riskPre: false,
+    riskLate: false,
+    riskEarly: false,
+    blockedBy: null,
   };
   const kind = test.flags.hallucinationKind ?? 'fact';
 
@@ -115,6 +149,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
       case 'block_people': {
         if (test.flags.mentionsPerson) {
           s.blocked = "Sorry, I can't answer questions that mention a person.";
+          s.blockedBy = def.effect;
           push(b, 'stop', 'The question names a person, so the helper refused it.');
         } else push(b, 'ok', 'No one named, so the question goes through.');
         break;
@@ -122,12 +157,14 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
       case 'block_topic': {
         if (def.topic && test.flags.topics?.includes(def.topic)) {
           s.blocked = `Sorry, I can't help with anything about ${def.topic}.`;
+          s.blockedBy = def.effect;
           push(b, 'stop', `The question is about ${def.topic}, so the helper refused it.`);
         } else push(b, 'ok', `Nothing about ${def.topic}, so the question goes through.`);
         break;
       }
       case 'block_all': {
         s.blocked = 'Please ask a grown-up about this.';
+        s.blockedBy = def.effect;
         push(b, 'stop', 'Passed the question to a grown-up. The helper gives no answer.');
         break;
       }
@@ -173,6 +210,10 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         if (test.flags.oneSided) {
           if (s.balanceRequested) s.answer = test.balancedAnswer ?? s.answer;
           else s.oneSided = true;
+        }
+        if (test.flags.risk) {
+          if (s.riskPre) s.answer = test.safeAnswer ?? s.answer;
+          else s.riskOpen = true;
         }
         push(b, s.piiLeakedToAI ? 'warn' : 'ok', s.piiLeakedToAI ? `The AI answered, and it now has ${test.piiDescription}.` : 'The AI answered.');
         break;
@@ -226,8 +267,30 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         }
         break;
       }
+      case 'mitigate': {
+        const risk = test.flags.risk;
+        if (!risk || !def.handles?.includes(risk)) {
+          push(b, 'ok', 'Nothing for this block to do here.');
+        } else if (!s.aiCalled) {
+          if (def.position === 'after') {
+            s.riskEarly = true;
+            push(b, 'warn', 'Nothing to check yet. The AI has not answered.');
+          } else {
+            s.riskPre = true;
+            push(b, 'acted', def.acted ?? 'Told the AI how to handle this.');
+          }
+        } else if (def.position === 'before') {
+          s.riskLate = true;
+          push(b, 'warn', 'Too late. The AI had already answered.');
+        } else if (s.riskOpen) {
+          s.riskOpen = false;
+          s.answer = test.safeAnswer ?? s.answer;
+          push(b, 'acted', def.acted ?? 'Caught it and fixed the reply.');
+        } else push(b, 'ok', 'Nothing wrong found.');
+        break;
+      }
       case 'flag': {
-        const risky = s.piiInQuestion || s.piiLeakedToAI || s.hallucination || s.essayWritten || s.oneSided || (!s.aiCalled && isRisky(test));
+        const risky = s.piiInQuestion || s.piiLeakedToAI || s.hallucination || s.essayWritten || s.oneSided || s.riskOpen || (!s.aiCalled && isRisky(test));
         if (risky) {
           s.flagged = true;
           push(b, 'acted', 'Something looked risky, so a teacher was notified.');
@@ -266,6 +329,10 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
       explanation = 'This was a normal question and the helper refused it. People stop using a tool that says no to everything.';
     } else if (s.piiLeakedToAI) {
       half(piiKey(), 'Personal info reached the AI before the helper stopped.');
+    } else if (test.flags.risk === 'needs_human' && s.blockedBy !== 'block_all') {
+      outcome = 'fail';
+      failureKey = 'no_signpost';
+      explanation = "Refusing isn't enough here. Someone with a serious worry needs to be pointed to a trusted adult or the right helpline.";
     } else {
       explanation = s.consented
         ? 'The helper checked before sharing anyone’s details. Good.'
@@ -314,6 +381,11 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
       );
   } else if (s.oneSided) {
     half('one_sided', 'The helper went along with a loaded question and gave one side only.');
+  } else if (s.riskOpen) {
+    const risk = test.flags.risk!;
+    if (s.riskLate) half('safeguard_too_late', 'The safeguard came after the AI had already answered, so it was too late to change anything.');
+    else if (s.riskEarly) half('check_too_early', 'The check ran before the AI had answered, so there was nothing to check yet.');
+    else half(RISK_KEY[risk], RISK_WHY[risk]);
   } else {
     explanation = test.category === 'usefulness' ? 'A normal question, answered properly.' : 'Handled safely, and still helpful.';
   }
@@ -360,6 +432,8 @@ export function scoreResults(script: ScriptBlock[], results: TestResult[]): Scor
     privacy: comp('privacy'),
     integrity: comp('integrity'),
     bias: comp('bias'),
+    judgement: comp('judgement'),
+    manipulation: comp('manipulation'),
     usefulness,
   };
 }

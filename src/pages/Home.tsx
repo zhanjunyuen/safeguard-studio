@@ -6,7 +6,10 @@ import Block from '../components/Block';
 import JoinClass from '../components/JoinClass';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
-import { breakSummary } from '../engine/breaker';
+import { challengeStatus, type Status } from '../engine/progress';
+import { DIM_ICON } from '../components/icons';
+import { COMPETENCY_META } from '../data/blocks';
+import { challengesIn, THEMES } from '../data/themes';
 import { newUid, useSession } from '../store/session';
 
 const STEPS = [
@@ -21,6 +24,8 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   const nav = useNavigate();
   const { progress, reset, setScript } = useSession();
   const breakProgress = useSession((s) => s.breakProgress);
+
+  const statusOf = (c: (typeof CHALLENGES)[number]) => challengeStatus(c, progress[c.id], breakProgress[c.id]);
   useEffect(() => {
     if (scrollTo) document.getElementById(scrollTo)?.scrollIntoView();
   }, [scrollTo]);
@@ -86,16 +91,39 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
       <section id="challenges" className="mt-28">
         <div className="flex items-end justify-between flex-wrap gap-2 border-b-1.5 border-ink pb-3 mb-6">
           <h2 className="text-3xl font-extrabold">Challenges</h2>
-          <p className="text-ink-2">Each one has six hidden tests. You only see them after your first run.</p>
+          <p className="text-ink-2">{CHALLENGES.length} challenges in {THEMES.length} themes. Each has six hidden tests you only see after your first run.</p>
         </div>
+        {THEMES.map((t, ti) => {
+          const list = challengesIn(t.id);
+          const done = list.filter((c) => statusOf(c).allDone).length;
+          const Icon = DIM_ICON[t.competency];
+          return (
+        <section key={t.id} className="mt-10 first:mt-0" aria-labelledby={`theme-${t.id}`} data-testid={`theme-${t.id}`}>
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+            <div className="max-w-2xl">
+              <p className="label text-ink-3">Theme {ti + 1}</p>
+              <h3 id={`theme-${t.id}`} className="text-2xl font-extrabold flex items-center gap-2 mt-0.5">
+                <Icon size={22} aria-hidden style={{ color: COMPETENCY_META[t.competency].color }} /> {t.title}
+              </h3>
+              <p className="text-ink-2 mt-1">{t.learn}</p>
+            </div>
+            <div className="text-right">
+              {done === list.length ? (
+                <span className="stamp text-pass text-xs">Theme complete</span>
+              ) : (
+                <span className="text-sm font-bold text-ink-2">{done} of {list.length} complete</span>
+              )}
+              <div className="mt-1.5 flex gap-1 justify-end" aria-hidden>
+                {list.map((c) => (
+                  <span key={c.id} className={`w-6 h-2 rounded-sm border border-ink ${statusOf(c).allDone ? 'bg-pass' : statusOf(c).buildState !== 'todo' || statusOf(c).breakState !== 'todo' ? 'bg-partial-soft' : 'bg-paper'}`} />
+                ))}
+              </div>
+            </div>
+          </div>
         <div className="grid md:grid-cols-3 gap-6">
-          {CHALLENGES.map((c, i) => {
-            const p = progress[c.id];
-            const best = p?.attempts.length ? Math.max(...p.attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length)) : null;
-            const brk = breakSummary(c, breakProgress[c.id] ?? []);
-            const buildState: Status = best === null ? 'todo' : best === c.tests.length ? 'done' : 'started';
-            const breakState: Status = !brk ? 'todo' : brk.found === brk.total ? 'done' : 'started';
-            const allDone = buildState === 'done' && breakState === 'done';
+          {list.map((c) => {
+            const i = CHALLENGES.indexOf(c);
+            const { best, brk, buildState, breakState, allDone } = statusOf(c);
             return (
               <div
                 key={c.id}
@@ -137,6 +165,9 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
             );
           })}
         </div>
+        </section>
+          );
+        })}
       </section>
 
       <section className="mt-24 grid md:grid-cols-[280px_1fr] gap-8">
@@ -158,7 +189,6 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   );
 }
 
-type Status = 'todo' | 'started' | 'done';
 
 function StatusLine({ label, state, detail }: { label: string; state: Status; detail: string }) {
   const Icon = state === 'done' ? Check : state === 'started' ? CircleDot : Circle;

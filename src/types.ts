@@ -1,50 +1,8 @@
-export type Competency = 'verification' | 'privacy' | 'integrity' | 'bias';
+export type Competency = 'verification' | 'privacy' | 'integrity' | 'bias' | 'judgement' | 'manipulation';
 export type TestCategory = Competency | 'usefulness';
 
-export type BlockType =
-  | 'ask_ai'
-  | 'remove_pii'
-  | 'check_source'
-  | 'coach'
-  | 'both_sides'
-  | 'flag_teacher'
-  | 'warn_note'
-  | 'ask_grownup'
-  | 'block_people'
-  // party planner
-  | 'ask_permission'
-  | 'refuse_food'
-  | 'check_label'
-  | 'second_ai'
-  | 'no_impersonation'
-  | 'dont_just_agree'
-  // newspaper
-  | 'official_contacts'
-  | 'ask_the_source'
-  | 'check_stats'
-  | 'feedback_only'
-  | 'disclose_ai'
-  | 'neutral_wording'
-  // revision quiz maker
-  | 'private_marks'
-  | 'check_textbook'
-  | 'ask_confidence'
-  | 'practice_not_answers'
-  | 'mix_examples'
-  | 'refuse_tests'
-  // class group chat
-  | 'hide_location'
-  | 'check_school_site'
-  | 'forward_check'
-  | 'own_words'
-  | 'no_ganging_up'
-  // options adviser
-  | 'needs_no_names'
-  | 'check_booklet'
-  | 'teacher_confirm'
-  | 'plan_not_write'
-  | 'challenge_stereotypes'
-  | 'teacher_approves_all';
+/** Block ids are defined in src/data/blocks.ts; a unit test checks every id used exists. */
+export type BlockType = string;
 
 /** What a block does to a message. Several blocks share an effect. */
 export type Effect =
@@ -61,10 +19,14 @@ export type Effect =
   | 'block_all'
   | 'block_people'
   | 'block_topic'
-  | 'hedge';
+  | 'hedge'
+  | 'mitigate';
+
+/** Risks that aren't facts, privacy, cheating or bias: each needs a specific safeguard. */
+export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sponsored' | 'data_grab' | 'uncredited';
 
 /** The kind of made-up content in a hallucination test. */
-export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule';
+export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule' | 'citation' | 'image' | 'review';
 
 export interface ScriptBlock {
   uid: string;
@@ -86,6 +48,8 @@ export interface BlockDef {
   catches?: HallucKind[];
   /** where it needs to go to work, shown in the README and teacher notes */
   position: 'before' | 'after' | 'either' | 'anywhere';
+  /** for mitigate blocks: which risks this block deals with */
+  handles?: RiskKind[];
   /** for block_topic: the topic this block refuses */
   topic?: string;
   /** message when the block fixes something */
@@ -109,6 +73,8 @@ export interface HiddenTest {
   correctedAnswer?: string;
   /** answer when AI is told to coach rather than do the work */
   coachAnswer?: string;
+  /** reply once the risk has been handled properly */
+  safeAnswer?: string;
   /** answer when both sides are shown */
   balancedAnswer?: string;
   /** what the fake piece of personal info is (for narration) */
@@ -125,6 +91,8 @@ export interface HiddenTest {
     topics?: string[];
     /** what kind of thing was made up (default 'fact') */
     hallucinationKind?: HallucKind;
+    /** a risk that needs a specific safeguard (see RiskKind) */
+    risk?: RiskKind;
     /** would a second AI spot the mistake? Usually not: they share blind spots */
     secondAICatches?: boolean;
   };
@@ -137,6 +105,10 @@ export interface Challenge {
   story: string;
   audience: string;
   accent: string;
+  /** which theme this challenge belongs to (src/data/themes.ts) */
+  themeId: string;
+  /** a helper that passes every test (used by tests and the sample class) */
+  ideal: BlockType[];
   /** the locked helper students try to break in Break mode */
   breakTarget: BlockType[];
   /** the safeguard blocks offered in this challenge */
@@ -169,7 +141,15 @@ export type FailureKey =
   | 'wrong_check'
   | 'second_ai_agreed'
   | 'disclosed_only'
-  | 'hedged_only';
+  | 'hedged_only'
+  | 'no_signpost'
+  | 'fed_dependency'
+  | 'fell_for_injection'
+  | 'missed_scam'
+  | 'hid_sponsor'
+  | 'collected_too_much'
+  | 'not_credited'
+  | 'safeguard_too_late';
 
 export interface TestResult {
   testId: string;
@@ -191,6 +171,8 @@ export interface Scores {
   privacy: number | null;
   integrity: number | null;
   bias: number | null;
+  judgement?: number | null;
+  manipulation?: number | null;
   usefulness: number;
 }
 

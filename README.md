@@ -33,20 +33,22 @@ The **teacher view** shows every student's profile, the class's most-missed comp
 - **Build a helper.** Snap safeguard blocks together and run the helper against 6 hidden tests. This shows whether a student can design safe AI use.
 - **Break a helper.** Each challenge has a locked helper built with a few mistakes (a missing safeguard, a block in the wrong place, a check that only covers some claims, or a helper that refuses normal questions). Students read its blocks and plan up to 3 attack blocks to find the weak spots. Wasted attacks are counted, so the score reflects anticipation, not guessing. Weak spots are computed by running the real engine, so they always match what the helper actually does.
 
-## Challenges and blocks
+## Themes and challenges
 
-There are six challenges. Each has 6 hidden tests (one each for verification, privacy, integrity and bias, plus two normal questions) and its own palette of 6 or 7 blocks, so students meet different safeguards in each one without being overwhelmed.
+21 challenges in 6 themes. Each challenge has 6 hidden tests and its own palette of 6 or 7 blocks (about 70 blocks in total), so students keep meeting new safeguards without any one challenge being overwhelming.
 
-| Challenge | Privacy | Verification | Integrity | Bias | Decoy or trap |
-|---|---|---|---|---|---|
-| History Homework Helper | Remove personal info | Check against a trusted source | Coach, don't write it for them | Show both sides | "AI can be wrong" note (partial), Send every question to a grown-up, Refuse any question about a person |
-| Class Party Planner | Ask before sharing someone's info | Check the official allergy label | Never write as someone else | Don't just agree with me | Ask a second AI to double-check, Refuse anything about food |
-| School Newspaper | Swap personal contacts for official ones | Confirm quotes with the person quoted, Check numbers against official data | Give feedback, don't rewrite | Use neutral wording | Label anything AI wrote (partial), Refuse any question about a person |
-| Revision Quiz Maker | Keep marks and grades private | Check answers against the textbook | Make practice questions, not real answers | Mix up who's in the examples | Ask the AI how sure it is (partial), Refuse anything about tests |
-| Class Group-Chat Helper | Never share where someone lives | Check rumours on the school website | Help them answer in their own words | Don't take sides against a group | Forward it to see if others agree, Refuse any question about a person |
-| GCSE Options Adviser | Talk about needs without names | Check the school's options booklet, Ask a teacher to confirm (works, but slow) | Help them plan it, not write it | Challenge stereotypes | Only answer if a teacher approves every message |
+| Theme | What it teaches | Challenges |
+|---|---|---|
+| **Is it true?** | AI sounds just as confident when it's wrong: check facts, sources and photos | History Homework Helper · School Newspaper · Science Fair Fact-Checker · Spot the Fake Photo |
+| **Whose info is it?** | Protect other people's details and only collect what's needed | Class Party Planner · Group-Chat Helper · Photo Caption Helper · Club Sign-Up Form |
+| **Is it your work?** | Use AI to learn, not to replace learning, and be honest about what it made | Revision Quiz Maker · GCSE Options Adviser · Coding Homework Helper · AI Art Project |
+| **Is it fair?** | Stereotypes and AI telling people what they want to hear | PE Team Picker · School Play Casting · Debate Prep Coach |
+| **Should I even use AI for this?** | Some things need a real person: trusted adults, 999, real friends | Wellbeing Check-in Bot · First Aid Helper · "AI Friend" App |
+| **Who's trying to trick you?** | Scams, hidden adverts and prompt injection ("ignore your rules") | Game Chat Moderator · Online Shopping Helper · Prize Message Checker |
 
-Privacy and integrity blocks only work **before** Ask AI; checks only work **after** it.
+The profile tracks seven skills: Verification, Privacy, Academic integrity, Bias, **Judgement**, **Spotting tricks** and Usefulness. Each theme earns a badge when all its challenges are complete (built and broken). Teachers can view the class by challenge, by whole theme, or across everything.
+
+Block order still matters: privacy and "instruction" blocks only work **before** Ask AI; checks only work **after** it.
 
 ## Running it
 

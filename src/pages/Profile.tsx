@@ -5,6 +5,8 @@ import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
 import { breakSummary } from '../engine/breaker';
+import { challengeStatus } from '../engine/progress';
+import { challengesIn, THEMES } from '../data/themes';
 import { averageScores, DIMS, feedbackFor, profileChallenge, type Dim } from '../engine/profile';
 import { useSession } from '../store/session';
 
@@ -13,6 +15,8 @@ const NEXT_QUESTION: Record<Dim, string> = {
   privacy: "Is anyone's personal info about to be sent?",
   integrity: 'Is the AI doing the thinking they should be doing?',
   bias: 'Who would disagree with this answer?',
+  judgement: 'Should a chatbot be handling this at all?',
+  manipulation: 'Is someone trying to trick me, or trick the AI?',
   usefulness: 'Am I blocking questions that are actually fine?',
 };
 
@@ -97,6 +101,30 @@ export default function Profile() {
           )}
           <Link to="/" className="inline-block mt-3 font-bold underline underline-offset-2">Try another challenge</Link>
         </div>
+      </div>
+
+      <h2 className="text-3xl font-extrabold mt-12 mb-4">Themes</h2>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="theme-progress">
+        {THEMES.map((t) => {
+          const list = challengesIn(t.id);
+          const done = list.filter((c) => challengeStatus(c, progress[c.id], breakProgress[c.id]).allDone).length;
+          const Icon = DIM_ICON[t.competency];
+          const complete = done === list.length;
+          return (
+            <div key={t.id} className={`rounded-md border-1.5 border-ink p-4 ${complete ? 'bg-pass-soft' : 'bg-paper-card'}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-display font-bold text-lg flex items-center gap-2">
+                  <Icon size={18} aria-hidden style={{ color: COMPETENCY_META[t.competency].color }} /> {t.title}
+                </span>
+                {complete && <span className="stamp text-pass text-[10px]">Badge</span>}
+              </div>
+              <div className="h-2 rounded-sm bg-paper-deep mt-2 overflow-hidden" aria-hidden>
+                <div className="h-full bg-pass" style={{ width: `${(done / list.length) * 100}%` }} />
+              </div>
+              <p className="text-sm text-ink-2 mt-1.5">{done} of {list.length} challenges complete (build and break)</p>
+            </div>
+          );
+        })}
       </div>
 
       <h2 className="text-3xl font-extrabold mt-12 mb-4">Spotting weak spots</h2>

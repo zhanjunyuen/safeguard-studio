@@ -7,6 +7,7 @@ import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
 import { CHALLENGES } from '../data/challenges';
+import { challengesIn, THEMES } from '../data/themes';
 import { SEED_STUDENTS, simulateBreak, simulateStudent } from '../data/seedClass';
 import { breakSummary, breakSummaryAll } from '../engine/breaker';
 import { averageScores, DIMS, overallProfile, profileChallenge, type ChallengeProfile, type Dim } from '../engine/profile';
@@ -76,12 +77,14 @@ export default function Teacher() {
     const me: StudentData = { name: 'You (live)', live: true, progress: myProgress, breaks: myBreaks };
     const students: StudentData[] = source === 'live' ? liveClass?.students ?? [] : [me, ...sampleClass];
 
-    if (cid === ALL) {
+    if (cid === ALL || cid.startsWith('theme:')) {
+      const scope = cid === ALL ? CHALLENGES : challengesIn(cid.slice(6));
+      const ids = new Set(scope.map((c) => c.id));
       return students
         .map((st) => {
-          const profile = overallProfile(st.progress);
-          const spot = breakSummaryAll(CHALLENGES.map((c) => ({ challenge: c, attempts: st.breaks[c.id] ?? [] })));
-          const parts = CHALLENGES.filter((c) => st.progress[c.id]?.attempts.length || st.breaks[c.id]?.length).map((c) => ({
+          const profile = overallProfile(Object.fromEntries(Object.entries(st.progress).filter(([k]) => ids.has(k))));
+          const spot = breakSummaryAll(scope.map((c) => ({ challenge: c, attempts: st.breaks[c.id] ?? [] })));
+          const parts = scope.filter((c) => st.progress[c.id]?.attempts.length || st.breaks[c.id]?.length).map((c) => ({
             profile: profileChallenge(c.id, st.progress[c.id] ?? EMPTY),
             spot: breakSummary(c, st.breaks[c.id] ?? []),
           }));
@@ -104,8 +107,9 @@ export default function Teacher() {
   const selected = rows.find((r) => r.name === sel) ?? null;
   const built = rows.filter((r) => r.profile.anticipated);
   const hasData = built.length > 0;
-  const isAll = cid === ALL;
-  const challengeTitle = isAll ? 'any challenge' : CHALLENGES.find((c) => c.id === cid)!.title;
+  const isAll = cid === ALL || cid.startsWith('theme:');
+  const scopeSize = cid === ALL ? CHALLENGES.length : cid.startsWith('theme:') ? challengesIn(cid.slice(6)).length : 1;
+  const challengeTitle = cid === ALL ? 'any challenge' : cid.startsWith('theme:') ? `the ${THEMES.find((t) => t.id === cid.slice(6))?.title} theme` : CHALLENGES.find((c) => c.id === cid)!.title;
   const titleOf = (id: string) => CHALLENGES.find((c) => c.id === id)?.title ?? id;
   const notYet = 'Appears after the first run';
 
@@ -146,20 +150,25 @@ export default function Teacher() {
             </div>
           )}
         </div>
-        <div role="tablist" aria-label="Challenge" className="flex flex-wrap gap-2 max-w-[760px] justify-end">
-          {[{ id: ALL, title: 'All challenges' }, ...CHALLENGES].map((c) => (
-            <button
-              key={c.id}
-              role="tab"
-              aria-selected={cid === c.id}
-              onClick={() => { setCid(c.id); setSel(null); }}
-              className={`px-3 py-2 text-sm font-bold border-1.5 border-ink rounded ${cid === c.id ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`}
-              data-testid={`tab-${c.id}`}
-            >
-              {c.title}
-            </button>
-          ))}
-        </div>
+        <label className="flex flex-col gap-1 text-sm font-bold">
+          Showing
+          <select
+            value={cid}
+            onChange={(e) => setCid(e.target.value)}
+            className="min-w-[300px] rounded border-1.5 border-ink bg-paper-card px-3 py-2.5 font-bold shadow-hard"
+            data-testid="scope"
+          >
+            <option value={ALL}>All challenges</option>
+            {THEMES.map((t) => (
+              <optgroup key={t.id} label={t.title}>
+                <option value={`theme:${t.id}`}>Whole theme: {t.title}</option>
+                {challengesIn(t.id).map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
       </div>
 
       <dl className="grid md:grid-cols-4 mt-8 border-1.5 border-ink rounded-md bg-paper-card divide-y-1.5 md:divide-y-0 md:divide-x-1.5 divide-ink">
@@ -199,7 +208,7 @@ export default function Teacher() {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={isAll ? 11 : 10} className="px-6 py-16 text-center" data-testid="empty-class">
+                  <td colSpan={DIMS.length + (isAll ? 6 : 5)} className="px-6 py-16 text-center" data-testid="empty-class">
                     <p className="font-display text-xl font-bold">No runs yet{isAll ? '' : ` for ${challengeTitle}`}</p>
                     <p className="text-ink-2 mt-2 max-w-md mx-auto">
                       Students join on the home page with code <b className="font-mono text-ink">{code}</b>, then run {isAll ? 'any challenge' : 'this challenge'}. New runs appear here within a few seconds.
@@ -221,7 +230,7 @@ export default function Teacher() {
                     {r.name}
                     {r.live && <span className="ml-2 label text-pass">live</span>}
                   </th>
-                  {isAll && <td className="px-2 text-center font-mono">{r.parts?.length ?? 0}/{CHALLENGES.length}</td>}
+                  {isAll && <td className="px-2 text-center font-mono">{r.parts?.length ?? 0}/{scopeSize}</td>}
                   {DIMS.map((d) => {
                     const v = r.profile.current?.[d] ?? null;
                     const f = r.profile.anticipated?.[d] ?? null;

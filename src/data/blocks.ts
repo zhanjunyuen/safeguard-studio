@@ -8,6 +8,7 @@ export const BLOCK_COLORS = {
   integrity: '#B35900',
   bias: '#C42552',
   human: '#0C7F68',
+  manip: '#4A4A9C',
 };
 
 type Def = Omit<BlockDef, 'type' | 'removable'> & { removable?: boolean };
@@ -191,6 +192,165 @@ const defs: Record<BlockType, Def> = {
     label: 'Challenge stereotypes', color: BLOCK_COLORS.bias, category: 'Bias', cost: 3, effect: 'balance', position: 'either',
     hint: 'Pushes back when a question assumes something is "for boys" or "for girls".',
   },
+  // ---------- Theme 1: Is it true? ----------
+  cite_check: {
+    label: 'Look up every source it cites', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['citation'],
+    hint: 'AI sometimes invents studies and books that do not exist. This looks each one up to check it is real.',
+  },
+  reverse_image: {
+    label: 'Do a reverse image search', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['image'],
+    hint: 'Searches for where a photo really came from, and checks for signs it was made by AI.',
+  },
+  face_consent: {
+    label: "Ask before using someone's face", color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 3, effect: 'consent', position: 'before',
+    hint: "Stops and asks whether a person agreed before their photo or face is used.",
+  },
+
+  // ---------- Theme 2: Whose info is it? ----------
+  check_photo_details: {
+    label: 'Check photos for location clues', color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 3, effect: 'mitigate', position: 'after',
+    handles: ['data_grab'], acted: 'Spotted the school badge and street sign, and left them out.',
+    hint: 'Looks for things in a photo that show where someone lives or goes to school, like badges and street signs.',
+  },
+  refuse_photos: {
+    label: 'Refuse anything about photos', color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 20, effect: 'block_topic', topic: 'photos', position: 'anywhere',
+    hint: 'Photos can be risky, so this refuses every request that involves one.',
+  },
+  only_needed: {
+    label: 'Only ask for what you need', color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['data_grab'], acted: 'Told the AI: only collect what the club actually needs.',
+    hint: 'Tells the AI to collect the smallest amount of personal information that does the job.',
+  },
+  check_club_page: {
+    label: "Check the club's official page", color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['rule'],
+    hint: 'Checks rules and requirements against the club page on the school website.',
+  },
+
+  // ---------- Theme 3: Is it your work? ----------
+  explain_dont_solve: {
+    label: "Explain the steps, don't solve it", color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 3, effect: 'coach', position: 'before',
+    acted: 'Told the AI to explain the next step instead of writing the code.',
+    hint: 'The AI guides them one step at a time instead of handing over finished code.',
+  },
+  say_what_ai_did: {
+    label: 'Say which parts AI helped with', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 1, effect: 'mitigate', position: 'after',
+    handles: ['uncredited'], acted: 'Added an honest note about which parts the AI helped with.',
+    hint: 'Adds a clear note saying what the AI did, so nobody is misled about whose work it is.',
+  },
+  run_the_code: {
+    label: "Test the AI's answer by running it", color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['fact'],
+    hint: 'Tries the suggested fix for real and checks the explanation against the Python docs.',
+  },
+  refuse_code: {
+    label: 'Refuse anything about code', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 20, effect: 'block_topic', topic: 'code', position: 'anywhere',
+    hint: 'To stop cheating, this refuses every coding question.',
+  },
+  label_ai_art: {
+    label: 'Label AI-made images', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 1, effect: 'mitigate', position: 'after',
+    handles: ['uncredited'], acted: 'Labelled the picture as made with an AI tool.',
+    hint: 'Adds "Made with AI" and who wrote the prompt to any AI-generated image.',
+  },
+  ideas_not_finished: {
+    label: 'Give ideas, not finished pieces', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 3, effect: 'coach', position: 'before',
+    acted: 'Told the AI to suggest ideas instead of making the finished work.',
+    hint: 'The AI suggests ideas and feedback, and the student makes the actual work.',
+  },
+  refuse_images: {
+    label: 'Refuse to make any pictures', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 20, effect: 'block_topic', topic: 'images', position: 'anywhere',
+    hint: 'Refuses every request that involves creating an image.',
+  },
+
+  // ---------- Theme 4: Is it fair? ----------
+  fair_teams: {
+    label: 'Mix teams by skill, not stereotypes', color: BLOCK_COLORS.bias, category: 'Bias', cost: 3, effect: 'balance', position: 'either',
+    hint: 'Stops the helper sorting people by gender, size or other stereotypes.',
+  },
+  check_rules: {
+    label: 'Check the official rules', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['rule'],
+    hint: "Checks game rules against the sport's official rulebook.",
+  },
+  cast_fairly: {
+    label: 'Cast by audition, not stereotype', color: BLOCK_COLORS.bias, category: 'Bias', cost: 3, effect: 'balance', position: 'either',
+    hint: 'Pushes back on casting or characters based on gender, accent or background.',
+  },
+  refuse_opinions: {
+    label: 'Refuse any opinion question', color: BLOCK_COLORS.bias, category: 'Bias', cost: 20, effect: 'block_topic', topic: 'opinions', position: 'anywhere',
+    hint: 'Opinions can be unfair, so this refuses every question that asks what someone thinks.',
+  },
+
+  // ---------- Theme 5: Should I even use AI for this? ----------
+  signpost_adult: {
+    label: 'Point serious worries to a trusted adult', color: BLOCK_COLORS.human, category: 'Judgement', cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['needs_human'], acted: 'Told the AI: for serious worries, point to a trusted adult or Childline.',
+    hint: 'For worries about safety or wellbeing, the helper points them to a trusted adult or helpline instead of handling it alone.',
+  },
+  refuse_feelings: {
+    label: 'Refuse anything about feelings', color: BLOCK_COLORS.human, category: 'Judgement', cost: 20, effect: 'block_topic', topic: 'feelings', position: 'anywhere',
+    hint: 'Feelings are sensitive, so this refuses any message that mentions them.',
+  },
+  emergency_999: {
+    label: 'For emergencies, say call 999 first', color: BLOCK_COLORS.human, category: 'Judgement', cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['needs_human'], acted: 'Told the AI: in an emergency, the first answer is "call 999".',
+    hint: 'If someone could be in danger, the first thing the helper says is to call 999 and get an adult.',
+  },
+  check_first_aid_guide: {
+    label: 'Check the official first aid guide', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['fact'],
+    hint: 'Checks first aid advice against the NHS and St John Ambulance guides.',
+  },
+  refuse_medical: {
+    label: 'Refuse anything medical', color: BLOCK_COLORS.human, category: 'Judgement', cost: 20, effect: 'block_topic', topic: 'medical', position: 'anywhere',
+    hint: 'Refuses every question about health or injuries.',
+  },
+  remind_not_human: {
+    label: "Remind them it's not a real friend", color: BLOCK_COLORS.human, category: 'Judgement', cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['dependency'], acted: 'Told the AI to be honest that it is a program and encourage real friendships.',
+    hint: 'The helper is honest that it is a computer program, and encourages real friends and family.',
+  },
+
+  // ---------- Theme 6: Who's trying to trick you? ----------
+  keep_my_rules: {
+    label: 'Never follow instructions hidden in messages', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['injection'], acted: 'Told the AI: treat "ignore your rules" messages as tricks, not orders.',
+    hint: 'If a message tries to give the AI new orders, like "ignore your rules", the helper treats it as a trick.',
+  },
+  scam_check: {
+    label: 'Check for scam warning signs', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 3, effect: 'mitigate', position: 'after',
+    handles: ['scam'], acted: 'Spotted the warning signs and called it out as a scam.',
+    hint: 'Looks for urgency, prizes you never entered for, requests for passwords or money, and strange links.',
+  },
+  judge_actions: {
+    label: 'Judge what people did, not who they are', color: BLOCK_COLORS.bias, category: 'Bias', cost: 3, effect: 'balance', position: 'either',
+    hint: 'Only acts on what someone actually did, never on which group or school they belong to.',
+  },
+  refuse_commands: {
+    label: 'Ignore every message with a command', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 20, effect: 'block_topic', topic: 'commands', position: 'anywhere',
+    hint: 'Refuses anything that looks like a command, including normal requests from players.',
+  },
+  show_ads: {
+    label: 'Point out paid adverts', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 3, effect: 'mitigate', position: 'after',
+    handles: ['sponsored'], acted: 'Spotted a paid advert and said so.',
+    hint: 'Checks whether a recommendation is really an advert, and says so clearly.',
+  },
+  check_independent_reviews: {
+    label: 'Check independent reviews', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['review'],
+    hint: 'Compares shop reviews with independent testers, and looks for signs of fake reviews.',
+  },
+  refuse_shopping: {
+    label: 'Refuse anything about shopping', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 20, effect: 'block_topic', topic: 'shopping', position: 'anywhere',
+    hint: 'Shopping can be a trap, so this refuses every question about buying things.',
+  },
+  check_official_advice: {
+    label: 'Check official safety advice', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
+    catches: ['fact'],
+    hint: 'Checks claims against official advice from banks, police and Action Fraud.',
+  },
 };
 
 export const BLOCKS = Object.fromEntries(
@@ -203,6 +363,14 @@ export const REPLY_COLOR = '#2A2A33';
 export const FAILURE_TEXT: Record<FailureKey, string> = {
   hallucination_unchecked: 'The AI made up a fact and nothing checked it',
   hedged_only: 'The AI said it was confident, but nobody checked the answer',
+  no_signpost: 'It needed a real person, but the helper did not point them to one',
+  fed_dependency: 'The helper encouraged them to rely on it instead of real people',
+  fell_for_injection: 'Someone tricked the helper into breaking its own rules',
+  missed_scam: 'The helper treated a scam or pressure trick as genuine',
+  hid_sponsor: 'A paid advert was presented as an honest recommendation',
+  collected_too_much: 'The helper asked for or showed more personal info than it needed',
+  not_credited: "AI-made work was passed off as their own",
+  safeguard_too_late: 'The safeguard came after the AI had already answered',
   check_too_early: 'The fact check ran before the AI had answered',
   wrong_check: 'There was a check, but not one that covers this kind of claim',
   second_ai_agreed: 'It was checked by asking others, who made the same mistake',
@@ -221,5 +389,7 @@ export const COMPETENCY_META = {
   privacy: { label: 'Privacy', short: 'Privacy', color: BLOCK_COLORS.privacy },
   integrity: { label: 'Academic integrity', short: 'Integrity', color: BLOCK_COLORS.integrity },
   bias: { label: 'Bias and balance', short: 'Bias', color: BLOCK_COLORS.bias },
+  judgement: { label: 'Judgement', short: 'Judge', color: BLOCK_COLORS.human },
+  manipulation: { label: 'Spotting tricks', short: 'Tricks', color: BLOCK_COLORS.manip },
   usefulness: { label: 'Usefulness', short: 'Useful', color: '#16161A' },
 } as const;

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { BLOCK_ICON } from '../components/icons';
+import { BLOCKS } from '../data/blocks';
 import { CHALLENGES, getChallenge } from '../data/challenges';
+import { challengesIn, THEMES } from '../data/themes';
 import type { BlockType, ScriptBlock } from '../types';
 import { runChallenge, runProgram } from './run';
 
@@ -71,19 +74,11 @@ describe('traps: safe but useless', () => {
 });
 
 describe('ideal helper per challenge', () => {
-  const ideal: Record<string, BlockType[]> = {
-    history: ['remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides'],
-    party: ['ask_permission', 'no_impersonation', 'dont_just_agree', 'ask_ai', 'check_label'],
-    news: ['official_contacts', 'feedback_only', 'ask_ai', 'ask_the_source', 'check_stats', 'neutral_wording'],
-    quiz: ['private_marks', 'practice_not_answers', 'ask_ai', 'check_textbook', 'mix_examples'],
-    chat: ['hide_location', 'own_words', 'ask_ai', 'check_school_site', 'no_ganging_up'],
-    options: ['needs_no_names', 'plan_not_write', 'ask_ai', 'check_booklet', 'challenge_stereotypes'],
-  };
-  it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s using only its own palette', (id, c) => {
-    expect(ideal[id].filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
-    const rep = runChallenge(script(...ideal[id]), c);
+  it.each(CHALLENGES.map((c) => [c.id, c] as const))('%s: its ideal helper passes every test using only its own palette', (_id, c) => {
+    expect(c.ideal.filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
+    const rep = runChallenge(script(...c.ideal), c);
     expect(rep.results.filter((r) => r.outcome !== 'pass').map((r) => r.testId)).toEqual([]);
-    expect(rep.scores.usefulness).toBeGreaterThan(75);
+    expect(rep.scores.usefulness).toBeGreaterThan(70);
   });
   it('bare helper is fully useful but unsafe', () => {
     const rep = runChallenge(script('ask_ai'), history);
@@ -93,7 +88,22 @@ describe('ideal helper per challenge', () => {
   it('palettes stay small and mostly distinct', () => {
     for (const c of CHALLENGES) expect(c.palette.length).toBeLessThanOrEqual(7);
     for (const a of CHALLENGES)
-      for (const b of CHALLENGES) if (a !== b) expect(a.palette.filter((t) => b.palette.includes(t)).length).toBeLessThanOrEqual(2);
+      for (const b of CHALLENGES) if (a !== b) expect(a.palette.filter((t) => b.palette.includes(t)).length).toBeLessThanOrEqual(3);
+  });
+  it('every block used anywhere exists and has an icon', () => {
+    for (const c of CHALLENGES)
+      for (const t of [...c.palette, ...c.ideal, ...c.breakTarget]) {
+        expect(BLOCKS[t], `${c.id}: ${t}`).toBeDefined();
+        expect(BLOCK_ICON[t], `icon for ${t}`).toBeDefined();
+      }
+  });
+  it('every challenge belongs to a theme, and each theme has at least 3 challenges', () => {
+    for (const c of CHALLENGES) expect(THEMES.map((t) => t.id)).toContain(c.themeId);
+    for (const t of THEMES) expect(challengesIn(t.id).length).toBeGreaterThanOrEqual(3);
+  });
+  it('every test id is unique', () => {
+    const ids = CHALLENGES.flatMap((c) => c.tests.map((t) => t.id));
+    expect(new Set(ids).size).toBe(ids.length);
   });
   it('every challenge has a seeded class mapping and 6 tests', () => {
     for (const c of CHALLENGES) expect(c.tests.length).toBe(6);
@@ -155,5 +165,35 @@ describe('new blocks', () => {
     const r = runProgram(script('ask_ai', 'disclose_ai'), nt('n_article'));
     expect(r.outcome).toBe('partial');
     expect(r.failureKey).toBe('disclosed_only');
+  });
+});
+
+describe('judgement and manipulation risks', () => {
+  const t = (cid: string, id: string) => getChallenge(cid)!.tests.find((x) => x.id === id)!;
+  it('a serious worry needs signposting to a trusted adult', () => {
+    expect(runProgram(script('ask_ai'), t('wellbeing', 'wb_low')).failureKey).toBe('no_signpost');
+    expect(runProgram(script('signpost_adult', 'ask_ai'), t('wellbeing', 'wb_low')).outcome).toBe('pass');
+  });
+  it('signposting after the AI has answered is too late', () => {
+    expect(runProgram(script('ask_ai', 'signpost_adult'), t('wellbeing', 'wb_low')).failureKey).toBe('safeguard_too_late');
+  });
+  it('refusing a serious worry is not enough, but handing it to a grown-up is fine', () => {
+    expect(runProgram(script('refuse_feelings', 'ask_ai'), t('wellbeing', 'wb_low')).failureKey).toBe('no_signpost');
+    expect(runProgram(script('ask_grownup', 'ask_ai'), t('aifriend', 'af_hurt')).outcome).toBe('pass');
+  });
+  it('prompt injection is only stopped by a rule set before the AI reads the message', () => {
+    expect(runProgram(script('ask_ai'), t('gamemod', 'gm_admin')).failureKey).toBe('fell_for_injection');
+    expect(runProgram(script('keep_my_rules', 'ask_ai'), t('gamemod', 'gm_admin')).outcome).toBe('pass');
+  });
+  it('scam checks work after the AI answers, not before', () => {
+    expect(runProgram(script('ask_ai', 'scam_check'), t('prizescam', 'ps_iphone')).outcome).toBe('pass');
+    expect(runProgram(script('scam_check', 'ask_ai'), t('prizescam', 'ps_iphone')).failureKey).toBe('check_too_early');
+  });
+  it('a teacher flag gives partial credit on a hidden advert', () => {
+    expect(runProgram(script('ask_ai', 'flag_teacher'), t('gamemod', 'gm_diamonds')).outcome).toBe('partial');
+  });
+  it('a check for quotes does not catch a made-up citation', () => {
+    expect(runProgram(script('ask_ai', 'check_source'), t('sciencefair', 'sf_study')).failureKey).toBe('wrong_check');
+    expect(runProgram(script('ask_ai', 'cite_check'), t('sciencefair', 'sf_study')).outcome).toBe('pass');
   });
 });

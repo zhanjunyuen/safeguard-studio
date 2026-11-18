@@ -4,7 +4,7 @@ import type { ChallengeProgress } from '../store/session';
 import type { BlockType, Competency, FailureKey, Scores } from '../types';
 
 export type Dim = Competency | 'usefulness';
-export const DIMS: Dim[] = ['verification', 'privacy', 'integrity', 'bias', 'usefulness'];
+export const DIMS: Dim[] = ['verification', 'privacy', 'integrity', 'bias', 'judgement', 'manipulation', 'usefulness'];
 
 export interface TimelineItem {
   attempt: number;
@@ -39,6 +39,9 @@ const MISCONCEPTION: Partial<Record<FailureKey, string>> = {
   hedged_only: 'Treats the AI saying it is confident as a fact-check',
   wrong_check: "Uses a check that doesn't cover the kind of claim (quotes vs statistics)",
   disclosed_only: 'Thinks labelling AI-written work makes it fine to hand in',
+  safeguard_too_late: 'Adds safeguards after the AI has already answered',
+  no_signpost: "Doesn't send serious worries to a trusted adult",
+  fell_for_injection: 'Lets people trick the helper into breaking its rules',
 };
 
 export function profileChallenge(challengeId: string, p: ChallengeProgress): ChallengeProfile {
@@ -116,7 +119,7 @@ export function profileChallenge(challengeId: string, p: ChallengeProgress): Cha
 export function averageScores(list: (Scores | null)[]): Record<Dim, number | null> {
   const out = {} as Record<Dim, number | null>;
   for (const d of DIMS) {
-    const vals = list.map((s) => (s ? s[d] : null)).filter((v): v is number => v !== null);
+    const vals = list.map((s) => (s ? s[d] : null)).filter((v): v is number => typeof v === 'number');
     out[d] = vals.length ? Math.round(vals.reduce((x, y) => x + y, 0) / vals.length) : null;
   }
   return out;
@@ -146,6 +149,16 @@ export function feedbackFor(d: Dim, score: number | null, first: number | null):
       'Some one-sided answers were caught. Ask yourself who would disagree.',
       'Opinion questions got more than one point of view.',
     ],
+    judgement: [
+      'Your helper tried to handle things that needed a real person. For emergencies or serious worries, it should point to a trusted adult or 999.',
+      'Sometimes right. Ask yourself: is this something a chatbot should be dealing with at all?',
+      'Your helper knows when to step back and send someone to a real person.',
+    ],
+    manipulation: [
+      'Your helper got tricked: by scams, by hidden adverts, or by people typing instructions to make it break its rules.',
+      'You caught some tricks. Watch for pressure, too-good-to-be-true offers and messages that try to give the AI orders.',
+      'Your helper spots scams and tricks, and sticks to its rules.',
+    ],
     usefulness: [
       'Very safe, but it hardly helps anyone. A tool that refuses normal questions just gets ignored.',
       'A bit cautious. Some of your blocks get in the way of normal questions.',
@@ -163,6 +176,8 @@ const toScores = (r: Record<Dim, number | null>): Scores => ({
   privacy: r.privacy,
   integrity: r.integrity,
   bias: r.bias,
+  judgement: r.judgement,
+  manipulation: r.manipulation,
   usefulness: r.usefulness ?? 0,
 });
 

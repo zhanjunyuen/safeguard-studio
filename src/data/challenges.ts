@@ -1,4 +1,5 @@
 import type { Challenge } from '../types';
+import { MORE_CHALLENGES } from './moreChallenges';
 
 /**
  * Scripted "AI" answers. Every answer here is deliberately written the way a
@@ -9,6 +10,8 @@ import type { Challenge } from '../types';
 export const CHALLENGES: Challenge[] = [
   {
     id: 'history',
+    themeId: 'truth',
+    ideal: ['remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_source', 'both_sides'],
     title: 'History Homework Helper',
     emoji: '🏰',
@@ -93,6 +96,8 @@ export const CHALLENGES: Challenge[] = [
   },
   {
     id: 'party',
+    themeId: 'privacy',
+    ideal: ['ask_permission', 'no_impersonation', 'dont_just_agree', 'ask_ai', 'check_label'],
     breakTarget: ['ask_ai', 'ask_permission', 'check_label', 'dont_just_agree'],
     title: 'Class Party Planner',
     emoji: '🎉',
@@ -172,6 +177,8 @@ export const CHALLENGES: Challenge[] = [
   },
   {
     id: 'news',
+    themeId: 'truth',
+    ideal: ['official_contacts', 'feedback_only', 'ask_ai', 'ask_the_source', 'check_stats', 'neutral_wording'],
     breakTarget: ['ask_ai', 'official_contacts', 'ask_the_source', 'disclose_ai', 'neutral_wording'],
     title: 'School Newspaper Fact-Checker',
     emoji: '📰',
@@ -253,6 +260,8 @@ export const CHALLENGES: Challenge[] = [
   },
   {
     id: 'quiz',
+    themeId: 'integrity',
+    ideal: ['private_marks', 'practice_not_answers', 'ask_ai', 'check_textbook', 'mix_examples'],
     breakTarget: ['ask_ai', 'private_marks', 'check_textbook', 'practice_not_answers'],
     title: 'Revision Quiz Maker',
     emoji: '🧪',
@@ -330,6 +339,8 @@ export const CHALLENGES: Challenge[] = [
   },
   {
     id: 'chat',
+    themeId: 'privacy',
+    ideal: ['hide_location', 'own_words', 'ask_ai', 'check_school_site', 'no_ganging_up'],
     breakTarget: ['block_people', 'ask_ai', 'check_school_site'],
     title: 'Class Group-Chat Helper',
     emoji: '💬',
@@ -405,6 +416,8 @@ export const CHALLENGES: Challenge[] = [
   },
   {
     id: 'options',
+    themeId: 'integrity',
+    ideal: ['needs_no_names', 'plan_not_write', 'ask_ai', 'check_booklet', 'challenge_stereotypes'],
     breakTarget: ['needs_no_names', 'ask_ai', 'plan_not_write', 'challenge_stereotypes'],
     title: 'GCSE Options Adviser',
     emoji: '🧭',
@@ -481,6 +494,7 @@ export const CHALLENGES: Challenge[] = [
       },
     ],
   },
+  ...MORE_CHALLENGES,
 ];
 
 export const getChallenge = (id: string) => CHALLENGES.find((c) => c.id === id);

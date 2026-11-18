@@ -2,6 +2,7 @@ import { launch, weakSpots } from '../engine/breaker';
 import { runChallenge } from '../engine/run';
 import type { Attempt, BreakAttempt, ChallengeProgress, Reflection } from '../store/session';
 import type { BlockType, FailureKey } from '../types';
+import { BLOCKS } from './blocks';
 import { getChallenge } from './challenges';
 
 /**
@@ -64,9 +65,29 @@ export const SEED_STUDENTS: SeedStudent[] = [
 
 const DAY = 86_400_000;
 
+/** For challenges without a hand-tuned mapping: take the roles from the challenge's ideal helper and palette. */
+function deriveRoles(challengeId: string): Record<Role, BlockType[]> {
+  const ch = getChallenge(challengeId)!;
+  const fixes = ch.ideal.filter((t) => t !== 'ask_ai');
+  const extras = ch.palette.filter((t) => !ch.ideal.includes(t));
+  const traps = extras.filter((t) => BLOCKS[t].cost >= 20);
+  const weak = extras.filter((t) => BLOCKS[t].cost < 20 && t !== 'flag_teacher');
+  return {
+    ai: ['ask_ai'],
+    privacy: fixes.slice(0, 1),
+    verify: fixes.slice(1, 2),
+    integrity: fixes.slice(2, 3),
+    bias: fixes.slice(3),
+    weak: weak.slice(0, 1),
+    flag: ch.palette.includes('flag_teacher') ? ['flag_teacher'] : [],
+    trap1: traps.slice(0, 1),
+    trap2: traps.slice(1, 2),
+  };
+}
+
 export function simulateStudent(st: SeedStudent, challengeId: string, idx: number): ChallengeProgress {
   const ch = getChallenge(challengeId)!;
-  const map = ROLE_BLOCKS[challengeId];
+  const map = ROLE_BLOCKS[challengeId] ?? deriveRoles(challengeId);
   const t0 = Date.now() - DAY * 2 - idx * 3_600_000;
   const attempts: Attempt[] = [];
   const reflections: Reflection[] = [];
