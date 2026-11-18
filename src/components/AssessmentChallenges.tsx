@@ -103,7 +103,7 @@ export default function AssessmentChallenges() {
   }
   if (m.phase === 'brief') return <section className="rounded-md border-1.5 border-ink bg-paper-card p-6 space-y-4">
     <h2 className="text-2xl font-extrabold">Six challenges, one from each theme</h2>
-    <p>Your assessment draws six challenges from the {CHALLENGES.length} in the catalogue. You choose which one to work on first. For each one, build with the blocks for that problem, run its hidden tests, and attack the build you evaluated. Some challenges then throw a curveball: a request your helper has never seen, often one no block can fully catch. You predict what will happen and explain why. Your written answers get feedback, and you can ask about it. You can return to the checklist and resume a challenge later.</p>
+    <p>Your assessment draws six challenges from the {CHALLENGES.length} in the catalogue. You choose which one to work on first. For each one, build with the blocks for that problem, run its hidden tests, and attack the build you evaluated. Each challenge then throws a curveball: a request your helper has never seen, often one no block can fully catch. You predict what will happen and explain why. Your written answers get feedback, and you can ask about it. You can return to the checklist and resume a challenge later.</p>
     <fieldset className="space-y-2">
       <legend className="font-bold">Choose your level</legend>
       {([[1, 'Level 1', 'Build each helper from safeguard blocks and pass the six hidden tests. Every block you add runs on every message and slows the helper down.'],

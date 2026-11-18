@@ -99,7 +99,7 @@ function ChallengeReport({ mission }: { mission: Mission }) {
       {c.curveball && <div className="my-2"><p><b>Curveball · {c.curveball.title}</b> ({c.curveball.risk}) · predicted {c.curveball.prediction === 'handles' ? 'handled' : 'gets through'},
         actual {c.curveball.handled ? 'handled' : c.curveball.outcome} · prediction {c.curveball.predictionCorrect ? 'correct' : 'incorrect'}</p>
         <p>{c.curveball.reason}</p><PreviewMark mark={c.curveball.previewMark} /></div>}
-      {c.revisionNote && <p>{c.revisionNote}</p>}
+      {c.revisionNote && <div><p><b>Revision note</b> · {c.revisionNote}</p>{c.previewMarks?.revision && <PreviewMark mark={c.previewMarks.revision} />}</div>}
     </details>)}
     <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>
       {packet.attackHints.map((h, i) => <p key={i}>{h.desk} · {h.text}</p>)}</details>
