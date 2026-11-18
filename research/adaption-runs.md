@@ -60,3 +60,23 @@ Eval loss was still falling at the last step, so the run looks under-trained. Th
 1. **Ship the zero-shot marker first.** The app's AI marking path could use a hosted model, such as `qwen3.5-397b`, with the codebook prompt from `build.ts`. `levelFor` computes the level and the quotes are checked against the pupil's text, as now. That works today; an adapter needs separate hosting.
 2. **If we train again:** use 2–3 epochs or `max_iterations` 3, find a way to keep the reasoning traces, and add more Claude-written items, especially anticipation, where agreement is lowest. Ask for the credit budget first.
 3. To use any adapter, it has to be served somewhere that can host LoRA on gpt-oss-120b (handoff §7 step 9).
+
+## Run 2 · 18 Nov 2026
+
+| | |
+|---|---|
+| Run ID | `891462b0-57e2-45f7-be99-b82db18be4e6` |
+| Dataset | `f0bb48dd-8d97-4d8b-83eb-ec65785fbaaf` (`safeguard-marker-train-v2`, 2,508 rows, raw mode) |
+| Base model | `openai/gpt-oss-120b` |
+| Method | `instruction`, `max_iterations` 3, `target_win_rate` 0.8 |
+| Augmentation | 0 |
+| Columns | inferred by Adaption (raw upload: `original_prompt` / `original_completion`) |
+| Hyperparameters (starting) | Adaption's recommendation: LoRA r 4, alpha 8, q/v, 1 epoch, lr 1e-4 (doubled from run 1 for the larger set); later iterations may change them |
+| Status | running (started 21:04 UTC) |
+
+**What changed from run 1:**
+- **Gold batch g01:** 1,443 more Claude-marked items. The pupil answers were written by six Adaption-hosted models (`deepseek-v4-flash`, `glm-5.3-flash`, `glm-5.2`, `gemma-4-26b-a4b-it`, `gemma-4-31b-it`, `qwen3.8-27b`), one answer from each batched generation call, with content targets that spread the levels and varied pupil voices. Every concept verdict and quote is Claude's; `build.ts` validated all 1,443 with 0 rejects, and 181 are flagged for wrong claims.
+- **Rows:** train 2,508 (marking 1,964, robustness 349, follow-up 195); test unchanged at 84.
+- **By level (train):** 0: 668, 1: 1,099, 2: 727.
+- **Not yet blind-judged:** the g01 rows have not been through the qwen judge (the account limit of 25 requests a minute made judging slow), so they are in training unchecked.
+- **Iterations:** 3 rather than 1, so AutoScientist can adjust the hyperparameters, since run 1 was under-trained.
