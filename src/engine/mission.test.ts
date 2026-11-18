@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { BUDGET, evaluate, evaluateBuild, evidence, handled, nextAssignedCase, newMission, totalCost, type Rule } from './mission';
+import { BUDGET, evaluate, evaluateBuild, evidence, handled, submitAttack, newMission, totalCost, type Rule } from './mission';
 
 import { ASSIGNED_CASES } from '../data/mission';
 import { CHALLENGES } from '../data/challenges';
 
 describe('school community assessment', () => {
-  it('requires each existing request in bank order and resumes at the first unanswered one', () => {
+  it('evaluates every existing case and executes the selected attack blocks against the frozen build', () => {
     expect(ASSIGNED_CASES).toEqual(CHALLENGES.flatMap(c => c.tests.map(t => t.id)));
-    const probes = ASSIGNED_CASES.map(id => ({ id, prediction: 'handles' as const, reason: 'Expected outcome' }));
-    for (let i = 0; i < probes.length; i++) {
-      expect(nextAssignedCase(probes.slice(0, i))).toBe(probes[i].id);
-    }
-    expect(nextAssignedCase(probes)).toBeUndefined();
+    const first: Rule[] = [{ type: 'ask_ai', scope: 'all' }];
+    const m = { ...newMission(), first, focus: 'quiz' as const, phase: 'attack' as const,
+      draft: [{ type: 'remove_pii', scope: 'all' } as Rule, ...first], attackPlans: { quiz: ['q_marks', 'q_photo'] } };
+    const launched = submitAttack(m);
+    const [round] = evidence(launched).attackRounds!;
+    expect(round.runs.map(handled)).toEqual([false, true]);
+    expect(submitAttack(launched)).toBe(launched);
+    expect(submitAttack({ ...m, attackPlans: { quiz: ['n_phone'] } }).launches).toHaveLength(0);
+    expect(submitAttack({ ...m, phase: 'evaluation' }).launches).toHaveLength(0);
   });
 
   it('preserves the scope and budget of earlier completed reports', () => {

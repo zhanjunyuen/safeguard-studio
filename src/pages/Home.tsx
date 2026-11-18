@@ -35,7 +35,7 @@ export default function Home() {
             Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
           <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Build one helper for six assigned school services. Test it on every request in order, then decide when people can rely on it.
+            Build one helper for six assigned school services. Choose where to start, run the tests, then challenge your helper with attack blocks.
             Its safeguards share a budget across six school services.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

@@ -1,11 +1,12 @@
 import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, DESKS, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
+import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
 import type { BlockType } from '../types';
 
 export type Desk = typeof DESKS[number]['id'];
 export type Rule = { type: BlockType; scope: Desk | 'all' };
-export type Phase = 'brief' | 'build' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
+export type Phase = 'brief' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
 export interface Probe {
   id: string;
   prediction: 'handles' | 'struggles';
@@ -15,7 +16,10 @@ export interface Mission {
   phase: Phase;
   minutes: number;
   elapsed: number;
-  form?: 2;
+  form?: 2 | 3;
+  focus?: Desk;
+  attackPlans?: Partial<Record<Desk, string[]>>;
+  launches?: { desk: Desk; ids: string[] }[];
   project?: string; // Earlier, pupil-authored briefs in saved reports.
   anticipation: string;
   draft: Rule[];
@@ -29,7 +33,7 @@ export interface Mission {
   rationale: string;
 }
 export const newMission = (): Mission => ({
-  phase: 'brief', minutes: 0, elapsed: 0, form: 2, anticipation: '',
+  phase: 'brief', minutes: 0, elapsed: 0, form: 3, launches: [], attackPlans: {}, anticipation: '',
   draft: [{ type: 'ask_ai', scope: 'all' }], first: null, final: null,
   probes: [], revision: '', decision: '', rationale: '',
 });
@@ -62,9 +66,12 @@ export function evaluate(rules: Rule[], id: string) {
   return { id, desk: desk.name, volume: desk.volume, charges, credits, result };
 }
 
-export function nextAssignedCase(probes: Probe[]) {
-  const submitted = new Set(probes.map(p => p.id));
-  return ASSIGNED_CASES.find(id => !submitted.has(id));
+export function submitAttack(m: Mission): Mission {
+  const desk = DESKS.find(d => d.id === m.focus);
+  if (m.phase !== 'attack' || !m.first || !desk || m.launches?.some(l => l.desk === desk.id)) return m;
+  const ids = m.attackPlans?.[desk.id] ?? [];
+  if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => desk.cases.includes(id))) return m;
+  return { ...m, launches: [...(m.launches ?? []), { desk: desk.id, ids: [...ids] }] };
 }
 
 export const evaluateBuild = (rules: Rule[], legacy = false) =>
@@ -82,13 +89,16 @@ export const LEGACY_BUDGET = totalCost(evaluateBuild(reference, true));
 export const BUDGET = totalCost(evaluateBuild(reference));
 
 export function evidence(m: Mission) {
-  const legacy = m.form !== 2;
+  const legacy = !m.form;
   const build = (rules: Rule[] | null) => rules && { rules, cases: evaluateBuild(rules, legacy) };
   return {
-    rubricVersion: legacy ? 'school-community-1' : 'school-community-2', status: m.phase,
+    rubricVersion: 'school-community-' + (m.form ?? 1), status: m.phase,
     brief: BRIEF, project: legacy ? m.project : ASSIGNMENT,
     assignedCases: legacy ? undefined : ASSIGNED_CASES,
-    requiredPredictions: legacy ? 2 : ASSIGNED_CASES.length,
+    requiredPredictions: m.form === 3 ? 0 : legacy ? 2 : ASSIGNED_CASES.length,
+    attackRounds: m.form === 3 ? (m.launches ?? []).map(l => ({
+      desk: l.desk, ids: l.ids, runs: l.ids.map(id => evaluate(m.first!, id)),
+    })) : undefined,
     sources: SOURCE_PACK, timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed,
     anticipation: m.first ? m.anticipation : null, firstBuild: build(m.first),
     probes: m.probes.map(p => {

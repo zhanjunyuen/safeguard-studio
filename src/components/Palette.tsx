@@ -31,7 +31,7 @@ function PaletteItem({ type, used, onAdd, onHover }: { type: BlockType; used: bo
   );
 }
 
-export default function Palette({ blocks, used, onAdd }: { blocks: BlockType[]; used: Set<BlockType>; onAdd: (t: BlockType) => void }) {
+export default function Palette({ blocks, used, onAdd, credits }: { credits?: (t: BlockType) => number; blocks: BlockType[]; used: Set<BlockType>; onAdd: (t: BlockType) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'palette' });
   const [hover, setHover] = useState<BlockType | null>(null);
   const info = hover ? BLOCKS[hover] : null;
@@ -41,7 +41,8 @@ export default function Palette({ blocks, used, onAdd }: { blocks: BlockType[]; 
       <p className="text-sm text-ink-2 mb-4">Drag a block into your helper, or click it. Drag it back here to take it out.</p>
       <div className="flex flex-col gap-2.5">
         {blocks.map((t) => (
-          <PaletteItem key={t} type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
+          <div key={t}><PaletteItem type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
+            {credits && <span className="text-xs font-mono">{credits(t)} credits</span>}</div>
         ))}
       </div>
       <div className="mt-4 min-h-[96px] border-t-1.5 border-dashed border-line pt-3 text-sm" aria-live="polite">
