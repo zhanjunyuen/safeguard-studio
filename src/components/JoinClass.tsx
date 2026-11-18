@@ -28,7 +28,7 @@ export default function JoinClass() {
     const res = await joinClass(code.trim().toUpperCase(), name.trim());
     setBusy(false);
     if ('error' in res) setError(res.error);
-    else joined(code.trim().toUpperCase(), res.className, res.id, name.trim());
+    else joined(res.code, res.className, res.id, name.trim());
   };
 
   return (
