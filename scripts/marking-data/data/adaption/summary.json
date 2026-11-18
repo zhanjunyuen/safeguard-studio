@@ -1,0 +1,61 @@
+{
+ "train": {
+  "rows": 1065,
+  "droppedHardCases": 60,
+  "judgedRows": 894,
+  "notYetJudged": 28,
+  "byKind": {
+   "marking": 521,
+   "robustness": 349,
+   "followup": 195
+  },
+  "byCriterion": {
+   "testing": 272,
+   "anticipation": 348,
+   "judgement": 186,
+   "revision": 259
+  },
+  "byLevel": {
+   "2": 545,
+   "0": 138,
+   "1": 368,
+   "None": 14
+  },
+  "byAuthor": {
+   "claude": 1014,
+   "deepseek-v4-flash": 51
+  },
+  "charsMedian": 7032,
+  "charsMax": 8456,
+  "approxTokensMax": 2114
+ },
+ "test": {
+  "rows": 84,
+  "droppedHardCases": 1,
+  "judgedRows": 63,
+  "notYetJudged": 19,
+  "byKind": {
+   "marking": 54,
+   "robustness": 27,
+   "followup": 3
+  },
+  "byCriterion": {
+   "testing": 32,
+   "anticipation": 24,
+   "judgement": 25,
+   "revision": 3
+  },
+  "byLevel": {
+   "2": 36,
+   "1": 37,
+   "0": 11
+  },
+  "byAuthor": {
+   "claude": 71,
+   "deepseek-v4-flash": 13
+  },
+  "charsMedian": 6979,
+  "charsMax": 7886,
+  "approxTokensMax": 1971
+ }
+}
