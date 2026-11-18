@@ -514,3 +514,12 @@ export function getChallenge(id: string): Challenge | undefined {
   }
   return level2Cache.get(id);
 }
+
+/** Practice records use separate IDs for each level of the same challenge. */
+export function practiceLevels(challenges: Challenge[]) {
+  return challenges.flatMap(c => [c, getChallenge(c.id + '@2')!]);
+}
+
+export function practiceTitle(id: string) {
+  return `${getChallenge(id)?.title ?? id} · Level ${isLevel2(id) ? 2 : 1}`;
+}

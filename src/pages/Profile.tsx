@@ -5,11 +5,11 @@ import { DIM_ICON } from '../components/icons';
 import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
-import { CHALLENGES } from '../data/challenges';
+import { CHALLENGES, practiceTitle } from '../data/challenges';
 import { breakSummary } from '../engine/breaker';
 import { challengeStatus } from '../engine/progress';
 import { challengesIn, THEMES } from '../data/themes';
-import { averageScores, DIMS, feedbackFor, profileChallenge, type Dim } from '../engine/profile';
+import { averageScores, DIMS, feedbackFor, overallProfile, type Dim } from '../engine/profile';
 import { usePracticeStore } from '../store/session';
 
 const NEXT_QUESTION: Record<Dim, string> = {
@@ -28,7 +28,8 @@ export default function Profile() {
   const progress = useSession((s) => s.progress);
   const breakProgress = useSession((s) => s.breakProgress);
   const breaks = CHALLENGES.map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
-  const profiles = CHALLENGES.filter((c) => progress[c.id]?.attempts.length).map((c) => ({ c, p: profileChallenge(c.id, progress[c.id]) }));
+  const summary = overallProfile(progress);
+  const profiles = summary.parts;
 
   if (!profiles.length && !breaks.length) {
     return (
@@ -41,12 +42,9 @@ export default function Profile() {
     );
   }
 
-  const first = averageScores(profiles.map(({ p }) => p.anticipated));
-  const now = averageScores(profiles.map(({ p }) => p.current));
-  const reflAll = profiles.flatMap(({ c }) => progress[c.id].reflections);
-  const reflAcc = reflAll.length ? Math.round((reflAll.filter((r) => r.correct).length / reflAll.length) * 100) : null;
-  const attempts = profiles.reduce((a, { p }) => a + p.attempts, 0);
-  const misconceptions = [...new Set(profiles.flatMap(({ p }) => p.misconceptions))];
+  const first = averageScores(profiles.map(p => p.anticipated));
+  const now = averageScores(profiles.map(p => p.current));
+  const { reflectionAccuracy: reflAcc, attempts, misconceptions } = summary;
   const weakest = DIMS.filter((d) => now[d] !== null).sort((a, b) => (now[a] ?? 0) - (now[b] ?? 0))[0];
 
   return (
@@ -54,7 +52,7 @@ export default function Profile() {
       <h1 className="text-5xl font-extrabold">My results</h1>
       <MissionResultLink />
       <p className="text-ink-2 mt-2 text-lg max-w-3xl">
-        From {attempts} run{attempts === 1 ? '' : 's'} across {profiles.length} challenge{profiles.length === 1 ? '' : 's'}. The dashed line is your first run,
+        From {attempts} run{attempts === 1 ? '' : 's'} across {summary.done.length} challenge{summary.done.length === 1 ? '' : 's'}. The dashed line is your first run,
         before you had seen any tests. The yellow shape is your latest run.
       </p>
 
@@ -150,9 +148,9 @@ export default function Profile() {
 
       <h2 className="text-3xl font-extrabold mt-12 mb-4">Run by run</h2>
       <div className="grid md:grid-cols-2 gap-6">
-        {profiles.map(({ c, p }) => (
-          <div key={c.id} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
-            <h3 className="text-xl font-extrabold">{c.title}</h3>
+        {profiles.map(p => (
+          <div key={p.challengeId} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+            <h3 className="text-xl font-extrabold">{practiceTitle(p.challengeId)}</h3>
             <Timeline profile={p} />
           </div>
         ))}

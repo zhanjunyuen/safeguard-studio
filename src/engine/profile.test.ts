@@ -37,3 +37,14 @@ describe('overallProfile', () => {
     expect(empty.done).toEqual([]);
   });
 });
+
+it('keeps each level’s timeline and counts both towards one attempted challenge', () => {
+  const summary = overallProfile({
+    history: prog({ attempts: [attempt(50)] }),
+    'history@2': prog({ attempts: [attempt(100)] }),
+  });
+  expect(summary.done).toEqual(['history']);
+  expect(summary.parts.map(p => p.challengeId)).toEqual(['history', 'history@2']);
+  expect(summary.attempts).toBe(2);
+  expect(summary.current?.verification).toBe(75);
+});

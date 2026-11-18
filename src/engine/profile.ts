@@ -1,6 +1,6 @@
 import { COMPETENCY_META, FAILURE_TEXT } from '../data/blocks';
 import { labelOf } from './scriptText';
-import { getChallenge } from '../data/challenges';
+import { baseId, getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType, Competency, FailureKey, Scores } from '../types';
 
@@ -198,7 +198,7 @@ export function overallProfile(progress: Record<string, ChallengeProgress | unde
     fixedFirst: null,
     neverNoticed: [],
     timeline: [],
-    done: parts.map((p) => p.challengeId),
+    done: [...new Set(parts.map(p => baseId(p.challengeId)))],
     parts,
   };
 }

@@ -7,7 +7,7 @@ import { fetchClass } from '../lib/sync';
 import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
-import { CHALLENGES } from '../data/challenges';
+import { baseId, CHALLENGES, getChallenge, practiceLevels, practiceTitle } from '../data/challenges';
 import { challengesIn, THEMES } from '../data/themes';
 import { SEED_STUDENTS, simulateBreak, simulateStudent } from '../data/seedClass';
 import { breakSummary, breakSummaryAll } from '../engine/breaker';
@@ -81,12 +81,13 @@ export default function Teacher() {
 
     if (cid === ALL || cid.startsWith('theme:')) {
       const scope = cid === ALL ? CHALLENGES : challengesIn(cid.slice(6));
-      const ids = new Set(scope.map((c) => c.id));
+      const levels = practiceLevels(scope);
+      const ids = new Set(levels.map((c) => c.id));
       return students
         .map((st) => {
           const profile = overallProfile(Object.fromEntries(Object.entries(st.progress).filter(([k]) => ids.has(k))));
           const spot = breakSummaryAll(scope.map((c) => ({ challenge: c, attempts: st.breaks[c.id] ?? [] })));
-          const parts = scope.filter((c) => st.progress[c.id]?.attempts.length || st.breaks[c.id]?.length).map((c) => ({
+          const parts = levels.filter((c) => st.progress[c.id]?.attempts.length || st.breaks[c.id]?.length).map((c) => ({
             profile: profileChallenge(c.id, st.progress[c.id] ?? EMPTY),
             spot: breakSummary(c, st.breaks[c.id] ?? []),
           }));
@@ -95,7 +96,7 @@ export default function Teacher() {
         .filter((r) => r.parts.length);
     }
 
-    const ch = CHALLENGES.find((c) => c.id === cid)!;
+    const ch = getChallenge(cid)!;
     return students
       .filter((st) => st.progress[cid]?.attempts.length || st.breaks[cid]?.length)
       .map((st) => ({
@@ -111,8 +112,7 @@ export default function Teacher() {
   const hasData = built.length > 0;
   const isAll = cid === ALL || cid.startsWith('theme:');
   const scopeSize = cid === ALL ? CHALLENGES.length : cid.startsWith('theme:') ? challengesIn(cid.slice(6)).length : 1;
-  const challengeTitle = cid === ALL ? 'any challenge' : cid.startsWith('theme:') ? `the ${THEMES.find((t) => t.id === cid.slice(6))?.title} theme` : CHALLENGES.find((c) => c.id === cid)!.title;
-  const titleOf = (id: string) => CHALLENGES.find((c) => c.id === id)?.title ?? id;
+  const challengeTitle = cid === ALL ? 'any challenge' : cid.startsWith('theme:') ? `the ${THEMES.find((t) => t.id === cid.slice(6))?.title} theme` : practiceTitle(cid);
   const notYet = 'Appears after the first run';
 
   const firstAvg = averageScores(rows.map((r) => r.profile.anticipated));
@@ -164,8 +164,8 @@ export default function Teacher() {
             {THEMES.map((t) => (
               <optgroup key={t.id} label={t.title}>
                 <option value={`theme:${t.id}`}>Whole theme: {t.title}</option>
-                {challengesIn(t.id).map((c) => (
-                  <option key={c.id} value={c.id}>{c.title}</option>
+                {practiceLevels(challengesIn(t.id)).map((c) => (
+                  <option key={c.id} value={c.id}>{practiceTitle(c.id)}</option>
                 ))}
               </optgroup>
             ))}
@@ -233,7 +233,7 @@ export default function Teacher() {
                     {r.name}
                     {r.live && <span className="ml-2 label text-pass">live</span>}
                   </th>
-                  {isAll && <td className="px-2 text-center font-mono">{r.parts?.length ?? 0}/{scopeSize}</td>}
+                  {isAll && <td className="px-2 text-center font-mono">{new Set(r.parts?.map(part => baseId(part.profile.challengeId))).size}/{scopeSize}</td>}
                   {DIMS.map((d) => {
                     const v = r.profile.current?.[d] ?? null;
                     const f = r.profile.anticipated?.[d] ?? null;
@@ -296,7 +296,7 @@ export default function Teacher() {
                         <tr key={p.challengeId} className="border-t border-line">
                           <th scope="row" className="py-1.5 text-left font-normal">
                             <button onClick={() => setCid(p.challengeId)} className="font-bold underline underline-offset-2 hover:no-underline text-left">
-                              {titleOf(p.challengeId)}
+                              {practiceTitle(p.challengeId)}
                             </button>
                           </th>
                           <td className="text-center font-mono">{p.attempts || '–'}</td>
