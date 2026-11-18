@@ -60,16 +60,24 @@ export function pushRun(student: string | null, run: RunPayload) {
 
 export async function joinClass(code: string, name: string): Promise<{ id: string; className: string } | { error: string }> {
   if (!supabase) return { error: 'Classes are not set up on this site.' };
-  const { data: className } = await supabase.rpc('class_exists', { p_code: code });
-  if (!className) return { error: 'No class with that code. Check it with your teacher.' };
+  const { data: className, error: lookupErr } = await supabase.rpc('class_exists', { p_code: code });
+  if (lookupErr) {
+    console.error('class_exists failed', lookupErr);
+    return { error: `Couldn't reach the class database (${lookupErr.code ?? ''} ${lookupErr.message}).` };
+  }
+  if (!className) return { error: `No class with the code ${code}. Check it with your teacher (the letter O and the number 0 look alike).` };
   const { data, error } = await supabase.rpc('join_class', { p_code: code, p_name: name });
-  if (error || !data) return { error: 'Could not join right now. Try again in a moment.' };
+  if (error || !data) {
+    if (error) console.error('join_class failed', error);
+    return { error: `Could not join right now${error ? ` (${error.message})` : ''}. Try again in a moment.` };
+  }
   return { id: data as string, className: className as string };
 }
 
 export async function fetchClass(code: string): Promise<{ name: string; students: ClassStudent[] } | null> {
   if (!supabase) return null;
-  const { data: name } = await supabase.rpc('class_exists', { p_code: code });
+  const { data: name, error: lookupErr } = await supabase.rpc('class_exists', { p_code: code });
+  if (lookupErr) console.error('class_exists failed', lookupErr);
   if (!name) return null;
   const { data, error } = await supabase.rpc('class_runs', { p_code: code });
   if (error) return null;
