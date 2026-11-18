@@ -13,8 +13,9 @@ Training log for the marking model (handoff §7 step 7). The set is built by `sc
 | Augmentation | 0 domain rows, 0 general rows |
 | Columns | prompt `original_prompt`, completion `original_completion`, no reasoning trace |
 | Hyperparameters | Adaption's recommendation: LoRA r 4, alpha 8, q/v projections, 1 epoch, lr 5e-5 cosine, `train_on_inputs` false |
-| Status | running (started 17:45 UTC) |
-| `best_win_rate` | pending |
+| Status | succeeded: started 17:45, finished 18:31 UTC (1 iteration, 27 steps) |
+| `best_win_rate` | **0.4293** (target 0.8; Adaption only accepts targets of 0.5 or more) |
+| Adapter | LoRA for `togethercomputer/gpt-oss-120b-bf16`, 6 MB of weights. Kept outside the repo at `~/adaption-adapters/safeguard-marker-run1/` (zstd-compressed tar, even though the extension is `.tgz`) |
 
 **Why this model:** the set is about 1,000 rows, below the 10,000-row minimum for `Qwen/Qwen3.5-122B-A10B` (handoff §3). This first run is kept to one iteration because the credit cost was unknown.
 
@@ -35,3 +36,27 @@ Training log for the marking model (handoff §7 step 7). The set is built by `sc
 - A raw upload stores the columns as `original_prompt` / `original_completion` (plus empty `enhanced_*` columns). Training must name those columns; `prompt` / `completion` are rejected with a 400 error.
 - The column mapping for raw uploads has no `reasoning_trace` key, so a reasoning-trace column is dropped silently. That's why this run trains on the JSON completion alone. To train with reasoning, the dataset would need a different route, for example asking Adaption whether raw ingestion can keep extra columns.
 - The stored rows were downloaded and checked: all 1,065 prompts and completions match the export byte for byte, and the `enhanced_*` columns are empty. Nothing was rewritten.
+
+### Results
+
+**Training loss** (from `trainer_state.json`):
+
+| | Start | End |
+|---|---|---|
+| Training loss | 2.42 | 1.13 |
+| Eval loss | 1.88 (step 7) | 1.31 (step 27) |
+
+Eval loss was still falling at the last step, so the run looks under-trained. That's not surprising: it ran 1 epoch at LoRA rank 4, only on the q/v projections.
+
+**Adaption win rate: 0.43.** This is below 0.5, so by Adaption's own comparison the tuned model did not come out ahead more often than not. Do not treat run 1 as a usable marker.
+
+**Held-out evaluation (handoff §8): not possible from here.**
+- Adaption serves only its general hosted models through the API (`models.list` accepts only `type="hosted"`), so the adapter cannot be called.
+- A 120B base model cannot run on this machine.
+- What we do have is the bar a served adapter must clear. The blind zero-shot judge (`qwen3.5-397b`) agrees with the reference level on **62 of 63** judged held-out test rows (98.4%), and on 94.6% of all judged rows. A strong general model with the codebook in its prompt is already a good marker.
+
+### Next steps (proposed)
+
+1. **Ship the zero-shot marker first.** The app's AI marking path could use a hosted model, such as `qwen3.5-397b`, with the codebook prompt from `build.ts`. `levelFor` computes the level and the quotes are checked against the pupil's text, as now. That works today; an adapter needs separate hosting.
+2. **If we train again:** use 2–3 epochs or `max_iterations` 3, find a way to keep the reasoning traces, and add more Claude-written items, especially anticipation, where agreement is lowest. Ask for the credit budget first.
+3. To use any adapter, it has to be served somewhere that can host LoRA on gpt-oss-120b (handoff §7 step 9).

@@ -20,9 +20,10 @@ It is self-contained: read this file, then `README.md` ("The integrated assessme
 **Done since (branch `adaption-marking-model`, 2026-11-18)**
 - §7 steps 1–4: SDK check (§5), R1–R4 concepts in `levelFor`/`markOffline`/the report, `docs/marking-codebook.md`, curveballs for all 21 challenges, 30 new release-decision scenarios with anchors (`scripts/marking-data/transfer-scenarios.json`).
 - §7 step 5: generator in `scripts/marking-data/` (see its README). Claude-written items, robustness variants, second-model pupil texts and follow-ups are built and validated into prompt / completion / reasoning_trace rows; a blind `qwen3.5-397b` judge on Adaption filters disagreements.
+- §7 steps 6–7: 1,065 training rows exported and uploaded raw. Training run 1 on `openai/gpt-oss-120b` (1 iteration) succeeded but scored `best_win_rate` 0.43, so it is not usable. The zero-shot `qwen3.5-397b` judge agrees with the reference marks on 98.4% of judged held-out rows. Details and next steps are in `research/adaption-runs.md`.
 
 **Not done**
-- Serving (§7 step 9) and hint preference training (step 10). See `research/adaption-runs.md` for training and evaluation status.
+- §8 evaluation of the adapter itself (it cannot be served here), serving (§7 step 9) and hint preference training (step 10). See `research/adaption-runs.md` for training and evaluation status.
 
 ## 1. Goal
 
