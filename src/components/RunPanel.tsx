@@ -2,8 +2,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BLOCKS, COMPETENCY_META } from '../data/blocks';
-import type { Challenge, Outcome, RunReport, StepStatus, TestResult, TraceStep } from '../types';
+import type { Challenge, Outcome, RunReport, ScriptBlock, StepStatus, TestResult, TraceStep } from '../types';
 import { DIM_ICON } from './icons';
+import { blockUsage, usefulnessAdvice } from '../engine/advice';
 
 export const OUTCOME_STYLE: Record<Outcome, { label: string; text: string; soft: string; bar: string }> = {
   pass: { label: 'Pass', text: 'text-pass', soft: 'bg-pass-soft', bar: 'bg-pass' },
@@ -77,6 +78,9 @@ interface Props {
   mode?: 'build' | 'break';
   /** usefulness needed to pass (Build mode) */
   target?: number;
+  /** the helper that was run, for specific usefulness advice */
+  script?: ScriptBlock[];
+  level2?: boolean;
   weakTotal?: number;
 }
 
@@ -84,7 +88,7 @@ const BREAK_STAMP = (o: Outcome) => (o === 'pass' ? { label: 'Held', text: 'text
 
 const panel = 'rounded-md border-1.5 border-ink bg-paper-card p-5';
 
-export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip, mode = 'build', weakTotal = 0, target }: Props) {
+export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip, mode = 'build', weakTotal = 0, target, script = [], level2 = false }: Props) {
   const testsIn = report ? report.results.map((r) => challenge.tests.find((t) => t.id === r.testId)!) : challenge.tests;
   if (replay && report) {
     const r = report.results[replay.testIdx];
@@ -154,7 +158,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
             <p className="text-sm leading-snug">
               <b>Usefulness {u}</b> (needs {target}).{' '}
               {!okU
-                ? 'Too many safeguards are slowing every answer down. Take out the ones you do not need.'
+                ? usefulnessAdvice(script, report, level2, challenge)
                 : report.passed < report.total
                   ? 'Useful enough, now fix the tests that failed.'
                   : 'Safe and useful.'}
@@ -162,6 +166,43 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
           </div>
         );
       })()}
+      {mode === 'build' && target !== undefined && report.scores.usefulness < target && script.length > 0 && (
+        <details className="mt-2 rounded border-1.5 border-line p-2.5 text-sm" open data-testid="usefulness-breakdown">
+          <summary className="font-bold cursor-pointer">Where your usefulness points go</summary>
+          <p className="text-xs text-ink-2 mt-1">Each block costs points on every message it runs on. Blocks inside an IF only cost points when the IF is true.</p>
+          <table className="w-full mt-2">
+            <thead>
+              <tr className="text-left label text-ink-3">
+                <th scope="col" className="py-1 font-bold">Block</th>
+                <th scope="col" className="py-1 px-1.5 text-center font-bold whitespace-nowrap">Ran on</th>
+                <th scope="col" className="py-1 px-1.5 text-center font-bold">Helped</th>
+                <th scope="col" className="py-1 pl-1.5 text-right font-bold">Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {blockUsage(script, report, challenge)
+                .sort((a, b) => b.points - a.points)
+                .map((u) => {
+                  const wasteful = u.ran > 0 && u.helped < u.ran;
+                  return (
+                    <tr key={u.uid} className="border-t border-line align-top">
+                      <th scope="row" className="py-1.5 pr-2 text-left font-normal">
+                        <span className="font-bold">{u.conditional && <span className="font-mono text-[11px] mr-1">IF</span>}{u.label}</span>
+                        {u.helped > 0 && wasteful && <div className="text-xs text-ink-2">Helped on: {u.helpedOn.join(', ')}</div>}
+                        {!u.cueable && !u.conditional && u.helped > 0 && (
+                          <div className="text-xs text-ink-3 italic">Checks need to run every time: you can't tell from the message whether the AI will get it wrong.</div>
+                        )}
+                      </th>
+                      <td className="py-1.5 text-center font-mono">{u.ran}/{report.total}</td>
+                      <td className={`py-1.5 text-center font-mono ${u.helped === 0 ? 'text-fail' : ''}`}>{u.helped}</td>
+                      <td className={`py-1.5 text-right font-mono ${(u.helped === 0 || (wasteful && u.cueable && !u.conditional)) && u.points >= 1 ? 'text-fail font-bold' : ''}`}>−{u.points}</td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </details>
+      )}
       <ol className="mt-3 divide-y-1.5 divide-dashed divide-line border-y-1.5 border-dashed border-line">
         {report.results.map((r, i) => {
           const t = challenge.tests.find((x) => x.id === r.testId)!;

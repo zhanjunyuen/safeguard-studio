@@ -55,6 +55,7 @@ export default function Builder() {
   const script = progress.script;
 
   const [report, setReport] = useState<RunReport | null>(null);
+  const [ranScript, setRanScript] = useState<ScriptBlock[] | null>(null);
   const [replay, setReplay] = useState<{ testIdx: number; stepIdx: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [activeDrag, setActiveDrag] = useState<BlockType | null>(null);
@@ -229,6 +230,7 @@ export default function Builder() {
     const rep = runChallenge(script, challenge);
     recordRun(id, rep);
     setReport(rep);
+    setRanScript(script);
     setDirty(false);
     setSelected(null);
     setReplay({ testIdx: 0, stepIdx: 0 });
@@ -316,7 +318,7 @@ export default function Builder() {
             )}
           </section>
 
-          <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />
+          <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} />
         </div>
 
         <DragOverlay dropAnimation={{ duration: 180 }}>
