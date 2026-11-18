@@ -51,7 +51,9 @@ export default function Teacher() {
   const rows: Row[] = useMemo(() => {
     const ch = CHALLENGES.find((c) => c.id === cid)!;
     if (source === 'live') {
-      return (liveClass?.students ?? []).map((st) => ({
+      return (liveClass?.students ?? [])
+        .filter((st) => st.progress[cid]?.attempts.length || st.breaks[cid]?.length)
+        .map((st) => ({
         name: st.name,
         profile: profileChallenge(cid, st.progress[cid] ?? { script: [], attempts: [], reflections: [], events: [], pendingReflection: null, seen: [] }),
         spot: breakSummary(ch, st.breaks[cid] ?? []),
@@ -70,7 +72,10 @@ export default function Teacher() {
   }, [cid, live, liveBreak, source, liveClass]);
 
   const selected = rows.find((r) => r.name === sel) ?? null;
-  const n = rows.length;
+  const built = rows.filter((r) => r.profile.anticipated);
+  const hasData = built.length > 0;
+  const challengeTitle = CHALLENGES.find((c) => c.id === cid)!.title;
+  const notYet = 'Appears after the first run';
 
   const firstAvg = averageScores(rows.map((r) => r.profile.anticipated));
   const nowAvg = averageScores(rows.map((r) => r.profile.current));
@@ -106,7 +111,6 @@ export default function Teacher() {
                 </label>
               )}
               {source === 'live' && liveErr && <span className="text-fail text-sm font-bold">{liveErr}</span>}
-              {source === 'live' && liveClass && !liveClass.students.length && <span className="text-ink-2 text-sm">No runs yet. Students join with code {code} on the home page.</span>}
             </div>
           )}
         </div>
@@ -126,9 +130,21 @@ export default function Teacher() {
       </div>
 
       <dl className="grid md:grid-cols-4 mt-8 border-1.5 border-ink rounded-md bg-paper-card divide-y-1.5 md:divide-y-0 md:divide-x-1.5 divide-ink">
-        <Stat title="Most missed on the first run" value={COMPETENCY_META[mostMissed].label} sub={`${missedFirst(mostMissed)} of ${n} students did not plan for it`} />
-        <Stat title="Most common mistake" value={topMisc[0] ? `${topMisc[0][1]} students` : 'None'} sub={topMisc[0]?.[0] ?? 'No repeated mistakes'} />
-        <Stat title="Over-cautious" value={`${cautious} student${cautious === 1 ? '' : 's'}`} sub="Blocked normal questions at some point" />
+        <Stat
+          title="Most missed on the first run"
+          value={hasData ? COMPETENCY_META[mostMissed].label : '–'}
+          sub={hasData ? `${missedFirst(mostMissed)} of ${built.length} students did not plan for it` : notYet}
+        />
+        <Stat
+          title="Most common mistake"
+          value={!hasData ? '–' : topMisc[0] ? `${topMisc[0][1]} student${topMisc[0][1] === 1 ? '' : 's'}` : 'None'}
+          sub={!hasData ? notYet : topMisc[0]?.[0] ?? 'No repeated mistakes'}
+        />
+        <Stat
+          title="Over-cautious"
+          value={hasData ? `${cautious} student${cautious === 1 ? '' : 's'}` : '–'}
+          sub={hasData ? 'Blocked normal questions at some point' : notYet}
+        />
         <Stat title="Explained failures correctly" value={reflAvg !== null ? `${reflAvg}%` : '–'} sub="Class average" />
       </dl>
 
@@ -147,6 +163,16 @@ export default function Teacher() {
               </tr>
             </thead>
             <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="px-6 py-16 text-center" data-testid="empty-class">
+                    <p className="font-display text-xl font-bold">No runs yet for {challengeTitle}</p>
+                    <p className="text-ink-2 mt-2 max-w-md mx-auto">
+                      Students join on the home page with code <b className="font-mono text-ink">{code}</b>, then run this challenge. New runs appear here within a few seconds.
+                    </p>
+                  </td>
+                </tr>
+              )}
               {rows.map((r) => (
                 <tr
                   key={r.name}
@@ -210,8 +236,14 @@ export default function Teacher() {
           ) : (
             <div>
               <h2 className="text-xl font-extrabold">Whole class</h2>
-              <CompetencyRadar first={firstAvg} now={nowAvg} height={280} firstLabel="First run" nowLabel="Latest run" />
-              <p className="text-ink-2">The gap between the two shapes is what the class picked up by failing and fixing. Select a student to see their runs.</p>
+              {hasData ? (
+                <>
+                  <CompetencyRadar first={firstAvg} now={nowAvg} height={280} firstLabel="First run" nowLabel="Latest run" />
+                  <p className="text-ink-2">The gap between the two shapes is what the class picked up by failing and fixing. Select a student to see their runs.</p>
+                </>
+              ) : (
+                <p className="text-ink-2 mt-2">The class chart appears once students have run this challenge.</p>
+              )}
             </div>
           )}
         </aside>
