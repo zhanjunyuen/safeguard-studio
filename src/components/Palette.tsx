@@ -20,9 +20,7 @@ function PaletteItem({ type, used, onAdd, onHover }: { type: BlockType; used: bo
         else listeners?.onKeyDown?.(e);
       }}
       onMouseEnter={() => onHover(type)}
-      onMouseLeave={() => onHover(null)}
       onFocus={() => onHover(type)}
-      onBlur={() => onHover(null)}
       className={`rounded ${used ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
       data-testid={`palette-${type}`}
     >
@@ -44,7 +42,8 @@ export default function Palette({ blocks, used, onAdd }: { blocks: BlockType[]; 
           <PaletteItem key={t} type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
         ))}
       </div>
-      <div className="mt-4 min-h-[96px] border-t-1.5 border-dashed border-line pt-3 text-sm" aria-live="polite">
+      {/* Fixed height: a hint box that resized on hover made the page jump. */}
+      <div className="mt-4 h-[150px] overflow-hidden border-t-1.5 border-dashed border-line pt-3 text-sm" aria-live="polite" data-testid="block-hint">
         {info ? (
           <>
             <div className="font-bold">{info.label}</div>
