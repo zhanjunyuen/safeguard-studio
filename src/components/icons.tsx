@@ -1,4 +1,6 @@
 import {
+  GitFork,
+  GitBranch,
   BadgeDollarSign,
   BookCheck,
   BotOff,
@@ -73,6 +75,8 @@ import type { BlockType } from '../types';
 import type { Dim } from '../engine/profile';
 
 export const BLOCK_ICON: Record<string, LucideIcon> = {
+  if: GitFork,
+  ifelse: GitBranch,
   trigger: MessageCircleQuestion,
   reply: Send,
   ask_ai: Sparkles,

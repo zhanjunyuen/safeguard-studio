@@ -1,4 +1,5 @@
 import type { Challenge } from '../types';
+import { LEVEL2 } from './level2';
 import { MORE_CHALLENGES } from './moreChallenges';
 
 /**
@@ -497,4 +498,19 @@ export const CHALLENGES: Challenge[] = [
   ...MORE_CHALLENGES,
 ];
 
-export const getChallenge = (id: string) => CHALLENGES.find((c) => c.id === id);
+const level2Cache = new Map<string, Challenge>();
+
+/** Level 2 challenges have ids like "history@2": same story and blocks, plus one edge-case test. */
+export const isLevel2 = (id: string) => id.endsWith('@2');
+export const baseId = (id: string) => (isLevel2(id) ? id.slice(0, -2) : id);
+
+export function getChallenge(id: string): Challenge | undefined {
+  if (!isLevel2(id)) return CHALLENGES.find((c) => c.id === id);
+  if (!level2Cache.has(id)) {
+    const base = CHALLENGES.find((c) => c.id === baseId(id));
+    const l2 = LEVEL2[baseId(id)];
+    if (!base || !l2) return undefined;
+    level2Cache.set(id, { ...base, id, tests: [...base.tests, l2.edge] });
+  }
+  return level2Cache.get(id);
+}

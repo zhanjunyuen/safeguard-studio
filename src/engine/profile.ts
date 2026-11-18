@@ -1,4 +1,5 @@
-import { BLOCKS, COMPETENCY_META, FAILURE_TEXT } from '../data/blocks';
+import { COMPETENCY_META, FAILURE_TEXT } from '../data/blocks';
+import { labelOf } from './scriptText';
 import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType, Competency, FailureKey, Scores } from '../types';
@@ -60,8 +61,8 @@ export function profileChallenge(challengeId: string, p: ChallengeProgress): Cha
   const timeline: TimelineItem[] = a.map((at, i) => {
     const prev = i > 0 ? a[i - 1] : null;
     const prevTypes: BlockType[] = prev ? prev.script : ['ask_ai'];
-    const added = at.script.filter((t) => !prevTypes.includes(t)).map((t) => BLOCKS[t].label);
-    const removed = prevTypes.filter((t) => !at.script.includes(t)).map((t) => BLOCKS[t].label);
+    const added = at.script.filter((t) => !prevTypes.includes(t)).map(labelOf);
+    const removed = prevTypes.filter((t) => !at.script.includes(t)).map(labelOf);
     const common = at.script.filter((t) => prevTypes.includes(t));
     const prevCommon = prevTypes.filter((t) => at.script.includes(t));
     const reordered = common.join() !== prevCommon.join();

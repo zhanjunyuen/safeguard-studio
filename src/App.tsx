@@ -23,8 +23,8 @@ function Logo() {
 
 // Remount the builder for each challenge so results from one never render against another.
 function BuilderRoute() {
-  const { id } = useParams();
-  return <Builder key={id} />;
+  const { id, level } = useParams();
+  return <Builder key={`${id}-${level ?? 1}`} />;
 }
 function BreakerRoute() {
   const { id } = useParams();
@@ -58,7 +58,7 @@ export default function App() {
       <main className={`flex-1 ${presenting ? 'pb-28' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/build/:id" element={<BuilderRoute />} />
+          <Route path="/build/:id/:level?" element={<BuilderRoute />} />
           <Route path="/break/:id" element={<BreakerRoute />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />

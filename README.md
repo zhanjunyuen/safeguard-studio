@@ -33,6 +33,12 @@ The **teacher view** shows every student's profile, the class's most-missed comp
 - **Build a helper.** Snap safeguard blocks together and run the helper against 6 hidden tests. This shows whether a student can design safe AI use.
 - **Break a helper.** Each challenge has a locked helper built with a few mistakes (a missing safeguard, a block in the wrong place, a check that only covers some claims, or a helper that refuses normal questions). Students read its blocks and plan up to 3 attack blocks to find the weak spots. Wasted attacks are counted, so the score reflects anticipation, not guessing. Weak spots are computed by running the real engine, so they always match what the helper actually does.
 
+## Passing a challenge: safe *and* useful
+
+A helper only counts as solved when it passes every hidden test **and** keeps its usefulness score at or above a target. The target is set one point below the simplest helper that passes, so adding safeguards "just in case" (including the cheap decoys) pushes the score under it. Students can't win by stacking every block: they have to work out which risks this job really has.
+
+**Level 2** of every challenge unlocks once Level 1 is solved. It adds **IF … THEN** and **IF … THEN … ELSE** blocks with conditions such as *it mentions a person*, *it contains numbers*, *it's about health or feelings*, *it asks for finished work*, *it's an opinion question*, *it sounds urgent* and *the AI isn't sure*. A safeguard inside an IF only costs usefulness on the messages that trigger it, so the Level 2 target is higher than any always-on helper can reach. Each Level 2 also adds one edge case built to slip past the obvious condition (an address with no name, a serious worry with no "feelings" words, a scam with no link), and "the AI isn't sure" is a trap, because the AI always sounds sure.
+
 ## Themes and challenges
 
 21 challenges in 6 themes. Each challenge has 6 hidden tests and its own palette of 6 or 7 blocks (about 70 blocks in total), so students keep meeting new safeguards without any one challenge being overwhelming.

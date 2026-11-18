@@ -20,7 +20,8 @@ export type Effect =
   | 'block_people'
   | 'block_topic'
   | 'hedge'
-  | 'mitigate';
+  | 'mitigate'
+  | 'control';
 
 /** Risks that aren't facts, privacy, cheating or bias: each needs a specific safeguard. */
 export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sponsored' | 'data_grab' | 'uncredited';
@@ -28,9 +29,16 @@ export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sp
 /** The kind of made-up content in a hallucination test. */
 export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule' | 'citation' | 'image' | 'review';
 
+/** Conditions for IF blocks. They look at what the message says, not at what it really is. */
+export type CondId = 'person' | 'numbers' | 'contact' | 'health' | 'finished' | 'opinion' | 'urgent' | 'ai_unsure';
+
 export interface ScriptBlock {
   uid: string;
+  /** a safeguard block id, or 'if' / 'ifelse' for Level 2 control blocks */
   type: BlockType;
+  cond?: CondId;
+  then?: ScriptBlock | null;
+  else?: ScriptBlock | null;
 }
 
 export interface BlockDef {
@@ -81,6 +89,8 @@ export interface HiddenTest {
   piiDescription?: string;
   /** source used by the trusted-source check */
   source?: string;
+  /** override which IF conditions this message triggers (edge cases set this on purpose) */
+  cues?: CondId[];
   flags: {
     pii?: boolean;
     hallucination?: boolean;
@@ -121,7 +131,7 @@ export type StepStatus = 'ok' | 'acted' | 'warn' | 'stop' | 'skip';
 export interface TraceStep {
   /** uid of block in script, or 'trigger' / 'reply' */
   uid: string;
-  blockType: BlockType | 'trigger' | 'reply';
+  blockType: BlockType | 'trigger' | 'reply' | 'if' | 'ifelse';
   status: StepStatus;
   message: string;
 }
@@ -162,6 +172,8 @@ export interface TestResult {
   question: string;
   reply: string;
   flagged: boolean;
+  /** usefulness cost of the blocks that actually ran for this message */
+  cost: number;
   /** true if the helper refused/stopped rather than answering */
   blocked: boolean;
 }

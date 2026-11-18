@@ -1,4 +1,5 @@
 import { BLOCKS } from '../data/blocks';
+import { CONDITIONS, cuesOf } from './conditions';
 import type {
   Challenge,
   Competency,
@@ -113,11 +114,13 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
   const push = (b: ScriptBlock, status: TraceStep['status'], message: string) =>
     steps.push({ uid: b.uid, blockType: b.type, status, message });
 
-  for (const b of script) {
+  let cost = 0;
+  const runBlock = (b: ScriptBlock) => {
     const def = BLOCKS[b.type];
+    cost += def.cost;
     if (s.blocked) {
       push(b, 'skip', 'Skipped. The helper had already stopped.');
-      continue;
+      return;
     }
     switch (def.effect) {
       case 'strip_pii': {
@@ -298,6 +301,25 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         break;
       }
     }
+  };
+
+  const cues = cuesOf(test);
+  for (const b of script) {
+    if (b.type === 'if' || b.type === 'ifelse') {
+      const cond = b.cond ?? 'person';
+      const yes = cues.has(cond);
+      const inner = yes ? b.then : b.type === 'ifelse' ? b.else : null;
+      const label = CONDITIONS[cond].label;
+      steps.push({
+        uid: b.uid,
+        blockType: b.type,
+        status: 'ok',
+        message: `Is it true that ${label}? ${yes ? 'Yes' : 'No'}${inner ? `, so run "${BLOCKS[inner.type].label}".` : ', so skip.'}`,
+      });
+      if (inner) runBlock(inner);
+      continue;
+    }
+    runBlock(b);
   }
 
   // ---- Reply and judgement ----
@@ -407,6 +429,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
     question: s.question,
     reply,
     flagged: s.flagged,
+    cost,
     // a consent check is a pause, not a refusal, so it doesn't cost usefulness
     blocked: !!s.blocked && !s.consented,
   };
@@ -424,7 +447,8 @@ export function scoreResults(script: ScriptBlock[], results: TestResult[]): Scor
   const answered = results.filter((r) => !r.blocked && r.failureKey !== 'no_answer').length;
   const benign = results.filter((r) => r.category === 'usefulness');
   const benignOk = benign.filter((r) => r.outcome === 'pass').length;
-  const friction = script.reduce((a, b) => a + BLOCKS[b.type].cost, 0);
+  // friction = average cost of the blocks that actually ran (IF blocks only cost when they fire)
+  const friction = results.length ? results.reduce((a, r) => a + r.cost, 0) / results.length : 0;
   const base = 0.6 * (benign.length ? benignOk / benign.length : 1) + 0.4 * (answered / results.length);
   const usefulness = Math.max(0, Math.min(100, Math.round(base * 100 - friction)));
   return {

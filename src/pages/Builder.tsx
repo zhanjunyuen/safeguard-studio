@@ -13,7 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Play, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Lock, Play, RotateCcw } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Block from '../components/Block';
 import Palette from '../components/Palette';
@@ -23,21 +23,33 @@ import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge } from '../engine/run';
+import { buildStatus } from '../engine/progress';
+import { blockKey, labelOf } from '../engine/scriptText';
+import { usefulnessTarget } from '../engine/targets';
 import { describeAdd, freshProgress, newUid, useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
-import type { BlockType, FailureKey, RunReport, StepStatus } from '../types';
+import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
 
+const isControl = (t: string) => t === 'if' || t === 'ifelse';
+
+// Prefer an IF's inner slot over the IF block it sits in.
 const collision: CollisionDetection = (args) => {
   const p = pointerWithin(args);
+  const slot = p.find((c) => String(c.id).startsWith('slot:'));
+  if (slot) return [slot];
   return p.length ? p : rectIntersection(args);
 };
 
 export default function Builder() {
-  const { id = '' } = useParams();
+  const { id: baseCid = '', level } = useParams();
+  const isL2 = level === '2';
+  // Level 2 progress is stored under "id@2" so it never mixes with Level 1.
+  const id = isL2 ? `${baseCid}@2` : baseCid;
   const challenge = getChallenge(id);
+  const l1Progress = useSession((s) => s.progress[baseCid]);
   const progress = useSession((s) => s.progress[id]) ?? freshProgress();
   const { setScript, recordRun, reflect, reset } = useSession();
   const script = progress.script;
@@ -116,8 +128,10 @@ export default function Builder() {
   );
 
   if (!challenge) return <Navigate to="/" />;
+  const l1 = buildStatus(baseCid, getChallenge(baseCid)!.tests.length, l1Progress);
+  const target = usefulnessTarget(id);
   const locked = !!replay;
-  const used = new Set(script.map((b) => b.type));
+  const used = new Set(script.filter((b) => !isControl(b.type)).map((b) => b.type));
   const mustReflect = !!progress.pendingReflection;
 
   const update = (next: typeof script, event: { kind: 'add' | 'remove' | 'move'; text: string }) => {
@@ -128,14 +142,42 @@ export default function Builder() {
   const addAt = (type: BlockType, index: number) => {
     if (used.has(type)) return;
     const next = [...script];
-    next.splice(index, 0, { uid: newUid(type), type });
+    const block: ScriptBlock = isControl(type) ? { uid: newUid(type), type, cond: 'person', then: null, else: null } : { uid: newUid(type), type };
+    next.splice(index, 0, block);
     update(next, { kind: 'add', text: describeAdd(type, index) });
+  };
+
+  const setSlot = (uid: string, which: 'then' | 'else', child: ScriptBlock | null, base = script) => {
+    const next = base.map((b) => (b.uid === uid ? { ...b, [which]: child } : b));
+    const ifb = next.find((b) => b.uid === uid)!;
+    update(next, { kind: 'add', text: child ? `Put “${BLOCKS[child.type].label}” inside ${labelOf(blockKey(ifb)).split(' THEN')[0]}` : 'Emptied an IF block' });
+  };
+
+  // Clicking a safeguard fills the newest empty IF slot (keyboard-friendly); otherwise it goes at the end.
+  const clickAdd = (type: BlockType) => {
+    if (!isControl(type) && type !== 'ask_ai') {
+      for (let i = script.length - 1; i >= 0; i--) {
+        const b = script[i];
+        if (!isControl(b.type)) continue;
+        if (!b.then) return setSlot(b.uid, 'then', { uid: newUid(type), type });
+        if (b.type === 'ifelse' && !b.else) return setSlot(b.uid, 'else', { uid: newUid(type), type });
+      }
+    }
+    addAt(type, script.length);
+  };
+
+  const ifh = {
+    onCond: (uid: string, cond: CondId) => {
+      const next = script.map((b) => (b.uid === uid ? { ...b, cond } : b));
+      update(next, { kind: 'move', text: `Changed an IF condition to “${cond}”` });
+    },
+    onClearSlot: (uid: string, which: 'then' | 'else') => setSlot(uid, which, null),
   };
 
   const remove = (uid: string) => {
     const b = script.find((x) => x.uid === uid);
     if (!b || !BLOCKS[b.type].removable) return;
-    update(script.filter((x) => x.uid !== uid), { kind: 'remove', text: `Removed “${BLOCKS[b.type].label}”` });
+    update(script.filter((x) => x.uid !== uid), { kind: 'remove', text: `Removed “${labelOf(blockKey(b))}”` });
   };
 
   const onDragStart = (e: DragStartEvent) => {
@@ -156,6 +198,16 @@ export default function Builder() {
       return a.top + a.height / 2 > over.rect.top + over.rect.height / 2;
     })();
 
+    // dropping into an IF block's slot
+    if (overId.startsWith('slot:')) {
+      const [, ifUid, which] = overId.split(':') as [string, string, 'then' | 'else'];
+      const type = d?.from === 'palette' ? d.type! : script.find((b) => b.uid === active.id)?.type;
+      if (!type || isControl(type) || type === 'ask_ai') return;
+      const base = d?.from === 'palette' ? script : script.filter((b) => b.uid !== active.id);
+      setSlot(ifUid, which, { uid: newUid(type), type }, base);
+      return;
+    }
+
     if (d?.from === 'palette') {
       if (overId === 'palette') return;
       const idx = overId === 'stack-start' ? 0 : overId === 'stack-end' ? script.length : overIdx + (below ? 1 : 0);
@@ -168,7 +220,7 @@ export default function Builder() {
     if (overId === 'palette') return remove(String(active.id));
     const to = overId === 'stack-start' ? 0 : overId === 'stack-end' ? script.length - 1 : overIdx;
     if (to < 0 || to === from) return;
-    const label = BLOCKS[script[from].type].label;
+    const label = labelOf(blockKey(script[from]));
     update(arrayMove(script, from, to), { kind: 'move', text: `Moved “${label}” to position ${to + 1}` });
   };
 
@@ -200,15 +252,45 @@ export default function Builder() {
           </Link>
           <h1 className="text-4xl font-extrabold leading-none">{challenge.title}</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">{challenge.story}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <nav aria-label="Level" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
+              <Link to={`/build/${baseCid}`} aria-current={!isL2 ? 'page' : undefined} className={`px-3 py-1.5 ${!isL2 ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`} data-testid="level-1">
+                Level 1
+              </Link>
+              <Link
+                to={`/build/${baseCid}/2`}
+                aria-current={isL2 ? 'page' : undefined}
+                className={`px-3 py-1.5 flex items-center gap-1.5 border-l-1.5 border-ink ${isL2 ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`}
+                data-testid="level-2"
+              >
+                {l1.state !== 'done' && <Lock size={13} aria-hidden />} Level 2: IF blocks
+              </Link>
+            </nav>
+            <p className="text-sm text-ink-2" data-testid="goal">
+              <b className="text-ink">Goal:</b> pass all {challenge.tests.length} tests <b className="text-ink">and</b> keep usefulness at {target} or more.
+              {isL2 ? ' Use IF blocks so safeguards only run when they are needed.' : ' Every extra block slows the helper down.'}
+            </p>
+          </div>
         </div>
         <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
           <RotateCcw size={16} aria-hidden /> Start again
         </button>
       </div>
 
+      {isL2 && l1.state !== 'done' ? (
+        <div className="rounded-md border-1.5 border-ink bg-paper-card p-10 text-center max-w-xl mx-auto" data-testid="l2-locked">
+          <Lock size={28} aria-hidden className="mx-auto" />
+          <h2 className="text-2xl font-extrabold mt-3">Level 2 is locked</h2>
+          <p className="text-ink-2 mt-2">
+            Finish Level 1 first: pass all {getChallenge(baseCid)!.tests.length} tests while keeping usefulness at {l1.target} or more.
+            {l1.bestUseful !== null && ` Your best so far is ${l1.bestUseful}.`}
+          </p>
+          <Link to={`/build/${baseCid}`} className="btn bg-signal mt-5">Go to Level 1</Link>
+        </div>
+      ) : (
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
         <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
-          <Palette blocks={challenge.palette} used={used} onAdd={(t) => addAt(t, script.length)} />
+          <Palette blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
           <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
@@ -226,7 +308,7 @@ export default function Builder() {
                 <Play size={18} fill="currentColor" aria-hidden /> {locked ? 'Running…' : 'Run tests'}
               </button>
             </div>
-            <ScriptStack script={script} highlights={highlights} onRemove={remove} locked={locked} />
+            <ScriptStack script={script} highlights={highlights} onRemove={remove} locked={locked} ifh={ifh} />
             {mustReflect && !reflectFor && !locked && (
               <button onClick={() => setReflectFor(progress.pendingReflection)} className="mt-2 font-bold underline underline-offset-2">
                 Explain the last failure to run again
@@ -234,17 +316,18 @@ export default function Builder() {
             )}
           </section>
 
-          <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} />
+          <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />
         </div>
 
         <DragOverlay dropAnimation={{ duration: 180 }}>
           {activeDrag ? (
             <div className="rotate-2" style={{ filter: "drop-shadow(3px 3px 0 #16161A)" }}>
-              <Block kind={activeDrag} label={BLOCKS[activeDrag].label} color={BLOCKS[activeDrag].color} width={STACK_W} />
+              <Block kind={activeDrag} label={BLOCKS[activeDrag].label} color={BLOCKS[activeDrag].color} textColor={isControl(activeDrag) ? '#16161A' : undefined} width={STACK_W} />
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
+      )}
 
       {reflectFor && reflectTest && (
         <ReflectModal

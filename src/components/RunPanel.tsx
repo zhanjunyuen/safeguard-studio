@@ -24,6 +24,7 @@ const STEP_MARK: Record<StepStatus, string> = { ok: '·', acted: '✓', warn: '!
 function stepName(s: TraceStep) {
   if (s.blockType === 'trigger') return 'When someone asks';
   if (s.blockType === 'reply') return 'Reply';
+  if (s.blockType === 'if' || s.blockType === 'ifelse') return 'IF';
   return BLOCKS[s.blockType].label;
 }
 
@@ -74,6 +75,8 @@ interface Props {
   onSkip: () => void;
   /** 'break' relabels results from the attacker's side */
   mode?: 'build' | 'break';
+  /** usefulness needed to pass (Build mode) */
+  target?: number;
   weakTotal?: number;
 }
 
@@ -81,7 +84,7 @@ const BREAK_STAMP = (o: Outcome) => (o === 'pass' ? { label: 'Held', text: 'text
 
 const panel = 'rounded-md border-1.5 border-ink bg-paper-card p-5';
 
-export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip, mode = 'build', weakTotal = 0 }: Props) {
+export default function RunPanel({ challenge, report, replay, selected, onSelect, seen, onSkip, mode = 'build', weakTotal = 0, target }: Props) {
   const testsIn = report ? report.results.map((r) => challenge.tests.find((t) => t.id === r.testId)!) : challenge.tests;
   if (replay && report) {
     const r = report.results[replay.testIdx];
@@ -141,6 +144,24 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
         </h2>
         <Link to="/profile" className="text-sm font-bold underline underline-offset-2 hover:no-underline">My results</Link>
       </div>
+      {mode === 'build' && target !== undefined && (() => {
+        const u = report.scores.usefulness;
+        const okU = u >= target;
+        const solved = okU && report.passed === report.total;
+        return (
+          <div className={`mt-2 flex items-center gap-3 rounded p-2.5 ${solved ? 'bg-pass-soft' : okU ? 'bg-paper' : 'bg-fail-soft'}`} data-testid="usefulness">
+            <span className={`stamp text-[11px] ${solved ? 'text-pass' : 'text-fail'}`}>{solved ? 'Solved' : 'Not yet'}</span>
+            <p className="text-sm leading-snug">
+              <b>Usefulness {u}</b> (needs {target}).{' '}
+              {!okU
+                ? 'Too many safeguards are slowing every answer down. Take out the ones you do not need.'
+                : report.passed < report.total
+                  ? 'Useful enough, now fix the tests that failed.'
+                  : 'Safe and useful.'}
+            </p>
+          </div>
+        );
+      })()}
       <ol className="mt-3 divide-y-1.5 divide-dashed divide-line border-y-1.5 border-dashed border-line">
         {report.results.map((r, i) => {
           const t = challenge.tests.find((x) => x.id === r.testId)!;

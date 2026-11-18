@@ -9,11 +9,21 @@ export const BLOCK_COLORS = {
   bias: '#C42552',
   human: '#0C7F68',
   manip: '#4A4A9C',
+  /** Level 2 control blocks: Scratch's control orange, with dark text for contrast */
+  control: '#FFAB19',
 };
 
 type Def = Omit<BlockDef, 'type' | 'removable'> & { removable?: boolean };
 
 const defs: Record<BlockType, Def> = {
+  if: {
+    label: 'IF … THEN', color: BLOCK_COLORS.control, category: 'Control', cost: 0, effect: 'control', position: 'anywhere',
+    hint: 'Only runs the block inside it when the condition is true. Safeguards inside an IF only slow down the messages that need them.',
+  },
+  ifelse: {
+    label: 'IF … THEN … ELSE', color: BLOCK_COLORS.control, category: 'Control', cost: 0, effect: 'control', position: 'anywhere',
+    hint: 'Runs one block when the condition is true, and a different block when it is false.',
+  },
   ask_ai: {
     label: 'Ask AI', color: BLOCK_COLORS.ai, category: 'AI', cost: 0, effect: 'ai', position: 'anywhere', removable: false,
     hint: 'Sends the message to the AI and gets its answer back. The answer always sounds sure of itself, even when it is wrong.',
@@ -34,7 +44,7 @@ const defs: Record<BlockType, Def> = {
     hint: 'Looks up the facts in the answer (BBC Bitesize, official sites) and corrects anything that does not match.',
   },
   warn_note: {
-    label: 'Add "AI can be wrong" note', color: BLOCK_COLORS.verify, category: 'Verification', cost: 0, effect: 'warn', position: 'after',
+    label: 'Add "AI can be wrong" note', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'warn', position: 'after',
     hint: 'Adds a line to the reply reminding the reader that AI makes mistakes.',
   },
   coach: {
@@ -70,7 +80,7 @@ const defs: Record<BlockType, Def> = {
     hint: "Checks what the AI says about a product against the maker's allergy and ingredients label.",
   },
   second_ai: {
-    label: 'Ask a second AI to double-check', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'second_opinion', position: 'after',
+    label: 'Ask a second AI to double-check', color: BLOCK_COLORS.verify, category: 'Verification', cost: 3, effect: 'second_opinion', position: 'after',
     hint: 'Gets another AI chatbot to read the answer and say whether it is right.',
   },
   no_impersonation: {
@@ -104,7 +114,7 @@ const defs: Record<BlockType, Def> = {
     acted: 'Told the AI to give feedback on their writing, not write it.',
   },
   disclose_ai: {
-    label: 'Label anything AI wrote', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 1, effect: 'disclose', position: 'after',
+    label: 'Label anything AI wrote', color: BLOCK_COLORS.integrity, category: 'Integrity', cost: 2, effect: 'disclose', position: 'after',
     hint: 'Adds "Written with AI" to anything the AI produced.',
   },
   neutral_wording: {
@@ -127,7 +137,7 @@ const defs: Record<BlockType, Def> = {
     hint: 'Checks each answer in the quiz against the class textbook and fixes any that are wrong.',
   },
   ask_confidence: {
-    label: 'Ask the AI how sure it is', color: BLOCK_COLORS.verify, category: 'Verification', cost: 1, effect: 'hedge', position: 'after',
+    label: 'Ask the AI how sure it is', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'hedge', position: 'after',
     hint: 'Asks the AI to say how confident it is in its answer, and shows that to the reader.',
   },
   practice_not_answers: {
@@ -151,7 +161,7 @@ const defs: Record<BlockType, Def> = {
     hint: 'Before passing on news like closures or cancelled lessons, checks the school website.',
   },
   forward_check: {
-    label: 'Forward it to see if others agree', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'second_opinion', position: 'after',
+    label: 'Forward it to see if others agree', color: BLOCK_COLORS.verify, category: 'Verification', cost: 3, effect: 'second_opinion', position: 'after',
     hint: 'Shares the message with a few classmates to see if they think it is true.',
   },
   own_words: {

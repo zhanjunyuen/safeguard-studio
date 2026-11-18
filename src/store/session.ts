@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
+import { blockKey } from '../engine/scriptText';
 import { pushRun } from '../lib/sync';
 import type { BlockType, FailureKey, Outcome, RunReport, Scores, ScriptBlock } from '../types';
 
@@ -97,7 +98,7 @@ export const useSession = create<SessionState>()(
           const firstFail = report.results.find((r) => r.outcome !== 'pass' && r.failureKey);
           const attempt: Attempt = {
             at: Date.now(),
-            script: p.script.map((b) => b.type),
+            script: p.script.map(blockKey),
             results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
             scores: report.scores,
           };
@@ -174,7 +175,7 @@ export const describeAdd = (type: BlockType, index: number) =>
   const { recordRun, reflect, recordBreak } = st;
   useSession.setState({
     recordRun: (cid, report) => {
-      const script = useSession.getState().get(cid).script.map((b) => b.type);
+      const script = useSession.getState().get(cid).script.map(blockKey);
       recordRun(cid, report);
       pushRun(useSession.getState().studentId, {
         challenge: cid,

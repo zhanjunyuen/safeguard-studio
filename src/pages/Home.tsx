@@ -25,7 +25,7 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   const { progress, reset, setScript } = useSession();
   const breakProgress = useSession((s) => s.breakProgress);
 
-  const statusOf = (c: (typeof CHALLENGES)[number]) => challengeStatus(c, progress[c.id], breakProgress[c.id]);
+  const statusOf = (c: (typeof CHALLENGES)[number]) => challengeStatus(c, progress[c.id], breakProgress[c.id], progress[`${c.id}@2`]);
   useEffect(() => {
     if (scrollTo) document.getElementById(scrollTo)?.scrollIntoView();
   }, [scrollTo]);
@@ -123,7 +123,7 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
         <div className="grid md:grid-cols-3 gap-6">
           {list.map((c) => {
             const i = CHALLENGES.indexOf(c);
-            const { best, brk, buildState, breakState, allDone } = statusOf(c);
+            const { best, build, brk, buildState, breakState, allDone, level2, level2State } = statusOf(c);
             return (
               <div
                 key={c.id}
@@ -145,12 +145,35 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
                   <StatusLine
                     label="Build"
                     state={buildState}
-                    detail={best === null ? 'Not started' : buildState === 'done' ? `Done · all ${c.tests.length} tests passed` : `Best so far: ${best} of ${c.tests.length} passed`}
+                    detail={
+                      best === null
+                        ? 'Not started'
+                        : buildState === 'done'
+                          ? `Done · all ${c.tests.length} passed, useful ${build.bestUseful}`
+                          : build.bestUseful !== null
+                            ? `All passed, but useful ${build.bestUseful} (needs ${build.target})`
+                            : `Best so far: ${best} of ${c.tests.length} passed`
+                    }
                   />
                   <StatusLine
                     label="Break"
                     state={breakState}
                     detail={!brk ? 'Not started' : breakState === 'done' ? `Done · found all ${brk.total} weak spots` : `Found ${brk.found} of ${brk.total} weak spots`}
+                  />
+                  <StatusLine
+                    label="Level 2"
+                    state={level2State === 'locked' ? 'todo' : level2State}
+                    detail={
+                      level2State === 'locked'
+                        ? 'Unlocks when Build is done'
+                        : level2State === 'done'
+                          ? `Done · useful ${level2.bestUseful}`
+                          : level2State === 'todo'
+                            ? 'Ready: use IF blocks'
+                            : level2.bestUseful !== null
+                              ? `All passed, but useful ${level2.bestUseful} (needs ${level2.target})`
+                              : `Best so far: ${level2.best} of ${level2.total} passed`
+                    }
                   />
                 </dl>
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -195,7 +218,7 @@ function StatusLine({ label, state, detail }: { label: string; state: Status; de
   const cls = state === 'done' ? 'text-pass' : state === 'started' ? 'text-partial' : 'text-ink-3';
   return (
     <div className="flex items-center gap-2" data-state={state}>
-      <dt className="w-12 font-bold text-ink">{label}</dt>
+      <dt className="w-16 shrink-0 font-bold text-ink">{label}</dt>
       <dd className={`flex items-center gap-1.5 font-bold ${cls}`}>
         <Icon size={15} strokeWidth={3} aria-hidden />
         {detail}
