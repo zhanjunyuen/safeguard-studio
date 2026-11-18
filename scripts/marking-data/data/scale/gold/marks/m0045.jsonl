@@ -65,11 +65,11 @@
 {"k": 109, "c": {}}
 {"k": 110, "c": {}}
 {"k": 111, "c": {}}
-{"k": 112, "c": {"A3": "Check block will deal, cus it can check if William quote and book is reel."}}
+{"k": 112, "c": {"A3": "Check block will deal, cus it can check if William quote and book is reel.", "A2": "it can check if William quote and book is reel"}}
 {"k": 113, "c": {"A2": "Risk is it making up a fake quote or book", "A4": "The teacher or a history book can check if it's real"}}
-{"k": 114, "c": {"A3": "the check against a trusted source block will sort it, innit. It makes the quote and book have to be proper real"}}
+{"k": 114, "c": {"A3": "the check against a trusted source block will sort it, innit. It makes the quote and book have to be proper real", "A2": "It makes the quote and book have to be proper real, not just AI rubbish."}}
 {"k": 115, "c": {}}
-{"k": 116, "c": {"A3": "ask ai block will catch it cuz it knows if it is making stuff up"}}
-{"k": 117, "c": {"A4": "A teacher can check the book is real."}}
+{"k": 116, "c": {"A3": "ask ai block will catch it cuz it knows if it is making stuff up", "A2": "it knows if it is making stuff up"}}
+{"k": 117, "c": {"A4": "A teacher can check the book is real.", "A2": "The AI can make fake story."}}
 {"k": 118, "c": {"A2": "risk is AI make up quote and book.", "A3": "remove personal info block not catch it because no info.", "A4": "teacher or library can check."}}
 {"k": 119, "c": {}}

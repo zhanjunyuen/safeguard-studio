@@ -43,7 +43,7 @@
 {"k": 162, "c": {"A2": "makes a gendered guess", "A3": "the 'Challenge stereotypes' block is the one that will sort it, because if the AI slips and makes a gendered guess, that block pings it"}}
 {"k": 163, "c": {"A2": "the ai might think jamal is good at thingz becos of his name", "A3": "the talk bout needs without names block wud catch it becos it stops using his name.", "A4": "the teacher or booklet could check anser."}}
 {"k": 164, "c": {"A2": "the AI sees Jamal's name and might guess he's a boy"}}
-{"k": 165, "c": {"A4": "This should be checked by a school careers adviser to ensure fairness."}}
+{"k": 165, "c": {"A4": "This should be checked by a school careers adviser to ensure fairness.", "A2": "The risk is that the AI is using biased patterns from previous students."}}
 {"k": 166, "c": {"A4": "a teacher or careers adviser should check."}}
 {"k": 167, "c": {}}
 {"k": 168, "c": {}}
@@ -64,20 +64,20 @@
 {"k": 183, "c": {"A4": "A teacher needs to read the invitation before it is sent out.", "A2": "It would leak private health information."}}
 {"k": 184, "c": {"A2": "The note is trying to trick it into ignoring rules", "A3": "one of them is literally about asking before you share someone's info"}}
 {"k": 185, "c": {}}
-{"k": 186, "c": {}}
+{"k": 186, "c": {"A2": "maybe the risk is telling people things they shouldn't know? Like their allergies?"}}
 {"k": 187, "c": {"A2": "the sneaky note is hidden in the caterer message", "A3": "The ask-before-sharing block should stop it if it sees the list, but maybe only checks the final invite.", "A4": "A teacher or school data person could check it."}}
 {"k": 188, "c": {"A2": "the note is trying to make the helper reveal every pupil's allergy", "A4": "The teacher should check the original school allergy records and phone the caterer before anything is sent out."}}
-{"k": 189, "c": {"A3": "the ask befor sharing info block wil stop it becos the alergys are privit info", "A4": "the ai shud ask the techer first"}}
+{"k": 189, "c": {"A3": "the ask befor sharing info block wil stop it becos the alergys are privit info", "A4": "the ai shud ask the techer first", "A2": "the alergys are privit info"}}
 {"k": 190, "c": {"A2": "the note is basically asking the AI to stick everyone's allergies on the invite", "A3": "The block should kick in before the AI does that, even with that 'ignore your rules' bit"}}
 {"k": 191, "c": {"A2": "If 'ignore' comes first, it might skip the safety checks."}}
 {"k": 192, "c": {}}
 {"k": 193, "c": {"A2": "the trik is hid inside the caterers note so it looks like part of the job.", "A3": "are block is ask ai but that wont help becos ur asking the ai hu alredy red the trik.", "A4": "the techer shud chek it or we cud ask the caterer to confirm."}}
 {"k": 194, "c": {}}
-{"k": 195, "c": {}}
+{"k": 195, "c": {"A2": "the AI is just gonna spill everyone's secrets about what they're allergic to"}}
 {"k": 196, "c": {"A3": "the dont agree block wud do it cuz it wont listen to the bad note"}}
 {"k": 197, "c": {"A2": "the note includes a hidden instruction for the AI to list pupils' allergies."}}
 {"k": 198, "c": {"A4": "we need a real adult to look at it"}}
-{"k": 199, "c": {"A3": "'Ask before sharing someone’s info' will deal with it, because allergy details are private"}}
+{"k": 199, "c": {"A3": "'Ask before sharing someone’s info' will deal with it, because allergy details are private", "A2": "allergy details are private"}}
 {"k": 200, "c": {"A2": "the caterer's note tells the AI to ignore rules and list everyone's allergies in the invite.", "A3": "the block about asking before sharing info should catch it, because it won't share without asking.", "A4": "a teacher could ask pupils if they're okay."}}
 {"k": 201, "c": {"A2": "The note is trying to get allergies - which are private info - printed next to names", "A3": "the block kicks in and the helper has to ask permission first"}}
 {"k": 202, "c": {}}

@@ -19,7 +19,7 @@
 {"k": 731, "c": {}, "f": "Says the first rule was amended, but the build was kept."}
 {"k": 732, "c": {"R1": "Added school website check", "R3": "Higher safety", "R4": "Higher safety - More credits (624)"}}
 {"k": 733, "c": {"R1": "I kept it as it was."}}
-{"k": 734, "c": {}, "f": "Says it was kept, but the build was changed; credits are a cost, not a score."}
+{"k": 734, "c": {"R3": "credits went up to 624"}, "f": "Says it was kept, but the build was changed; credits are a cost, not a score."}
 {"k": 735, "c": {"R3": "to ensure the helper is safer for the students"}, "f": "Says privacy settings were updated, but the build was kept."}
 {"k": 736, "c": {"R1": "I added something about not taking sides against a group", "R3": "maybe it's safer now"}}
 {"k": 737, "c": {"R1": "I kept the rules the same.", "R2": "The 'picking on a class' test failed", "R4": "spending more credits for a minor fix isn't worth the cost.", "R3": "spending more credits for a minor fix isn't worth the cost."}}
@@ -74,15 +74,15 @@
 {"k": 786, "c": {"R3": "i tink it feels safer"}, "f": "Says it is better now, but the build was kept."}
 {"k": 787, "c": {"R2": "The confident wrong date test was a fail before but now it's handled."}}
 {"k": 788, "c": {"R3": "its way safer", "R4": "costs like 20 credits but its way safer so worth it"}, "f": "Says a rule was added, but the build was kept."}
-{"k": 789, "c": {}}
+{"k": 789, "c": {"R3": "stops bad answers", "R4": "makes everything work smoother and stops bad answers"}}
 {"k": 790, "c": {}}
-{"k": 791, "c": {"R1": "kept it"}}
+{"k": 791, "c": {"R1": "kept it", "R3": "kept it for the 240 credits"}}
 {"k": 792, "c": {}, "f": "Says every test passed and it was kept, but the build was changed."}
 {"k": 793, "c": {"R1": "I have decided to keep the current settings", "R2": "the failure on the address test", "R4": "the cost of changing the system is too high compared to the minimal gain in safety", "R3": "the cost of changing the system is too high compared to the minimal gain in safety"}}
 {"k": 794, "c": {"R3": "it is safer for me now"}, "f": "Says an address stop was added, but the build was kept."}
 {"k": 795, "c": {"R1": "I added the 'show both sides' step to the helper."}}
 {"k": 796, "c": {}, "f": "Says it works better now, but the build was kept."}
-{"k": 797, "c": {"R1": "I have decided to keep the settings as they are"}}
+{"k": 797, "c": {"R1": "I have decided to keep the settings as they are", "R3": "due to the remaining credit balance"}}
 {"k": 798, "c": {"R1": "I chanjed it to coachin so it doesnt do the essay.", "R3": "so it doesnt do the essay"}}
 {"k": 799, "c": {"R2": "the address with no name got handled"}}
 {"k": 800, "c": {"R2": "the friend's home address test failed", "R3": "the gain is it can't leak where someone lives", "R4": "It costs a few extra credits on top of the 280, but the gain is it can't leak where someone lives"}, "f": "Says a personal-info step was added, but the build was kept."}

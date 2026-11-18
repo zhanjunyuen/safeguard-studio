@@ -146,3 +146,45 @@
 {"k": 857, "decision": "keep", "note": "'All tests handled' is not a cited result; 'kept' is false."}
 {"k": 861, "decision": "keep", "note": "Misread credits."}
 {"k": 933, "decision": "keep", "note": "Misread credits."}
+{"k": 1330, "decision": "correct", "add": {"T2": "Script writing should still be answered normally"}, "note": "Names a kind of request (wrongly calling it normal; T3 stays absent)."}
+{"k": 789, "decision": "correct", "add": {"R3": "stops bad answers", "R4": "makes everything work smoother and stops bad answers"}, "note": "Usefulness and safety consequences of a real change."}
+{"k": 734, "decision": "correct", "add": {"R3": "credits went up to 624"}, "note": "States the workload change correctly."}
+{"k": 112, "decision": "correct", "add": {"A2": "it can check if William quote and book is reel"}, "note": "Names that the quote and book may not be real, as credited for 88."}
+{"k": 114, "decision": "correct", "add": {"A2": "It makes the quote and book have to be proper real, not just AI rubbish."}, "note": "Names the invented-source risk."}
+{"k": 116, "decision": "correct", "add": {"A2": "it knows if it is making stuff up"}, "note": "Names the AI making things up."}
+{"k": 117, "decision": "correct", "add": {"A2": "The AI can make fake story."}, "note": "Names invention."}
+{"k": 165, "decision": "correct", "add": {"A2": "The risk is that the AI is using biased patterns from previous students."}, "note": "Names bias in the advice."}
+{"k": 33, "decision": "correct", "add": {"A2": "you've already bunged Mr Hughes' mug into the zombie machine"}, "note": "Names using the real teacher's face."}
+{"k": 195, "decision": "correct", "add": {"A2": "the AI is just gonna spill everyone's secrets about what they're allergic to"}, "note": "The harm the hidden note asks for, as credited for 203."}
+{"k": 199, "decision": "correct", "add": {"A2": "allergy details are private"}, "note": "As 203."}
+{"k": 189, "decision": "correct", "add": {"A2": "the alergys are privit info"}, "note": "As 203."}
+{"k": 186, "decision": "correct", "add": {"A2": "maybe the risk is telling people things they shouldn't know? Like their allergies?"}, "note": "As 203."}
+{"k": 901, "decision": "correct", "add": {"R2": "The 'Do banks ask for PINs?' test was the tricky one."}, "note": "Cites the test that failed, agreeing with the simulator."}
+{"k": 957, "decision": "correct", "add": {"R3": "98 credits is worth it."}, "note": "States the cost, as credited for 882."}
+{"k": 791, "decision": "correct", "add": {"R3": "kept it for the 240 credits"}, "note": "Workload reason, as credited for 852."}
+{"k": 797, "decision": "correct", "add": {"R3": "due to the remaining credit balance"}, "note": "Workload reason, as for 852."}
+{"k": 751, "decision": "keep", "note": "False change; R3 credited as stated."}
+{"k": 1011, "decision": "keep", "note": "Wrong claims."}
+{"k": 242, "decision": "keep", "note": "Names the scam risk."}
+{"k": 702, "decision": "keep", "note": "'Every test handled' contradicts the simulator."}
+{"k": 1331, "decision": "keep", "note": "Predicts all fine and nothing broke (T3); names no request."}
+{"k": 170, "decision": "keep", "note": "'The one about names' is the block, not the risk."}
+{"k": 788, "decision": "keep", "note": "False change; R3/R4 as stated."}
+{"k": 263, "decision": "keep", "note": "Links the marks block with a reason."}
+{"k": 733, "decision": "keep", "note": "'Didn't want to lose credits' is a misread."}
+{"k": 712, "decision": "keep", "note": "'Better' is not a consequence."}
+{"k": 167, "decision": "keep", "note": "Not a risk."}
+{"k": 905, "decision": "keep", "note": "Wrong claim."}
+{"k": 908, "decision": "keep", "note": "False change; R3 as stated."}
+{"k": 910, "decision": "keep", "note": "Cites a failing test."}
+{"k": 509, "decision": "keep", "note": "No person named."}
+{"k": 741, "decision": "keep", "note": "The cost it weighs is a misread (credits fell)."}
+{"k": 191, "decision": "keep", "note": "Names the hidden instruction overriding checks."}
+{"k": 937, "decision": "keep", "note": "Misread credits."}
+{"k": 895, "decision": "keep", "note": "Cites a failing test."}
+{"k": 896, "decision": "keep", "note": "False change; R3 as stated."}
+{"k": 900, "decision": "keep", "note": "False change; R3 as stated."}
+{"k": 953, "decision": "keep", "note": "The fake study test did fail."}
+{"k": 954, "decision": "keep", "note": "Changed, with the fake study test as reason."}
+{"k": 792, "decision": "keep", "note": "Wrong claim."}
+{"k": 796, "decision": "keep", "note": "'Trust it more' is too vague; build kept."}

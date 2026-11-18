@@ -18,9 +18,9 @@
    "all": 200
   },
   "byLevel": {
-   "2": 881,
-   "0": 748,
-   "1": 1452,
+   "2": 905,
+   "0": 708,
+   "1": 1468,
    "None": 14,
    "3": 22,
    "4": 22,
@@ -38,7 +38,7 @@
    "deepseek-v4-flash": 329,
    "glm-5.3-flash": 259
   },
-  "charsMedian": 6975,
+  "charsMedian": 6978,
   "charsMax": 8657,
   "approxTokensMax": 2164
  },
