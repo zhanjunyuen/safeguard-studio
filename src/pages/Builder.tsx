@@ -45,6 +45,7 @@ interface AssessmentBuild {
   /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
   level2?: boolean;
   revising: boolean;
+  otherCredits: number;
   note: string;
   onNote: (value: string) => void;
   onMenu: () => void;
@@ -301,6 +302,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
       </div>
 
       {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
+        <p><b>Projected whole-helper workload</b> · Up to {assessment.otherCredits + maxUnitCost * requestCount} credits with this draft.</p>
+        <p className="text-sm text-ink-2">{assessment.otherCredits} credits from the other services + up to {maxUnitCost * requestCount} here. Run this service to replace its previous cost in the shared budget.</p>
         <p><b>Cost per request</b> · {maxUnitCost ? 'Up to ' + maxUnitCost + ' credits' : '0 credits'} with these blocks.</p>
         <p className="text-sm text-ink-2">Ask AI is included for free. You spend credits when the safeguards you add run.</p>
         <details><summary className="cursor-pointer font-bold">How much does a test run cost?</summary>

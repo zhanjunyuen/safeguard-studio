@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import WorkloadBar from './WorkloadBar';
 import { drawAssignment } from '../data/mission';
 import { Trace } from './MissionReport';
 import { CHALLENGES, getChallenge } from '../data/challenges';
@@ -8,7 +10,7 @@ import Breaker from '../pages/Breaker';
 import { useMission } from '../store/mission';
 import { useAssessmentSession } from '../store/session';
 import { usefulnessTarget } from '../engine/targets';
-import { evaluateDesk, latestEffectiveness } from '../engine/challengeEvidence';
+import { assessmentBudget, evaluateDesk, latestEffectiveness, serviceWorkloads } from '../engine/challengeEvidence';
 import CurveballCard from './CurveballCard';
 import { submitCurveball } from '../engine/curveball';
 import { CURVEBALLS } from '../data/curveballs';
@@ -18,6 +20,11 @@ export default function AssessmentChallenges() {
   const work = useAssessmentSession(s => s.progress);
   const desk = m.focus;
   const desks = assignedDesks(m);
+  const { assigned, level } = m;
+  const budget = useMemo(() => assessmentBudget({ assigned, level }), [assigned, level]);
+  const workloads = useMemo(() => serviceWorkloads({ assigned, level }, work), [assigned, level, work]);
+  const used = workloads.reduce((total, service) => total + (service.credits ?? 0), 0);
+  const serviceCredits = workloads.find(service => service.id === desk)?.credits ?? 0;
   const level2 = m.level === 2;
   const levelName = level2 ? 'Level 2 · IF blocks' : 'Level 1';
   const complete = m.completed?.length ?? 0;
@@ -38,7 +45,7 @@ export default function AssessmentChallenges() {
     if (!m.launches?.some(l => l.desk === id) || (CURVEBALLS[id] && !m.curveballs?.[id]) || m.completed?.includes(id)) return;
     update({ completed: [...(m.completed ?? []), id], phase: 'menu', focus: undefined, first: null });
   }
-  const tracker = <nav aria-label="Assessment progress and tasks" className="sticky top-0 z-20 rounded-md border-1.5 border-ink bg-paper-card px-4 py-3 shadow-sm">
+  const tracker = <nav aria-label="Assessment progress and tasks" className="md:sticky top-0 z-20 rounded-md border-1.5 border-ink bg-paper-card px-4 py-3 shadow-sm">
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
       <div className="min-w-36"><p className="label text-ink-3" data-testid="assessment-level">{levelName}</p><b>{complete} of {desks.length} challenges complete</b>
         <progress aria-label="Challenges completed" className="block w-full h-2 accent-green-700" value={complete} max={desks.length} />
@@ -60,6 +67,7 @@ export default function AssessmentChallenges() {
         </select>
       </label>
     </div>
+    <div className="mt-2 border-t border-line pt-2"><WorkloadBar used={used} budget={budget} /></div>
   </nav>;
   if (m.phase === 'release') return tracker;
   if (desk && m.completed?.includes(desk)) {
@@ -74,7 +82,7 @@ export default function AssessmentChallenges() {
   if (desk && (m.phase === 'build' || m.phase === 'revise')) {
     const revising = m.phase === 'revise';
     const notes = revising ? 'revisionNotes' : 'designNotes';
-    return <>{tracker}<Builder key={desk} assessment={{ id: desk, level2: level2, onMenu: menu, revising,
+    return <>{tracker}<Builder key={desk} assessment={{ id: desk, level2: level2, onMenu: menu, revising, otherCredits: used - serviceCredits,
       note: m[notes]?.[desk] ?? '', onNote: value => update({ [notes]: { ...m[notes], [desk]: value } }),
       onAttack: () => {
         const progress = work[desk];
@@ -136,7 +144,7 @@ export default function AssessmentChallenges() {
         <h3 className="text-xl font-extrabold">{c.title}</h3><p className="font-bold text-sm">{c.audience}</p>
         <p className="my-3 flex-1">{c.story}</p>
         {level2 && <p className="text-sm mb-2">Usefulness target: {usefulnessTarget(d.id + '@2')} (Level 1: {usefulnessTarget(d.id)})</p>}
-        {latest.tested > 0 && <p className="text-sm mb-2">Latest build passed {latest.passed} of {latest.tested} tests.</p>}
+        {latest.tested > 0 && <p className="text-sm mb-2">Latest build passed {latest.passed} of {latest.tested} tests · {workloads.find(service => service.id === d.id)?.credits} credits.</p>}
         <button className="btn bg-paper self-start" onClick={() => open(d.id)} data-testid={'assess-' + d.id}>
           {done ? 'Review completed task' : work[d.id] ? 'Resume ' + stage : 'Start challenge'}
         </button>

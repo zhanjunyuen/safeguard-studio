@@ -15,9 +15,16 @@ export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['leve
   return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id));
 }
 
-export function assessmentBudget(m: Mission) {
+export function assessmentBudget(m: Pick<Mission, 'assigned' | 'level'>) {
   return assignedDesks(m).reduce((sum, d) =>
     sum + totalCost(evaluateDesk(d.id, idealScript(challengeIdFor(m, d.id)).map(blockKey) as BlockType[], m.level)), 0);
+}
+
+export function serviceWorkloads(m: Pick<Mission, 'assigned' | 'level'>, progress: Record<string, ChallengeProgress>) {
+  return assignedDesks(m).map(({ id, title }) => {
+    const last = progress[id]?.attempts.slice(-1)[0];
+    return { id, title, credits: last ? totalCost(evaluateDesk(id, last.script, m.level)) : null };
+  });
 }
 
 export function latestEffectiveness(progress?: ChallengeProgress) {

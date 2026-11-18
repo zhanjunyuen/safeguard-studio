@@ -69,7 +69,7 @@ export const casesFor = (m: Pick<Mission, 'level'>, desk: Desk) => getChallenge(
 export const ruleScript = (rules: Rule[], desk: Desk) =>
   rules.filter(r => r.scope === 'all' || r.scope === desk).map((r, i) => keyToBlock(r.type, `r${i}`));
 
-export function assignedDesks(m: Mission) {
+export function assignedDesks(m: Pick<Mission, 'assigned'>) {
   return m.assigned ? catalogue.filter(d => m.assigned!.includes(d.id)) : DESKS;
 }
 

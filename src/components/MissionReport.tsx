@@ -1,3 +1,4 @@
+import WorkloadBar from './WorkloadBar';
 import { challengeEvidence } from '../engine/challengeEvidence';
 import { useAssessmentSession } from '../store/session';
 import { Link } from 'react-router-dom';
@@ -89,7 +90,7 @@ function ChallengeReport({ mission }: { mission: Mission }) {
   const packet = challengeEvidence(mission, work);
   return <div className="space-y-4">
     <p><b>{packet.level === 2 ? 'Level 2 · IF blocks' : 'Level 1'}</b> · {packet.completionOrder.length} of {packet.challenges.length} challenges complete · {mission.minutes ? mission.minutes + '-minute limit' : 'Untimed'} · {Math.floor(mission.elapsed / 60)}m {mission.elapsed % 60}s active</p>
-    <p>Latest evaluated builds used {packet.workloadCredits} credits across attempted challenges. The full assessment budget is {packet.budget} credits.</p>
+    <WorkloadBar used={packet.workloadCredits} budget={packet.budget} />
     {packet.completionOrder.length === packet.challenges.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
     {packet.challenges.map(c => <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
       <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>

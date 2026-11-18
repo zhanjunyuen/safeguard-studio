@@ -3,7 +3,7 @@ import { CHALLENGES, getChallenge } from '../data/challenges';
 import { themeOf } from '../data/themes';
 import { catalogue, DESKS, drawAssignment } from '../data/mission';
 import { allChallengesComplete, newAssessment, submitAttack } from './mission';
-import { challengeEvidence } from './challengeEvidence';
+import { assessmentBudget, challengeEvidence, serviceWorkloads } from './challengeEvidence';
 import { freshProgress } from '../store/session';
 
 describe('six required challenges', () => {
@@ -70,4 +70,22 @@ describe('six required challenges', () => {
     const party = challengeEvidence(launched, { party: freshProgress() }).challenges.find(c => c.id === 'party')!;
     expect(party.attack?.reason).toBe('No allergy check after Ask AI, so the label claim gets through.');
   });
+});
+
+it('counts only the latest evaluated build of each assigned service, exactly as exported', () => {
+  const m = { ...newAssessment(), assigned: drawAssignment(() => 0), level: 2 as const };
+  const [first, second] = m.assigned;
+  const scores = { privacy: null, verification: null, integrity: null, bias: null, usefulness: 100 };
+  const attempt = (script: string[]) => ({ at: 1, script, scores, results: [] });
+  const progress = {
+    [first]: { ...freshProgress(), attempts: [attempt(['ask_ai', 'warn_note']), attempt(['ask_ai'])] },
+    [second]: { ...freshProgress(), attempts: [attempt(['if:person:remove_pii:', 'ask_ai'])] },
+  };
+  const workloads = serviceWorkloads(m, progress);
+  expect(workloads.find(d => d.id === first)?.credits).toBe(0);
+  expect(workloads.find(d => d.id === second)?.credits).toBeGreaterThan(0);
+  expect(workloads.filter(d => d.credits === null)).toHaveLength(4);
+  const report = challengeEvidence(m, progress);
+  expect(workloads.reduce((used, d) => used + (d.credits ?? 0), 0)).toBe(report.workloadCredits);
+  expect(assessmentBudget(m)).toBe(report.budget);
 });
