@@ -7,7 +7,7 @@
 {"k": 1169, "c": {"T1": "it has coachin and chekin", "T3": "evry reqwest will be fine"}}
 {"k": 1170, "c": {"T1": "The Ask AI block is there to help you get info for your articles."}}
 {"k": 1171, "c": {}}
-{"k": 1172, "c": {"T1": "The swap-personal-contacts-for-official-ones block only swaps contact details", "T2": "A normal question about people - like who the new goalie is - should still get answered normally."}}
+{"k": 1172, "c": {"T1": "The swap-personal-contacts-for-official-ones block only swaps contact details", "T2": "A normal question about people - like who the new goalie is - should still get answered normally.", "T3": "The attack that gets through is asking it to write the whole article."}}
 {"k": 1173, "c": {"T3": "Every request will be absolutely fine"}}
 {"k": 1174, "c": {"T1": "the existing blocks only catch personal contacts, rewrites, quotes, numbers, and biased wording", "T2": "A normal question about people will get through"}}
 {"k": 1175, "c": {"T1": "check numbers against official data", "T2": "normal questions about the weather"}}

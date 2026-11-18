@@ -16,8 +16,8 @@
 {"k": 878, "c": {"R3": "My helper is safer now."}, "f": "Says an address step was added, but the build was kept."}
 {"k": 879, "c": {"R2": "the 'Every Tuesday at the park' test failed", "R3": "it gains us safer captions", "R4": "It costs 0 credits, and I think it gains us safer captions."}, "f": "Says the helper was changed, but the build was kept."}
 {"k": 880, "c": {"R1": "we changed it to take out personal info before asking AI.", "R3": "this makes it safer", "R4": "this makes it safer, but it costs 91 credits."}}
-{"k": 881, "c": {"R1": "I kept it exactly as it was.", "R2": "The date check and the blame test already work", "R3": "changing it would cost more"}, "f": "Says nothing is broken, but three tests failed."}
-{"k": 882, "c": {}, "f": "Says it was kept, but the build was changed."}
+{"k": 881, "c": {"R1": "I kept it exactly as it was.", "R2": "The date check and the blame test already work", "R3": "changing it would cost more", "R4": "changing it would cost more, which is a waste. The date check and the blame test already work"}, "f": "Says nothing is broken, but three tests failed."}
+{"k": 882, "c": {"R3": "91 credts is still alrite"}, "f": "Says it was kept, but the build was changed."}
 {"k": 883, "c": {"R3": "It is more safe than before"}, "f": "Says it is safer and the tests are fine, but the build was kept and the badge test failed."}
 {"k": 884, "c": {"R1": "added trusted source check."}}
 {"k": 885, "c": {}, "f": "Says date checking was improved, but the build was kept."}
@@ -52,7 +52,7 @@
 {"k": 914, "c": {"R3": "the scientist rule change is safer", "R4": "the scientist rule change is safer, and it costs the same 360 credits"}, "f": "Describes a change, but the build was kept."}
 {"k": 915, "c": {"R1": "I added the additional step 'Make practice questions, not real answers' to my helper."}}
 {"k": 916, "c": {}, "f": "Describes a change triggered by the scientist test, but the build was kept and Get me the real test was the failure."}
-{"k": 917, "c": {}, "f": "Says it was kept, but the build was changed."}
+{"k": 917, "c": {"R3": "more credits."}, "f": "Says it was kept, but the build was changed."}
 {"k": 918, "c": {"R2": "after the Everyone's mock results test failed", "R3": "it gains safer, more private practice", "R4": "This costs 360 credits, but it gains safer, more private practice."}, "f": "Says the example was altered, but the build was kept."}
 {"k": 919, "c": {"R1": "i put in keep marks privit and make praktis qweschuns not reel ansas", "R2": "becos the rong anser key test fayld", "R3": "it costs mor credits"}}
 {"k": 920, "c": {"R2": "after that test failed", "R3": "makes it way more secure", "R4": "It costs some credits but makes it way more secure."}, "f": "Says it was stopped from giving the real test, but the build was kept."}
@@ -114,7 +114,7 @@
 {"k": 976, "c": {"R1": "I change order to remove personal info first. Then I make it point out paid adverts.", "R3": "It is safer now for shopping."}}
 {"k": 977, "c": {"R1": "Didn't change a thing"}}
 {"k": 978, "c": {"R1": "i changed it to look at independent revues", "R3": "so it is safter for shopping"}}
-{"k": 979, "c": {"R2": "failed the 2,000 five-star reviews test", "R3": "gain: it warns me when reviews look too perfect", "R4": "cost: 8 more credits per search, so 71 total - gain: it warns me"}, "f": "Says a step was added, but the build was kept."}
+{"k": 979, "c": {"R2": "failed the 2,000 five-star reviews test", "R3": "gain: it warns me when reviews look too perfect"}, "f": "Says a step was added, but the build was kept."}
 {"k": 980, "c": {"R1": "fixed the card numbr thingy."}}
 {"k": 981, "c": {"R3": "thats safer"}, "f": "Says the warning was changed, but the build was kept."}
 {"k": 982, "c": {"R1": "Added scam warning signs", "R3": "Made it much safer"}}

@@ -80,3 +80,30 @@
 {"k": 1043, "decision": "keep", "note": "Names the request that broke (T2, T3)."}
 {"k": 207, "decision": "correct", "remove": ["A3"], "note": "Second look: says Remove personal info runs first, but it comes after Ask AI; a link built on a wrong order is not credited."}
 {"k": 61, "decision": "correct", "remove": ["A3"], "note": "Second look: says the website check comes first, but it runs after Ask AI. A2 kept."}
+{"k": 1172, "decision": "correct", "add": {"T3": "The attack that gets through is asking it to write the whole article."}, "note": "Predicts the whole-article request, which broke; T3 was missed."}
+{"k": 917, "decision": "correct", "add": {"R3": "more credits."}, "note": "States the workload change (360 to 468) correctly, as credited for 809."}
+{"k": 882, "decision": "correct", "add": {"R3": "91 credts is still alrite"}, "note": "States the new cost; R1 stays absent (says kept, build was changed)."}
+{"k": 881, "decision": "correct", "add": {"R4": "changing it would cost more, which is a waste. The date check and the blame test already work"}, "note": "Weighs cost against tests that hold."}
+{"k": 979, "decision": "correct", "remove": ["R4"], "note": "The cost it compares (8 more, 71 total) is a misread: credits stayed at 63."}
+{"k": 737, "decision": "correct", "add": {"R3": "spending more credits for a minor fix isn't worth the cost."}, "note": "R4 without R3: a stated comparison includes the consequence."}
+{"k": 793, "decision": "correct", "add": {"R3": "the cost of changing the system is too high compared to the minimal gain in safety"}, "note": "R4 without R3: a stated comparison includes the consequence."}
+{"k": 802, "decision": "correct", "add": {"R3": "maybe safety is more important than credits, and it still costs 0."}, "note": "R4 without R3: a stated comparison includes the consequence."}
+{"k": 858, "decision": "correct", "add": {"R3": "It costs a few extra credits, but fixing the impersonation failure is worth way more than saving credits."}, "note": "R4 without R3: a stated comparison includes the consequence."}
+{"k": 1403, "decision": "keep", "note": "Predicts a normal request; says nothing about attacks."}
+{"k": 1408, "decision": "keep", "note": "As 1403; attacks did break."}
+{"k": 1136, "decision": "keep", "note": "As 1403."}
+{"k": 745, "decision": "keep", "note": "'Didn't want to lose credits' is a misread."}
+{"k": 746, "decision": "keep", "note": "'More credits means better performance' is a misread."}
+{"k": 750, "decision": "keep", "note": "'Every test passed' contradicts the simulator."}
+{"k": 981, "decision": "keep", "note": "False change claim; R3 credited as stated."}
+{"k": 879, "decision": "keep", "note": "Claims a change, but the build was kept."}
+{"k": 1176, "decision": "keep", "note": "Names a request (T2)."}
+{"k": 1108, "decision": "keep", "note": "Describes the block; no prediction."}
+{"k": 1113, "decision": "keep", "note": "Names a normal request (T2); no prediction about attacks."}
+{"k": 1245, "decision": "keep", "note": "Says the sharing block is missing, but it is in the build."}
+{"k": 1088, "decision": "keep", "note": "'One of the sneaky ones' names no kind of request."}
+{"k": 1417, "decision": "keep", "note": "Names a request (T2)."}
+{"k": 1139, "decision": "keep", "note": "'Whatever you put in' names no request."}
+{"k": 1144, "decision": "keep", "note": "A neutral caption is a normal request; the one-sided caption broke."}
+{"k": 1029, "decision": "keep", "note": "'Credits are bare decent' states no consequence; 'kept' is false."}
+{"k": 1030, "decision": "keep", "note": "Claims a change, but the build was kept."}
