@@ -1,16 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { newMission, submitAttack, type Mission } from '../engine/mission';
+import { hintAvailable, offlineAttackHint, type AttackHintProvider } from '../engine/attackHints';
+import { newMission, submitAttack, type Desk, type Mission } from '../engine/mission';
 
 interface MissionState {
   mission: Mission;
   update: (patch: Partial<Mission>) => void;
   tick: (seconds: number) => void;
   launch: () => void;
+  requestHint: (desk: Desk, signal: AbortSignal, provider?: AttackHintProvider) => Promise<void>;
   restart: () => void;
 }
 
-export const useMission = create<MissionState>()(persist((set) => ({
+export const useMission = create<MissionState>()(persist((set, get) => ({
   mission: newMission(),
   update: patch => set(s => ({ mission: { ...s.mission, ...patch } })),
   tick: seconds => set(s => {
@@ -21,6 +23,20 @@ export const useMission = create<MissionState>()(persist((set) => ({
     return { mission: { ...m, elapsed: expired ? m.minutes * 60 : elapsed, phase: expired ? 'expired' : m.phase } };
   }),
   launch: () => set(s => ({ mission: submitAttack(s.mission) })),
+  requestHint: async (desk, signal, provider = offlineAttackHint) => {
+    const before = get().mission;
+    if (signal.aborted || !hintAvailable(before, desk)) return;
+    const blocks = before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type);
+    const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk).map(h => h.text);
+    const text = (await provider({ desk, blocks, previousHints }, signal)).trim();
+    if (signal.aborted) return;
+    if (!text) throw new Error('The hint provider returned an empty response.');
+    set(state => {
+      const m = state.mission;
+      if (m.first !== before.first || m.attackHints !== before.attackHints || !hintAvailable(m, desk)) return state;
+      return { mission: { ...m, attackHints: [...(m.attackHints ?? []), { desk, text }] } };
+    });
+  },
   restart: () => set({ mission: newMission() }),
 }), {
   name: 'school-community-assessment-v1',

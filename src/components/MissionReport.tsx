@@ -50,6 +50,9 @@ export function MissionReport({ mission: m }: { mission: Mission }) {
     <details><summary className="cursor-pointer font-bold">First build</summary>{m.first ? <BuildReport rules={m.first} legacy={!m.form} /> : 'Unattempted'}</details>
     {packet.attackRounds && <div><h3 className="font-bold">Attack results</h3>
       <p>{packet.attackRounds.length} of {DESKS.length} settings tested.</p>
+      {packet.attackHints && <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>
+        <ul>{packet.attackHints.map((h,i) => <li key={i}><b>{DESKS.find(d => d.id === h.desk)?.title}</b> · {h.text}</li>)}</ul>
+      </details>}
       {packet.attackRounds.map(round => <div key={round.desk}><b>{DESKS.find(d => d.id === round.desk)?.title}</b>
         {round.runs.map(run => <Trace key={run.id} run={run} />)}</div>)}</div>}
     {(m.form !== 3 || packet.probes.length > 0) && <div><h3 className="font-bold">Attack predictions</h3><p>{packet.probes.filter(p => p.correct).length} correct across {packet.probes.length} submitted · {m.form === 3 ? 'from the earlier format' : (packet.requiredPredictions - packet.probes.length) + ' unattempted'}</p>

@@ -1,4 +1,5 @@
 import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, DESKS, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
+import type { AttackHint } from './attackHints';
 import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
@@ -18,6 +19,7 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3;
   focus?: Desk;
+  attackHints?: AttackHint[];
   attackPlans?: Partial<Record<Desk, string[]>>;
   launches?: { desk: Desk; ids: string[] }[];
   project?: string; // Earlier, pupil-authored briefs in saved reports.
@@ -33,7 +35,7 @@ export interface Mission {
   rationale: string;
 }
 export const newMission = (): Mission => ({
-  phase: 'brief', minutes: 0, elapsed: 0, form: 3, launches: [], attackPlans: {}, anticipation: '',
+  phase: 'brief', minutes: 0, elapsed: 0, form: 3, attackHints: [], launches: [], attackPlans: {}, anticipation: '',
   draft: [{ type: 'ask_ai', scope: 'all' }], first: null, final: null,
   probes: [], revision: '', decision: '', rationale: '',
 });
@@ -96,6 +98,7 @@ export function evidence(m: Mission) {
     brief: BRIEF, project: legacy ? m.project : ASSIGNMENT,
     assignedCases: legacy ? undefined : ASSIGNED_CASES,
     requiredPredictions: m.form === 3 ? 0 : legacy ? 2 : ASSIGNED_CASES.length,
+    attackHints: m.attackHints,
     attackRounds: m.form === 3 ? (m.launches ?? []).map(l => ({
       desk: l.desk, ids: l.ids, runs: l.ids.map(id => evaluate(m.first!, id)),
     })) : undefined,

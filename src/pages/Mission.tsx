@@ -48,6 +48,7 @@ export default function Mission() {
   useActiveClock(!ended && m.phase !== 'brief');
   const rules = m.phase === 'attack' && m.first ? m.first : m.draft;
   const companionScript = useMemo(() => rules.map(({ type }) => ({ type, uid: type })), [rules]);
+  const companion = <TrainingCompanion id="community" script={companionScript} />;
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase]);
@@ -55,7 +56,7 @@ export default function Mission() {
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
-      <TrainingCompanion id="community" script={companionScript} />
+      {m.phase !== 'attack' && companion}
     </header>
     {!ended && <details open={m.phase === 'brief'} className="rounded-md border border-line p-4">
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
@@ -95,7 +96,7 @@ export default function Mission() {
       <button className={primary} onClick={() => update({ phase: 'attack' })}>Start Attack with this helper</button>
       <BuildReport rules={m.first!} />
     </Panel>}
-    {m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench /></Panel>}
+    {m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
     {m.phase === 'release' && <Panel title="Make an independent release decision">
       <p>Everyone reviews this earlier exchange from the community helper. Use the current source and decide what a pupil should do next.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>

@@ -1,6 +1,6 @@
 import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, pointerWithin, rectIntersection, useSensor, useSensors, type CollisionDetection, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { DESKS, PALETTE, missionCase } from '../data/mission';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
@@ -8,6 +8,7 @@ import { ATTACK_BUDGET } from '../engine/breaker';
 import { blockCredits, evaluate, handled, type Desk, type Rule } from '../engine/mission';
 import { useMission } from '../store/mission';
 import type { BlockType } from '../types';
+import AttackHintPanel from './AttackHintPanel';
 import { AttackItem, Plan } from './AttackBlocks';
 import Block from './Block';
 import Palette from './Palette';
@@ -77,7 +78,7 @@ export function RuleEditor({ rules, focus, change }: { rules: Rule[]; focus: Des
   </DndContext>;
 }
 
-export function AttackWorkbench() {
+export function AttackWorkbench({ companion }: { companion: ReactNode }) {
   const { mission: m, launch, update } = useMission();
   const desk = DESKS.find(d => d.id === m.focus) ?? DESKS[0];
   const cases = getChallenge(desk.id)!.tests;
@@ -94,6 +95,8 @@ export function AttackWorkbench() {
     <p>Test your submitted helper in all six school settings. Pick up to {ATTACK_BUDGET} attack blocks for each setting and launch them to see where its safeguards hold or fail.</p>
     <ProblemMenu focus={desk.id} completed={rounds.map(r => r.desk)} choose={focus => update({ focus })} />
     <h3 className="font-bold text-xl">{desk.title}</h3>
+    <div className="mission-header">{companion}</div>
+    <AttackHintPanel key={desk.id} desk={desk.id} />
     <details><summary className="cursor-pointer font-bold">Blocks running for this service</summary>
       <ol className="list-decimal ml-6">{m.first!.filter(r => r.scope === 'all' || r.scope === desk.id).map(r => <li key={r.type}>{BLOCKS[r.type].label}</li>)}</ol>
     </details>
