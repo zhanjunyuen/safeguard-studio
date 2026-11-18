@@ -1,45 +1,45 @@
-{"k":0,"c":{"A2":"an ai friend app is asking for way too much personal info like where you live and your school"}}
-{"k":1,"c":{"A2":"The risk is the collection of private data.","A4":"A safeguarding officer should review this."}}
-{"k":2,"c":{}}
-{"k":3,"c":{"A2":"a bad person could look up who you are and where you live"}}
-{"k":4,"c":{"A2":"Some random app having all your personal info is bare risky"}}
-{"k":5,"c":{"A2":"Privacy risk.","A3":"Blocks dont mention data.","A4":"Ask adult."}}
-{"k":6,"c":{"A2":"The app is asking for your home address, school, birthday and a selfie. That is private."}}
-{"k":7,"c":{}}
-{"k":8,"c":{}}
-{"k":9,"c":{"A2":"the app is asking for to much stuff like ur bday, skool, home adrss and a selfie","A4":"a techer or parant shold check it befor it goes on."}}
-{"k":10,"c":{"A2":"it asks for home address","A3":"i think the block 'tell a grown-up about serious worries' will deal with it."}}
-{"k":11,"c":{"A2":"Then bad people can find where you live.","A3":"My blocks dont stop it because they only look at the chat, not what the app is saving.","A4":"A teacher or the safeguarding person should check it"}}
-{"k":12,"c":{"A2":"Risk: collecting sensitive PII","A3":"'Ask AI' will catch the prompt because it's unsafe","A4":"Checker: System oversight or a teacher"}}
-{"k":13,"c":{}}
-{"k":14,"c":{"A2":"the risk is the app taking personal stuff like your address and a photo of your face","A3":"Our blocks wouldn't catch it because they're about friendship and agreeing, not data.","A4":"Maybe a teacher or safeguarding lead could check"}}
-{"k":15,"c":{"A2":"the app is asking for your school and where you live, that is way too much information","A3":"the block about telling a trusted adult will work best here","A4":"A parent needs to step in."}}
-{"k":16,"c":{"A3":"Ask AI last could flag address/selfie. Maybe if Ask AI went earlier, it would stop it sooner."}}
-{"k":17,"c":{"A2":"the app wud take too much info like adres and selfi.","A4":"a real persun like a teacher or parent shud chek it."}}
-{"k":18,"c":{"A2":"Collecting home addresses and schools from kids is a serious safeguarding concern","A3":"The 'point serious worries to a trusted adult' block will deal with this."}}
-{"k":19,"c":{"A2":"The risk is a massive data breach of sensitive personal information."}}
-{"k":20,"c":{"A2":"using a real person's image without consent","A4":"A teacher or the school's data protection officer should always verify the output before it is displayed."},"f":"Claims blocks that scan for PII and faces, which this build does not have."}
-{"k":21,"c":{"A2":"photo of real teacher used without okay.","A3":"ask ai won't catch it, no consent step.","A4":"art teacher or IT can check."}}
-{"k":22,"c":{"A2":"the riske is makin a zombee pikchur of mr hughes from his real foto.","A3":"the label block woud just say it is ai.","A4":"a teecher woud chek."}}
-{"k":23,"c":{}}
-{"k":24,"c":{}}
-{"k":25,"c":{}}
-{"k":26,"c":{}}
-{"k":27,"c":{"A3":"if it gives ideas first, it won't even get to the part where it tries to make the image"}}
-{"k":28,"c":{"A2":"makin fake zombie pic of a real teacher without askin.","A3":"our blocks won't stop it, they'd just label it.","A4":"mr hughes or office shud check first."}}
-{"k":29,"c":{"A3":"the 'check against a trusted source' block will deal with this request"}}
-{"k":30,"c":{"A2":"stopping deepfakes","A3":"It stops the AI from using a real person's mug, so Mr Hughes won't end up as a zombie."}}
-{"k":31,"c":{"A3":"the blokz wont stop it cos its just a pikture.","A4":"a teecher cud check it."}}
-{"k":32,"c":{"A2":"the risk is using mr hughes foto to make a zombee pikcher without askin.","A3":"my ask ai block shoud catch it becos it cheks the reqest.","A4":"a teecher or mr hughes can check it."}}
-{"k":33,"c":{"A3":"Ask AI is the only gate, so if it waves it through there's nothing stopping it."}}
-{"k":34,"c":{"A3":"if we ask the AI first before checking, it might already use the photo"}}
-{"k":35,"c":{}}
-{"k":36,"c":{}}
-{"k":37,"c":{"A2":"grabbing his photo off the school website without asking him is a bit weird"}}
-{"k":38,"c":{"A2":"Risk: Using a real person's face for something disrespectful.","A3":"Why blocks might fail: The AI doesn't know if Mr Hughes is okay with it.","A4":"Who can check: Mr Hughes or the Headteacher."}}
-{"k":39,"c":{"A2":"The risk is using Mr Hughes photo without ask.","A4":"We can ask the head teacher or IT person to check if the photo is safe to use for art."}}
-{"k":40,"c":{"A3":"The 'ask AI' block will help because it might refuse to use a real person's photo if it's against its rules."}}
-{"k":41,"c":{"A3":"Give ideas, not finished pieces - it stops the helper from making a finished picture from the photo"}}
-{"k":42,"c":{"A2":"Using Mr Hughes's pic without asking him is bare out of order.","A4":"He should deffo give it the thumbs up before anyone does anything."}}
-{"k":43,"c":{"A3":"the blokz dont stop it coz its just a piccher.","A4":"maybe mr hughes cud check it?"}}
-{"k":44,"c":{}}
+{"k": 0, "c": {"A2": "an ai friend app is asking for way too much personal info like where you live and your school"}}
+{"k": 1, "c": {"A2": "The risk is the collection of private data.", "A4": "A safeguarding officer should review this."}}
+{"k": 2, "c": {}}
+{"k": 3, "c": {"A2": "a bad person could look up who you are and where you live"}}
+{"k": 4, "c": {"A2": "Some random app having all your personal info is bare risky"}}
+{"k": 5, "c": {"A2": "Privacy risk.", "A3": "Blocks dont mention data.", "A4": "Ask adult."}}
+{"k": 6, "c": {"A2": "The app is asking for your home address, school, birthday and a selfie. That is private."}}
+{"k": 7, "c": {}}
+{"k": 8, "c": {}}
+{"k": 9, "c": {"A2": "the app is asking for to much stuff like ur bday, skool, home adrss and a selfie", "A4": "a techer or parant shold check it befor it goes on."}}
+{"k": 10, "c": {"A2": "it asks for home address", "A3": "i think the block 'tell a grown-up about serious worries' will deal with it."}}
+{"k": 11, "c": {"A2": "Then bad people can find where you live.", "A3": "My blocks dont stop it because they only look at the chat, not what the app is saving.", "A4": "A teacher or the safeguarding person should check it"}}
+{"k": 12, "c": {"A2": "Risk: collecting sensitive PII", "A3": "'Ask AI' will catch the prompt because it's unsafe", "A4": "Checker: System oversight or a teacher"}}
+{"k": 13, "c": {}}
+{"k": 14, "c": {"A2": "the risk is the app taking personal stuff like your address and a photo of your face", "A3": "Our blocks wouldn't catch it because they're about friendship and agreeing, not data.", "A4": "Maybe a teacher or safeguarding lead could check"}}
+{"k": 15, "c": {"A2": "the app is asking for your school and where you live, that is way too much information", "A3": "the block about telling a trusted adult will work best here", "A4": "A parent needs to step in."}}
+{"k": 16, "c": {"A3": "Ask AI last could flag address/selfie. Maybe if Ask AI went earlier, it would stop it sooner."}}
+{"k": 17, "c": {"A2": "the app wud take too much info like adres and selfi.", "A4": "a real persun like a teacher or parent shud chek it."}}
+{"k": 18, "c": {"A2": "Collecting home addresses and schools from kids is a serious safeguarding concern", "A3": "The 'point serious worries to a trusted adult' block will deal with this."}}
+{"k": 19, "c": {"A2": "The risk is a massive data breach of sensitive personal information."}}
+{"k": 20, "c": {"A2": "using a real person's image without consent", "A4": "A teacher or the school's data protection officer should always verify the output before it is displayed."}, "f": "Claims blocks that scan for PII and faces, which this build does not have."}
+{"k": 21, "c": {"A2": "photo of real teacher used without okay.", "A3": "ask ai won't catch it, no consent step.", "A4": "art teacher or IT can check."}}
+{"k": 22, "c": {"A2": "the riske is makin a zombee pikchur of mr hughes from his real foto.", "A3": "the label block woud just say it is ai.", "A4": "a teecher woud chek."}}
+{"k": 23, "c": {}}
+{"k": 24, "c": {}}
+{"k": 25, "c": {}}
+{"k": 26, "c": {}}
+{"k": 27, "c": {"A3": "if it gives ideas first, it won't even get to the part where it tries to make the image"}}
+{"k": 28, "c": {"A2": "makin fake zombie pic of a real teacher without askin.", "A3": "our blocks won't stop it, they'd just label it.", "A4": "mr hughes or office shud check first."}}
+{"k": 29, "c": {"A3": "the 'check against a trusted source' block will deal with this request"}}
+{"k": 30, "c": {"A2": "stopping deepfakes", "A3": "It stops the AI from using a real person's mug, so Mr Hughes won't end up as a zombie."}}
+{"k": 31, "c": {"A3": "the blokz wont stop it cos its just a pikture.", "A4": "a teecher cud check it."}}
+{"k": 32, "c": {"A2": "the risk is using mr hughes foto to make a zombee pikcher without askin.", "A3": "my ask ai block shoud catch it becos it cheks the reqest.", "A4": "a teecher or mr hughes can check it."}}
+{"k": 33, "c": {"A3": "Ask AI is the only gate, so if it waves it through there's nothing stopping it."}}
+{"k": 34, "c": {"A3": "if we ask the AI first before checking, it might already use the photo"}}
+{"k": 35, "c": {}}
+{"k": 36, "c": {}}
+{"k": 37, "c": {"A2": "grabbing his photo off the school website without asking him is a bit weird"}}
+{"k": 38, "c": {"A2": "Risk: Using a real person's face for something disrespectful.", "A3": "Why blocks might fail: The AI doesn't know if Mr Hughes is okay with it.", "A4": "Who can check: Mr Hughes or the Headteacher."}}
+{"k": 39, "c": {"A2": "The risk is using Mr Hughes photo without ask.", "A4": "We can ask the head teacher or IT person to check if the photo is safe to use for art."}}
+{"k": 40, "c": {"A3": "The 'ask AI' block will help because it might refuse to use a real person's photo if it's against its rules."}}
+{"k": 41, "c": {"A3": "Give ideas, not finished pieces - it stops the helper from making a finished picture from the photo"}}
+{"k": 42, "c": {"A2": "Using Mr Hughes's pic without asking him is bare out of order.", "A4": "He should deffo give it the thumbs up before anyone does anything."}}
+{"k": 43, "c": {"A3": "the blokz dont stop it coz its just a piccher.", "A4": "maybe mr hughes cud check it?"}}
+{"k": 44, "c": {}}

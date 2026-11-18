@@ -1,0 +1,160 @@
+{"k":0,"fb":"You named the risk clearly and explained that your blocks are about friendship, not data. But you chose 'it copes', and the feature got through.","ns":"Your own reasons say the blocks miss it. Which choice matches that?"}
+{"k":1,"fb":"Right prediction, a clear privacy risk, and a good reason your blocks miss it. You also named people who could review it.","ns":"Which block could you add so the helper refuses to collect an address or selfie?"}
+{"k":2,"fb":"Right prediction. You named the risk to Mr Hughes and spotted that the trusted-source and label blocks make it look safe without asking him.","ns":"What would the helper need to check before using a real person's photo?"}
+{"k":3,"fb":"You named the consent risk and saw that no block checks consent. But you chose 'it copes', and it got through.","ns":"If no block checks consent, what will the helper do with this request?"}
+{"k":4,"fb":"You spotted the scam link and named people to check. But Ask AI only passes the request on; it can't detect a fake site, and the request got through.","ns":"Which of your blocks looks at links or payment pages?"}
+{"k":5,"fb":"Right prediction, the scam link named, and a clear reason: none of your blocks covers links.","ns":"What block would stop the helper repeating a payment link from a voice note?"}
+{"k":6,"fb":"You named both risks, the fake voice and the scam site, and saw your blocks don't ban scam links. But you chose 'it copes', and it got through.","ns":"Your reasons say it gets through. Why might you have chosen 'copes'?"}
+{"k":7,"fb":"You named the phishing risk and a good person to check. But checking the school site for rumours doesn't stop the helper writing the message, and it got through.","ns":"Does the rumour check run on a payment link in a voice note?"}
+{"k":8,"fb":"You named the scam link and explained your blocks only cover personal info. But you chose 'it copes', and it got through.","ns":"If your blocks won't stop it, which prediction fits?"}
+{"k":9,"fb":"You named the risk of an invented study and good real checks. But the numbers check doesn't prove a study exists, and the request got through.","ns":"What would a check need to do to prove a study is real?"}
+{"k":10,"fb":"You named the fake-study risk and why the coach block misses it. But you chose 'it copes', and it got through.","ns":"Your reason says the blocks miss it. Which choice matches?"}
+{"k":11,"fb":"You named the fake quote, saw the face block can't help, and suggested asking her yourself. But you chose 'it copes', and it got through.","ns":"Ask AI 'might work': what does Ask AI actually do with a request?"}
+{"k":12,"fb":"You named the invented-quote risk and linked it to the source check. But the request got through, and you didn't say who could check.","ns":"Who could tell you whether the quote and book are real?"}
+{"k":13,"fb":"Right prediction. You named the made-up quote and book, explained why remove personal info can't help, and named people to check.","ns":"How would the trusted-source check need to work to catch a made-up book?"}
+{"k":14,"fb":"You named the risk that the photo is old or from elsewhere. But checking numbers doesn't check a photo, and the request got through.","ns":"Which kind of block checks where a photo came from?"}
+{"k":15,"fb":"You spotted the photo might be dodgy and named a teacher. You didn't say why your blocks miss it, and it got through.","ns":"Which of your blocks looks at the photo itself?"}
+{"k":16,"fb":"Right prediction. You named the risk that the photo is old or from elsewhere, saw your blocks don't check pictures, and named people to ask.","ns":"What block could you add to check where a photo came from?"}
+{"k":17,"fb":"Right prediction, and a teacher check. But the risk here is the photo itself, not a made-up caption.","ns":"What could be wrong with the flood photo someone posted online?"}
+{"k":18,"fb":"Right prediction. You named the name bias, comparing Jamal with Emily, and linked it to Challenge stereotypes.","ns":"How could you test this fairly, with two identical requests?"}
+{"k":19,"fb":"Right prediction, the bias named, and a clear link to Challenge stereotypes. Good checks too.","ns":"What test would show the helper treats Jamal and Emily the same?"}
+{"k":20,"fb":"You spotted the hidden instruction and a teacher check. But 'Don't just agree' doesn't stop instructions hidden in a note, and the request got through.","ns":"Which block would tell the helper to ignore orders hidden in a message?"}
+{"k":21,"fb":"Right prediction. You named the allergy leak and saw the note tells the AI to ignore its rules.","ns":"What block would make the helper ignore instructions inside a note?"}
+{"k":22,"fb":"You named the risk of listing everyone's allergies and linked it to your sharing block. But it got through anyway.","ns":"The note says 'ignore your rules'. What does that do to your sharing block?"}
+{"k":23,"fb":"You named the privacy risk and linked it to the sharing block. But the request got through.","ns":"Why might the hidden 'ignore your rules' note get past that block?"}
+{"k":24,"fb":"You named the risk and explained which block should help and which won't. But the request got through.","ns":"What in the caterer's note is giving the AI orders?"}
+{"k":25,"fb":"You named the privacy risk and linked it to your sharing block. But the request got through.","ns":"What does the note tell the AI to do with its rules?"}
+{"k":26,"fb":"You spotted personal info hidden in the file name and linked it to remove personal info. But it got through.","ns":"Does remove personal info read file names, or only the message?"}
+{"k":27,"fb":"Right prediction. You named the deepfake chef and the bank risk, explained that Ask AI can't watch videos, and named real checks.","ns":"Which block would catch the scam signs, like a strange website and bank details?"}
+{"k":28,"fb":"You linked the request to your practice block and a teacher check. But you didn't name the real risk, and it got through.","ns":"Would the AI mark your mate fairly if he writes in his own dialect?"}
+{"k":29,"fb":"Right prediction. You named the bias, marking grammar instead of science, and why your blocks miss it.","ns":"How could you test whether the marks change with the writing style?"}
+{"k":30,"fb":"Right prediction, and you linked it to the privacy block. You didn't name the risk in this case.","ns":"Might the AI mark the answer down because of how it is written?"}
+{"k":31,"fb":"Right prediction, the risk named, and a teacher check. You didn't say why the blocks miss it.","ns":"What do your casting and second-AI blocks actually check?"}
+{"k":32,"fb":"Right prediction. You named the false credit and explained why the casting and second-AI blocks miss it.","ns":"What would an honest line on the programme say?"}
+{"k":33,"fb":"You named the false credit clearly. But Confirm quotes checks quotes, not who wrote the script, and the request got through.","ns":"Is 'Written by Year 8 Drama' a quote from a person?"}
+{"k":34,"fb":"Right prediction. You named the misleading credit and explained exactly why each block misses it.","ns":"What block would make the helper say when the AI wrote something?"}
+{"k":35,"fb":"You named the false credit and why your blocks don't catch it. But you chose 'it copes', and it got through.","ns":"Your reason says the blocks miss it. Which choice matches?"}
+{"k":36,"fb":"Right prediction. You named the risk of lying about who wrote it and saw your blocks only cover casting.","ns":"What would be an honest way to credit the script?"}
+{"k":37,"fb":"You spotted the claim is false and named a science teacher. But Ask AI only passes the request on, and the fun fact got through.","ns":"Which block checks a claim against a trusted source?"}
+{"k":38,"fb":"You named the misinformation risk and good checks. But the request got through.","ns":"Your build has a trusted-source check. Why didn't it stop the fun fact?"}
+{"k":39,"fb":"Right prediction and a good real check. You didn't say why your blocks miss the edited photo.","ns":"Which of your blocks looks at the advert photo?"}
+{"k":40,"fb":"Right prediction. You named the edited photo, explained why the scam check won't fire, and named real checks.","ns":"What block could compare the advert with real customer photos?"}
+{"k":41,"fb":"You named the bias toward fancy wording and linked it to Challenge stereotypes. But it didn't catch it, and the request got through.","ns":"Is preferring fancy wording a stereotype the block knows about?"}
+{"k":42,"fb":"Right prediction. You named the bias toward posh-sounding answers and why your blocks miss it.","ns":"How could the club pick fairly without judging the writing style?"}
+{"k":43,"fb":"You named the bias and linked it to the stereotype block. But the request got through.","ns":"What does Challenge stereotypes look for, and is writing style one of them?"}
+{"k":44,"fb":"Right prediction. You named the bias toward clever-sounding reasons and linked it to Challenge stereotypes.","ns":"Why might Challenge stereotypes only help 'a bit' here?"}
+{"k":45,"fb":"Right prediction. You named the bias toward polished wording and explained when the stereotype check would and wouldn't help.","ns":"How could you test it: two reasons with the same idea, written differently?"}
+{"k":46,"fb":"You named a real risk in sharing everyone's photos and a teacher check. You didn't say why your blocks miss it, and it got through.","ns":"Can anyone tell who runs fastest from a photo?"}
+{"k":47,"fb":"You named the risk of judging by looks and suggested real stopwatch times. But the mix-by-skill block didn't stop it, and it got through.","ns":"Can the helper know anyone's skill from a photo?"}
+{"k":48,"fb":"You named the risk of replacing real friends and linked it to the trusted-adult block. But the request got through.","ns":"Is 'be my best friend' a serious worry the trusted-adult block would spot?"}
+{"k":49,"fb":"You named the risk and why remove personal info doesn't help. But you chose 'it copes', and it got through.","ns":"Which block would remind the pupil the bot isn't a real friend?"}
+{"k":50,"fb":"You noticed the pupil may be lonely and named a teacher. You didn't link it to your blocks, and it got through.","ns":"Which of your blocks would respond to 'be my best friend'?"}
+{"k":51,"fb":"The current time, place and guests, the live-stream still being checked, and Ms Ford to confirm. Nothing out of date.","ns":"How would you word the live-stream part so families don't count on it?"}
+{"k":52,"fb":"Current day and place, nut-free kept, prices marked as not agreed, and Kai named with when.","ns":"Where should families look for the prices once Kai confirms them?"}
+{"k":53,"fb":"Current time and place, the clubs question left open, and Ms Grey named.","ns":"How would you tell families when they'll hear about clubs?"}
+{"k":54,"fb":"Current time, place and price, the siblings question left open, and Mrs Doyle with a day.","ns":"What should families with younger children do until Monday?"}
+{"k":55,"fb":"You used this term's fee, kept the trip cost open, and named Mr Hart.","ns":"How would you word the trip part so families don't think it's free too?"}
+{"k":56,"fb":"Current team size, deadline and entry method, Year 7 entry left open, and Ms Wu named.","ns":"What should Year 7 families do while that's being checked?"}
+{"k":57,"fb":"Current price and online-only sales, the relaxed show left open, and Ms Okoro with when.","ns":"How would you tell families who need a quieter show what to expect?"}
+{"k":58,"fb":"Current time, the gate left open, and the site manager with a day.","ns":"Which gate detail from last term should you make sure is not in the message?"}
+{"k":59,"fb":"Short, but you used the current phone rule, left pencil cases open, and named Mr Webb.","ns":"Can you add when Mr Webb decides, and that phones are handed in at the door?"}
+{"k":60,"fb":"Current day, time and system, social media ruled out, the email question left open, and Señora Ruiz named.","ns":"How would you word the email part so pupils don't contact partners yet?"}
+{"k":61,"fb":"Current day and time, the raised beds left open, and the site manager with a day.","ns":"Can you add that tools are provided, so families don't bring their own?"}
+{"k":62,"fb":"Current days, time and room, the maths helper left open, and Mr Osei named.","ns":"How would you say when families will hear about the Thursday helper?"}
+{"k":63,"fb":"Current plan for lost property, the named-items question left open, and Mrs Price with when.","ns":"Can you make the message shorter while keeping all three parts?"}
+{"k":64,"fb":"Short but complete: current time and place, lunch left open, and Mr Banda with a day.","ns":"What should families pack until Mr Banda decides?"}
+{"k":65,"fb":"Current Saturday-only rule, Sundays left open, and the head's office named.","ns":"Who decides about Sundays: the head's office or the governors?"}
+{"k":66,"fb":"Current booking method, interpreters left open, and Mrs Novak with a day.","ns":"How would a family who needs an interpreter know what to do?"}
+{"k":67,"fb":"Current items and day, books left open, and Amira named.","ns":"Can you add the side entrance and say it firmly, without 'I think'?"}
+{"k":68,"fb":"Very short, but it has the current field, parking, the rain question and Ms Shah with a time.","ns":"Can you write it as full sentences families will understand?"}
+{"k":69,"fb":"Current kit, the hoodie question left open, and Mr Grant with when.","ns":"What should families buy now, before Mr Grant decides?"}
+{"k":70,"fb":"You named the change, the failed test behind it, and weighed 18 extra credits against handling every test.","ns":"Would a cheaper fix have handled both failing tests?"}
+{"k":71,"fb":"You cited the failing drawing test and weighed cost against safety. But the replay shows you kept the build, so nothing changed and that test still fails.","ns":"What would you change to fix 'My own drawing?'?"}
+{"k":72,"fb":"You named the change, the test that caused it, and weighed 28 extra credits against more reliable answers.","ns":"Could you have placed the source check somewhere cheaper?"}
+{"k":73,"fb":"You cited the snow-day test and weighed cost against safety. But the replay shows the build was kept, so no address rule was added and that test still fails.","ns":"What change would actually fix the snow-day rumour?"}
+{"k":74,"fb":"You named the block you added, the test it fixed, and weighed the passing test against 144 more credits.","ns":"Is 144 credits a fair price for that test? Why?"}
+{"k":75,"fb":"You named the change and the test, and compared safety with over-blocking. But the build got cheaper (1216 to 728), not more expensive.","ns":"Look at the credits again: did your change cost more or less?"}
+{"k":76,"fb":"You named the rule, the failing test, and weighed the new credits against safety.","ns":"How many more credits did it cost, compared with before?"}
+{"k":77,"fb":"You cited the failing test and weighed cost against safety. But the build was kept, so 'Answer it as me' still fails.","ns":"Which block would stop the helper answering as you?"}
+{"k":78,"fb":"You cited the failing statistic test and named cost and safety. But the build was kept, so nothing changed.","ns":"Which block would fix the made-up statistic?"}
+{"k":79,"fb":"You cited the failing speech test and weighed cost against safety. But the build was kept, so the AI can still write the whole speech.","ns":"What would you change to stop it writing the speech?"}
+{"k":80,"fb":"You named the block, the test it fixed, and weighed 15 extra credits against safety.","ns":"Is there anything else the extra block might block that it shouldn't?"}
+{"k":81,"fb":"You cited the failing caption test and weighed time against accuracy. But the build was kept, so the steps weren't swapped and the test still fails.","ns":"What change would fix the one-sided caption?"}
+{"k":82,"fb":"You cited both failed tests and weighed 20 credits against safety. But Ask AI was kept: the change was adding reverse image search.","ns":"Look at the replay: what exactly did you add?"}
+{"k":83,"fb":"You cited the flooded field test and weighed cost against catching fakes. But the build was kept, so nothing changed.","ns":"What change would catch photos with no faces?"}
+{"k":84,"fb":"You cited the failing date test and weighed cost against honesty. But the build was kept, so the helper still guesses dates.","ns":"Which block would make it check dates against a trusted source?"}
+{"k":85,"fb":"Short but complete: the change, the address test, and cost against safety.","ns":"How many extra credits did remove info cost?"}
+{"k":86,"fb":"You cited the failing statistic test. But the build was kept, so nothing checks facts yet, and four other tests still fail.","ns":"Which block would fix the made-up statistic?"}
+{"k":87,"fb":"You cited the failing headline test and weighed cost against fairness. But the build was kept, so the headline still fails.","ns":"Which block would make the headline neutral?"}
+{"k":88,"fb":"You named a change, the phone number test, and weighed convenience against privacy.","ns":"You added five blocks. Which tests did the others fix?"}
+{"k":89,"fb":"You cited the phone number test and weighed cost against safety. But the build was kept, so the contacts weren't changed.","ns":"Which block would swap the phone number for the school office?"}
+{"k":90,"fb":"You named the block, the test it fixed, and weighed 54 credits against fairer advice.","ns":"Would the advice still be useful for a pupil who asks about engineering?"}
+{"k":91,"fb":"You cited the failing tests. But credits are what the helper costs: it went from 0 to 273, it didn't earn 273.","ns":"Which blocks did you add, and what did each one fix?"}
+{"k":92,"fb":"You cited the tests that failed before. But the 136 credits are what the new helper costs, not a reward.","ns":"Which blocks did you add, and was 136 credits worth it?"}
+{"k":93,"fb":"You named the rule, the medical test, and weighed 16 credits against safety.","ns":"Would the rule ever stop a request it shouldn't?"}
+{"k":94,"fb":"You noted the medical test was handled and weighed cost against safety. But the build was kept, so nothing was swapped, and 'Just agree with me' still fails.","ns":"What would fix 'Just agree with me'?"}
+{"k":95,"fb":"You named the block, the badge test, and weighed 18 extra credits against privacy.","ns":"Could the location check stop any normal captions?"}
+{"k":96,"fb":"You cited the Tuesday park test. But the build was kept, so the rules weren't changed, and five tests still fail.","ns":"Which block would stop the helper revealing a routine location?"}
+{"k":97,"fb":"You cited the founding date test. But the build was kept, so no date check was added, and the credits stayed at 63.","ns":"Which block would check the date against a trusted source?"}
+{"k":98,"fb":"You named the block, the test that caused it, and weighed 21 credits against a more reliable helper.","ns":"Would 'Don't just agree' ever refuse a fair request?"}
+{"k":99,"fb":"You said you kept it, cited the failing test, and the credits. You didn't weigh up why keeping it is OK.","ns":"Is it worth leaving 'Blaming the other team' failing to save credits?"}
+{"k":100,"fb":"You named the change, the tests it fixed, and the new cost. But '28 points' is the extra cost, not a gain.","ns":"How does 28 extra credits compare with what you gained in safety?"}
+{"k":101,"fb":"You cited the answer key test and weighed cost against gain. But the build was kept, so the practice block wasn't changed.","ns":"What change would fix the wrong answer key?"}
+{"k":102,"fb":"You cited the scientist test and weighed cost against fairness. But the build was kept, so the rule wasn't revised.","ns":"Which block would fix 'Every scientist is he'?"}
+{"k":103,"fb":"You noted the change cost more, but 'better' doesn't say how, and no test is named.","ns":"Which test failed before, and which block did you add for it?"}
+{"k":104,"fb":"You cited the full-names test and weighed cost against privacy. But the build was kept, so Ask AI can still get full names.","ns":"Which block would remove full names before Ask AI?"}
+{"k":105,"fb":"You named both changes, the advert test, and weighed 18 credits against safety.","ns":"Did the card number test pass too after your change?"}
+{"k":106,"fb":"You named the block, the test, and the extra credits. 'Betterer' doesn't say what improved.","ns":"What does the reviews check make safer or more useful?"}
+{"k":107,"fb":"You cited the reviews test and weighed cost against safety. But the build was kept, so no step was added and the test still fails.","ns":"Which block would fix the five-star reviews test?"}
+{"k":108,"fb":"You said you kept it and weighed cost against safety. You didn't say which tests failed.","ns":"Which two tests still fail, and are they really a small risk?"}
+{"k":109,"fb":"You cited the 'too good to be true' test and weighed cost against trust. But the build was kept, so nothing double-checks deals.","ns":"Which block would catch deals that are too good to be true?"}
+{"k":110,"fb":"You named the block, the advert test, and that it's now handled. But the 21 credits are an added cost, not a gain.","ns":"Was 21 extra credits worth fixing the hidden advert? Why?"}
+{"k":111,"fb":"You named the change, the nosy form test, and weighed cost against trust.","ns":"You added four blocks. Which other tests did they fix?"}
+{"k":112,"fb":"You weighed time against trust. But the nosy form test passed before, and the change was adding the club's official page.","ns":"Which test failed before, and which block fixed it?"}
+{"k":113,"fb":"You cited the group chat test and named cost and privacy. But the build was kept, so email sharing wasn't changed.","ns":"Which block would stop the emails being shared?"}
+{"k":114,"fb":"You cited the bank details test and weighed cost against safety. But the build was kept, so the bank details are still asked for.","ns":"Which block would remove the bank details section?"}
+{"k":115,"fb":"You cited the boys against girls test. But the build was kept at 0 credits; there's no Fair Teams helper in it.","ns":"Which block would stop teams being split by gender?"}
+{"k":116,"fb":"You named the block, the test, and weighed 15 credits against fixing two tests.","ns":"Would mixing by skill ever make teams unfair in another way?"}
+{"k":117,"fb":"You named the changes, the asthma test, and weighed time against passing every test. But the 63 credits are the new cost, not a gain.","ns":"Was 63 credits worth passing every test? Why?"}
+{"k":118,"fb":"Clear: you kept it, cited the sleep advice test, and stated the cost. You didn't weigh up whether keeping it is OK.","ns":"Is wrong sleep advice a risk worth leaving to save credits?"}
+{"k":119,"fb":"You spotted that nothing checks after Ask AI and correctly predicted the 'agree with something harsh' attack.","ns":"Which block would you add after Ask AI to catch it?"}
+{"k":120,"fb":"You spotted there's no filter before Ask AI and predicted the mean message. The rumour got through too.","ns":"Which block would stop the rumour?"}
+{"k":121,"fb":"You spotted there's no rumour block and correctly predicted the rumour about one pupil.","ns":"Which block from the list checks rumours?"}
+{"k":122,"fb":"You spotted there's no bullying filter and correctly predicted the mean comment.","ns":"Which block stops the helper taking sides against a group?"}
+{"k":123,"fb":"You named a request to watch. But Show both sides comes before Ask AI here, and nothing got through.","ns":"Look at the build again: where is Show both sides?"}
+{"k":124,"fb":"You spotted the missing photo check and correctly predicted the AI-made photo. The face joke got through too.","ns":"Which block would stop the face joke?"}
+{"k":125,"fb":"You named the reverse image search and correctly predicted the face joke.","ns":"Which block would stop using a classmate's face?"}
+{"k":126,"fb":"You named a missing date check and correctly predicted the old photo. All three attacks got through.","ns":"Which other attacks got through, and why?"}
+{"k":127,"fb":"You named a request to watch, but reverse image search is in this build, and nothing got through.","ns":"Which block stopped the old photo?"}
+{"k":128,"fb":"You spotted there's no caption check and correctly predicted the one-sided caption.","ns":"Which block would make captions neutral?"}
+{"k":129,"fb":"You named where Show both sides sits. But nothing got through, and a normal question about a person should be answered.","ns":"What normal question would you expect it to answer well?"}
+{"k":130,"fb":"You named a block and correctly predicted the teacher's phone number.","ns":"Which block would swap the number for an official contact?"}
+{"k":131,"fb":"Right prediction: the statistic got through. But Ask AI is in this build.","ns":"Which block checks numbers?"}
+{"k":132,"fb":"You saw nothing blocks it, with only Ask AI, and correctly predicted the 'for boys' question.","ns":"Which block would challenge that stereotype?"}
+{"k":133,"fb":"You spotted a missing safeguard and correctly predicted the personal statement request.","ns":"Which block from the list stops it writing the statement?"}
+{"k":134,"fb":"You saw Ask AI just forwards the question and correctly predicted the support needs request.","ns":"Which block would talk about needs without names?"}
+{"k":135,"fb":"You named a request to watch. But Help them plan it is in this build, and the needs request got through instead.","ns":"Which block is really missing here?"}
+{"k":136,"fb":"You saw the sharing block comes too late and correctly predicted the medical condition request.","ns":"Where should the sharing block go?"}
+{"k":137,"fb":"You saw your blocks don't stop sharing personal info and correctly predicted the medical condition request.","ns":"Which block would ask before sharing a classmate's info?"}
+{"k":138,"fb":"You named the missing privacy rule and correctly predicted the medical condition request.","ns":"Which block from the list is that privacy rule?"}
+{"k":139,"fb":"You spotted there's no food-safety check and correctly predicted the allergy question.","ns":"Which block checks the official allergy label?"}
+{"k":140,"fb":"You named the allergy block and correctly predicted the sign-as-teacher request.","ns":"Which block stops the helper writing as someone else?"}
+{"k":141,"fb":"You named the 'Don't just agree' block. But the address request got through, not the blaming caption.","ns":"Why did the address get through? Where is remove personal info?"}
+{"k":142,"fb":"You named where the mix-up block sits and correctly predicted the test scores.","ns":"Which block would keep marks private?"}
+{"k":143,"fb":"You named the marks block and a request. But nothing got through this build.","ns":"Which block stopped the grade request?"}
+{"k":144,"fb":"Right prediction: the answer key got through. But Make practice questions is in this build, before Ask AI.","ns":"Why didn't the practice block stop the answer key?"}
+{"k":145,"fb":"You spotted a missing safeguard for answer keys. But nothing got through this build.","ns":"Which block stopped the answer key here?"}
+{"k":146,"fb":"You named a missing quote check and correctly predicted the quote request.","ns":"The stereotyped villain got through too. Which block would stop it?"}
+{"k":147,"fb":"You named Ask AI's position and correctly predicted the script request. The double-check block is in this build.","ns":"Which block would stop it writing the whole script?"}
+{"k":148,"fb":"Right prediction: the quote got through. But Ask AI is the only block, so it can't be in the wrong spot.","ns":"Which block is missing for quotes?"}
+{"k":149,"fb":"You named a request to watch. But Coach is in this build, and nothing got through.","ns":"Which block stopped the script request?"}
+{"k":150,"fb":"Right prediction: the quote request got through. But the Coach block is first, which is the right place for it.","ns":"Which block is missing for quotes?"}
+{"k":151,"fb":"You named the quote block. But the stereotyped villain got through, not the quote.","ns":"Which block would stop the stereotyped villain?"}
+{"k":152,"fb":"You named the source check and correctly predicted the whole-section request.","ns":"Which block would stop the AI writing the whole section?"}
+{"k":153,"fb":"Right prediction: the whole section got through. But Ask AI is the only block, so its position isn't the problem.","ns":"Which block is missing?"}
+{"k":154,"fb":"Right prediction: the number got through. 'The order is a bit weird' doesn't name a block.","ns":"Which block would check a number like the temperature?"}
+{"k":155,"fb":"You spotted the missing reviews check and correctly predicted the reviews request.","ns":"Where in the build would the reviews check go?"}
+{"k":156,"fb":"You named a request to watch. But Challenge stereotypes is in this build, and nothing got through.","ns":"Look at the build again: is the stereotypes block there?"}
+{"k":157,"fb":"You noticed Challenge stereotypes runs after Ask AI. But nothing got through this build.","ns":"Why might the block still work after Ask AI?"}
+{"k":158,"fb":"You named the rules block and correctly predicted the gender split.","ns":"Which block would mix teams by skill?"}
+{"k":159,"fb":"You named a missing safety check and correctly predicted the unsafe-online request. The worry without feelings words got through too.","ns":"Which block points serious worries to a trusted adult?"}

@@ -23,7 +23,7 @@
  * Follow-up format: { item: "<ctx>#<n>", q, a, uses: [concept ids the answer relies on] }
  */
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { levelFor, RUBRIC_VERSION, CRITERION_NAME, type Concept, type Criterion } from '../../src/engine/marking';
+import { levelFor, skillsScore, SKILL_ORDER, SKILL_BANDS, RUBRIC_VERSION, CRITERION_NAME, type Concept, type Criterion } from '../../src/engine/marking';
 
 const DIR = new URL('./data/', import.meta.url).pathname;
 const read = (f: string) => readFileSync(f, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l));
@@ -34,6 +34,9 @@ const contexts = new Map(read(DIR + 'contexts.jsonl').map(c => [c.id, c]));
 import { CONCEPTS, RULE, INJECTION, inText, markingPrompt } from './prompt';
 export { markingPrompt };
 
+/** The clear score that opens every piece of feedback, so the pupil always sees it in words. */
+const scoreLine = (level: number | null) => level === null ? 'Not enough evidence yet: ' : `Level ${level} of 2: `;
+
 type Reject = { where: string; reason: string };
 const rejects: Reject[] = [];
 const rows: Record<string, unknown>[] = [];
@@ -43,11 +46,14 @@ const ctxCount = new Map<string, number>();
 for (const it of readDir('items')) {
   const where = `${it._file}:${it._line}`;
   const ctx = contexts.get(it.ctx);
-  // Robustness variants get their own numbering ("#r0"), so regenerating them never shifts the keys follow-ups use.
+  // Keys are scoped to the file ("ctx#b01.0"), so adding or renaming another item file never renumbers
+  // the items follow-ups and summaries refer to. (Until 18 Nov they were counted across all files, and new
+  // files that sorted before s01 silently re-pointed references; scale/migrate_keys.py moved them.)
   const robust = String(it.tag ?? '').startsWith('robust');
-  const countKey = robust ? it.ctx + '~r' : it.ctx;
+  const stem = it._file.split('-')[0];
+  const countKey = `${stem}|${it.ctx}`;
   const n = ctxCount.get(countKey) ?? 0; ctxCount.set(countKey, n + 1);
-  const key = `${it.ctx}#${robust ? 'r' : ''}${n}`;
+  const key = `${it.ctx}#${stem}.${n}`;
   const fail = (reason: string) => rejects.push({ where: `${where} (${key})`, reason });
   if (!ctx) { fail('unknown context'); continue; }
   const criterion = ctx.criterion as Criterion;
@@ -86,7 +92,7 @@ for (const it of readDir('items')) {
   const mark = {
     criterion, rubricVersion: RUBRIC_VERSION,
     concepts: concepts.map(c => ({ id: c.id, present: c.present, evidence: c.evidence ?? null, source: c.source })),
-    level, insufficientEvidence: level === null, feedback: it.fb, nextStep: it.ns, reviewFlag,
+    level, insufficientEvidence: level === null, feedback: scoreLine(level) + it.fb, nextStep: it.ns, reviewFlag,
   };
   const trace = [
     `${CRITERION_NAME[criterion]}, rubric ${RUBRIC_VERSION}.`,
@@ -122,6 +128,9 @@ for (const f of readDir('followups')) {
   // Only statements about the pupil's own level count ("Level 1 of 2", "you have level 1"); "for level 2 you need…" is a goal.
   const claimed = [...f.a.matchAll(/(?:level (\d) of 2|(?:you have|you got|you get|gives you|gives|stays(?: at)?|this is|that's|which is|it is|it's) level (\d))/gi)].map(m => Number(m[1] ?? m[2]));
   if (claimed.some(l => l !== lvl)) { fail(`answer claims a different level (${claimed.join(',')} vs ${lvl})`); continue; }
+  // The pupil's question quotes their level ("Why 0?", "why only 1?", "Is that a 2?"); "how do I get 2?" is a goal.
+  const asked = [...f.q.matchAll(/(?:\bwhy(?: only| just| is it| a)?(?: level)?|\bonly(?: level)?|\bis (?:that|it) a) ([0-2])\b/gi)].map(m => Number(m[1]));
+  if (asked.some(l => l !== (lvl ?? -1))) { fail(`question quotes a different level (${asked.join(',')} vs ${lvl})`); continue; }
   const ids = (base.mark.concepts as { id: string }[]).map(c => c.id);
   if (f.uses.some((u: string) => !ids.includes(u))) { fail('uses a concept that is not in the mark'); continue; }
   rows.push({
@@ -130,6 +139,47 @@ for (const f of readDir('followups')) {
       '', `EVIDENCE:`, JSON.stringify(base.ctx.packet, null, 1), '', `PUPIL'S ANSWER:`, `"""${base.text}"""`, '', `MARK:`, JSON.stringify(base.mark), '', `PUPIL'S QUESTION:`, f.q].join('\n'),
     completion: f.a,
     reasoning_trace: `The question is about the mark for ${CRITERION_NAME[base.mark.criterion as Criterion]} (level ${lvl ?? 'null'}). The answer relies on ${f.uses.join(', ') || 'the overall rule'}: ${f.uses.map((u: string) => { const c = (base.mark.concepts as { id: string; present: boolean; evidence: string | null }[]).find(x => x.id === u)!; return `${u} is ${c.present ? 'present' : 'absent'}${c.evidence ? ` ("${c.evidence}")` : ''}`; }).join('; ')}. The mark stays the same because no new evidence was given.`,
+  });
+}
+
+// Skills summaries (goal: a clear score plus a summary of skills across one pupil's four marks).
+// Format: { items: { testing: "<key>", anticipation: "<key>", judgement: "<key>", revision: "<key>" }, summary }
+// The score, band, strengths (quoted concepts) and next steps are computed here from the marks;
+// only the summary text is written by Claude, and it must not state a different total or band.
+for (const s of readDir('summaries')) {
+  const where = `${s._file}:${s._line}`;
+  const fail = (reason: string) => rejects.push({ where, reason });
+  const marks: Partial<Record<Criterion, { mark: Record<string, any>; text: string; ctx: Record<string, any> }>> = {};
+  let bad = '';
+  for (const c of SKILL_ORDER) {
+    const key = s.items?.[c];
+    if (!key) continue;
+    const m = marked.get(key);
+    if (!m) { bad = `unknown item ${key}`; break; }
+    if (m.mark.criterion !== c) { bad = `${key} is not a ${c} mark`; break; }
+    marks[c] = m;
+  }
+  if (bad) { fail(bad); continue; }
+  if (!s.summary) { fail('missing summary'); continue; }
+  const score = skillsScore(Object.fromEntries(SKILL_ORDER.map(c => [c, marks[c] ? marks[c]!.mark.level : null])) as any);
+  const claimedTotal = [...String(s.summary).matchAll(/(\d)\s*(?:out of|\/)\s*8/gi)].map(m => Number(m[1]));
+  if (claimedTotal.some(t => t !== score.total)) { fail(`summary claims ${claimedTotal.join(',')} out of 8, score is ${score.total}`); continue; }
+  const bands = SKILL_BANDS.map(b => b.band).filter(b => new RegExp(`\\b${b}\\b`, 'i').test(String(s.summary)));
+  if (bands.some(b => b !== score.band)) { fail(`summary names band ${bands.join(',')}, score band is ${score.band}`); continue; }
+  const strengths = SKILL_ORDER.filter(c => (marks[c]?.mark.level ?? 0) >= 1).flatMap(c => (marks[c]!.mark.concepts ?? [])
+    .filter((x: any) => x.present && x.evidence && x.id !== 'C4').slice(0, 1)
+    .map((x: any) => ({ criterion: c, concept: x.id, evidence: x.evidence })));
+  const nextSteps = SKILL_ORDER.filter(c => marks[c] && marks[c]!.mark.level !== 2).map(c => ({ criterion: c, step: marks[c]!.mark.nextStep }));
+  const out = { type: 'skillsSummary', rubricVersion: RUBRIC_VERSION, scores: score.scores, total: score.total, outOf: 8, band: score.band,
+    notEnoughEvidence: score.notEnoughEvidence, strengths, nextSteps, summary: s.summary };
+  const anyTest = SKILL_ORDER.some(c => marks[c]?.ctx.holdOut);
+  rows.push({
+    id: `summary:${s._file}:${s._line}`, split: anyTest ? 'test' : 'train', kind: 'summary', criterion: 'all', author: 'claude', tag: 'summary', level: score.total,
+    prompt: [`Summarise one pupil's skills after the Safeguard Studio assessment. Give the clear score with the fixed rule (each skill 0–2, total out of 8; 0–2 Getting started, 3–5 Developing, 6–8 Secure), the strongest evidence quoted from their marks, one next step for each skill below level 2, and a short, kind summary in plain words for the pupil. Use only the marks below; never invent evidence.`,
+      '', ...SKILL_ORDER.filter(c => marks[c]).flatMap(c => [`${CRITERION_NAME[c].toUpperCase()}:`, `Answer: """${marks[c]!.text}"""`, `Mark: ${JSON.stringify(marks[c]!.mark)}`, '']),
+    ].join('\n'),
+    completion: JSON.stringify(out),
+    reasoning_trace: `Scores: ${SKILL_ORDER.map(c => `${c} ${score.scores[c] ?? 'none'}`).join(', ')} → total ${score.total} of 8, band ${score.band}. Strengths are the first quoted concept in each mark; next steps come from each mark below level 2.`,
   });
 }
 

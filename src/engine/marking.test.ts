@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { levelFor, markOffline, offlineFollowUp, FOLLOW_UPS } from './marking';
+import { skillsScore } from './marking';
 import type { BlockType } from '../types';
 
 const judge = (text: string) => markOffline({ criterion: 'judgement', text, decision: 'Edit before publishing' });
@@ -67,5 +68,23 @@ describe('marking rules', () => {
     const m = judge('Change it to 10 am instead of 9 am because that is what the new notice says.');
     expect(await offlineFollowUp(m, FOLLOW_UPS[0])).toContain('Level 1 of 2');
     expect(await offlineFollowUp(m, FOLLOW_UPS[1])).toContain('Which detail');
+  });
+});
+
+
+describe('skillsScore', () => {
+  it('adds the four levels out of 8 and picks the band', () => {
+    const s = skillsScore({ testing: 2, anticipation: 1, judgement: 2, revision: 1 });
+    expect(s.total).toBe(6); expect(s.outOf).toBe(8); expect(s.band).toBe('Secure'); expect(s.notEnoughEvidence).toEqual([]);
+  });
+  it('counts missing or null levels as 0 and lists them', () => {
+    const s = skillsScore({ testing: 1, judgement: null });
+    expect(s.total).toBe(1); expect(s.band).toBe('Getting started');
+    expect(s.notEnoughEvidence).toEqual(['anticipation', 'judgement', 'revision']);
+  });
+  it('band edges: 3 is Developing, 5 is Developing, 6 is Secure', () => {
+    expect(skillsScore({ testing: 2, anticipation: 1 }).band).toBe('Developing');
+    expect(skillsScore({ testing: 2, anticipation: 2, judgement: 1 }).band).toBe('Developing');
+    expect(skillsScore({ testing: 2, anticipation: 2, judgement: 2 }).band).toBe('Secure');
   });
 });

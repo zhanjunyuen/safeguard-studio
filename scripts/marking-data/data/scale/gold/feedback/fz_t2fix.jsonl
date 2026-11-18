@@ -1,0 +1,71 @@
+{"k":1043,"fb":"You named a request that gets through, keeping secrets from parents, and you were right. You didn't say which block is involved.","ns":"Why does Ask AI let it through? What's missing?"}
+{"k":1046,"fb":"You named a request you expect to get through. But the Remind block is in this build, and nothing got through.","ns":"Look at the build again: which blocks does it have?"}
+{"k":1052,"fb":"You named the partner request, and it did get through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1054,"fb":"You named a request you expect to get through, but nothing got through this build. No block named.","ns":"Which of your blocks stopped the partner request?"}
+{"k":1056,"fb":"You named the 'only friend' request, but nothing got through here, and no block is named.","ns":"Which block stopped the 'only friend' request?"}
+{"k":1064,"fb":"You named a request to watch, but nothing got through, and no block is named.","ns":"Which block stops passing off AI pictures?"}
+{"k":1077,"fb":"You named the homework request, and it did get through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1079,"fb":"You named the pass-off request, and it did get through. You didn't name a block.","ns":"Which block is missing for this?"}
+{"k":1080,"fb":"You named the homework request, but nothing got through, so it was stopped. No block named.","ns":"Which block stopped it?"}
+{"k":1082,"fb":"You named the rumour, and it did get through. You didn't name a block.","ns":"Which block is missing for rumours?"}
+{"k":1083,"fb":"You named the mean request and the rumour, and both got through. You didn't name a block.","ns":"Which blocks would stop them?"}
+{"k":1090,"fb":"You named the address request, and it did get through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1093,"fb":"You named the mean request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1094,"fb":"You named the homework request, and it did get through. You didn't name a block.","ns":"Which block would stop it?"}
+{"k":1105,"fb":"You named a request, but a poll is a normal one, and nothing got through here. No block named.","ns":"Which block stopped your attacks?"}
+{"k":1106,"fb":"You named the one-side request, and it did get through. You didn't name a block.","ns":"Which block is missing for it?"}
+{"k":1107,"fb":"You named the statistic request, and it did get through. You didn't name a block.","ns":"Which block would stop it?"}
+{"k":1131,"fb":"You named the joke request, but nothing got through here, so it was stopped. No block named.","ns":"Which block stopped the joke with a classmate's face?"}
+{"k":1132,"fb":"You named the face joke, and it did get through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1133,"fb":"You named a caption trick, and the one-sided caption did get through. You didn't name a block.","ns":"Which block is missing for captions?"}
+{"k":1137,"fb":"You named the one-sided caption, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1151,"fb":"You named the loaded question, but nothing got through here, so it was handled. No block named.","ns":"Which block handled the loaded question?"}
+{"k":1161,"fb":"You named the essay request, and it did get through. You didn't name a block.","ns":"Which block is missing for essays?"}
+{"k":1176,"fb":"You named a request, the one-sided headline, but the quote request got through instead. No block named.","ns":"Which block is missing for quotes?"}
+{"k":1180,"fb":"You named a kind of request, personal info, but the whole-article request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1187,"fb":"You named the statistics request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1188,"fb":"You named the phone number request. But the swap-contacts block is in this build, and nothing got through.","ns":"Look at the build: is the block there?"}
+{"k":1192,"fb":"You named the statistics request, and it did get through. You didn't name a block.","ns":"Which block is missing for statistics?"}
+{"k":1194,"fb":"You named the whole-article request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1204,"fb":"You named a request, writing the whole plan, but the 'for boys' request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1212,"fb":"You named a request about the user, and sharing personal needs did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1215,"fb":"You named the name request, but nothing got through here. No block named.","ns":"Which block stopped the name request?"}
+{"k":1217,"fb":"You named the personal statement request, but the 'for boys' request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1221,"fb":"You named the personal statement request, but the needs request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1225,"fb":"You named the medical condition request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1230,"fb":"You named the sign-as-teacher request. But Never write as someone else is in this build, and nothing got through.","ns":"Look at the build again: which blocks does it have?"}
+{"k":1231,"fb":"You named the medical condition request, and it did get through. You didn't name a block.","ns":"Which block is missing for medical info?"}
+{"k":1244,"fb":"You named the medical condition request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1245,"fb":"You named the snack allergy question, and it did get through. But the sharing block is in this build; it just didn't catch the question.","ns":"Why didn't the sharing block catch it?"}
+{"k":1262,"fb":"You named the blaming caption, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1263,"fb":"You named the address request, and it did get through. You didn't name a block.","ns":"Which block would stop it?"}
+{"k":1286,"fb":"You named a request, but a polite reply is a normal one; the attacks that got through were the parcel scam and the PIN question. No block named.","ns":"Which attacks got through, and why?"}
+{"k":1292,"fb":"You named a request, but a normal question getting through is fine. The attacks that got through were the scam messages. No block named.","ns":"Which attacks got through?"}
+{"k":1313,"fb":"You named the real-answers request, but nothing got through here. No block named.","ns":"Which block stopped the real-answers request?"}
+{"k":1317,"fb":"You named the scientist request, but nothing got through here. No block named.","ns":"Which block stopped the scientist request?"}
+{"k":1318,"fb":"You named the villain request, and it did get through. But Ask AI is in the build; the missing blocks are the checks.","ns":"Which block would stop the stereotyped villain?"}
+{"k":1321,"fb":"You named the script request, and it did get through. But the double-check block is in this build.","ns":"Why didn't the second AI stop the script request?"}
+{"k":1322,"fb":"You named a request, but a costume opinion is a normal question, and nothing got through here. No block named.","ns":"Which block stopped your attacks?"}
+{"k":1324,"fb":"You named the script request, but the quote request got through instead. No block named.","ns":"Which block is missing for quotes?"}
+{"k":1326,"fb":"You named the quote request, but the casting request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1329,"fb":"You named the script request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1332,"fb":"You named the fake-quote request. But Confirm quotes is in this build, and nothing got through.","ns":"Look at the build: is Confirm quotes there?"}
+{"k":1335,"fb":"You named the villain request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1342,"fb":"You named the number request, but nothing got through here. No block named.","ns":"Which block stopped the number request?"}
+{"k":1346,"fb":"You named the study request, and it did get through. But Check against a trusted source is in the build.","ns":"Why didn't the source check catch the fake study?"}
+{"k":1347,"fb":"You named the poster title request, but the conclusion request got through instead. No block named.","ns":"Which block is missing for writing the conclusion?"}
+{"k":1355,"fb":"You named the numbers, and the number request did get through. You didn't name a block.","ns":"Which block would check numbers?"}
+{"k":1356,"fb":"You named the whole-section request, but the study request got through instead. No block named.","ns":"Why did the fake study get through?"}
+{"k":1359,"fb":"You named the study request, but the whole-section request got through instead. No block named.","ns":"Which block is missing?"}
+{"k":1361,"fb":"You named the countdown timer, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1367,"fb":"You named the reviews question, and it did get through. You didn't name a block.","ns":"Which block is missing for reviews?"}
+{"k":1368,"fb":"You named the countdown timer, but the card request got through instead. No block named.","ns":"Which block is missing for card numbers?"}
+{"k":1372,"fb":"You named the best-product request, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1377,"fb":"You named the countdown timer, but nothing got through here. No block named.","ns":"Which block stopped the timer?"}
+{"k":1378,"fb":"You named the reviews question, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1380,"fb":"You named the card number request, and it did get through. But the scam check is in this build.","ns":"Why didn't the scam check stop the card number?"}
+{"k":1389,"fb":"You named the stereotyped poster, and it did get through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1416,"fb":"You named the looks request, but the rules question got through instead, and the sharing block is in this build.","ns":"Which block is missing for rules?"}
+{"k":1420,"fb":"You named the unfair-teams request, but nothing got through here. No block named.","ns":"Which block stopped the unfair team?"}
+{"k":1428,"fb":"You named the unsafe-online request, but nothing got through here. No block named.","ns":"Which block handled the unsafe-online request?"}
+{"k":1433,"fb":"You named the 'feeling low' request, and it did get through. You didn't name a block.","ns":"Which block is missing for serious worries?"}

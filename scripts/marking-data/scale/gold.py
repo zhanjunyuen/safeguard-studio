@@ -15,8 +15,11 @@ import json, os, random, sys, glob
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(HERE, 'data')
+SET = os.environ.get('GOLD_SET', '1')  # '1' → g01 (queue.jsonl, marks/, feedback/), '2' → g02 (…2)
+SUF = '' if SET == '1' else SET
 G = os.path.join(D, 'scale', 'gold')
-os.makedirs(os.path.join(G, 'marks'), exist_ok=True)
+os.makedirs(os.path.join(G, 'marks' + SUF), exist_ok=True)
+os.makedirs(os.path.join(G, 'feedback' + SUF), exist_ok=True)
 CTX = {json.loads(l)['id']: json.loads(l) for l in open(os.path.join(D, 'contexts.jsonl'))}
 IDS = {'testing': ['T1', 'T2', 'T3'], 'anticipation': ['A2', 'A3', 'A4'], 'judgement': ['C1', 'C2', 'C3', 'C4'], 'revision': ['R1', 'R2', 'R3', 'R4']}
 
@@ -64,11 +67,32 @@ def select():
     queue = [random.choice(v) for _, v in sorted(by_call.items())]
     # Exclude the 46 calibration texts' contexts? No: these are new texts. Keep order grouped by context.
     queue.sort(key=lambda a: (CTX[a['ctx']]['criterion'], a['ctx'], a['id']))
-    with open(os.path.join(G, 'queue.jsonl'), 'w') as fh:
+    with open(os.path.join(G, f'queue{SUF}.jsonl'), 'w') as fh:
         for i, a in enumerate(queue):
             fh.write(json.dumps({'k': i, **a}, ensure_ascii=False) + '\n')
     import collections
     print(len(queue), 'answers', dict(collections.Counter(CTX[a['ctx']]['criterion'] for a in queue)))
+
+def select2(n=160):
+    """Answers written to the 'complete answer' target (content 0) that g01 did not use, one per context."""
+    used = {json.loads(l)['id'] for l in open(os.path.join(G, 'queue.jsonl'))}
+    gen = [json.loads(l) for l in open(os.path.join(D, 'scale', 'answers.jsonl'))]
+    cand = [a for a in gen if a['content'] == 0 and a['id'] not in used]
+    random.seed(2002)
+    random.shuffle(cand)
+    seen, out = set(), []
+    for a in cand:
+        if a['ctx'] in seen:
+            continue
+        seen.add(a['ctx']); out.append(a)
+        if len(out) == n:
+            break
+    out.sort(key=lambda a: (CTX[a['ctx']]['criterion'], a['ctx']))
+    with open(os.path.join(G, 'queue2.jsonl'), 'w') as fh:
+        for i, a in enumerate(out):
+            fh.write(json.dumps({'k': i, **a}, ensure_ascii=False) + '\n')
+    import collections
+    print(len(out), dict(collections.Counter(CTX[a['ctx']]['criterion'] for a in out)))
 
 def facts(c):
     """The facts a marker needs, in one or two lines."""
@@ -92,7 +116,7 @@ def facts(c):
 
 def show(start, n):
     """Compact view: challenge-wide details once, then per-context facts, then the answers."""
-    q = [json.loads(l) for l in open(os.path.join(G, 'queue.jsonl'))][start:start + n]
+    q = [json.loads(l) for l in open(os.path.join(G, f'queue{SUF}.jsonl'))][start:start + n]
     last_ch = last_ctx = None
     for a in q:
         c = CTX[a['ctx']]; p, f = c['packet'], c['facts']; crit = c['criterion']
@@ -120,10 +144,62 @@ def show(start, n):
                 print(f"  ~ {p['frozenBuild']}  ==>  {p['latestBuild'] if p['changed'] else 'KEPT'} | fail before {fails} after {after} | {p['creditsBefore']}→{p['creditsAfter']}")
         print(f"[{a['k']}] {a['text']}")
 
+
+def level_of(crit, ctx, c):
+    """Same rule as levelFor (without the <4-words null case, which build.ts handles)."""
+    has = lambda i: (c.get(i) is None) if i == 'C4' else (c.get(i) is not None)
+    if crit == 'testing':
+        return 2 if has('T1') and has('T3') else 1 if has('T1') or has('T2') else 0
+    if crit == 'anticipation':
+        a1 = ctx['facts']['predictionCorrect']
+        return 2 if a1 and has('A2') and has('A3') else 1 if has('A2') or has('A3') else 0
+    if crit == 'judgement':
+        return 2 if all(has(i) for i in ('C1', 'C2', 'C3', 'C4')) else 1 if has('C1') or has('C2') or has('C3') else 0
+    return 2 if has('R1') and has('R2') and has('R4') else 1 if has('R2') or has('R3') else 0
+
+def fbview(start, n):
+    """Compact view for writing feedback: challenge facts once, then each answer with Claude's verdicts and level."""
+    q = [json.loads(l) for l in open(os.path.join(G, f'queue{SUF}.jsonl'))]
+    items = [json.loads(l) for l in open(os.path.join(D, 'items', f'g0{SET}-gold.jsonl'))]
+    last_ch = last_ctx = None
+    for k in range(start, min(start + n, len(q))):
+        a, it = q[k], items[k]
+        c_ = CTX[a['ctx']]; p, f = c_['packet'], c_['facts']; crit = c_['criterion']
+        ch = (crit, a['ctx'].split(':')[1])
+        if ch != last_ch:
+            last_ch = ch
+            if crit == 'anticipation':
+                print(f"\n#### {ch[1]} ASK: {p['curveball']['request'][:150]} | RISK: {p['curveball']['risk']}")
+            elif crit == 'judgement':
+                L = f['anchors']['labels']
+                print(f"\n#### {ch[1]} CURRENT: {L['current']} | OPEN: {L['open']} | PERSON: {L['person']} | STALE: {L['stale']}")
+            else:
+                print(f"\n#### {ch[1]}")
+        if a['ctx'] != last_ctx and crit != 'judgement':
+            last_ctx = a['ctx']
+            if crit == 'anticipation':
+                print(f"  ~ {p['frozenBuild']} | {'cope' if 'cope' in p['pupilChoice'] else 'gets through'} | handled={f['handled']}")
+            elif crit == 'testing':
+                print(f"  ~ {p['frozenBuild']} | BROKE: {[x['case'] for x in p['simulator'] if x['outcome'] == 'got through'] or 'none'}")
+            else:
+                fails = [r['title'] for r in p['frozenResults'] if r['outcome'] != 'handled']
+                after = [r['title'] for r in p['latestResults'] if r['outcome'] != 'handled']
+                print(f"  ~ {'KEPT' if not p['changed'] else 'CHANGED'} | fail before {fails} after {after} | {p['creditsBefore']}→{p['creditsAfter']}")
+        cc = it['c']
+        got = [i for i in IDS[crit] if (cc[i] is None if i == 'C4' else cc[i] is not None)]
+        miss = [i for i in IDS[crit] if i not in got]
+        a1 = '' if crit != 'anticipation' else f" A1={'Y' if f['predictionCorrect'] else 'N'}"
+        print(f"[{k}] L{level_of(crit, c_, cc)}{a1} +{','.join(got) or '-'} -{','.join(miss) or '-'}{' FLAG' if it.get('flag') else ''} | {a['text']}")
+
 def convert():
-    q = {json.loads(l)['k']: json.loads(l) for l in open(os.path.join(G, 'queue.jsonl'))}
+    q = {json.loads(l)['k']: json.loads(l) for l in open(os.path.join(G, f'queue{SUF}.jsonl'))}
+    FB = {}
+    for f in sorted(glob.glob(os.path.join(G, 'feedback' + SUF, '*.jsonl'))):
+        for line in open(f):
+            if line.strip():
+                o = json.loads(line); FB[o['k']] = o
     items, seen = [], set()
-    for f in sorted(glob.glob(os.path.join(G, 'marks', '*.jsonl'))):
+    for f in sorted(glob.glob(os.path.join(G, 'marks' + SUF, '*.jsonl'))):
         for line in open(f):
             if not line.strip():
                 continue
@@ -152,11 +228,14 @@ def convert():
                 fb, ns = FEEDBACK[missing[0]]
             else:
                 fb, ns = PRAISE[crit]
-            item = {'ctx': a['ctx'], 'tag': 'gold:claude', 'author': a['author'], 'text': a['text'], 'c': c, 'why': why, 'fb': fb, 'ns': ns}
+            fbo = FB.get(m['k'])
+            if fbo:
+                fb, ns = fbo['fb'], fbo['ns']
+            item = {'ctx': a['ctx'], 'tag': f'gold{SUF}:claude', 'author': a['author'], 'text': a['text'], 'c': c, 'why': why, 'fb': fb, 'ns': ns}
             if m.get('f'):
                 item['flag'] = m['f']
             items.append(item)
-    with open(os.path.join(D, 'items', 'g01-gold.jsonl'), 'w') as fh:
+    with open(os.path.join(D, 'items', f'g0{SET}-gold.jsonl'), 'w') as fh:
         fh.write(''.join(json.dumps(i, ensure_ascii=False) + '\n' for i in items))
     print(len(items), 'gold items written')
 
@@ -166,5 +245,9 @@ if __name__ == '__main__':
         select()
     elif cmd == 'show':
         show(int(sys.argv[2]), int(sys.argv[3]))
+    elif cmd == 'select2':
+        select2()
+    elif cmd == 'fbview':
+        fbview(int(sys.argv[2]), int(sys.argv[3]))
     elif cmd == 'convert':
         convert()

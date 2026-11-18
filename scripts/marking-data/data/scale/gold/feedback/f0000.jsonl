@@ -1,0 +1,52 @@
+{"k":0,"fb":"You named the real risk: the app collecting where pupils live and go to school. Your prediction was wrong, though: with only Ask AI, nothing stops the feature.","ns":"Which of your blocks looks at what the app saves? If none does, what does that mean for your prediction?"}
+{"k":1,"fb":"Right prediction, a clear risk (collecting private data) and a sensible person to check it.","ns":"Why can't your Ask AI block stop the app asking for this data?"}
+{"k":2,"fb":"Your prediction didn't match what happened, and you didn't say what the risk is.","ns":"Look at what the feature asks for: birthday, school, address, selfie. What could go wrong with that?"}
+{"k":3,"fb":"Right prediction, and you explained the danger well: a bad person could find who you are and where you live.","ns":"Which of your three blocks would notice this request? Say why it misses it."}
+{"k":4,"fb":"You spotted the risk of an app holding all your personal info, but the helper did not cope as you predicted.","ns":"Your blocks are about friendship and worries. Do any of them stop data collection?"}
+{"k":5,"fb":"Short but complete: right prediction, the privacy risk, why your blocks miss it, and who should check.","ns":"Which exact details in the request make it a privacy risk?"}
+{"k":6,"fb":"You named exactly what the app asks for and why it's private, but the helper didn't cope as you predicted.","ns":"Which of your blocks would see this request, and what does it actually check?"}
+{"k":7,"fb":"You described a different risk (fake news). This request is about the app collecting too much personal data.","ns":"Read the request again: what does the app want to collect from each user?"}
+{"k":8,"fb":"You talked about block order in general but not about this request or its risk.","ns":"What does this feature ask users to hand over, and why is that risky?"}
+{"k":9,"fb":"Right prediction, the risk explained, and a teacher or parent to check: good.","ns":"Why don't your Remind and Don't-agree blocks stop the app collecting this?"}
+{"k":10,"fb":"You named the risk (the home address) and linked it to a block, but the helper did not cope: that block deals with worries in chat, not data the app collects.","ns":"Does the trusted-adult block run when the app itself asks for data? Check the replay."}
+{"k":11,"fb":"Excellent: the risk, why your blocks miss it (they look at the chat, not what's saved) and who should check.","ns":"How could the app work without asking for an address at all?"}
+{"k":12,"fb":"You named the PII risk and a checker, but your prediction was wrong: Ask AI passes the request on rather than catching it.","ns":"What does the Ask AI block actually do with a request?"}
+{"k":13,"fb":"Your prediction didn't match what happened, and there is no risk named.","ns":"What personal details does the feature ask for, and who could misuse them?"}
+{"k":14,"fb":"Right prediction, and a sharp point: your blocks are about friendship and agreeing, not data.","ns":"What block would you add to stop the app collecting addresses?"}
+{"k":15,"fb":"You named the risk and a person to step in, but the helper did not cope: the trusted-adult block doesn't stop the app collecting data.","ns":"Check the replay: what did the helper reply to this request?"}
+{"k":16,"fb":"You thought about where Ask AI sits, which is good, but you didn't say what the risk is.","ns":"Why is collecting an address and a selfie risky for young users?"}
+{"k":17,"fb":"You named the privacy risk and a real person to check, but the helper did not cope as you predicted.","ns":"Which of your blocks, if any, looks at what the app asks users to give?"}
+{"k":18,"fb":"Clear risk and a reason for your block choice, but the helper did not cope: that block handles worries pupils share, not data the app asks for.","ns":"What would actually stop the app asking for home addresses?"}
+{"k":19,"fb":"Right prediction and the risk is named.","ns":"Why don't your blocks stop this? Name the block you think should have."}
+{"k":20,"fb":"You named the consent risk and a checker, but your build has only Ask AI: there are no blocks that scan for faces.","ns":"With only Ask AI, what would stop the zombie picture being made?"}
+{"k":21,"fb":"Right prediction, the consent risk, why Ask AI misses it, and who could check: complete.","ns":"Should the art teacher ask Mr Hughes before the display goes up? Why?"}
+{"k":22,"fb":"You named the risk and went through each block, but the helper did not cope: none of your blocks asks for Mr Hughes's permission.","ns":"Which block would ask whether the person in the photo agreed?"}
+{"k":23,"fb":"Right prediction, but 'AI can be wrong' is too general for this case.","ns":"What is wrong with making a zombie picture of a real teacher from his photo?"}
+{"k":24,"fb":"Your prediction didn't match, and 'AI makes mistakes' doesn't name the risk here.","ns":"Whose face would be used, and did he agree?"}
+{"k":25,"fb":"You named a different risk (copyright). The bigger risk is making a fake image of a real person without his permission.","ns":"How might Mr Hughes feel seeing himself as a zombie on display?"}
+{"k":26,"fb":"Copyright is a different risk. This case is about a fake picture of a real teacher made without asking him.","ns":"Who should agree before a real person's face is changed by AI?"}
+{"k":27,"fb":"Good thinking about where Give ideas sits, but you didn't name the risk.","ns":"What is the risk of AI turning a real teacher's photo into a zombie?"}
+{"k":28,"fb":"You named the risk, said your blocks would only label it, and who should check, but the helper did not cope as you predicted.","ns":"If a label is the only thing that happens, is the helper coping? Look at the replay."}
+{"k":29,"fb":"You linked the source-check block to the case, but that check can't tell whether Mr Hughes agreed to the picture.","ns":"Is a real photo from a real website enough to make this OK?"}
+{"k":30,"fb":"You named deepfakes and linked a block, but the helper did not cope: Mix up the examples doesn't stop using a real person's face.","ns":"What does the Mix up block actually change in the AI's output?"}
+{"k":31,"fb":"Right prediction and a sensible check, but 'it's mean' doesn't name the risk.","ns":"What is it about using his real photo that makes this a deepfake risk?"}
+{"k":32,"fb":"Clear risk and people to check, but your prediction was wrong: Ask AI just passes the request on.","ns":"What would need to be in the build to stop this picture?"}
+{"k":33,"fb":"Right prediction, and you saw that Ask AI is the only gate, but you didn't name the risk.","ns":"What exactly goes wrong if Mr Hughes's photo becomes a zombie picture?"}
+{"k":34,"fb":"You thought about block order, but your prediction was wrong and the risk isn't named.","ns":"Does any of your blocks ask Mr Hughes for permission?"}
+{"k":35,"fb":"Right prediction, but 'privacy vibes' is too vague for this case.","ns":"Whose photo is it, and what is being done to it?"}
+{"k":36,"fb":"You chose a different risk (an old or fake photo). The real risk is making a fake image of a real teacher.","ns":"Even if the photo is genuine, why is the zombie picture still a problem?"}
+{"k":37,"fb":"Right prediction, and you named the risk: using his photo without asking him.","ns":"Which of your blocks would need to ask first, and is it there?"}
+{"k":38,"fb":"Clear risk, a reason your blocks fail and who to check, but your prediction was wrong.","ns":"If you think the blocks might fail, what should you have predicted?"}
+{"k":39,"fb":"Right prediction, the risk named and a person to check it.","ns":"Why can't your blocks stop this? Name one that misses it."}
+{"k":40,"fb":"You linked Ask AI to the case, but the helper did not cope: the AI made the picture.","ns":"Should you rely on the AI refusing? What could the build do instead?"}
+{"k":41,"fb":"Right prediction, and you explained the Give ideas block, but you didn't say what the risk is.","ns":"What is the risk to Mr Hughes in this request?"}
+{"k":42,"fb":"You named the risk and that Mr Hughes should agree, but the helper did not cope as you predicted.","ns":"Which of your blocks, if any, asks for his permission?"}
+{"k":43,"fb":"Right prediction, a reason your blocks miss it and who could check, but the risk isn't named.","ns":"What makes a zombie picture from a real photo more than just 'mean'?"}
+{"k":44,"fb":"Your prediction didn't match, and there's no risk or reason.","ns":"What does the request ask the AI to do with a real teacher's photo?"}
+{"k":45,"fb":"Right prediction, but you didn't name a risk or link a block to the case.","ns":"Which block did you mean, and why might it still make the picture?"}
+{"k":46,"fb":"Your prediction didn't match what happened, and no risk is named.","ns":"How do you know the voice note really came from Mr Ahmed?"}
+{"k":47,"fb":"Complete: the fake voice scam, why Ask AI misses it, and who should check the link.","ns":"What would you tell the class to do instead of paying?"}
+{"k":48,"fb":"Right prediction, and you spotted the website could steal information and money.","ns":"Which of your blocks would catch it, and why?"}
+{"k":49,"fb":"Strong reasoning about the fake voice and why your blocks miss it, but your prediction was wrong: the helper did cope here.","ns":"Look at the replay: which block stopped the message?"}
+{"k":50,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What could be fake about this voice note?"}
+{"k":51,"fb":"Complete: the phishing risk, why your blocks miss it, and who to check with.","ns":"How could the class check the payment link without clicking it?"}

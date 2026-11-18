@@ -1,38 +1,46 @@
 {
  "train": {
-  "rows": 2508,
-  "droppedHardCases": 60,
+  "rows": 3227,
+  "droppedHardCases": 61,
   "judgedRows": 894,
-  "notYetJudged": 1471,
+  "notYetJudged": 1831,
   "byKind": {
-   "marking": 1964,
+   "marking": 2124,
    "robustness": 349,
-   "followup": 195
+   "followup": 554,
+   "summary": 200
   },
   "byCriterion": {
-   "testing": 673,
-   "anticipation": 750,
-   "judgement": 479,
-   "revision": 606
+   "testing": 804,
+   "anticipation": 890,
+   "judgement": 588,
+   "revision": 745,
+   "all": 200
   },
   "byLevel": {
-   "2": 727,
-   "0": 668,
-   "1": 1099,
-   "None": 14
+   "2": 881,
+   "0": 748,
+   "1": 1452,
+   "None": 14,
+   "3": 22,
+   "4": 22,
+   "5": 22,
+   "6": 22,
+   "7": 22,
+   "8": 22
   },
   "byAuthor": {
-   "claude": 1014,
-   "glm-5.2": 238,
-   "gemma-4-31b-it": 232,
-   "gemma-4-26b-a4b-it": 231,
-   "qwen3.8-27b": 243,
-   "deepseek-v4-flash": 316,
-   "glm-5.3-flash": 234
+   "claude": 1573,
+   "glm-5.2": 262,
+   "gemma-4-31b-it": 265,
+   "gemma-4-26b-a4b-it": 268,
+   "qwen3.8-27b": 271,
+   "deepseek-v4-flash": 329,
+   "glm-5.3-flash": 259
   },
-  "charsMedian": 7131,
-  "charsMax": 8456,
-  "approxTokensMax": 2114
+  "charsMedian": 6975,
+  "charsMax": 8657,
+  "approxTokensMax": 2164
  },
  "test": {
   "rows": 84,
@@ -59,8 +67,8 @@
    "claude": 71,
    "deepseek-v4-flash": 13
   },
-  "charsMedian": 6979,
-  "charsMax": 7886,
-  "approxTokensMax": 1971
+  "charsMedian": 6993,
+  "charsMax": 7900,
+  "approxTokensMax": 1975
  }
 }

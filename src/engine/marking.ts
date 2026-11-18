@@ -290,6 +290,39 @@ export const offlineFollowUp: FollowUpProvider = async (mark, question) => {
   return 'This is an offline preview that looks for key words. It can miss what you meant, and the right words can fool it. Your teacher sees your full answer, and the trained AI marker will read for meaning. If this feels wrong, say so: that is good evidence too.';
 };
 
+/** Score bands for the skills summary: the total out of 8 maps to one plain-English band. */
+export const SKILL_BANDS: { min: number; band: string }[] = [
+  { min: 6, band: 'Secure' },
+  { min: 3, band: 'Developing' },
+  { min: 0, band: 'Getting started' },
+];
+export const SKILL_ORDER: Criterion[] = ['testing', 'anticipation', 'judgement', 'revision'];
+
+export interface SkillsScore {
+  /** level per skill; null = not enough evidence (counts as 0 in the total) */
+  scores: Record<Criterion, Level>;
+  total: number;
+  outOf: 8;
+  band: string;
+  /** skills with no usable mark yet */
+  notEnoughEvidence: Criterion[];
+}
+
+/** The clear score for a pupil's set of marks: the sum of the four skill levels (0–2 each) out of 8,
+ *  and its band. Fixed rules, like levelFor: the model never decides the score, it explains it. */
+export function skillsScore(marks: Partial<Record<Criterion, Level>>): SkillsScore {
+  const scores = Object.fromEntries(SKILL_ORDER.map((c) => [c, marks[c] ?? null])) as Record<Criterion, Level>;
+  const total = SKILL_ORDER.reduce((sum, c) => sum + (scores[c] ?? 0), 0);
+  return {
+    scores, total, outOf: 8,
+    band: SKILL_BANDS.find((b) => total >= b.min)!.band,
+    notEnoughEvidence: SKILL_ORDER.filter((c) => scores[c] === null),
+  };
+}
+
+/** Asks for a short summary of a pupil's skills from their marks (served by the trained model). */
+export type SkillsSummaryProvider = (marks: Mark[], signal?: AbortSignal) => Promise<string>;
+
 let provider: MarkingProvider = offlineMarker;
 let followUp: FollowUpProvider = offlineFollowUp;
 /** Connect a server-backed marker (the trained model). Pass nothing to go back to the offline preview. */
