@@ -49,8 +49,9 @@ export default function App() {
             <Logo />
             <span className="font-display text-xl font-extrabold">Safeguard Studio</span>
           </NavLink>
-          <nav className="flex gap-2 self-stretch items-stretch" aria-label="Main">
+          <nav className="flex flex-wrap gap-x-1 self-stretch items-stretch" aria-label="Main">
             <NavLink to="/" end className={link}><span className="flex items-center h-full">Challenges</span></NavLink>
+            {!presenting && <NavLink to="/mission" className={link}><span className="flex items-center h-full">Assessment</span></NavLink>}
             <NavLink to="/profile" className={link}><span className="flex items-center h-full">My results</span></NavLink>
             <NavLink to="/teacher" className={link}><span className="flex items-center h-full">Teacher view</span></NavLink>
           </nav>

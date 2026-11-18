@@ -26,7 +26,7 @@ async function test() {
     await page.getByRole('button', { name: 'Stop dictation' }).click();
     await note.fill('Edited prediction.');
     await page.getByRole('button', { name: 'Speak your reasoning' }).click();
-    await page.getByRole('button', { name: 'Assessment checklist', exact: true }).click();
+    await page.getByRole('button', { name: 'Whole-helper overview', exact: true }).click();
     assert.equal(await page.evaluate(() => window.testMic.aborted), true);
     await page.evaluate(() => window.testMic.say('late result'));
     await tasks.first().click();

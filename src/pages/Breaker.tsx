@@ -155,7 +155,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
-          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Assessment checklist</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
           </Link>}
           <p className="label text-ink-2">Break a helper · {challenge.title}</p>

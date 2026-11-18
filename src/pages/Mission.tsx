@@ -12,7 +12,7 @@ import { BuildReport, MissionReport } from '../components/MissionReport';
 const field = 'block mt-1 w-full rounded border-1.5 border-line p-2 bg-white text-ink';
 const primary = 'btn bg-signal';
 const phases: Record<Phase, string> = {
-  menu: 'Assessment checklist', brief: 'Meet your helper', build: 'Build', evaluation: 'Build evaluation', attack: 'Attack', revise: 'Revise', release: 'Release decision',
+  menu: 'Whole-helper overview', brief: 'Meet your helper', build: 'Build', evaluation: 'Build evaluation', attack: 'Attack', revise: 'Revise', release: 'Release decision',
   complete: 'Assessment evidence', expired: 'Assessment evidence',
 };
 
@@ -93,8 +93,8 @@ export default function Mission() {
       <BuildReport rules={m.first!} />
     </Panel>}
     {!sequence && m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
-    {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Make an independent release decision">
-      <p>Everyone reviews this earlier exchange from the community helper. Use the current source and decide what a pupil should do next.</p>
+    {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Review your helper for release">
+      <p>{sequence && 'Review your six services and their workload above. '}Read this exchange and decide what the ecology club can safely share with families.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>

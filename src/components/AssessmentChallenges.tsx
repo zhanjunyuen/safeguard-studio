@@ -43,11 +43,11 @@ export default function AssessmentChallenges() {
   }
   function finish(id: Desk) {
     if (!m.launches?.some(l => l.desk === id) || (CURVEBALLS[id] && !m.curveballs?.[id]) || m.completed?.includes(id)) return;
-    update({ completed: [...(m.completed ?? []), id], phase: 'menu', focus: undefined, first: null });
+    update({ completed: [...(m.completed ?? []), id], revising: { ...m.revising, [id]: false }, phase: 'menu', focus: undefined, first: null });
   }
   const tracker = <nav aria-label="Assessment progress and tasks" className="md:sticky top-0 z-20 rounded-md border-1.5 border-ink bg-paper-card px-4 py-3 shadow-sm">
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-      <div className="min-w-36"><p className="label text-ink-3" data-testid="assessment-level">{levelName}</p><b>{complete} of {desks.length} challenges complete</b>
+      <div className="min-w-36"><p className="label text-ink-3" data-testid="assessment-level">{levelName}</p><b>{complete} of {desks.length} services ready for release</b>
         <progress aria-label="Challenges completed" className="block w-full h-2 accent-green-700" value={complete} max={desks.length} />
       </div>
       <div className="flex-1 text-sm"><b>Helper effectiveness</b><p aria-live="polite">{effectiveness.tested
@@ -55,28 +55,42 @@ export default function AssessmentChallenges() {
         : 'Run a build to see how many tests your helper passes.'}</p>
         {current && current.tested > 0 && <p>This task passed {current.passed} of {current.tested} tests on its latest run.</p>}
       </div>
-      <label className="text-sm font-bold">Jump to task
+      <label className="text-sm font-bold">Switch service
         <select className="block max-w-full rounded border border-line bg-white px-2 py-1" value={m.phase === 'release' ? 'release' : desk ?? ''} onChange={e => {
           if (e.target.value === 'release' && finished) update({ phase: 'release', focus: undefined, first: null });
           else if (e.target.value) open(e.target.value);
           else menu();
         }}>
-          <option value="">Assessment checklist</option>
+          <option value="">Whole-helper overview</option>
           {desks.map(d => <option key={d.id} value={d.id}>{d.title} · {m.completed?.includes(d.id) ? 'Complete' : work[d.id] ? 'In progress' : 'Not started'}</option>)}
           {finished && <option value="release">Release decision</option>}
         </select>
       </label>
     </div>
     <div className="mt-2 border-t border-line pt-2"><WorkloadBar used={used} budget={budget} /></div>
+    {m.phase !== 'menu' && <details key={m.phase === 'release' ? 'release' : 'working'} open={m.phase === 'release' || undefined} className="mt-2 text-sm">
+      <summary className="cursor-pointer font-bold">Workload by service</summary>
+      <ul className="mt-2 grid sm:grid-cols-2 lg:grid-cols-3 gap-1">
+        {workloads.map(service => <li key={service.id}>
+          <button className="underline text-left" onClick={() => open(service.id)}>{service.title}</button>
+          {' · '}{service.credits === null ? 'Awaiting a run' : service.credits + ' credits'}
+        </li>)}
+      </ul>
+    </details>}
   </nav>;
   if (m.phase === 'release') return tracker;
   if (desk && m.completed?.includes(desk)) {
     const last = work[desk]?.attempts.slice(-1)[0];
     return <>{tracker}<section className="rounded-md border border-line p-5 space-y-3">
       <h2 className="text-2xl font-extrabold">{getChallenge(desk)!.title} · Complete</h2>
+      <p>This service contributes {serviceCredits} credits to the whole helper. You can revise it before the release decision.</p>
+      <button className="btn bg-signal" onClick={() => update({
+        phase: 'revise', completed: m.completed?.filter(id => id !== desk),
+        revising: { ...m.revising, [desk]: true }, first: m.frozen?.[desk] ?? null,
+      })}>Revise this service</button>
       <h3 className="font-bold">Latest build results</h3>
       {last && evaluateDesk(desk, last.script, m.level).map(row => <Trace key={row.id} run={row} />)}
-      <button className="btn bg-paper" onClick={menu}>Assessment checklist</button>
+      <button className="btn bg-paper" onClick={menu}>Whole-helper overview</button>
     </section></>;
   }
   if (desk && (m.phase === 'build' || m.phase === 'revise')) {
@@ -110,8 +124,9 @@ export default function AssessmentChallenges() {
       onSubmit={answer => update(submitCurveball(useMission.getState().mission, desk, answer))} />}</>;
   }
   if (m.phase === 'brief') return <section className="rounded-md border-1.5 border-ink bg-paper-card p-6 space-y-4">
-    <h2 className="text-2xl font-extrabold">Six challenges, one from each theme</h2>
-    <p>Your assessment draws six challenges from the {CHALLENGES.length} in the catalogue. You choose which one to work on first. For each one, build with the blocks for that problem, run its hidden tests, and attack the build you evaluated. Some challenges then throw a curveball: a request your helper has never seen, often one no block can fully catch. You predict what will happen and explain why. Your written answers get feedback, and you can ask about it. You can return to the checklist and resume a challenge later.</p>
+    <h2 className="text-2xl font-extrabold">One helper for six school services</h2>
+    <p>Your school needs one community helper. You design its safeguards for six services, drawn from {CHALLENGES.length} challenges. Each service has its own audience and set of blocks. All six share one workload budget. Work in any order, compare what each service costs, and revise your choices before releasing the helper.</p>
+    <p>For each service, run its hidden tests, predict how your build will respond to an attack, and inspect the replay. Some services also get an unseen request. Your predictions and explanations go into one assessment report.</p>
     <fieldset className="space-y-2">
       <legend className="font-bold">Choose your level</legend>
       {([[1, 'Level 1', 'Build each helper from safeguard blocks and pass the six hidden tests. Every block you add runs on every message and slows the helper down.'],
@@ -132,24 +147,30 @@ export default function AssessmentChallenges() {
     }}>Start {levelName}</button>
   </section>;
   return <>{tracker}<section className="space-y-4">
-    <h2 className="text-2xl font-extrabold">Your six challenges · {levelName}</h2>
-    <p>Build and test a helper, then attack that build to finish a challenge. Your work is saved when you switch tasks.
-      {level2 && ' At Level 2 each challenge has seven tests, including an edge case, and you need IF blocks to reach the usefulness target.'}</p>
-    <div className="grid md:grid-cols-2 gap-4">{desks.map(d => {
-      const c = getChallenge(d.id)!;
-      const done = m.completed?.includes(d.id);
-      const stage = m.revising?.[d.id] ? 'revision' : m.frozen?.[d.id] ? 'Attack' : 'Build';
-      const latest = latestEffectiveness(work[d.id]);
-      return <article className="flex flex-col rounded-md border-1.5 border-ink bg-paper-card p-5" key={d.id}>
-        <h3 className="text-xl font-extrabold">{c.title}</h3><p className="font-bold text-sm">{c.audience}</p>
-        <p className="my-3 flex-1">{c.story}</p>
-        {level2 && <p className="text-sm mb-2">Usefulness target: {usefulnessTarget(d.id + '@2')} (Level 1: {usefulnessTarget(d.id)})</p>}
-        {latest.tested > 0 && <p className="text-sm mb-2">Latest build passed {latest.passed} of {latest.tested} tests · {workloads.find(service => service.id === d.id)?.credits} credits.</p>}
-        <button className="btn bg-paper self-start" onClick={() => open(d.id)} data-testid={'assess-' + d.id}>
-          {done ? 'Review completed task' : work[d.id] ? 'Resume ' + stage : 'Start challenge'}
-        </button>
-      </article>;
-    })}</div>
+    <h2 className="text-2xl font-extrabold">Your community helper</h2>
+    <p>Choose a service to work on. Its latest run contributes to the shared workload above.
+      When all six services are ready, review the whole helper and make your release decision.</p>
+    <ol className="divide-y divide-line rounded-md border-1.5 border-ink bg-paper-card">
+      {desks.map(d => {
+        const c = getChallenge(d.id)!;
+        const done = m.completed?.includes(d.id);
+        const stage = m.revising?.[d.id] ? 'Revision' : m.frozen?.[d.id] ? 'Attack' : 'Build';
+        const latest = latestEffectiveness(work[d.id]);
+        const cost = workloads.find(service => service.id === d.id)?.credits;
+        return <li key={d.id} className="grid items-center gap-3 p-4 md:grid-cols-[minmax(0,1fr)_13rem_10rem]">
+          <div><h3 className="text-lg font-extrabold">{c.title}</h3>
+            <p className="text-sm text-ink-2">{c.audience}</p>
+            {level2 && <p className="text-sm">Usefulness target · {usefulnessTarget(d.id + '@2')}</p>}
+          </div>
+          <div className="text-sm"><b>{done ? 'Ready for release' : work[d.id] ? stage + ' in progress' : 'Awaiting build'}</b>
+            <p>{latest.tested ? latest.passed + '/' + latest.tested + ' tests passed · ' + cost + ' credits' : 'No evaluated workload yet'}</p>
+          </div>
+          <button className="btn bg-paper justify-center justify-self-start md:justify-self-stretch" onClick={() => open(d.id)} data-testid={'assess-' + d.id}>
+            {done ? 'Review service' : work[d.id] ? 'Resume ' + stage.toLowerCase() : 'Build service'}
+          </button>
+        </li>;
+      })}
+    </ol>
     <button className="btn bg-signal" disabled={!finished} onClick={() => update({ phase: 'release' })}>Continue to release decision</button>
   </section></>;
 }
