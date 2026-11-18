@@ -180,8 +180,8 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
               <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
             </button>}
+            <TrainingCompanion id={id} script={script} hintCount={assessment?.hintCount} />
             {assessment && <>
-              <TrainingCompanion id="community" script={script} hintCount={assessment.hintCount} />
               <AttackHintPanel desk={assessment.id} />
               {saved && !locked && <div className="flex flex-wrap gap-2">
                 <button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>

@@ -352,7 +352,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
                 Explain the last failure to run again
               </button>
             )}
-            <TrainingCompanion key={id} id={assessment ? 'community' : baseCid} script={script} />
+            <TrainingCompanion key={id} id={baseCid} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />
