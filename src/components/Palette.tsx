@@ -29,7 +29,7 @@ function PaletteItem({ type, used, onAdd, onHover }: { type: BlockType; used: bo
   );
 }
 
-export default function Palette({ blocks, used, onAdd, control = [] }: { blocks: BlockType[]; used: Set<BlockType>; onAdd: (t: BlockType) => void; control?: BlockType[] }) {
+export default function Palette({ blocks, used, onAdd, credits, control = [] }: { blocks: BlockType[]; used: Set<BlockType>; onAdd: (t: BlockType) => void; credits?: (t: BlockType) => number; control?: BlockType[] }) {
   const { setNodeRef, isOver } = useDroppable({ id: 'palette' });
   const [hover, setHover] = useState<BlockType | null>(null);
   const info = hover ? BLOCKS[hover] : null;
@@ -50,7 +50,8 @@ export default function Palette({ blocks, used, onAdd, control = [] }: { blocks:
       )}
       <div className="flex flex-col gap-2.5">
         {blocks.map((t) => (
-          <PaletteItem key={t} type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
+          <div key={t}><PaletteItem type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
+            {credits && <span className="text-xs font-mono">{credits(t)} credits</span>}</div>
         ))}
       </div>
       {/* Fixed height: a hint box that resized on hover made the page jump. */}

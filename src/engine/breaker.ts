@@ -44,10 +44,10 @@ export function breakSummary(c: Challenge, attempts: { attacks: string[]; broke:
   return {
     found: found.size,
     total: weak.length,
-    foundPct: Math.round((found.size / weak.length) * 100),
+    foundPct: weak.length ? Math.round((found.size / weak.length) * 100) : 0,
     precision: used ? Math.round((hits / used) * 100) : 0,
     attempts: attempts.length,
-    firstTryPct: Math.round((new Set(attempts[0].broke).size / weak.length) * 100),
+    firstTryPct: weak.length ? Math.round((new Set(attempts[0].broke).size / weak.length) * 100) : 0,
   };
 }
 

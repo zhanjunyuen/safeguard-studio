@@ -4,102 +4,63 @@ import {
   PointerSensor,
   pointerWithin,
   rectIntersection,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
   type CollisionDetection,
   type DragEndEvent,
 } from '@dnd-kit/core';
-import { ArrowLeft, Lock, RotateCcw, X, Zap } from 'lucide-react';
+import { ArrowLeft, Lock, RotateCcw, Zap } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { AttackItem, Plan, ATTACK_COLOR, ATTACK_ICON_COLOR } from '../components/AttackBlocks';
 import Block from '../components/Block';
 import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { getChallenge } from '../data/challenges';
 import { ATTACK_BUDGET, breakSummary, launch, targetScript, weakSpots, type LaunchReport } from '../engine/breaker';
+import TrainingCompanion from '../components/TrainingCompanion';
+import AttackHintPanel from '../components/AttackHintPanel';
+import type { Desk, Rule } from '../engine/mission';
 import { useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { StepStatus } from '../types';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1400;
-const ATTACK_COLOR = '#2A2A33';
-const ATTACK_ICON_COLOR = '#FFC629';
+
 
 const collision: CollisionDetection = (args) => {
   const p = pointerWithin(args);
   return p.length ? p : rectIntersection(args);
 };
 
-function AttackItem({ id, label, used, full, onAdd }: { id: string; label: string; used: boolean; full: boolean; onAdd: () => void }) {
-  const disabled = used || full;
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `attack:${id}`, data: { testId: id }, disabled });
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      aria-label={used ? `${label} (in your plan)` : `Add attack: ${label}`}
-      aria-disabled={disabled}
-      onClick={() => !disabled && onAdd()}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' && !disabled) { e.preventDefault(); onAdd(); }
-        else listeners?.onKeyDown?.(e);
-      }}
-      className={`rounded ${disabled ? 'cursor-not-allowed' : 'cursor-grab hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
-      data-testid={`attack-${id}`}
-    >
-      <Block kind="attack" icon={Zap} iconColor={ATTACK_ICON_COLOR} label={label} color={ATTACK_COLOR} width={250} dim={used} />
-    </div>
-  );
+interface AssessmentAttack {
+  id: Desk;
+  rules: Rule[];
+  hintCount: number;
+  plan: string[];
+  submitted?: string[];
+  changePlan: (plan: string[]) => void;
+  submit: () => void;
+  onMenu: () => void;
+  onFinish: () => void;
+  onRevise: () => void;
 }
-
-function Plan({ plan, labels, onRemove, locked }: { plan: string[]; labels: Record<string, string>; onRemove: (id: string) => void; locked: boolean }) {
-  const { setNodeRef, isOver } = useDroppable({ id: 'plan' });
-  return (
-    <div ref={setNodeRef} className={`w-full rounded-md border-1.5 border-dashed p-3 transition-colors ${isOver ? 'border-ink bg-signal-soft' : 'border-ink/40 bg-paper-card/70'}`} style={{ maxWidth: STACK_W + 24 }}>
-      <div className="flex items-baseline justify-between mb-2">
-        <h2 className="font-extrabold">Your attack plan</h2>
-        <span className="font-mono text-sm text-ink-2">{plan.length}/{ATTACK_BUDGET}</span>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        {plan.map((id) => (
-          <div key={id} data-testid={`plan-${id}`}>
-            <Block
-              kind="attack"
-              icon={Zap}
-              iconColor={ATTACK_ICON_COLOR}
-              label={labels[id]}
-              color={ATTACK_COLOR}
-              width={STACK_W}
-              right={
-                !locked && (
-                  <button onClick={() => onRemove(id)} className="grid place-items-center w-8 h-8 -mr-1 rounded text-white/70 hover:text-white hover:bg-white/15" aria-label={`Remove ${labels[id]}`}>
-                    <X size={16} aria-hidden />
-                  </button>
-                )
-              }
-            />
-          </div>
-        ))}
-        {Array.from({ length: ATTACK_BUDGET - plan.length }).map((_, i) => (
-          <div key={i} className="h-[46px] rounded border-1.5 border-dashed border-line grid place-items-center text-sm text-ink-3">Drop an attack here</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default function Breaker() {
-  const { id = '' } = useParams();
-  const challenge = getChallenge(id);
-  const attempts = useSession((s) => s.breakProgress[id]) ?? [];
+export default function Breaker({ assessment }: { assessment?: AssessmentAttack }) {
+  const route = useParams();
+  const id = assessment?.id ?? route.id ?? '';
+  const original = getChallenge(id);
+  const challenge = useMemo(() => original && assessment
+    ? { ...original, breakTarget: assessment.rules.map(r => r.type) } : original, [original, assessment?.rules]);
+  const saved = useMemo(() => challenge && assessment?.submitted ? launch(challenge, assessment.submitted) : null, [challenge, assessment?.submitted]);
+  const practiceAttempts = useSession(s => s.breakProgress[id]);
+  const attempts = assessment ? (saved ? [{ attacks: assessment.submitted!, broke: saved.broke }] : []) : practiceAttempts ?? [];
   const recordBreak = useSession((s) => s.recordBreak);
 
-  const [plan, setPlan] = useState<string[]>([]);
-  const [report, setReport] = useState<LaunchReport | null>(null);
+  const [practicePlan, setPracticePlan] = useState<string[]>([]);
+  const plan = assessment?.plan ?? practicePlan;
+  const setPlan = (value: string[]) => assessment ? assessment.changePlan(value) : setPracticePlan(value);
+  const [report, setReport] = useState<LaunchReport | null>(saved);
   const [replay, setReplay] = useState<{ testIdx: number; stepIdx: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
@@ -127,7 +88,7 @@ export default function Breaker() {
 
   // presenter-mode command (one-shot)
   useEffect(() => {
-    if (pending !== 'fill-attacks') return;
+    if (pending !== 'fill-attacks' || assessment) return;
     usePresenter.getState().command(null);
     if (challenge) {
       const weak = weakSpots(challenge);
@@ -159,7 +120,9 @@ export default function Breaker() {
     if (report) setSelected(report.broke[0] ?? report.results[0].testId);
   }
 
-  const add = (tid: string) => setPlan((p) => (p.includes(tid) || p.length >= ATTACK_BUDGET ? p : [...p, tid]));
+  const add = (tid: string) => {
+    if (!locked && !assessment?.submitted && !plan.includes(tid) && plan.length < ATTACK_BUDGET) setPlan([...plan, tid]);
+  };
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     setDragging(null);
     const tid = (active.data.current as { testId?: string } | undefined)?.testId;
@@ -167,29 +130,30 @@ export default function Breaker() {
   };
 
   const go = () => {
-    if (!plan.length || locked) return;
+    if (!plan.length || locked || assessment?.submitted) return;
     const rep = launch(challenge, plan);
-    recordBreak(id, plan, rep.broke);
+    if (assessment) assessment.submit();
+    else recordBreak(id, plan, rep.broke);
     setReport(rep);
     setSelected(null);
     setReplay({ testIdx: 0, stepIdx: 0 });
-    setPlan([]);
+    if (!assessment) setPlan([]);
   };
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Assessment checklist</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
-          </Link>
+          </Link>}
           <p className="label text-ink-2">Break a helper · {challenge.title}</p>
           <h1 className="text-4xl font-extrabold leading-tight mt-1">Find the weak spots</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">
-            Another student built this helper. It has {weakTotal ?? 'some'} weak spots. Read its blocks, work out what it can't handle, then plan up to {ATTACK_BUDGET} attacks to prove it.
+            {assessment ? 'This is the helper you just built and evaluated. Choose up to three cases for your attack plan and inspect how your blocks respond.' : <>Another student built this helper. It has {weakTotal ?? 'some'} weak spots. Read its blocks, work out what it can't handle, then plan up to {ATTACK_BUDGET} attacks to prove it.</>}
           </p>
         </div>
-        <Link to={`/build/${id}`} className="btn bg-paper-card text-sm">Build your own instead</Link>
+        {!assessment && <Link to={`/build/${id}`} className="btn bg-paper-card text-sm">Build your own instead</Link>}
       </div>
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e) => setDragging((e.active.data.current as { testId?: string })?.testId ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
@@ -199,7 +163,7 @@ export default function Breaker() {
             <p className="text-sm text-ink-2 mb-4">Each one is a kind of question. Drag it into your plan, or click it.</p>
             <div className="flex flex-col gap-2.5">
               {challenge.tests.map((t) => (
-                <AttackItem key={t.id} id={t.id} label={t.attackLabel} used={plan.includes(t.id)} full={plan.length >= ATTACK_BUDGET} onAdd={() => add(t.id)} />
+                <AttackItem key={t.id} id={t.id} label={t.attackLabel} used={plan.includes(t.id)} full={locked || !!assessment?.submitted || plan.length >= ATTACK_BUDGET} onAdd={() => add(t.id)} />
               ))}
             </div>
           </aside>
@@ -207,15 +171,23 @@ export default function Breaker() {
           <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center gap-6 min-h-[560px]">
             <div className="w-full flex items-center justify-between" style={{ maxWidth: STACK_W + 40 }}>
               <div>
-                <h2 className="text-lg font-extrabold leading-none flex items-center gap-1.5"><Lock size={16} aria-hidden /> Their helper</h2>
+                <h2 className="text-lg font-extrabold leading-none flex items-center gap-1.5"><Lock size={16} aria-hidden /> {assessment ? 'Your evaluated helper' : 'Their helper'}</h2>
                 <div className="text-sm text-ink-2 mt-1">Locked. You can read it but not change it.</div>
               </div>
             </div>
             <ScriptStack script={script} highlights={highlights} onRemove={() => {}} locked />
-            <Plan plan={plan} labels={labels} onRemove={(tid) => setPlan((p) => p.filter((x) => x !== tid))} locked={locked} />
-            <button onClick={go} disabled={!plan.length || locked} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
+            <Plan plan={plan} labels={labels} onRemove={(tid) => setPlan(plan.filter((x) => x !== tid))} locked={locked || !!assessment?.submitted} />
+            {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
               <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
-            </button>
+            </button>}
+            {assessment && <>
+              <TrainingCompanion id="community" script={script} hintCount={assessment.hintCount} />
+              <AttackHintPanel desk={assessment.id} />
+              {saved && !locked && <div className="flex flex-wrap gap-2">
+                <button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>
+                <button className="btn bg-paper" onClick={assessment.onRevise}>Revise my build</button>
+              </div>}
+            </>}
           </section>
 
           <div className="flex flex-col gap-4">
@@ -232,7 +204,7 @@ export default function Breaker() {
               {summary && (
                 <p className="text-paper/85 text-sm mt-2">
                   {summary.attempts} attempt{summary.attempts === 1 ? '' : 's'} · {summary.precision}% of your attacks broke it
-                  {summary.found === summary.total && '. You found them all.'}
+                  {summary.total > 0 && summary.found === summary.total && '. You found them all.'}
                 </p>
               )}
             </div>
@@ -260,7 +232,7 @@ export default function Breaker() {
           ) : null}
         </DragOverlay>
       </DndContext>
-      {attempts.length > 0 && !locked && (
+      {!assessment && attempts.length > 0 && !locked && (
         <button onClick={() => { useSession.setState((s) => ({ breakProgress: { ...s.breakProgress, [id]: [] } })); setReport(null); }} className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-ink-2 underline underline-offset-2">
           <RotateCcw size={14} aria-hidden /> Reset my attempts
         </button>

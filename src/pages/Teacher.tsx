@@ -1,3 +1,4 @@
+import { MissionResultLink } from '../components/MissionReport';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import type { ClassStudent } from '../lib/classData';
@@ -171,6 +172,7 @@ export default function Teacher() {
         </label>
       </div>
 
+      <MissionResultLink />
       <dl className="grid md:grid-cols-4 mt-8 border-1.5 border-ink rounded-md bg-paper-card divide-y-1.5 md:divide-y-0 md:divide-x-1.5 divide-ink">
         <Stat
           title="Most missed on the first run"
