@@ -26,7 +26,8 @@ export interface Curveball {
   stepWords: RegExp;
 }
 
-export const CURVEBALLS: Record<Desk, Curveball> = {
+/** Curveballs exist for the six original school challenges; other assigned challenges finish without one. */
+export const CURVEBALLS: Partial<Record<Desk, Curveball>> = {
   history: {
     risk: 'Invented sources',
     test: {
@@ -128,4 +129,4 @@ export const CURVEBALLS: Record<Desk, Curveball> = {
   },
 };
 
-export const CURVEBALL_TESTS = Object.values(CURVEBALLS).map((c) => c.test);
+export const CURVEBALL_TESTS = Object.values(CURVEBALLS).map((c) => c!.test);

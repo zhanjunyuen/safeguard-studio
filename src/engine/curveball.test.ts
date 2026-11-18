@@ -21,7 +21,7 @@ const getPosition = (b: BlockType) => BLOCKS[b].position;
 describe('curveballs', () => {
   it('has one unseen case per assessed challenge, none of them in the standard tests', () => {
     for (const d of DESKS) {
-      const cb = CURVEBALLS[d.id];
+      const cb = CURVEBALLS[d.id]!;
       expect(getChallenge(d.id)!.tests.some(t => t.id === cb.test.id)).toBe(false);
     }
   });
@@ -48,6 +48,14 @@ describe('curveballs', () => {
     const flagged = runCurveball(rules('chat', ['ask_ai', 'flag_teacher']), 'chat');
     expect(flagged.outcome).toBe('partial');
     expect(curveballHandled(flagged)).toBe(false);
+  });
+
+  it('leaves challenges without a curveball alone, since the assessment can draw any of the 21', () => {
+    const other = getChallenge('science')?.id ?? 'science';
+    const m = { ...newAssessment(), phase: 'attack' as const, frozen: { [other]: [{ type: 'ask_ai' as const, scope: other }] },
+      launches: [{ desk: other, ids: [], reason: 'x' }] };
+    expect(CURVEBALLS[other as Desk]).toBeUndefined();
+    expect(submitCurveball(m as never, other as Desk, { prediction: 'struggles', reason: 'a reason' })).toBe(m);
   });
 
   it('accepts one final prediction with a reason, only after the attack has launched', () => {

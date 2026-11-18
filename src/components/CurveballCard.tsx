@@ -19,7 +19,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit }: {
   answer?: CurveballAnswer;
   onSubmit: (answer: CurveballAnswer) => void;
 }) {
-  const cb = CURVEBALLS[desk];
+  const cb = CURVEBALLS[desk]!;
   const [prediction, setPrediction] = useState<CurveballAnswer['prediction'] | ''>('');
   const [reason, setReason] = useState('');
   const result = answer ? runCurveball(rules, desk) : null;

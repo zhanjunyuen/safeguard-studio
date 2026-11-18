@@ -1,8 +1,8 @@
-import { BRIEF, DESKS, SOURCE_PACK, TRANSFER } from '../data/mission';
+import { BRIEF, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType } from '../types';
-import { evaluate, handled, totalCost, type Desk, type Mission } from './mission';
+import { assignedDesks, evaluate, handled, totalCost, type Desk, type Mission } from './mission';
 import { CURVEBALLS } from '../data/curveballs';
 import { curveballHandled, runCurveball } from './curveball';
 import { markOffline, RUBRIC_VERSION } from './marking';
@@ -12,11 +12,18 @@ export function evaluateDesk(id: Desk, blocks: BlockType[]) {
   return getChallenge(id)!.tests.map(t => evaluate(rules, t.id));
 }
 
-export const CHALLENGE_BUDGET = DESKS.reduce((sum, d) =>
-  sum + totalCost(evaluateDesk(d.id, getChallenge(d.id)!.ideal)), 0);
+export function assessmentBudget(m: Mission) {
+  return assignedDesks(m).reduce((sum, d) => sum + totalCost(evaluateDesk(d.id, getChallenge(d.id)!.ideal)), 0);
+}
+
+export function latestEffectiveness(progress?: ChallengeProgress) {
+  const run = progress?.attempts.slice(-1)[0];
+  return { passed: run?.results.filter(r => r.outcome === 'pass').length ?? 0, tested: run?.results.length ?? 0 };
+}
 
 export function challengeEvidence(m: Mission, progress: Record<string, ChallengeProgress>) {
-  const challenges = DESKS.map(d => {
+  const budget = assessmentBudget(m);
+  const challenges = assignedDesks(m).map(d => {
     const p = progress[d.id];
     const challenge = getChallenge(d.id)!;
     const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script) }));
@@ -28,7 +35,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
-      attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
+      effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
       attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && plan?.reason ? {
@@ -39,11 +46,12 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   });
   const workloadCredits = challenges.reduce((sum, c) => sum + (c.workloadCredits ?? 0), 0);
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
-    && workloadCredits <= CHALLENGE_BUDGET;
+    && workloadCredits <= budget;
   return {
-    rubricVersion: RUBRIC_VERSION, markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
+    creditModel: 'safeguards-only', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
+    markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
-    attackHints: m.attackHints ?? [], challenges, budget: CHALLENGE_BUDGET,
+    attackHints: m.attackHints ?? [], challenges, budget,
     workloadCredits, meetsEfficiencyTarget,
     transfer: { ...TRANSFER, decision: m.phase === 'complete' ? m.decision : null, rationale: m.phase === 'complete' ? m.rationale : null,
       previewMark: m.phase === 'complete' && m.rationale.trim() ? markOffline({ criterion: 'judgement', text: m.rationale, decision: m.decision }) : undefined },
@@ -53,8 +61,8 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
 function curveballEvidence(m: Mission, desk: Desk) {
   const answer = m.curveballs?.[desk];
   const target = m.frozen?.[desk];
-  if (!answer || !target) return null;
   const cb = CURVEBALLS[desk];
+  if (!answer || !target || !cb) return null;
   const result = runCurveball(target, desk);
   const ok = curveballHandled(result);
   return {

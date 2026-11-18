@@ -53,7 +53,7 @@ export default function Mission() {
   const companion = <TrainingCompanion id="community" script={companionScript} hintCount={m.attackHints?.length} />;
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
-  useEffect(() => { window.scrollTo(0, 0); }, [m.phase]);
+  useEffect(() => { window.scrollTo(0, 0); }, [m.phase, m.focus]);
   return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 py-8 space-y-5`}>
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
@@ -64,7 +64,7 @@ export default function Mission() {
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
-    {sequence && !ended && m.phase !== 'release' && <AssessmentChallenges />}
+    {sequence && !ended && <AssessmentChallenges />}
     {!sequence && !ended && <details><summary className="cursor-pointer font-bold">Switch to the six-challenge assessment</summary>
       <p>This replaces your unfinished earlier attempt.</p><button className="btn bg-paper" onClick={restart}>Start a fresh assessment</button></details>}
     {!sequence && (m.phase === 'build' || m.phase === 'revise') && <>

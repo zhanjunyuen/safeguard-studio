@@ -16,7 +16,8 @@ import type { Desk } from './mission';
  * adapter that calls a server (never put model credentials in the browser).
  */
 
-export const RUBRIC_VERSION = 'school-community-5';
+/** Version of the concept codebook and level rules (separate from the evidence format's rubricVersion). */
+export const RUBRIC_VERSION = 'marking-concepts-1';
 export type Criterion = 'testing' | 'anticipation' | 'judgement';
 export type Level = 0 | 1 | 2 | null; // null = insufficient evidence
 
@@ -128,7 +129,7 @@ function testing(req: Extract<MarkRequest, { criterion: 'testing' }>): Concept[]
 }
 
 function anticipation(req: Extract<MarkRequest, { criterion: 'anticipation' }>): Concept[] {
-  const cb = CURVEBALLS[req.desk];
+  const cb = CURVEBALLS[req.desk]!;
   const text = req.text;
   const bre = blockRe(req.blocks);
   const riskQuote = quote(text, cb.riskWords);

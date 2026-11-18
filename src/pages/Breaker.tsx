@@ -214,8 +214,8 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
               <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
             </button>}
+            <TrainingCompanion id={id} script={script} hintCount={assessment?.hintCount} />
             {assessment && <>
-              <TrainingCompanion id="community" script={script} hintCount={assessment.hintCount} />
               <AttackHintPanel desk={assessment.id} />
               {saved && !locked && (assessment.curveballPending
                 ? <p className="rounded border-1.5 border-ink bg-signal-soft p-3 font-bold" data-testid="curveball-pending">One more case before you finish: answer the curveball below.</p>

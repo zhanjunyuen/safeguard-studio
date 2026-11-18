@@ -1,3 +1,4 @@
+import { challengesIn, THEMES } from './themes';
 import { CHALLENGES } from './challenges';
 import type { BlockType } from '../types';
 
@@ -17,6 +18,18 @@ export const DESKS = services.map(service => {
   const challenge = CHALLENGES.find(c => c.id === service.id)!;
   return { ...service, title: challenge.title, cases: challenge.tests.map(t => t.id) };
 });
+// Existing services keep their classroom workloads. Other challenges simulate one request per test.
+export const catalogue = CHALLENGES.map(challenge => DESKS.find(d => d.id === challenge.id) ?? {
+  id: challenge.id, title: challenge.title, name: challenge.title, volume: 1, cases: challenge.tests.map(t => t.id),
+});
+
+export function drawAssignment(random = Math.random) {
+  return THEMES.map(theme => {
+    const choices = challengesIn(theme.id);
+    return choices[Math.floor(random() * choices.length)].id;
+  });
+}
+
 export const ASSIGNED_CASES = DESKS.flatMap(d => d.cases);
 export const SOURCE_PACK = [
   ['School noticeboard', 'School is open as normal tomorrow. The office publishes closure decisions here.'],
@@ -31,7 +44,7 @@ export const TRANSFER = {
 };
 
 export function missionCase(id: string) {
-  for (const desk of DESKS) {
+  for (const desk of catalogue) {
     const test = CHALLENGES.find(ch => ch.id === desk.id)?.tests.find(t => t.id === id);
     if (test) return { desk, test };
   }

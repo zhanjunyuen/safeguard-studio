@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { useEffect, useRef, useState } from 'react';
+import { themeOf } from '../data/themes';
 import { BLOCKS } from '../data/blocks';
 import type { ScriptBlock } from '../types';
 import type { Cargo } from './companionModel';
@@ -33,7 +34,11 @@ function replayClip(player: HTMLVideoElement) {
   void player.play().catch(() => { /* The poster also works with autoplay disabled. */ });
 }
 
-function CommunityAnimation({ reactionTime, hintCount }: { reactionTime?: number; hintCount: number }) {
+const themeMedia = import.meta.glob<string>('../assets/companions/themes/*.{webm,webp}', { eager: true, query: '?url', import: 'default' });
+
+function CompanionAnimation({ clip, poster, loop, reactionTime, hintCount, onError }: {
+  clip: string; poster: string; loop: boolean; reactionTime?: number; hintCount: number; onError: () => void;
+}) {
   const video = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const player = video.current!;
@@ -42,19 +47,24 @@ function CommunityAnimation({ reactionTime, hintCount }: { reactionTime?: number
     replay();
     motion.addEventListener('change', replay);
     return () => { motion.removeEventListener('change', replay); player.pause(); };
-  }, [hintCount]);
+  }, [clip, hintCount]);
   useEffect(() => {
     if (reactionTime) replayClip(video.current!);
   }, [reactionTime]);
   return <>
-    <img src={communityPoster} alt="" aria-hidden="true" />
-    <video ref={video} src={communityClip} poster={communityPoster} muted playsInline preload="none" aria-hidden="true" />
+    <img src={poster} alt="" aria-hidden="true" />
+    <video ref={video} src={clip} poster={poster} loop={loop} muted playsInline preload="none" onError={onError} aria-hidden="true" />
   </>;
 }
 
 export default function TrainingCompanion({ id, script, hintCount = 0 }: { id: string; script: ScriptBlock[]; hintCount?: number }) {
   const companion = companions[id as keyof typeof companions] ?? companions.community;
-  const community = companion === companions.community;
+  const theme = themeOf(id);
+  const asset = '../assets/companions/themes/' + theme?.id;
+  const clip = themeMedia[asset + '.webm'] ?? communityClip;
+  const poster = themeMedia[asset + '.webp'] ?? communityPoster;
+  const [failedClip, setFailedClip] = useState<string>();
+  const showModel = failedClip === clip && companion !== companions.community;
   const { role, color, cargo, greeting } = companion;
   const previous = useRef(script);
   const track = useRef<HTMLDivElement>(null);
@@ -78,7 +88,7 @@ export default function TrainingCompanion({ id, script, hintCount = 0 }: { id: s
   }, [reaction]);
 
   useEffect(() => {
-    if (community) return;
+    if (!showModel) return;
     const lane = track.current!;
     const button = actor.current!;
     const surface = canvas.current!;
@@ -161,19 +171,20 @@ export default function TrainingCompanion({ id, script, hintCount = 0 }: { id: s
       surface.removeEventListener('webglcontextrestored', restoredContext);
       model?.dispose();
     };
-  }, [color, cargo, community]);
+  }, [color, cargo, showModel]);
 
   return (
     <div className="companion-ledge" ref={track}>
       <div className="companion-shelf" aria-hidden="true" />
-      {!community && <span aria-hidden="true" className={'companion-cargo cargo-' + cargo}><i /></span>}
+      {showModel && <span aria-hidden="true" className={'companion-cargo cargo-' + cargo}><i /></span>}
       <span className="companion-note" role="status">{reaction?.text}</span>
-      <button ref={actor} type="button" className={'companion-actor' + (community ? ' companion-clip' : '') + (reaction ? ' reacting' : '')}
+      <button ref={actor} type="button" className={'companion-actor' + (showModel ? '' : ' companion-clip') + (reaction ? ' reacting' : '')}
         aria-label={'Say hello to your ' + role.toLowerCase()} title={role + ' · Say hello'}
         onPointerEnter={e => { pointed.current = e.pointerType === 'mouse'; }}
         onPointerLeave={() => { pointed.current = false; }}
         onClick={() => setReaction({ kind: 'hello', text: greeting, started: performance.now() })}>
-        {community ? <CommunityAnimation reactionTime={reaction?.started} hintCount={hintCount} /> : <>
+        {!showModel ? <CompanionAnimation clip={clip} poster={poster} loop={!!theme} reactionTime={reaction?.started}
+          hintCount={hintCount} onError={() => setFailedClip(clip)} /> : <>
           <img src={portraits['../assets/companions/' + id + '.webp']} alt="" aria-hidden="true" />
           <canvas ref={canvas} aria-hidden="true" />
         </>}

@@ -34,7 +34,7 @@ import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus 
 import { blockCredits, totalCost, type Desk } from '../engine/mission';
 import { evaluateDesk } from '../engine/challengeEvidence';
 import { Trace } from '../components/MissionReport';
-import { DESKS } from '../data/mission';
+import { catalogue } from '../data/mission';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
@@ -257,8 +257,10 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     finishReplay();
   };
 
-  const desk = assessment && DESKS.find(d => d.id === assessment.id);
+  const desk = assessment && catalogue.find(d => d.id === assessment.id);
   const last = progress.attempts.slice(-1)[0];
+  const requestCount = desk ? desk.volume * challenge.tests.length : 0;
+  const maxUnitCost = assessment ? script.reduce((sum, block) => sum + blockCredits(block.type), 0) : 0;
   const costs = desk && last && evaluateDesk(desk.id, last.script);
   const evaluated = last && last.script.join() === script.map(b => b.type).join();
 
@@ -300,8 +302,12 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
       </div>
 
       {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
-        <p><b>Workload × {desk.volume}</b> · Ask AI costs {blockCredits('ask_ai')} credits. Running every block for all {challenge.tests.length} cases would cost {script.reduce((n, b) => n + blockCredits(b.type), 0) * desk.volume * challenge.tests.length} credits.</p>
-        {costs && !locked && <details><summary className="cursor-pointer font-bold">Last evaluated build used {totalCost(costs)} credits</summary>
+        <p><b>Cost per request</b> · {maxUnitCost ? 'Up to ' + maxUnitCost + ' credits' : '0 credits'} with these blocks.</p>
+        <p className="text-sm text-ink-2">Ask AI is included for free. You spend credits when the safeguards you add run.</p>
+        <details><summary className="cursor-pointer font-bold">How much does a test run cost?</summary>
+          <p>There are {challenge.tests.length} test questions. {desk.volume === 1 ? 'Each is asked once.' : 'Each is asked ' + desk.volume + ' times to simulate a busier service.'} At up to {maxUnitCost} credits each, those {requestCount} requests can use up to {maxUnitCost * requestCount} credits in total. Skipped blocks use zero credits.</p>
+        </details>
+        {costs && !locked && <details><summary className="cursor-pointer font-bold">Last run used {totalCost(costs)} credits</summary>
           {costs.map(row => <Trace key={row.id} run={row} />)}
         </details>}
         <label className="block text-sm font-bold">{assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
@@ -346,7 +352,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
                 Explain the last failure to run again
               </button>
             )}
-            <TrainingCompanion key={id} id={assessment ? 'community' : baseCid} script={script} />
+            <TrainingCompanion key={id} id={baseCid} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />
