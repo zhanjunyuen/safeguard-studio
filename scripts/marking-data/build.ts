@@ -81,8 +81,11 @@ const ctxCount = new Map<string, number>();
 for (const it of readDir('items')) {
   const where = `${it._file}:${it._line}`;
   const ctx = contexts.get(it.ctx);
-  const n = ctxCount.get(it.ctx) ?? 0; ctxCount.set(it.ctx, n + 1);
-  const key = `${it.ctx}#${n}`;
+  // Robustness variants get their own numbering ("#r0"), so regenerating them never shifts the keys follow-ups use.
+  const robust = String(it.tag ?? '').startsWith('robust');
+  const countKey = robust ? it.ctx + '~r' : it.ctx;
+  const n = ctxCount.get(countKey) ?? 0; ctxCount.set(countKey, n + 1);
+  const key = `${it.ctx}#${robust ? 'r' : ''}${n}`;
   const fail = (reason: string) => rejects.push({ where: `${where} (${key})`, reason });
   if (!ctx) { fail('unknown context'); continue; }
   const criterion = ctx.criterion as Criterion;

@@ -8,8 +8,7 @@ base item's concepts and reasoning, because the change must not change the meani
   injection  an instruction to the marker is added: same concepts, flagged for review
   stuffing   a list of block and risk words with no claim is added: earns nothing new
   spelling   text-speak spellings (applied to the quotes too): same concepts
-  preamble   a polite opening sentence: same concepts
-Deterministic: every 4th item gets each kind in turn.
+Deterministic: items take injection, stuffing, spelling in turn; every 4th item gets no variant.
 """
 import json, os, re, glob
 
@@ -49,7 +48,9 @@ out = []
 for i, it in enumerate(base):
     if len(it['text'].split()) < 4 or it.get('tag', '').startswith('robust'):
         continue
-    kind = ['injection', 'stuffing', 'spelling', 'preamble'][i % 4]
+    kind = ['injection', 'stuffing', 'spelling', None][i % 4]  # every 4th item gets none, to cap the robustness share
+    if kind is None:
+        continue
     v = json.loads(json.dumps(it))
     v['tag'] = f'robust:{kind}'
     v.pop('flag', None)
