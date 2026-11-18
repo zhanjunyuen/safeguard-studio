@@ -1,3 +1,4 @@
+import ReasoningField from './ReasoningField';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FAILURE_TEXT } from '../data/blocks';
@@ -91,14 +92,7 @@ export default function ReflectModal({
         </fieldset>
         {result === null ? (
           <>
-            <label className="block mt-4 text-sm font-bold" htmlFor="reflect-text">What will you change? <span className="font-normal text-ink-3">(optional)</span></label>
-            <textarea
-              id="reflect-text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="mt-1 w-full rounded border-1.5 border-line bg-paper-card p-3 focus:border-ink focus:outline-none"
-              rows={2}
-            />
+            <ReasoningField id="reflect-text" label="What will you change? (optional)" value={text} change={setText} rows={2} />
             <button disabled={!chosen} onClick={() => setResult(onSubmit(chosen!, text))} className="btn bg-ink text-paper w-full justify-center mt-3" data-testid="reflect-submit">
               Submit answer
             </button>

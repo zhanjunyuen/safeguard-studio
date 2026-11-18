@@ -1,3 +1,4 @@
+import ReasoningField from '../components/ReasoningField';
 import { useEffect, useMemo, type ReactNode } from 'react';
 import { ASSIGNED_CASES, BRIEF, DESKS, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
@@ -16,8 +17,7 @@ const phases: Record<Phase, string> = {
 };
 
 function Writing({ label, value, change, hint }: { label: string; value: string; change: (v: string) => void; hint?: string }) {
-  return <label className="block"><b>{label}</b>{hint && <span className="block text-sm text-ink-2">{hint}</span>}
-    <textarea className={field} rows={3} value={value} onChange={e => change(e.target.value)} /></label>;
+  return <ReasoningField label={<>{label}{hint && <span className="block text-sm font-normal">{hint}</span>}</>} value={value} change={change} />;
 }
 function Panel({ children, title }: { children: ReactNode; title: string }) {
   return <section className="bg-paper-card border-1.5 border-ink rounded-md p-5 md:p-7 space-y-4"><h2 className="text-2xl font-extrabold">{title}</h2>{children}</section>;

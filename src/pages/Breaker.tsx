@@ -1,3 +1,4 @@
+import ReasoningField from '../components/ReasoningField';
 import {
   DndContext,
   DragOverlay,
@@ -199,20 +200,10 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
                 }} />}
               </div>
             ) : (
-              <label className="block w-full font-bold" style={{ maxWidth: STACK_W + 40 }} htmlFor="attack-reason">
-                Why these attacks? Say which block you expect to fail, and why. <span className="font-normal text-ink-3">(required)</span>
-                <textarea
-                  id="attack-reason"
-                  required
-                  aria-required="true"
-                  value={assessment.reason}
-                  onChange={(e) => assessment.changeReason(e.target.value)}
-                  disabled={locked}
-                  rows={3}
-                  className="mt-1 w-full rounded border-1.5 border-line bg-paper-card p-3 font-normal focus:border-ink focus:outline-none"
-                  data-testid="attack-reason"
-                />
-              </label>
+              <div className="w-full" style={{ maxWidth: STACK_W + 40 }}>
+                <ReasoningField id="attack-reason" required disabled={locked} value={assessment.reason} change={assessment.changeReason}
+                  label="Why these attacks? Say which block you expect to fail, and why. (required)" />
+              </div>
             ))}
             {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
               <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}

@@ -1,3 +1,4 @@
+import ReasoningField from '../components/ReasoningField';
 import { stackCollision } from '../components/stackCollision';
 import {
   DndContext,
@@ -308,9 +309,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         {costs && !locked && <details><summary className="cursor-pointer font-bold">Last run used {totalCost(costs)} credits</summary>
           {costs.map(row => <Trace key={row.id} run={row} />)}
         </details>}
-        <label className="block text-sm font-bold">{assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
-          <textarea className="block mt-1 w-full rounded border border-line p-2" rows={2} value={assessment.note} onChange={e => assessment.onNote(e.target.value)} />
-        </label>
+        <ReasoningField label={assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
+          value={assessment.note} change={assessment.onNote} required={assessment.revising} rows={2} />
         <button disabled={(assessment.revising && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
       </div>}
       {isL2 && !assessment && l1.state !== 'done' ? (

@@ -1,3 +1,4 @@
+import ReasoningField from './ReasoningField';
 import { useState } from 'react';
 import { BLOCKS } from '../data/blocks';
 import { CURVEBALLS } from '../data/curveballs';
@@ -47,11 +48,8 @@ export default function CurveballCard({ desk, rules, answer, onSubmit }: {
                 </label>
               ))}
             </fieldset>
-            <label className="block font-bold" htmlFor={`cb-reason-${desk}`}>
-              Why? Say which of your blocks would catch it or miss it, and what a person should do. <span className="font-normal text-ink-3">(required)</span>
-              <textarea id={`cb-reason-${desk}`} required rows={3} value={reason} onChange={(e) => setReason(e.target.value)} data-testid="cb-reason"
-                className="mt-1 w-full rounded border-1.5 border-line bg-paper-card p-3 font-normal focus:border-ink focus:outline-none" />
-            </label>
+            <ReasoningField id="cb-reason" required label="Why? Say which of your blocks would catch it or miss it, and what a person should do."
+              value={reason} change={setReason} />
             <button type="submit" className="btn bg-signal" disabled={!prediction || !reason.trim()} data-testid="cb-submit">Lock in my prediction</button>
           </form>
         ) : result && (
