@@ -1,8 +1,9 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { BRIEF, DESKS, PALETTE, AUDIT_CASES, ORDINARY_CASES, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { BLOCKS } from '../data/blocks';
 import { BUDGET, blockCredits, estimateCost, evaluate, type Rule, type Phase } from '../engine/mission';
 import { useMission } from '../store/mission';
+import TrainingCompanion from '../components/TrainingCompanion';
 import { BuildReport, MissionReport, Trace } from '../components/MissionReport';
 
 const field = 'block mt-1 w-full rounded border-1.5 border-line p-2 bg-white text-ink';
@@ -72,13 +73,17 @@ export default function Mission() {
   const { mission: m, pending, setPending, update, submitProbe, restart } = useMission();
   const ended = m.phase === 'complete' || m.phase === 'expired';
   useActiveClock(!ended && m.phase !== 'brief');
+  const rules = m.phase === 'attack' && m.first ? m.first : m.draft;
+  const companionScript = useMemo(() => rules.map(({ type }) => ({ type, uid: type })), [rules]);
   const remaining = m.minutes * 60 - m.elapsed;
   const options = m.probes.length === 0 ? AUDIT_CASES : ORDINARY_CASES;
   const probeId = pending.id || options[0];
   return <div className="max-w-5xl mx-auto px-4 py-8 space-y-5">
-    <header><img src={new URL('../assets/companions/chat.webp', import.meta.url).href} alt="" className="float-right w-16 h-16 object-contain" /><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
+    <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
-        {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div></header>
+        {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
+      <TrainingCompanion id="community" script={companionScript} />
+    </header>
     {!ended && <details open={m.phase === 'brief'} className="rounded-md border border-line p-4">
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
       {m.project && <p className="mb-3"><b>Your commission</b> · {m.project}</p>}

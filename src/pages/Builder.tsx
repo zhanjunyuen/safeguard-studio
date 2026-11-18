@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Play, RotateCcw } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Block from '../components/Block';
+import TrainingCompanion from '../components/TrainingCompanion';
 import Palette from '../components/Palette';
 import ReflectModal from '../components/ReflectModal';
 import RunPanel from '../components/RunPanel';
@@ -232,6 +233,7 @@ export default function Builder() {
                 Explain the last failure to run again
               </button>
             )}
+            <TrainingCompanion key={id} id={id} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} />
