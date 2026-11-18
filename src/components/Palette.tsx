@@ -21,7 +21,7 @@ function PaletteItem({ type, used, onAdd, onHover }: { type: BlockType; used: bo
       }}
       onMouseEnter={() => onHover(type)}
       onFocus={() => onHover(type)}
-      className={`rounded ${used ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
+      className={`rounded ${used ? 'cursor-not-allowed' : 'touch-none cursor-grab active:cursor-grabbing hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
       data-testid={`palette-${type}`}
     >
       <Block kind={type} label={def.label} color={def.color} textColor={def.effect === 'control' ? '#16161A' : undefined} width={250} dim={used} />

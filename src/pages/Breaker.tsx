@@ -177,7 +177,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             </div>
           </aside>
 
-          <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center gap-6 min-h-[560px]">
+          <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center gap-6 min-h-[560px]">
             <div className="w-full flex items-center justify-between" style={{ maxWidth: STACK_W + 40 }}>
               <div>
                 <h2 className="text-lg font-extrabold leading-none flex items-center gap-1.5"><Lock size={16} aria-hidden /> {assessment ? 'Your evaluated helper' : 'Their helper'}</h2>
@@ -262,7 +262,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             )}
           </div>
         </div>
-        <DragOverlay dropAnimation={{ duration: 160 }}>
+        <DragOverlay dropAnimation={null}>
           {dragging ? (
             <div className="rotate-2" style={{ filter: 'drop-shadow(3px 3px 0 #16161A)' }}>
               <Block kind="attack" icon={Zap} iconColor={ATTACK_ICON_COLOR} label={labels[dragging]} color={ATTACK_COLOR} width={STACK_W} />

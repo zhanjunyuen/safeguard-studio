@@ -1,3 +1,4 @@
+import { stackCollision } from './stackCollision';
 import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, pointerWithin, rectIntersection, useSensor, useSensors, type CollisionDetection, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useState, type ReactNode } from 'react';
@@ -45,6 +46,7 @@ export function RuleEditor({ rules, focus, change }: { rules: Rule[]; focus: Des
     setDragging(null);
     if (!over) return;
     const fromPalette = active.data.current?.from === 'palette';
+    if (fromPalette && over.data.current?.insertion) return add(active.data.current!.type, over.data.current.index);
     if (over.id === 'palette') { if (!fromPalette) remove(String(active.id)); return; }
     const target = rules.findIndex(r => r.type === over.id);
     if (target < 0 && over.id !== 'stack-start' && over.id !== 'stack-end') return;
@@ -58,7 +60,7 @@ export function RuleEditor({ rules, focus, change }: { rules: Rule[]; focus: Des
       if (from >= 0) change(arrayMove(rules, from, Math.min(index, rules.length - 1)));
     }
   }
-  return <DndContext sensors={sensors} collisionDetection={collision} onDragEnd={drop} onDragCancel={() => setDragging(null)}
+  return <DndContext sensors={sensors} collisionDetection={stackCollision} onDragEnd={drop} onDragCancel={() => setDragging(null)}
     onDragStart={({ active }) => setDragging(active.data.current?.type ?? active.id)}>
     <div className="grid lg:grid-cols-[282px_1fr] gap-4">
       <Palette blocks={PALETTE} used={used} credits={blockCredits} onAdd={t => add(t, rules.length)} />
@@ -74,7 +76,7 @@ export function RuleEditor({ rules, focus, change }: { rules: Rule[]; focus: Des
         </div>)}
       </div>
     </div>
-    <DragOverlay>{dragging && <Block kind={dragging} label={BLOCKS[dragging].label} color={BLOCKS[dragging].color} />}</DragOverlay>
+    <DragOverlay dropAnimation={null}>{dragging && <Block kind={dragging} label={BLOCKS[dragging].label} color={BLOCKS[dragging].color} />}</DragOverlay>
   </DndContext>;
 }
 

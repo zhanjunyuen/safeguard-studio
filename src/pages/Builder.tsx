@@ -1,13 +1,11 @@
+import { stackCollision } from '../components/stackCollision';
 import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
-  pointerWithin,
-  rectIntersection,
   useSensor,
   useSensors,
-  type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
@@ -40,14 +38,6 @@ const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
 
 const isControl = (t: string) => t === 'if' || t === 'ifelse';
-
-// Prefer an IF's inner slot over the IF block it sits in.
-const collision: CollisionDetection = (args) => {
-  const p = pointerWithin(args);
-  const slot = p.find((c) => String(c.id).startsWith('slot:'));
-  if (slot) return [slot];
-  return p.length ? p : rectIntersection(args);
-};
 
 interface AssessmentBuild {
   id: Desk;
@@ -230,6 +220,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     }
 
     if (d?.from === 'palette') {
+      if (over.data.current?.insertion) return addAt(d.type!, over.data.current.index);
       if (overId === 'palette') return;
       const idx = overId === 'stack-start' ? 0 : overId === 'stack-end' ? script.length : overIdx + (below ? 1 : 0);
       if (idx >= 0) addAt(d.type!, idx);
@@ -330,11 +321,11 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
           <Link to={`/build/${baseCid}`} className="btn bg-signal mt-5">Go to Level 1</Link>
         </div>
       ) : (
-      <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
+      <DndContext sensors={sensors} collisionDetection={stackCollision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
         <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
           <Palette credits={assessment ? blockCredits : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
-          <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
+          <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
               <div>
                 <h2 className="text-lg font-extrabold leading-none">Your helper</h2>
@@ -362,7 +353,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />
         </div>
 
-        <DragOverlay dropAnimation={{ duration: 180 }}>
+        <DragOverlay dropAnimation={null}>
           {activeDrag ? (
             <div className="rotate-2" style={{ filter: "drop-shadow(3px 3px 0 #16161A)" }}>
               <Block kind={activeDrag} label={BLOCKS[activeDrag].label} color={BLOCKS[activeDrag].color} textColor={isControl(activeDrag) ? '#16161A' : undefined} width={STACK_W} />

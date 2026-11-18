@@ -22,7 +22,7 @@ export function AttackItem({ id, label, used, full, onAdd }: { id: string; label
         if (e.key === 'Enter' && !disabled) { e.preventDefault(); onAdd(); }
         else listeners?.onKeyDown?.(e);
       }}
-      className={`rounded ${disabled ? 'cursor-not-allowed' : 'cursor-grab hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
+      className={`rounded ${disabled ? 'cursor-not-allowed' : 'touch-none cursor-grab hover:translate-x-1'} transition-transform ${isDragging ? 'opacity-30' : ''}`}
       data-testid={`attack-${id}`}
     >
       <Block kind="attack" icon={Zap} iconColor={ATTACK_ICON_COLOR} label={label} color={ATTACK_COLOR} width={250} dim={used} />
@@ -59,7 +59,7 @@ export function Plan({ plan, labels, onRemove, locked }: { plan: string[]; label
           </div>
         ))}
         {Array.from({ length: ATTACK_BUDGET - plan.length }).map((_, i) => (
-          <div key={i} className="h-[46px] rounded border-1.5 border-dashed border-line grid place-items-center text-sm text-ink-3">Drop an attack here</div>
+          <div key={i} className={`h-[46px] rounded border-1.5 border-dashed grid place-items-center text-sm text-ink-3 transition-colors ${isOver && i === 0 ? 'border-ink bg-signal-soft' : 'border-line'}`}>Drop an attack here</div>
         ))}
       </div>
     </div>
