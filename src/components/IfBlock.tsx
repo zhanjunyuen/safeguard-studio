@@ -36,7 +36,7 @@ function cPath(w: number, twoMouths: boolean) {
 }
 
 function Slot({ id, child, top, width, highlight, onClear, locked }: { id: string; child?: ScriptBlock | null; top: number; width: number; highlight: StepStatus | null; onClear: () => void; locked: boolean }) {
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { setNodeRef, isOver } = useDroppable({ id, disabled: locked });
   return (
     <div ref={setNodeRef} className="absolute" style={{ left: ARM, top, width, height: MOUTH }} data-testid={id}>
       {child ? (
@@ -64,7 +64,7 @@ function Slot({ id, child, top, width, highlight, onClear, locked }: { id: strin
         <div
           className={`absolute inset-x-1.5 inset-y-1 rounded border-1.5 border-dashed grid place-items-center text-sm font-bold ${isOver ? 'border-ink bg-signal-soft text-ink' : 'border-ink/50 bg-paper-card/90 text-ink-2'}`}
         >
-          Drop a safeguard here
+          {locked ? 'No safeguard' : 'Drop a safeguard here'}
         </div>
       )}
       {child && isOver && <div className="absolute inset-0 rounded outline outline-2 outline-dashed outline-ink pointer-events-none" />}
@@ -105,7 +105,7 @@ export default function IfBlock({
       <div className="absolute inset-x-0 top-0 flex items-center gap-2 px-3 font-bold text-[15px] text-ink" style={{ height: HEAD }}>
         <Icon size={18} strokeWidth={2.25} aria-hidden className="shrink-0" />
         <span>IF</span>
-        <select
+        {locked ? <span className="min-w-0 flex-1 text-sm">{CONDITIONS[b.cond ?? 'person'].label}</span> : <select
           value={b.cond ?? 'person'}
           disabled={locked}
           onPointerDown={stop}
@@ -118,7 +118,7 @@ export default function IfBlock({
           {COND_ORDER.map((c) => (
             <option key={c} value={c}>{CONDITIONS[c].label}</option>
           ))}
-        </select>
+        </select>}
         <span>THEN</span>
         {!locked && (
           <button onPointerDown={stop} onKeyDown={stop} onClick={onRemove} className="grid place-items-center w-7 h-7 -mr-1 rounded hover:bg-black/10" aria-label="Remove this IF block">

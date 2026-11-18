@@ -45,17 +45,17 @@ function SortableBlock({ b, highlight, highlights, onRemove, locked, ifh, index,
         style={{ transform: CSS.Translate.toString(transform), transition: reduced ? 'none' : transition, opacity: isDragging ? 0.3 : 1 }}
         {...attributes}
         {...listeners}
-        aria-label={`${def.label}. Drag to reorder.`}
+        aria-label={locked ? def.label : `${def.label}. Drag to reorder.`}
         className={`group rounded ${locked ? '' : 'touch-none cursor-grab active:cursor-grabbing'}`}
         data-testid={`stack-${b.type}`}
       >
-        {(b.type === 'if' || b.type === 'ifelse') && ifh ? (
+        {b.type === 'if' || b.type === 'ifelse' ? (
           <IfBlock
             b={b}
             width={STACK_W}
             highlights={highlights}
-            onCond={(c) => ifh.onCond(b.uid, c)}
-            onClear={(w) => ifh.onClearSlot(b.uid, w)}
+            onCond={(c) => ifh?.onCond(b.uid, c)}
+            onClear={(w) => ifh?.onClearSlot(b.uid, w)}
             onRemove={onRemove}
             locked={locked}
           />
@@ -77,7 +77,7 @@ function SortableBlock({ b, highlight, highlights, onRemove, locked, ifh, index,
                 >
                   <X size={16} aria-hidden />
                 </button>
-              ) : b.type === 'ask_ai' ? (
+              ) : b.type === 'ask_ai' && !locked ? (
                 <span className="label text-white/75 text-[10px]">can move</span>
               ) : null
             }
