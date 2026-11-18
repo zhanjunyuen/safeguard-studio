@@ -61,7 +61,6 @@ export function allChallengesComplete(m: Mission) {
 
 // Mission credits represent work. The practice engine's cost field represents friction.
 export function blockCredits(type: BlockType) {
-  if (type === 'ask_ai') return 2;
   if (type === 'warn_note') return 1;
   return BLOCKS[type].cost;
 }
@@ -81,7 +80,8 @@ export function evaluate(rules: Rule[], id: string) {
   const result = runProgram(script, test);
   const charges = result.steps.flatMap(step => {
     if (step.blockType === 'trigger' || step.blockType === 'reply' || step.status === 'skip') return [];
-    return [{ block: step.blockType, unit: blockCredits(step.blockType) }];
+    const unit = blockCredits(step.blockType);
+    return unit === 0 ? [] : [{ block: step.blockType, unit }];
   });
   const credits = desk.volume * charges.reduce((sum, item) => sum + item.unit, 0);
   return { id, desk: desk.name, volume: desk.volume, charges, credits, result };
@@ -113,7 +113,7 @@ export function evidence(m: Mission) {
   const legacy = !m.form;
   const build = (rules: Rule[] | null) => rules && { rules, cases: evaluateBuild(rules, legacy) };
   return {
-    rubricVersion: 'school-community-' + (m.form ?? 1), status: m.phase,
+    creditModel: 'safeguards-only', rubricVersion: 'school-community-' + (m.form ?? 1), status: m.phase,
     brief: BRIEF, project: legacy ? m.project : ASSIGNMENT,
     assignedCases: legacy ? undefined : ASSIGNED_CASES,
     requiredPredictions: m.form === 3 ? 0 : legacy ? 2 : ASSIGNED_CASES.length,

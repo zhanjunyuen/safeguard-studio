@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BUDGET, evaluate, evaluateBuild, evidence, handled, submitAttack, newMission, totalCost, type Rule } from './mission';
+import { BUDGET, estimateCost, evaluate, evaluateBuild, evidence, handled, submitAttack, newMission, totalCost, type Rule } from './mission';
 
 import { ASSIGNED_CASES } from '../data/mission';
 import { CHALLENGES } from '../data/challenges';
@@ -24,6 +24,16 @@ describe('school community assessment', () => {
     expect(packet.requiredPredictions).toBe(2);
     expect(packet.project).toBe('Earlier project');
     expect(packet.budget).toBeLessThan(BUDGET);
+  });
+
+  it('runs Ask AI for free and charges added safeguards at the task workload', () => {
+    const base: Rule[] = [{ type: 'ask_ai', scope: 'all' }];
+    expect(estimateCost(base)).toBe(0);
+    expect(totalCost(evaluateBuild(base))).toBe(0);
+    const run = evaluate([...base, { type: 'check_source', scope: 'history' }], 'h_date');
+    expect(run.result.steps.some(step => step.blockType === 'ask_ai')).toBe(true);
+    expect(run.charges).toEqual([{ block: 'check_source', unit: 4 }]);
+    expect(run.credits).toBe(16);
   });
 
   it('charges executed blocks at the service workload and excludes skipped or out-of-scope blocks', () => {

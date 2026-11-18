@@ -302,8 +302,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
       </div>
 
       {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
-        <p><b>Cost per request</b> · Up to {maxUnitCost} credits with these blocks.</p>
-        <p className="text-sm text-ink-2">Credits measure the work your helper does. Each block uses its listed credits when it runs. Ask AI uses 2.</p>
+        <p><b>Cost per request</b> · {maxUnitCost ? 'Up to ' + maxUnitCost + ' credits' : '0 credits'} with these blocks.</p>
+        <p className="text-sm text-ink-2">Ask AI is included for free. You spend credits when the safeguards you add run.</p>
         <details><summary className="cursor-pointer font-bold">How much does a test run cost?</summary>
           <p>There are {challenge.tests.length} test questions. {desk.volume === 1 ? 'Each is asked once.' : 'Each is asked ' + desk.volume + ' times to simulate a busier service.'} At up to {maxUnitCost} credits each, those {requestCount} requests can use up to {maxUnitCost * requestCount} credits in total. Skipped blocks use zero credits.</p>
         </details>

@@ -40,7 +40,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
     && workloadCredits <= budget;
   return {
-    rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
+    creditModel: 'safeguards-only', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
     attackHints: m.attackHints ?? [], challenges, budget,
     workloadCredits, meetsEfficiencyTarget,
