@@ -5,6 +5,20 @@ import { COMPETENCY_META, BLOCKS } from '../data/blocks';
 import { BUDGET, LEGACY_BUDGET, evaluate, evaluateBuild, evidence, handled, totalCost, type Mission } from '../engine/mission';
 import { ASSIGNMENT, DESKS, missionCase } from '../data/mission';
 import { useMission } from '../store/mission';
+import MarkFeedback from './MarkFeedback';
+import { CRITERION_NAME, type Mark } from '../engine/marking';
+
+function PreviewMark({ mark }: { mark: Mark }) {
+  return <p className="text-sm text-ink-2">Preview mark ({CRITERION_NAME[mark.criterion]}, {mark.marker}): {mark.level === null ? 'not enough evidence' : 'level ' + mark.level + ' of 2'}
+    {' · '}{mark.concepts.filter(c => c.present).map(c => c.id).join(', ') || 'no concepts'} shown{mark.reviewFlag ? ' · flagged for review' : ''}</p>;
+}
+
+function RisksMet({ risks }: { risks: { risk: string; title: string; handled: boolean; predictionCorrect: boolean }[] }) {
+  if (!risks.length) return null;
+  return <section className="rounded-md border-1.5 border-ink p-4"><h3 className="font-bold">AI risks met in the curveballs</h3>
+    <ul className="mt-2 space-y-1">{risks.map(r => <li key={r.title}><b>{r.risk}</b> · {r.title} · helper {r.handled ? 'coped' : 'did not cope'} · prediction {r.predictionCorrect ? 'right' : 'wrong'}</li>)}</ul>
+    <p className="text-sm mt-2">{risks.filter(r => r.predictionCorrect).length} of {risks.length} predictions right.</p></section>;
+}
 
 export function Trace({ run }: { run: ReturnType<typeof evaluate> }) {
   return <details className="border-t border-line py-2">
@@ -80,12 +94,18 @@ function ChallengeReport({ mission }: { mission: Mission }) {
       <p>{c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>
       {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
       {c.attack && <div><p><b>Attack prediction</b> · {c.attack.reason ?? 'Not recorded (earlier format)'}</p>
+        {c.previewMarks?.testing && <PreviewMark mark={c.previewMarks.testing} />}
         <b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
+      {c.curveball && <div className="my-2"><p><b>Curveball · {c.curveball.title}</b> ({c.curveball.risk}) · predicted {c.curveball.prediction === 'handles' ? 'handled' : 'gets through'},
+        actual {c.curveball.handled ? 'handled' : c.curveball.outcome} · prediction {c.curveball.predictionCorrect ? 'correct' : 'incorrect'}</p>
+        <p>{c.curveball.reason}</p><PreviewMark mark={c.curveball.previewMark} /></div>}
       {c.revisionNote && <p>{c.revisionNote}</p>}
     </details>)}
     <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>
       {packet.attackHints.map((h, i) => <p key={i}>{h.desk} · {h.text}</p>)}</details>
     <p><b>Release decision</b> · {packet.transfer.decision ? packet.transfer.decision + ' · ' + packet.transfer.rationale : 'Unsubmitted'}</p>
+    {packet.transfer.previewMark && <MarkFeedback request={{ criterion: 'judgement', text: packet.transfer.rationale!, decision: packet.transfer.decision! }} />}
+    <RisksMet risks={packet.challenges.flatMap(c => c.curveball ? [c.curveball] : [])} />
     <button className="btn bg-paper" onClick={() => exportEvidence(packet)}>Download marking evidence</button>
   </div>;
 }

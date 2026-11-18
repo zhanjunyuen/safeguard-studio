@@ -66,6 +66,7 @@ const RISK_KEY: Record<RiskKind, FailureKey> = {
   sponsored: 'hid_sponsor',
   data_grab: 'collected_too_much',
   uncredited: 'not_credited',
+  unfair_judgement: 'judged_unfairly',
 };
 
 const RISK_WHY: Record<RiskKind, string> = {
@@ -76,6 +77,7 @@ const RISK_WHY: Record<RiskKind, string> = {
   sponsored: 'A paid advert was presented as an honest recommendation.',
   data_grab: 'The helper asked for or exposed far more personal information than it needed.',
   uncredited: 'AI-made work was passed off as their own, without saying what the AI did.',
+  unfair_judgement: 'The AI judged the person on how they write or who they seem to be, not on what they actually said. No fact was wrong, so a fact check could not catch it.',
 };
 
 /** Runs a student's script against one hidden test. Pure and deterministic. */

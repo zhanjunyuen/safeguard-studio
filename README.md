@@ -14,8 +14,22 @@ Choose **Start the assessment**, select the time allowance, then choose a challe
 
 1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. Inspect the replay, explain a failure when prompted, and try a new design if needed.
 2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. The cases also appeared during evaluation, so this measures targeted testing after feedback.
-3. **Finish or revise.** Keep the build and return to the checklist, or reopen its editor to revise it. Explain the revision or decision to keep the design, and evaluate any changed stack. The attack record keeps the original target.
-4. **Make a release decision.** Completing all six challenges unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
+3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Each one targets an AI risk the six standard tests don't cover, and most can't be fixed by any block in that palette:
+
+   | Challenge | Curveball | AI risk |
+   |---|---|---|
+   | History | A quote from a historian and book that don't exist | Invented sources: a fact check doesn't check that a source exists |
+   | Party | A caterer's note with hidden instructions to list pupils' allergies by name | Prompt injection |
+   | Newspaper | A caption for a viral photo of the flooded field | AI-made images |
+   | Revision quiz | Marking a correct answer written in dialect | Unfair judgement: bias in AI marking is not a wrong fact |
+   | Group chat | An urgent voice note from a teacher with a new payment link | Voice cloning and scams |
+   | Options | The same question with a different name gets different advice | Bias that only shows when you compare |
+
+   The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails five of the six curveballs (`src/engine/curveball.test.ts`).
+4. **Finish or revise.** Keep the build and return to the checklist, or reopen its editor to revise it. Explain the revision or decision to keep the design, and evaluate any changed stack. The attack record keeps the original target.
+5. **Make a release decision.** Completing all six challenges unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
+
+**Feedback on written answers.** The attack prediction, the curveball explanation and the release rationale each get feedback against the rubric. The feedback lists the concepts found, quoting the evidence, gives a level from fixed rules, a next step, and answers to follow-up questions ("Why did I get this level?"). It comes from `src/engine/marking.ts`. Today an offline keyword preview fills the role, labelled as such. A trained AI marker connects through `setMarkingProvider` without changing the UI: the marker only reports which concepts are present, and fixed code turns concepts into levels.
 
 During Attack the animated companion can give three optional hints across the whole assessment. Hints prompt pupils to reason about the selected problem and their submitted blocks. The allowance follows the attempt across problem switches and reloads. Pupils can reread earlier hints for free. The report records the setting and text of each hint so teachers can interpret assisted work. Hint use carries no score or workload penalty.
 

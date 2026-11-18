@@ -6,6 +6,8 @@ import Breaker from '../pages/Breaker';
 import { useMission } from '../store/mission';
 import { useAssessmentSession } from '../store/session';
 import { CHALLENGE_BUDGET } from '../engine/challengeEvidence';
+import CurveballCard from './CurveballCard';
+import { submitCurveball } from '../engine/curveball';
 
 export default function AssessmentChallenges() {
   const { mission: m, update, launch } = useMission();
@@ -17,7 +19,7 @@ export default function AssessmentChallenges() {
     update({ focus: id, first: frozen ?? null, phase: m.revising?.[id] ? 'revise' : frozen ? 'attack' : 'build' });
   }
   function finish(id: Desk) {
-    if (!m.launches?.some(l => l.desk === id) || m.completed?.includes(id)) return;
+    if (!m.launches?.some(l => l.desk === id) || !m.curveballs?.[id] || m.completed?.includes(id)) return;
     update({ completed: [...(m.completed ?? []), id], phase: 'menu', focus: undefined, first: null });
   }
   if (desk && (m.phase === 'build' || m.phase === 'revise')) {
@@ -36,18 +38,22 @@ export default function AssessmentChallenges() {
     }} />;
   }
   if (desk && m.phase === 'attack' && m.frozen?.[desk]) {
-    return <Breaker key={desk} assessment={{ id: desk, rules: m.frozen[desk], hintCount: m.attackHints?.length ?? 0,
+    const launched = m.launches?.some(l => l.desk === desk);
+    const rules = m.frozen[desk];
+    return <><Breaker key={desk} assessment={{ id: desk, rules, hintCount: m.attackHints?.length ?? 0, curveballPending: !m.curveballs?.[desk],
       plan: m.attackPlans?.[desk] ?? [], submitted: m.launches?.find(l => l.desk === desk)?.ids,
       changePlan: ids => update({ attackPlans: { ...m.attackPlans, [desk]: ids } }), submit: launch,
       reason: m.launches?.find(l => l.desk === desk)?.reason ?? m.attackReasons?.[desk] ?? '',
       changeReason: value => update({ attackReasons: { ...m.attackReasons, [desk]: value } }),
       onMenu: menu, onFinish: () => finish(desk),
       onRevise: () => update({ phase: 'revise', revising: { ...m.revising, [desk]: true } }),
-    }} />;
+    }} />
+    {launched && <CurveballCard key={'cb-' + desk} desk={desk} rules={rules} answer={m.curveballs?.[desk]}
+      onSubmit={answer => update(submitCurveball(useMission.getState().mission, desk, answer))} />}</>;
   }
   if (m.phase === 'brief') return <section className="rounded-md border-1.5 border-ink bg-paper-card p-6 space-y-4">
     <h2 className="text-2xl font-extrabold">Six challenges, in your order</h2>
-    <p>Use the school community helper for the six assigned challenges. For each one, build with the blocks for that problem, run the six hidden tests, and attack the build you evaluated. You can return to the checklist and resume a challenge later.</p>
+    <p>Use the school community helper for the six assigned challenges. For each one, build with the blocks for that problem, run the six hidden tests, and attack the build you evaluated. Then your helper meets one curveball: a request it has never seen, often one no block can fully catch. You predict what will happen and explain why. Your written answers get feedback, and you can ask about it. You can return to the checklist and resume a challenge later.</p>
     <label className="block font-bold">Time allowance
       <select className="block mt-1 rounded border border-line p-2" value={m.minutes} onChange={e => update({ minutes: Number(e.target.value) })}>
         <option value={0}>Untimed</option>{[15, 25, 40, 60].map(n => <option key={n} value={n}>{n} active minutes</option>)}

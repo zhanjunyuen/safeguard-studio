@@ -3,6 +3,9 @@ import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType } from '../types';
 import { evaluate, handled, totalCost, type Desk, type Mission } from './mission';
+import { CURVEBALLS } from '../data/curveballs';
+import { curveballHandled, runCurveball } from './curveball';
+import { markOffline, RUBRIC_VERSION } from './marking';
 
 export function evaluateDesk(id: Desk, blocks: BlockType[]) {
   const rules = blocks.map(type => ({ type, scope: id }));
@@ -27,16 +30,37 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
       attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
       attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
+      curveball: curveballEvidence(m, d.id),
+      previewMarks: target && plan?.reason ? {
+        testing: markOffline({ criterion: 'testing', text: plan.reason, blocks: target.map(r => r.type), broke: plan.ids.filter(id => !handled(evaluate(target, id))),
+          planned: plan.ids.map(id => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; }) }),
+      } : undefined,
     };
   });
   const workloadCredits = challenges.reduce((sum, c) => sum + (c.workloadCredits ?? 0), 0);
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
     && workloadCredits <= CHALLENGE_BUDGET;
   return {
-    rubricVersion: 'school-community-4', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
+    rubricVersion: RUBRIC_VERSION, markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
     attackHints: m.attackHints ?? [], challenges, budget: CHALLENGE_BUDGET,
     workloadCredits, meetsEfficiencyTarget,
-    transfer: { ...TRANSFER, decision: m.phase === 'complete' ? m.decision : null, rationale: m.phase === 'complete' ? m.rationale : null },
+    transfer: { ...TRANSFER, decision: m.phase === 'complete' ? m.decision : null, rationale: m.phase === 'complete' ? m.rationale : null,
+      previewMark: m.phase === 'complete' && m.rationale.trim() ? markOffline({ criterion: 'judgement', text: m.rationale, decision: m.decision }) : undefined },
+  };
+}
+
+function curveballEvidence(m: Mission, desk: Desk) {
+  const answer = m.curveballs?.[desk];
+  const target = m.frozen?.[desk];
+  if (!answer || !target) return null;
+  const cb = CURVEBALLS[desk];
+  const result = runCurveball(target, desk);
+  const ok = curveballHandled(result);
+  return {
+    id: cb.test.id, title: cb.test.title, risk: cb.risk, request: cb.test.question, context: cb.context ?? null,
+    prediction: answer.prediction, reason: answer.reason, outcome: result.outcome, handled: ok,
+    predictionCorrect: (answer.prediction === 'handles') === ok, reply: result.reply, steps: result.steps,
+    previewMark: markOffline({ criterion: 'anticipation', text: answer.reason, blocks: target.map(r => r.type), desk, prediction: answer.prediction, handled: ok }),
   };
 }

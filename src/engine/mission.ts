@@ -6,6 +6,7 @@ import { runProgram } from './run';
 import type { BlockType } from '../types';
 
 export type Desk = typeof DESKS[number]['id'];
+export interface CurveballAnswer { prediction: 'handles' | 'struggles'; reason: string }
 export type Rule = { type: BlockType; scope: Desk | 'all' };
 export type Phase = 'brief' | 'menu' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
 export interface Probe {
@@ -29,6 +30,8 @@ export interface Mission {
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;
   launches?: { desk: Desk; ids: string[]; reason?: string }[];
+  /** Form 4: the pupil's prediction for each challenge's unseen curveball case. */
+  curveballs?: Partial<Record<Desk, CurveballAnswer>>;
   project?: string; // Earlier, pupil-authored briefs in saved reports.
   anticipation: string;
   draft: Rule[];

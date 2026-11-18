@@ -20,6 +20,7 @@ import { getChallenge } from '../data/challenges';
 import { ATTACK_BUDGET, breakSummary, launch, targetScript, weakSpots, type LaunchReport } from '../engine/breaker';
 import TrainingCompanion from '../components/TrainingCompanion';
 import AttackHintPanel from '../components/AttackHintPanel';
+import MarkFeedback from '../components/MarkFeedback';
 import type { Desk, Rule } from '../engine/mission';
 import { useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
@@ -44,6 +45,8 @@ interface AssessmentAttack {
   /** Required written prediction for the plan; recorded with the launch. */
   reason: string;
   changeReason: (reason: string) => void;
+  /** true until the pupil has answered this challenge's curveball */
+  curveballPending?: boolean;
   submit: () => void;
   onMenu: () => void;
   onFinish: () => void;
@@ -182,9 +185,15 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             <ScriptStack script={script} highlights={highlights} onRemove={() => {}} locked />
             <Plan plan={plan} labels={labels} onRemove={(tid) => setPlan(plan.filter((x) => x !== tid))} locked={locked || !!assessment?.submitted} />
             {assessment && (assessment.submitted ? (
-              <div className="w-full rounded border-1.5 border-line bg-paper-card p-3" style={{ maxWidth: STACK_W + 40 }} data-testid="attack-reason-saved">
-                <div className="label text-ink-3">Your prediction</div>
-                <p className="mt-1">{assessment.reason || 'Not recorded'}</p>
+              <div className="w-full space-y-3" style={{ maxWidth: STACK_W + 40 }}>
+                <div className="rounded border-1.5 border-line bg-paper-card p-3" data-testid="attack-reason-saved">
+                  <div className="label text-ink-3">Your prediction</div>
+                  <p className="mt-1">{assessment.reason || 'Not recorded'}</p>
+                </div>
+                {saved && !locked && assessment.reason.trim() && <MarkFeedback request={{
+                  criterion: 'testing', text: assessment.reason, blocks: assessment.rules.map((r) => r.type), broke: saved.broke,
+                  planned: assessment.submitted!.map((tid) => { const t = challenge.tests.find((x) => x.id === tid)!; return { id: tid, label: t.attackLabel, title: t.title, category: t.category }; }),
+                }} />}
               </div>
             ) : (
               <label className="block w-full font-bold" style={{ maxWidth: STACK_W + 40 }} htmlFor="attack-reason">
@@ -208,10 +217,12 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             {assessment && <>
               <TrainingCompanion id="community" script={script} hintCount={assessment.hintCount} />
               <AttackHintPanel desk={assessment.id} />
-              {saved && !locked && <div className="flex flex-wrap gap-2">
-                <button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>
-                <button className="btn bg-paper" onClick={assessment.onRevise}>Revise my build</button>
-              </div>}
+              {saved && !locked && (assessment.curveballPending
+                ? <p className="rounded border-1.5 border-ink bg-signal-soft p-3 font-bold" data-testid="curveball-pending">One more case before you finish: answer the curveball below.</p>
+                : <div className="flex flex-wrap gap-2">
+                  <button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>
+                  <button className="btn bg-paper" onClick={assessment.onRevise}>Revise my build</button>
+                </div>)}
             </>}
           </section>
 
