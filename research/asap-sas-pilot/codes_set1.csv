@@ -1,0 +1,51 @@
+Id,present,borderline,note
+1547,MAT;VA,,purpose
+1505,VA;MAT,,AMT not credited
+155,VA;VT,ENVT,temperature vague
+1654,VA;MAT,,MASS not credited
+597,VA;RT,,MASS not credited
+941,VA,,
+1165,CS,,RINSE not credited
+1049,VA,DRY,AMT; garbled where-to-put
+51,MAT,,AMT
+396,,,restate
+592,VA;RT,,AMT
+1643,DRY;ENVT,,DESIGN
+315,,,DESIGN
+1622,VA;MAT,,MASS
+560,MAT,,change
+598,,,
+296,,,
+1647,CS;SIZE;VT,,
+1305,,,equipment list
+1095,,,
+1454,VA,,
+623,VA;ENVT,,DESIGN
+161,VA,,AMT MASS
+4,,,
+1190,VA;CT;SIZE;VT,,
+248,VA,,DESIGN AMT
+7,,MAT,vague materials; change
+1432,MAT;VA;ENVP,,RINSE
+1320,VA,,
+778,VA,VT;ENVT,
+68,VA,VT,keep same; AMT DESIGN
+420,MAT;RT,,AMT
+36,CT;VA,,purpose
+1020,,,purpose DESIGN
+1188,,CS,
+288,,,unfinished
+624,VA;ENVT,,purpose
+217,ENVP,,
+1598,SIZE,,
+56,,MAT,equipment-list framing
+1171,MAT;VA,,DESIGN
+509,MAT;VA,,AMT
+1119,VA,,AMT
+141,MAT;VA,,purpose RINSE
+666,VA,,MASS
+805,MAT;VA,,
+771,MAT;VA,,
+833,VA;CS;ENVT;RT,,
+1577,VA,,AMT purpose
+856,,,restate
