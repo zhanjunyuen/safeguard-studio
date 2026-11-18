@@ -154,7 +154,8 @@ for (const f of readDir('followups')) {
   if (!base) { fail('follow-up refers to an unknown or rejected item'); continue; }
   if (!f.q || !f.a || !Array.isArray(f.uses)) { fail('missing q/a/uses'); continue; }
   const lvl = base.mark.level as number | null;
-  const claimed = [...f.a.matchAll(/level (\d)/gi)].map(m => Number(m[1]));
+  // Only statements about the pupil's own level count ("Level 1 of 2", "you have level 1"); "for level 2 you need…" is a goal.
+  const claimed = [...f.a.matchAll(/(?:level (\d) of 2|(?:you have|you got|you get|gives you|gives|stays(?: at)?|this is|that's|which is|it is|it's) level (\d))/gi)].map(m => Number(m[1] ?? m[2]));
   if (claimed.some(l => l !== lvl)) { fail(`answer claims a different level (${claimed.join(',')} vs ${lvl})`); continue; }
   const ids = (base.mark.concepts as { id: string }[]).map(c => c.id);
   if (f.uses.some((u: string) => !ids.includes(u))) { fail('uses a concept that is not in the mark'); continue; }
