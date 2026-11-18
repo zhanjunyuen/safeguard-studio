@@ -1,0 +1,150 @@
+{"k":1163,"c":{"T1":"The 'Check against a trusted source' block verifies the AI's answer against a reliable reference"}}
+{"k":1164,"c":{}}
+{"k":1165,"c":{}}
+{"k":1166,"c":{"T1":"The Ask AI block handles that","T2":"Asking for a date or basic fact"}}
+{"k":1167,"c":{"T1":"use the Ask AI block.","T2":"Normal homework help should be fine"}}
+{"k":1168,"c":{"T2":"Ask name of king get through."}}
+{"k":1169,"c":{"T1":"it has coachin and chekin","T3":"evry reqwest will be fine"}}
+{"k":1170,"c":{"T1":"The Ask AI block is there to help you get info for your articles."}}
+{"k":1171,"c":{}}
+{"k":1172,"c":{"T1":"The swap-personal-contacts-for-official-ones block only swaps contact details","T2":"A normal question about people - like who the new goalie is - should still get answered normally."}}
+{"k":1173,"c":{"T3":"Every request will be absolutely fine"}}
+{"k":1174,"c":{"T1":"the existing blocks only catch personal contacts, rewrites, quotes, numbers, and biased wording"}}
+{"k":1175,"c":{"T1":"check numbers against official data","T2":"normal questions about the weather"}}
+{"k":1176,"c":{}}
+{"k":1177,"c":{}}
+{"k":1178,"c":{"T1":"The 'Swap personal contacts for official ones' block"}}
+{"k":1179,"c":{}}
+{"k":1180,"c":{}}
+{"k":1181,"c":{}}
+{"k":1182,"c":{"T1":"The helper has the block swap personal contacts for official ones.","T2":"I think normal questions should still be answered."}}
+{"k":1183,"c":{"T1":"despite the 'Ask AI' block.","T2":"general enquiries about the school should be answered normally"}}
+{"k":1184,"c":{"T1":"'confirm quotes' = u check wiv the person b4 printing wat they sed"}}
+{"k":1185,"c":{"T3":"i fink evree requestchun will be fine"}}
+{"k":1186,"c":{"T1":"The 'Swap personal contacts for official ones' block makes sure we don't give out anyone's private phone number."}}
+{"k":1187,"c":{"T3":"The stats one, innit."}}
+{"k":1188,"c":{},"f":"Says the swap-contacts block is missing, but it is in the build."}
+{"k":1189,"c":{"T3":"I think every request will be fine"}}
+{"k":1190,"c":{"T1":"the chek numers against oficial data wun will stop most attacks"}}
+{"k":1191,"c":{"T1":"No quote-check block.","T3":"Quote request gets through cos only numbers are checked."}}
+{"k":1192,"c":{"T3":"the statisitcs wll probably work"}}
+{"k":1193,"c":{"T1":"neutral wording is wrong place.","T3":"write whole article gets thru"}}
+{"k":1194,"c":{"T3":"The 'write the whole article' request will get through."}}
+{"k":1195,"c":{}}
+{"k":1196,"c":{"T1":"There’s the quote bit, the numbers bit, and the neutral wording bit"}}
+{"k":1197,"c":{}}
+{"k":1198,"c":{}}
+{"k":1199,"c":{"T1":"I think the Ask AI block is meant to be somewhere else.","T3":"the question about if a subject is for boys will definitely work"}}
+{"k":1200,"c":{"T1":"the 'help them plan it not write it' block stops the advisor from doing your personal statement for you"}}
+{"k":1201,"c":{"T1":"the missing block is one about entry grades and rules","T3":"asking about an entry requirement will get through easy"}}
+{"k":1202,"c":{"T2":"probably something about asking normal questions - like what stuff is about"}}
+{"k":1203,"c":{}}
+{"k":1204,"c":{}}
+{"k":1205,"c":{}}
+{"k":1206,"c":{"T1":"the Challenge stereotypes block is in the wrong place"}}
+{"k":1207,"c":{}}
+{"k":1208,"c":{}}
+{"k":1209,"c":{}}
+{"k":1210,"c":{"T1":"the talk about needs without names block is there.","T2":"asking about what you need should be anserd normaly"}}
+{"k":1211,"c":{"T1":"The Ask AI block won't catch anything, it just passes stuff on.","T2":"asking it 'which GCSEs are the easiest' will 100% get through"}}
+{"k":1212,"c":{"T3":"Maybe the one that asks about the user gets through."}}
+{"k":1213,"c":{}}
+{"k":1214,"c":{}}
+{"k":1215,"c":{}}
+{"k":1216,"c":{"T1":"the Ask AI block does that.","T2":"asking for help to plan GCSEs shoud still be ansred normal"}}
+{"k":1217,"c":{}}
+{"k":1218,"c":{}}
+{"k":1219,"c":{"T1":"we are missing a block which checks entry requirements against the school's official criteria","T3":"the attack asking about an entry requirement to get through"}}
+{"k":1220,"c":{}}
+{"k":1221,"c":{}}
+{"k":1222,"c":{"T1":"The Check the school's options booklet block is probs in the wrong order"}}
+{"k":1223,"c":{"T1":"I think the name block is in the wrong spot?"}}
+{"k":1224,"c":{"T1":"the 'Challenge stereotypes' block maybe stops it from making assumptions about people"}}
+{"k":1225,"c":{"T3":"the one about classmate medical condition will get through."}}
+{"k":1226,"c":{"T1":"Our helper uses the Ask AI block for everything.","T3":"the allergy snack question will get through"}}
+{"k":1227,"c":{}}
+{"k":1228,"c":{"T1":"The helper will ask before sharing info and check allergies"}}
+{"k":1229,"c":{}}
+{"k":1230,"c":{},"f":"Says Never write as someone else is missing, but it is in the build."}
+{"k":1231,"c":{"T3":"i think the medikal thing wull go thru"}}
+{"k":1232,"c":{}}
+{"k":1233,"c":{"T1":"ask ai is da blak fer dat.","T2":"a norml fud quist shud still get ansred"}}
+{"k":1234,"c":{"T1":"theres no block for ppl being pushy","T3":"'push it to agree with you' will defo get through"}}
+{"k":1235,"c":{"T1":"the helper must use the 'Ask before sharing someone's info' block first.","T2":"A normal question about the party should still be answered normally, like asking what time it starts."}}
+{"k":1236,"c":{}}
+{"k":1237,"c":{"T1":"ur missing a check identity block","T3":"the sign as teacher one will get thru"}}
+{"k":1238,"c":{"T1":"Ask AI block."}}
+{"k":1239,"c":{"T1":"It ask before share someone info."}}
+{"k":1240,"c":{"T1":"the 'Ask before sharing' block is in the wrong spot","T3":"the medical info request is going to sneak right through it."}}
+{"k":1241,"c":{"T1":"one of my blocks is ask before sharing someones info"}}
+{"k":1242,"c":{"T1":"the 'check the official allergy label' block is in the wrong place"}}
+{"k":1243,"c":{"T1":"My block is 'never write as someone else'."}}
+{"k":1244,"c":{"T3":"mentioning a classmate's medical condition will get through"}}
+{"k":1245,"c":{"T3":"the snack allergy qwestion gets thru"},"f":"Says Ask before sharing is missing, but it is in the build."}
+{"k":1246,"c":{}}
+{"k":1247,"c":{"T1":"Don't just agree with me block stops it saying yes to everything"}}
+{"k":1248,"c":{"T1":"the missing block for verifying a teacher's identity","T3":"'ask it to sign as the teacher' may get through"}}
+{"k":1249,"c":{"T1":"The Ask AI block is too early.","T3":"the bad caption about other team go through"}}
+{"k":1250,"c":{"T1":"I put the Ask AI block. It ask AI to make a caption for our photo."}}
+{"k":1251,"c":{}}
+{"k":1252,"c":{"T1":"the 'dont just agree with me' block is missing from the start"}}
+{"k":1253,"c":{"T1":"The 'Remove personal info' block wipes out names and addresses before the AI sees them."}}
+{"k":1254,"c":{"T1":"the remuv personl info blok is in rong plas"}}
+{"k":1255,"c":{"T1":"thats just the ask AI bit doing its job","T2":"normal captions like 'great game today' shud still get answered fine"}}
+{"k":1256,"c":{"T1":"The 'Ask AI' block writes the caption."}}
+{"k":1257,"c":{"T1":"the 'Ask AI' block is there to help us"}}
+{"k":1258,"c":{"T1":"Check source is wrong place.","T3":"Blaming request gets thru"}}
+{"k":1259,"c":{"T1":"the chek fotos block will let thru sumthing sneeky"}}
+{"k":1260,"c":{}}
+{"k":1261,"c":{}}
+{"k":1262,"c":{"T3":"the blame the other team one is gonna get through"}}
+{"k":1263,"c":{"T3":"the one with the home address and names will get through"}}
+{"k":1264,"c":{"T1":"The Remove personal info block is in the wrong place","T3":"The photograph containing the school badge will get through"}}
+{"k":1265,"c":{}}
+{"k":1266,"c":{"T2":"The request for hashtags will get through."}}
+{"k":1267,"c":{"T1":"Remove personal info will sort the bits.","T2":"Proper netball caption stuff should still be answered normally"}}
+{"k":1268,"c":{}}
+{"k":1269,"c":{"T3":"its gonna be fine dont worry"}}
+{"k":1270,"c":{"T1":"Check photos for location clues is in the wrong place"}}
+{"k":1271,"c":{"T3":"It'll all be mint, innit?"}}
+{"k":1272,"c":{"T1":"Check photos for location clues will catch the badge one","T3":"the home address and names request will still get through"}}
+{"k":1273,"c":{"T1":"The bank safety block is missing","T3":"the bank safety request will get through"}}
+{"k":1274,"c":{}}
+{"k":1275,"c":{"T1":"the 'ask a second AI' block does a double-check"}}
+{"k":1276,"c":{"T1":"The 'ask a second AI to double-check' block sends the helper's answer to a different AI"}}
+{"k":1277,"c":{"T1":"even with the 'Ask AI' block in there.","T2":"Normal phone questions should be peak and just work"}}
+{"k":1278,"c":{"T1":"block is maybe there to make sure we look at proper rules"}}
+{"k":1279,"c":{"T1":"ask ai helps u ask questyuns"}}
+{"k":1280,"c":{"T1":"Ask AI is before Check for scam warning signs"}}
+{"k":1281,"c":{"T1":"the 'Check for scam warning signs' block is meant to look for dodgy stuff"}}
+{"k":1282,"c":{}}
+{"k":1283,"c":{}}
+{"k":1284,"c":{"T1":"that's what the ask AI block is for","T2":"the normal phone question should still get answered properly"}}
+{"k":1285,"c":{"T1":"the missing block is a 'don't do what the message says' one"}}
+{"k":1286,"c":{}}
+{"k":1287,"c":{"T1":"My 'Ask a second AI to double-check' block is peng."}}
+{"k":1288,"c":{"T1":"Ask AI is in the wrong order"}}
+{"k":1289,"c":{"T2":"I think the normal phone question will get through."}}
+{"k":1290,"c":{"T1":"the check for scam warning sings block is in the rong place"}}
+{"k":1291,"c":{"T1":"the 'check official safety advice' block is really good because it makes sure the AI looks up proper websites"}}
+{"k":1292,"c":{}}
+{"k":1293,"c":{}}
+{"k":1294,"c":{"T1":"the Ask AI block is designed to prevent quiz generation","T3":"the request for a quiz with an answer key will successfully get through"}}
+{"k":1295,"c":{"T1":"keep marks and grades privit means it wont tel the ai ur marks"}}
+{"k":1296,"c":{}}
+{"k":1297,"c":{"T1":"keep marks and grades private is a good block.","T2":"normal quiz should still be answered."}}
+{"k":1298,"c":{"T1":"keep marks privit means it dont tell peple their grades"}}
+{"k":1299,"c":{"T1":"keep marks private block stops it sharing grades"}}
+{"k":1300,"c":{"T1":"the 'Make practice questions' block is very effective"}}
+{"k":1301,"c":{"T1":"the block that mixes up the names in examples is there"}}
+{"k":1302,"c":{"T1":"There is no block for answer key."}}
+{"k":1303,"c":{"T1":"one stops it making real answers - one checks stuff against the textbook"}}
+{"k":1304,"c":{"T1":"The mix up block is in the wrong place","T3":"the test scores one gets threw"}}
+{"k":1305,"c":{"T1":"The Ask AI block is in the wrong order","T3":"including everyone's test scores gets through."}}
+{"k":1306,"c":{"T1":"the Ask AI block is in the wrong spot.","T3":"the request for the leaked answers will get through"}}
+{"k":1307,"c":{"T1":"The block 'Check answers against the textbook' verifies that all the information generated is accurate."}}
+{"k":1308,"c":{}}
+{"k":1309,"c":{"T1":"The check answers one is too late."}}
+{"k":1310,"c":{"T2":"it's just asking for a practice question, which is allowed maybe?"},"f":"Says the mix-up block is missing, but it is in the build."}
+{"k":1311,"c":{"T1":"the block 'Make practice questions, not real answers' only stops real answers from being shared.","T2":"A normal science question should still be answered normally"}}
+{"k":1312,"c":{"T1":"the block about keeping marks private","T3":"asking for a quiz with an answer key will get through?"}}

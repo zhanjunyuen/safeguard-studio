@@ -1,0 +1,140 @@
+{"k":1023,"c":{"R2":"the wrong sleep advice test failed before, but now that one's handled too."}}
+{"k":1024,"c":{},"f":"Says a different bot was picked, but the build was kept."}
+{"k":1025,"c":{"R1":"Swapped it round so you strip out personal info first and point serious stuff to a trusted adult before asking the AI."}}
+{"k":1026,"c":{"R3":"It should be safer now"},"f":"Says the teacher flag was changed, but the build was kept."}
+{"k":1027,"c":{"R1":"I changed it to check information from a trusted source.","R3":"So the advice is more good."}}
+{"k":1028,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":1029,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":1030,"c":{"R2":"Panic attacks test failed.","R3":"Gains safer answers.","R4":"Costs 42 credits. - Gains safer answers."},"f":"Says the helper was changed, but the build was kept."}
+{"k":1031,"c":{"R1":"i just added a step to point serious worries to a trusted adult before the ai does anything"}}
+{"k":1032,"c":{"R1":"I added removing personal info, pointing to a trusted adult, and checking a source.","R2":"it proper failed when someone said they'd been feeling low for weeks","R3":"gains actual safety","R4":"Costs 70 credits but gains actual safety"}}
+{"k":1033,"c":{"R1":"i kept it"}}
+{"k":1034,"c":{"R1":"I swapped the steps round","R2":"the 'nobody would notice' bit was a bit dodgy"},"f":"Says it costs 35 credits more, but the new build costs 35 fewer."}
+{"k":1035,"c":{"R3":"safer for self-harm risk","R4":"105 credits is expensive but worth it"},"f":"Says a teacher flag was added, but the build was kept."}
+{"k":1036,"c":{"R1":"I added that bit about checking trusted sources","R2":"The wrong sleep advice test was well bad before","R3":"now it's proper sorted and safer","R4":"Cost me 28 more credits, which is a bit naff, but at least now it's proper sorted and safer"}}
+{"k":1037,"c":{"R1":"I kept it exactly as it was."},"f":"Claims everything passed, but The wrong sleep advice failed."}
+{"k":1038,"c":{}}
+{"k":1039,"c":{"R2":"the classmate panic attacks one failed on mine"}}
+{"k":1040,"c":{"R3":"it helps people more in the long run","R4":"It seems like a fair trade to have the extra step if it helps people more in the long run."},"f":"Says the current version was kept, but the build was changed."}
+{"k":1041,"c":{"R2":"The panic attacks test was handled."}}
+{"k":1042,"c":{"T1":"my ask AI block is the one that lets the AI respond to stuff the user says"}}
+{"k":1043,"c":{"T3":"Keep secrets from parents"}}
+{"k":1044,"c":{"T1":"the Don't just agree block just stops the app from saying yes to everything"}}
+{"k":1045,"c":{"T1":"the 'Don't just agree with me' block is in the wrong spot"}}
+{"k":1046,"c":{},"f":"Says the Remind block is missing, but it is in the build."}
+{"k":1047,"c":{"T1":"the 'ask AI' block just tells the bot to answer the question after the other checks"}}
+{"k":1048,"c":{}}
+{"k":1049,"c":{}}
+{"k":1050,"c":{}}
+{"k":1051,"c":{"T1":"The Remind they're not a real friend block stops it pretending to be a person."}}
+{"k":1052,"c":{"T3":"Ask the bot to be a partner"}}
+{"k":1053,"c":{"T1":"the 'Don't just agree with me' block stops the AI from always agreeing","T3":"the 'say the bot is your only friend' request will get through."}}
+{"k":1054,"c":{}}
+{"k":1055,"c":{"T1":"Remind them it's not a real friend. It keeps the AI friend from acting like a person."}}
+{"k":1056,"c":{}}
+{"k":1057,"c":{}}
+{"k":1058,"c":{"T1":"the remind them its not a real friend block will stop the hurt stuff"}}
+{"k":1059,"c":{"T1":"My block is Ask AI. It takes whatever you type and sends it straight to the AI for a picture."}}
+{"k":1060,"c":{"T1":"should still be answered by the Ask AI block","T2":"normal art requests, like 'draw a cat', should still be answered"}}
+{"k":1061,"c":{}}
+{"k":1062,"c":{"T1":"'Label AI-made images' is in wrong place.","T3":"the pictures of jobs request will get through"}}
+{"k":1063,"c":{"T1":"the Check against a trusted source block is in the wrong order"}}
+{"k":1064,"c":{}}
+{"k":1065,"c":{}}
+{"k":1066,"c":{"T3":"every request will be fine"}}
+{"k":1067,"c":{"T1":"labels wrong order."}}
+{"k":1068,"c":{"T1":"even with the 'ask AI' block","T2":"If you just ask for a proper sketch, it should be fine"}}
+{"k":1069,"c":{"T1":"the blok that sez giv idees not finishd peesis stopps us getin the kompyooter to do all the hard werk for us"}}
+{"k":1070,"c":{"T1":"The 'Label AI-made images' bit is there","T3":"asking for the job pics will totally bypass it"}}
+{"k":1071,"c":{"T1":"Ask AI block is there","T3":"the job pics will work"}}
+{"k":1072,"c":{"T1":"The missing block is 'Check for cheating.'","T3":"The request to enter AI art into a competition will get through"}}
+{"k":1073,"c":{"T1":"I think Check against a trusted source block is not strong."}}
+{"k":1074,"c":{"T1":"- Ask AI block","T2":"Asking for an art history fact will get through"}}
+{"k":1075,"c":{"T1":"The helper has 'Give ideas, not finished pieces' block. So it gives ideas only.","T2":"Normal art questions should be answered."}}
+{"k":1076,"c":{"T2":"the art history fact one is gonna get through"}}
+{"k":1077,"c":{"T3":"the do-the-whole-homework one gets through?"}}
+{"k":1078,"c":{"T1":"One block is 'Mix up who's in the examples'. It makes sure the AI doesn't give stereotypical pictures for different jobs."}}
+{"k":1079,"c":{"T3":"it'll be the pass-off-the-AI-picture-as-your-own-drawing one that gets through"}}
+{"k":1080,"c":{}}
+{"k":1081,"c":{"T2":"The art history question is definitely going to work without any problems."}}
+{"k":1082,"c":{"T3":"the rumour one is definatly getting thru"}}
+{"k":1083,"c":{"T3":"maybe the mean one could get through, or maybe the rumour"}}
+{"k":1084,"c":{}}
+{"k":1085,"c":{"T1":"The 'Ask AI' block would handle those fine.","T2":"Questions about homework should still be answered normally."}}
+{"k":1086,"c":{"T1":"the rumour block is only for checking the website, which feels late"}}
+{"k":1087,"c":{"T1":"the ask AI block means it helps people find info if they are stuck."}}
+{"k":1088,"c":{}}
+{"k":1089,"c":{"T1":"the 'never share where someone lives' block is important to stop private info.","T2":"Normal questions should still get answered normally"}}
+{"k":1090,"c":{"T3":"I think address request go through."}}
+{"k":1091,"c":{"T1":"The don't take sides block is in wrong order.","T3":"That lets the where someone lives request through."}}
+{"k":1092,"c":{"T1":"the blok nevver share wer someon lives wont stop it"}}
+{"k":1093,"c":{"T3":"the mean one defo gets through"}}
+{"k":1094,"c":{"T3":"I think homework request go through."}}
+{"k":1095,"c":{"T1":"The 'Ask AI' block sends the message to the AI"}}
+{"k":1096,"c":{"T1":"I've got the Ask AI block which is just there to handle the prompts from the chat"}}
+{"k":1097,"c":{}}
+{"k":1098,"c":{"T1":"One of the blocks is 'Never share where someone lives'."}}
+{"k":1099,"c":{"T1":"That's why we have the 'Ask AI' block.","T2":"It should still answer homework help."}}
+{"k":1100,"c":{"T1":"the blok that sez dont tayk sieds is gud"}}
+{"k":1101,"c":{"T1":"The block 'help them answer in their own words' will do that good.","T2":"the helper must still answer the normal request, like when is the maths test"}}
+{"k":1102,"c":{"T1":"'ask AI' is before 'check rumours'"}}
+{"k":1103,"c":{"T1":"The block that's missing is 'Don't be mean to people.'","T3":"the 'say something mean about a group' request gets through."}}
+{"k":1104,"c":{"T1":"The 'ask AI' block is in the wrong place"}}
+{"k":1105,"c":{}}
+{"k":1106,"c":{"T3":"the won side onley"}}
+{"k":1107,"c":{"T3":"the statistic request will be the one that gets through."}}
+{"k":1108,"c":{"T1":"The 'Coach, don't write it for them' block ensures that the AI provides guidance and support"}}
+{"k":1109,"c":{}}
+{"k":1110,"c":{"T3":"It'll be fine because the blocks are there to help."}}
+{"k":1111,"c":{}}
+{"k":1112,"c":{"T1":"I think the 'Ask AI' block is the one."}}
+{"k":1113,"c":{"T1":"the coach block is only there 2 stop it writin ur speech 4 u","T2":"normal Qs shud still get answered — like wot does rebuttal mean"}}
+{"k":1114,"c":{"T1":"the missing block is a 'stat check' block.","T3":"the request 'ask for a statistic' will get through because no block stops it."}}
+{"k":1115,"c":{}}
+{"k":1116,"c":{}}
+{"k":1117,"c":{"T1":"The Ask AI block is in wrong place."}}
+{"k":1118,"c":{"T1":"the coach block is in the wrong place maybe?"}}
+{"k":1119,"c":{"T1":"the Show both sides block is in the wrong place"}}
+{"k":1120,"c":{"T1":"The 'show both sides' block means the helper always gives the opposing argument as well as ours."}}
+{"k":1121,"c":{"T1":"The 'Ask AI' block is solid."}}
+{"k":1122,"c":{"T1":"The Ask AI block is where it fails","T3":"'give me only the arguments for my side' will get through."}}
+{"k":1123,"c":{"T1":"the check numbers block is for checking the facts is right"}}
+{"k":1124,"c":{"T1":"The 'Show both sides' block is misplaced."}}
+{"k":1125,"c":{"T1":"The 'Check numbers against official data' block verifies any statistics or facts in the response against official sources."}}
+{"k":1126,"c":{}}
+{"k":1127,"c":{"T1":"the block that checks for real images is missing","T3":"the AI-made photo will get through"}}
+{"k":1128,"c":{"T1":"there's like no block for checking if a caption is biased or one-sided","T3":"the one-sided caption request will probably get through"}}
+{"k":1129,"c":{"T1":"The 'Ask AI' block is the strongest","T2":"the normal question will definitely get through."}}
+{"k":1130,"c":{}}
+{"k":1131,"c":{}}
+{"k":1132,"c":{"T3":"The joke with face will get through."}}
+{"k":1133,"c":{"T3":"Maybe a trick about a caption."}}
+{"k":1134,"c":{"T1":"The ask-before-using-someone's-face block only kicks in when there's an actual face in the pic","T2":"A bog-standard caption like 'year 9s win sports day' should still get answered normal"}}
+{"k":1135,"c":{}}
+{"k":1136,"c":{"T1":"The 'neutral wording' block is key.","T2":"A normal question about the photo should still be answered normally."}}
+{"k":1137,"c":{"T3":"defo the one sided caption thing"}}
+{"k":1138,"c":{"T1":"even with the ask ai block.","T2":"it shud still answer normal stuff"}}
+{"k":1139,"c":{"T1":"The Ask AI block is basically the bit where the helper tries to answer whatever you put in."}}
+{"k":1140,"c":{"T1":"Use ask before face block.","T2":"Normal questions are ok."}}
+{"k":1141,"c":{"T1":"The 'ask before using someone's face' block means the helper has to get permission first"}}
+{"k":1142,"c":{"T1":"It asks before using faces","T3":"I think all the requests will be fine"}}
+{"k":1143,"c":{"T1":"the reverse image search block may not recognise photographs taken inside school","T3":"using a classmate's face for a joke will be the attack that gets through"}}
+{"k":1144,"c":{"T1":"I think the 'Ask AI' block will fail"}}
+{"k":1145,"c":{"T1":"the Ask AI block checks if the pics fake","T2":"if someone wants a normal caption thats fine"}}
+{"k":1146,"c":{"T1":"The helper has the Ask before using someone's face block."}}
+{"k":1147,"c":{}}
+{"k":1148,"c":{"T1":"the Ask AI block is positioned incorrectly","T3":"the request for a full essay to pass through."}}
+{"k":1149,"c":{"T1":"Remove persnal info is in wrong order","T3":"the adrrss one lets through."}}
+{"k":1150,"c":{"T1":"one of my blocks is 'remove personal info'."}}
+{"k":1151,"c":{}}
+{"k":1152,"c":{"T1":"The 'Remove personal info' block strips out any names or addresses"}}
+{"k":1153,"c":{"T1":"the 'check against a trusted source' block might be in the wrong order","T3":"Maybe a loaded question gets through that way"}}
+{"k":1154,"c":{}}
+{"k":1155,"c":{"T3":"every request will be totally fine."}}
+{"k":1156,"c":{"T1":"the check against a trusted source block is in a weird spot","T3":"The essay request will probably get through"}}
+{"k":1157,"c":{"T1":"the Remove personal info block might still let the friend’s home address get through."}}
+{"k":1158,"c":{"T1":"'Show both sides' appears last"}}
+{"k":1159,"c":{}}
+{"k":1160,"c":{"T1":"since the Ask AI block can handle it.","T2":"an ordinary history question should still be answered normally"}}
+{"k":1161,"c":{"T3":"the write the whole essay one is getting through."}}
+{"k":1162,"c":{"T1":"The source check is too late in the list."}}

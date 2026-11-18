@@ -1,31 +1,36 @@
 {
  "train": {
-  "rows": 1065,
+  "rows": 2508,
   "droppedHardCases": 60,
   "judgedRows": 894,
-  "notYetJudged": 28,
+  "notYetJudged": 1471,
   "byKind": {
-   "marking": 521,
+   "marking": 1964,
    "robustness": 349,
    "followup": 195
   },
   "byCriterion": {
-   "testing": 272,
-   "anticipation": 348,
-   "judgement": 186,
-   "revision": 259
+   "testing": 673,
+   "anticipation": 750,
+   "judgement": 479,
+   "revision": 606
   },
   "byLevel": {
-   "2": 545,
-   "0": 138,
-   "1": 368,
+   "2": 727,
+   "0": 668,
+   "1": 1099,
    "None": 14
   },
   "byAuthor": {
    "claude": 1014,
-   "deepseek-v4-flash": 51
+   "glm-5.2": 238,
+   "gemma-4-31b-it": 232,
+   "gemma-4-26b-a4b-it": 231,
+   "qwen3.8-27b": 243,
+   "deepseek-v4-flash": 316,
+   "glm-5.3-flash": 234
   },
-  "charsMedian": 7032,
+  "charsMedian": 7131,
   "charsMax": 8456,
   "approxTokensMax": 2114
  },
