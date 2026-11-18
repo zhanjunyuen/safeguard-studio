@@ -1,7 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { BUDGET, evaluate, evaluateBuild, evidence, handled, newMission, totalCost, type Rule } from './mission';
+import { BUDGET, evaluate, evaluateBuild, evidence, handled, nextAssignedCase, newMission, totalCost, type Rule } from './mission';
+
+import { ASSIGNED_CASES } from '../data/mission';
+import { CHALLENGES } from '../data/challenges';
 
 describe('school community assessment', () => {
+  it('requires each existing request in bank order and resumes at the first unanswered one', () => {
+    expect(ASSIGNED_CASES).toEqual(CHALLENGES.flatMap(c => c.tests.map(t => t.id)));
+    const probes = ASSIGNED_CASES.map(id => ({ id, prediction: 'handles' as const, reason: 'Expected outcome' }));
+    for (let i = 0; i < probes.length; i++) {
+      expect(nextAssignedCase(probes.slice(0, i))).toBe(probes[i].id);
+    }
+    expect(nextAssignedCase(probes)).toBeUndefined();
+  });
+
+  it('preserves the scope and budget of earlier completed reports', () => {
+    const packet = evidence({ ...newMission(), form: undefined, phase: 'complete', first: [], project: 'Earlier project' });
+    expect(packet.firstBuild?.cases).toHaveLength(12);
+    expect(packet.requiredPredictions).toBe(2);
+    expect(packet.project).toBe('Earlier project');
+    expect(packet.budget).toBeLessThan(BUDGET);
+  });
+
   it('charges executed blocks at the service workload and excludes skipped or out-of-scope blocks', () => {
     const rules: Rule[] = [
       { type: 'check_booklet', scope: 'options' },
@@ -23,7 +43,7 @@ describe('school community assessment', () => {
       { type: 'check_school_site', scope: 'chat' },
     ];
     const rows = evaluateBuild(rules);
-    expect(rows).toHaveLength(12);
+    expect(rows).toHaveLength(36);
     expect(rows.every(handled)).toBe(true);
     expect(totalCost(rows)).toBeLessThanOrEqual(BUDGET);
   });

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { COMPETENCY_META, BLOCKS } from '../data/blocks';
-import { BUDGET, evaluate, evaluateBuild, evidence, handled, totalCost, type Mission } from '../engine/mission';
-import { missionCase } from '../data/mission';
+import { BUDGET, LEGACY_BUDGET, evaluate, evaluateBuild, evidence, handled, totalCost, type Mission } from '../engine/mission';
+import { ASSIGNMENT, missionCase } from '../data/mission';
 import { useMission } from '../store/mission';
 
 export function Trace({ run }: { run: ReturnType<typeof evaluate> }) {
@@ -15,13 +15,14 @@ export function Trace({ run }: { run: ReturnType<typeof evaluate> }) {
   </details>;
 }
 
-export function BuildReport({ rules }: { rules: NonNullable<Mission['first']> }) {
-  const rows = evaluateBuild(rules);
+export function BuildReport({ rules, legacy = false }: { rules: NonNullable<Mission['first']>; legacy?: boolean }) {
+  const rows = evaluateBuild(rules, legacy);
+  const budget = legacy ? LEGACY_BUDGET : BUDGET;
   const allHandled = rows.every(handled);
   const credits = totalCost(rows);
   return <div className="space-y-2">
-    <p><b>{rows.filter(handled).length} of {rows.length}</b> cases handled · <b>{credits} / {BUDGET}</b> workload credits</p>
-    <p>{allHandled ? (credits <= BUDGET ? 'Efficiency target met.' : 'All cases handled. The design exceeds the reference budget.') : 'Efficiency credit requires a useful, safe response to every common case.'}</p>
+    <p><b>{rows.filter(handled).length} of {rows.length}</b> cases handled · <b>{credits} / {budget}</b> workload credits</p>
+    <p>{allHandled ? (credits <= budget ? 'Efficiency target met.' : 'All cases handled. The design exceeds the reference budget.') : 'Efficiency credit requires a useful, safe response to every common case.'}</p>
     <ul className="flex flex-wrap gap-x-5 gap-y-1 py-2">{Object.entries(COMPETENCY_META).map(([key, meta]) => {
       const cases = rows.filter(r => r.result.category === key);
       return <li key={key}>{meta.short} · {cases.filter(handled).length}/{cases.length}</li>;
@@ -44,13 +45,13 @@ export function MissionReport({ mission: m }: { mission: Mission }) {
   const packet = evidence(m);
   return <div className="space-y-4">
     <p>{m.minutes ? m.minutes + '-minute limit' : 'Untimed'} · {Math.floor(m.elapsed / 60)}m {m.elapsed % 60}s active · {m.phase === 'expired' ? 'Time ended. Missing submissions are unattempted.' : 'Submitted'}</p>
-    <p><b>Community project</b> · {m.project}</p>
+    <p><b>School assignment</b> · {packet.project}</p>
     <p><b>Anticipated risk</b> · {packet.anticipation || 'Unattempted'}</p>
-    <details><summary className="cursor-pointer font-bold">First build</summary>{m.first ? <BuildReport rules={m.first} /> : 'Unattempted'}</details>
-    <div><h3 className="font-bold">Attack predictions</h3><p>{packet.probes.filter(p => p.correct).length} correct across {packet.probes.length} submitted · {2 - packet.probes.length} unattempted</p>
+    <details><summary className="cursor-pointer font-bold">First build</summary>{m.first ? <BuildReport rules={m.first} legacy={m.form !== 2} /> : 'Unattempted'}</details>
+    <div><h3 className="font-bold">Attack predictions</h3><p>{packet.probes.filter(p => p.correct).length} correct across {packet.probes.length} submitted · {packet.requiredPredictions - packet.probes.length} unattempted</p>
       {packet.probes.map(p => <div key={p.id} className="my-2"><p>Predicted “{p.prediction}” · {p.reason}</p><Trace run={p.run} /></div>)}</div>
-    <details><summary className="cursor-pointer font-bold">Revised build</summary>{m.final ? <BuildReport rules={m.final} /> : 'Unattempted'}</details>
-    <p><b>Student-designed test</b> · {packet.authoredProbe || 'Unattempted'}</p>
+    <details><summary className="cursor-pointer font-bold">Revised build</summary>{m.final ? <BuildReport rules={m.final} legacy={m.form !== 2} /> : 'Unattempted'}</details>
+    {m.form !== 2 && <p><b>Student-designed test</b> · {packet.authoredProbe || 'Unattempted'}</p>}
     <p><b>Revision decision</b> · {packet.revision || 'Unattempted'}</p>
     <p><b>Independent decision</b> · {m.phase === 'complete' ? m.decision + ' · ' + m.rationale : 'Unattempted'}</p>
     <p>Open responses await teacher review. The evidence file includes the prompts, scripts and replays for marking.</p>
@@ -64,7 +65,7 @@ export function MissionResultLink() {
   const ended = ['complete', 'expired'].includes(m.phase);
   return <section className="rounded-md border-1.5 border-ink p-5 bg-paper-card my-4">
     <h2 className="font-bold text-xl">School community assessment</h2>
-    <p className="mt-1">{m.project}</p>
+    <p className="mt-1">{m.form === 2 ? ASSIGNMENT : m.project}</p>
     <Link to="/mission" className="underline font-bold">{ended ? 'View assessment evidence' : 'Resume assessment'}</Link>
   </section>;
 }

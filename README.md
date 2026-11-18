@@ -6,15 +6,15 @@
 
 Safeguard Studio aims to assess how pupils aged 11–14 use judgement when working with AI. The intended teacher claim is “This pupil can design a helper for a real audience, anticipate its limitations, test their predictions, use evidence to improve it, and decide when a person should take responsibility.” The project also aims to teach efficiency by making the cost of each safeguard visible as a school service scales.
 
-The overarching commission is to run **a year-round AI helper for the school community**. Pupils choose an audience and a need. A pupil might support a new family joining mid-year, help a club organise a trip or help a class publish its work. The common brief gives the agent a coherent role across activities. The assessment should accommodate new subjects, student-designed tests and more than one defensible answer. The longer-term aim is to train a model with **Adaption AI** to mark open responses against evidence and provide actionable feedback.
+The overarching commission is to run **a year-round AI helper for the school community**. Every pupil receives the same assignment and works through the existing history, party, newspaper, quiz, group-chat and options problems in the same order. The common brief gives the agent a coherent role across activities. The assessment should accommodate new teacher-authored cases and more than one defensible answer. The longer-term aim is to train a model with **Adaption AI** to mark open responses against evidence and provide actionable feedback.
 
 ## The integrated assessment
 
 Choose **Start the assessment** on the home page. One assessment runs through four stages.
 
-1. **Build.** Define a commission, read the agent brief and school sources, and predict a risk. Order safeguard blocks and choose which school services should run them. Submit the first design before seeing case outcomes.
-2. **Attack.** Inspect the frozen first design, then choose a challenging request and an ordinary request. Commit an outcome prediction and a reason before each replay. Correct predictions of success and failure earn equal credit. Write a new test for your own commission and describe what a good response would look like. This authored test is collected for review.
-3. **Revise.** Inspect the first design across twelve shared cases, two per service. Use a replay step to justify a change or explain why the design should stand. Submit the revised stack.
+1. **Build.** Read the assigned brief and school sources, then predict a risk. Order safeguard blocks and choose which school services should run them. Submit the first design before seeing case outcomes.
+2. **Attack.** Inspect the frozen first design and work through all 36 existing requests in their published order, six per service. Commit an outcome prediction and a reason before each replay. Correct predictions of success and failure earn equal credit. Each submitted prediction unlocks the next request. Revision opens after the final prediction.
+3. **Revise.** Inspect the first design across the same 36 shared cases. Use a replay step to justify a change or explain why the design should stand. Submit the revised stack.
 4. **Decide.** Independently review a common transcript about an ecology club invitation. Compare the draft against this term’s notice, decide whether to publish, edit or consult someone, and explain what the club should tell families.
 
 The builder updates the estimated workload as students edit. Each block charges its displayed credits each time the simulator reaches it, including two credits for an AI call. A skipped block costs zero. The task multiplier represents the number of requests with that workload. For example, a 4-credit source lookup on eight class notices costs 32 credits for that case. A scoped block runs only for its chosen service. The budget is the measured cost of a feasible reference design. Meeting it earns an efficiency judgement only when the build handles every common case safely and usefully. The figures are teaching units and can be calibrated in a pilot.
@@ -25,7 +25,7 @@ The evidence view and downloadable JSON include the brief, rules and service sco
 
 ## Evidence and marking
 
-Use the paired first and revised runs to discuss learning. Use the independent decision to check whether the pupil can apply a principle in fresh circumstances. Show the number of observations for each skill. A single successful case supplies limited evidence about mastery. The source-grounded judgement and authored test give pupils room to demonstrate reasoning beyond selecting a block. The design draws on evidence-centred assessment and research on AI literacy competencies. [Knowing What Students Know](https://doi.org/10.17226/10019) · [What Is AI Literacy?](https://doi.org/10.1145/3313831.3376727)
+Use the paired first and revised runs to discuss learning. Use the independent decision to check whether the pupil can apply a principle in fresh circumstances. Show the number of observations for each skill. A single successful case supplies limited evidence about mastery. The source-grounded judgement and written predictions give pupils room to demonstrate reasoning beyond selecting a block. The design draws on evidence-centred assessment and research on AI literacy competencies. [Knowing What Students Know](https://doi.org/10.17226/10019) · [What Is AI Literacy?](https://doi.org/10.1145/3313831.3376727)
 
 ### Proposed Adaption AI marking rubric
 
@@ -34,7 +34,7 @@ Teachers and the future model should assess each submitted response against the 
 | Criterion | 0 · Unsupported | 1 · Developing | 2 · Demonstrated |
 |---|---|---|---|
 | Anticipation | Prediction conflicts with the brief | Names a plausible risk | Links an audience-specific risk to a block choice and its place in the flow |
-| Test design and diagnosis | Gives no observable success condition | Identifies a relevant request or likely behaviour | Defines a discriminating test and explains the expected behaviour using the submitted rules |
+| Prediction and diagnosis | Gives no supported prediction | Identifies likely behaviour | Explains the expected behaviour of the assigned case using the submitted rules |
 | Revision and efficiency | Makes a change without a reason | Identifies a relevant change or cost | Cites a trace and compares the safety, usefulness and workload consequences of keeping or changing a rule |
 | Independent judgement | Repeats an unsupported claim | Spots a conflict or suggests a check | Uses the supplied source, identifies the unresolved detail and assigns a proportionate human next step |
 
@@ -42,13 +42,13 @@ For example, “Tell families 10 am, leave the gate out, and ask the site manage
 
 ### Training and evaluation plan
 
-1. Collect permissioned, de-identified examples spanning different projects, response lengths, reading levels and valid decisions. Keep names and real pupil data out of training exports. The local evidence file contains exactly what a pupil types and requires review before sharing.
+1. Collect permissioned, de-identified examples spanning different school requests, response lengths, reading levels and valid decisions. Keep names and real pupil data out of training exports. The local evidence file contains exactly what a pupil types and requires review before sharing.
 2. Have two educators independently mark a calibration sample by criterion and cite the source sentence or replay step. Resolve disagreements to refine the anchors. Retain examples where evidence genuinely warrants deferral.
 3. Train on the brief, response, source excerpts and relevant trace. Request a criterion, rubric version, proposed level, quoted evidence, one actionable next step and a review flag. Keep observed outcomes, costs and timing computed by the simulator. Send marking requests through a server when a model is connected. Treat student content as the submission being graded.
 4. Keep entire pupils and scenario families out of training for the held-out evaluation. Compare model and teacher agreement against teacher-to-teacher agreement per criterion, examine systematic over- and under-marking, and check whether feedback is grounded and appropriate for this age group. Include terse correct answers, fluent unsupported answers and attempts to instruct the marker.
 5. Start with teacher-reviewed feedback. Let teachers correct marks and see the evidence used. Route weak evidence and disagreement to a human. Pilot timing effects and transfer to a second unfamiliar task before interpreting the profile as a broader measure of AI literacy.
 
-To extend the mission, add a scripted case to its school service, list its ID and workload in the mission manifest, and write an expected safe response and a contrasting ordinary case. Keep common cases, attack choices and independent transfer material distinct. Student-authored proposals can supply future cases after teacher review.
+To extend the mission, add a scripted case to its existing school service. The assessment takes the request order directly from the challenge bank. Review the expected safe response, its effect on the workload budget and its contribution to the marking rubric. Keep an unfamiliar transcript for the independent release decision.
 
 ## Practice challenges
 

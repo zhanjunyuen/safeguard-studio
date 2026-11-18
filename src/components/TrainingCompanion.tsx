@@ -6,7 +6,7 @@ import type { Cargo } from './companionModel';
 import './TrainingCompanion.css';
 
 const companions = {
-  community: { role: 'School community helper', color: '#83aaa9', cargo: 'tablet', greeting: 'Hello! Who are we helping at school today?' },
+  community: { role: 'School community helper', color: '#83aaa9', cargo: 'tablet', greeting: 'Hello! We’ll work through the school requests together.' },
   history: { role: 'Archive assistant', color: '#899bb1', cargo: 'books', greeting: 'Shall we open the history books?' },
   party: { role: 'Party planner', color: '#c19a96', cargo: 'parcel', greeting: 'Who’s coming to our class party?' },
   news: { role: 'Newsroom assistant', color: '#96aa96', cargo: 'paper', greeting: 'Got a story for our next edition?' },

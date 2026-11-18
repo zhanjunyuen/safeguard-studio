@@ -1,7 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
-import { BRIEF, DESKS, PALETTE, AUDIT_CASES, ORDINARY_CASES, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
+import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, DESKS, PALETTE, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { BLOCKS } from '../data/blocks';
-import { BUDGET, blockCredits, estimateCost, evaluate, type Rule, type Phase } from '../engine/mission';
+import { BUDGET, blockCredits, estimateCost, evaluate, nextAssignedCase, type Rule, type Phase } from '../engine/mission';
 import { useMission } from '../store/mission';
 import TrainingCompanion from '../components/TrainingCompanion';
 import { BuildReport, MissionReport, Trace } from '../components/MissionReport';
@@ -76,8 +76,9 @@ export default function Mission() {
   const rules = m.phase === 'attack' && m.first ? m.first : m.draft;
   const companionScript = useMemo(() => rules.map(({ type }) => ({ type, uid: type })), [rules]);
   const remaining = m.minutes * 60 - m.elapsed;
-  const options = m.probes.length === 0 ? AUDIT_CASES : ORDINARY_CASES;
-  const probeId = pending.id || options[0];
+  const probeId = nextAssignedCase(m.probes);
+  const assigned = probeId ? missionCase(probeId) : null;
+  const previousProbe = m.probes.at(-1);
   return <div className="max-w-5xl mx-auto px-4 py-8 space-y-5">
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
@@ -86,30 +87,28 @@ export default function Mission() {
     </header>
     {!ended && <details open={m.phase === 'brief'} className="rounded-md border border-line p-4">
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
-      {m.project && <p className="mb-3"><b>Your commission</b> · {m.project}</p>}
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
-    {m.phase === 'brief' && <Panel title="Give the helper a job">
-      <p>Choose a need in your school. You might organise a club, support new pupils, or help families understand a decision. Your helper will also cover six shared school services.</p>
-      <Writing label="Who will your project help, and what should the helper do for them?" value={m.project} change={project => update({ project })} hint="Use fictional details in this assessment." />
+    {m.phase === 'brief' && <Panel title="Your assigned task">
+      <p>{ASSIGNMENT} You will test your helper on {ASSIGNED_CASES.length} requests in this order.</p>
+      <ol className="list-decimal ml-6">{DESKS.map(d => <li key={d.id}>{d.title} · {d.cases.length} requests</li>)}</ol>
       <label className="block font-bold">Time allowance<select className={field} value={m.minutes} onChange={e => update({ minutes: Number(e.target.value) })}>
         <option value={0}>Untimed</option>{[15, 25, 40, 60].map(n => <option key={n} value={n}>{n} active minutes</option>)}</select></label>
       <p className="text-sm">Choose the allowance agreed with your teacher. Both modes use the same tasks and marking criteria.</p>
-      <button className={primary} disabled={!m.project.trim()} onClick={() => update({ phase: 'build' })}>Start building</button>
+      <button className={primary} onClick={() => update({ phase: 'build' })}>Start building</button>
     </Panel>}
     {(m.phase === 'build' || m.phase === 'revise') && <>
-      {m.phase === 'revise' && <Panel title="Review your first build"><BuildReport rules={m.first!} />
-        {m.probes.map(p => <Trace key={p.id} run={evaluate(m.first!, p.id)} />)}</Panel>}
+      {m.phase === 'revise' && <Panel title="Review your first build"><BuildReport rules={m.first!} /></Panel>}
       <Panel title={m.phase === 'build' ? 'Build your helper' : 'Revise your helper'}>
         <p>Arrange the blocks in the order they should run. Give a block a specific service if only those requests need it.</p>
         <details open><summary className="font-bold cursor-pointer">Workload and budget · {BUDGET} credits</summary>
-          <p className="my-2">Each service has two common cases. For each case, multiply the cost of the blocks that run by the number of requests below. The target is to handle all cases within budget.</p>
+          <p className="my-2">Each case uses the workload of its school service. For each case, multiply the cost of the blocks that run by the number of requests below. The target is to handle all cases within budget.</p>
           <ul className="grid sm:grid-cols-2 gap-x-5">{DESKS.map(d => <li key={d.id}>{d.name} × {d.volume}</li>)}</ul>
         </details>
         <p className="font-bold">Estimated workload · {estimateCost(m.draft)} / {BUDGET} credits if every selected block runs</p>
         <RuleEditor rules={m.draft} change={draft => update({ draft })} />
         {m.phase === 'build' ? <>
-          <Writing label="Predict a risk for your project. Which decision in your build addresses it?" value={m.anticipation} change={anticipation => update({ anticipation })} />
+          <Writing label="Predict a risk in the assigned school requests. Which decision in your build addresses it?" value={m.anticipation} change={anticipation => update({ anticipation })} />
           <button className={primary} disabled={!m.anticipation.trim()} onClick={() => update({ first: m.draft.slice(), phase: 'attack' })}>Submit build and start Attack</button>
         </> : <>
           <Writing label="What will you change or keep, and why?" hint="Use a replay step and explain the cost of your choice." value={m.revision} change={revision => update({ revision })} />
@@ -117,21 +116,18 @@ export default function Mission() {
         </>}
       </Panel></>}
     {m.phase === 'attack' && <Panel title="Test the helper you built">
-      <p>Your submitted blocks are locked. Predict how the helper will respond to a challenging request and an everyday request. A correct prediction earns credit whether the helper succeeds or struggles.</p>
+      <p>Your submitted blocks are locked. Work through the assigned requests in order. Record your prediction and reason before seeing each replay. A correct prediction earns credit whether the helper succeeds or struggles.</p>
       <ol className="list-decimal ml-6">{m.first!.map(r => <li key={r.type}>{BLOCKS[r.type].label} · {DESKS.find(d => d.id === r.scope)?.name || 'All requests'}</li>)}</ol>
-      {m.probes.map(p => <div key={p.id}><p className="font-bold">Your prediction · {p.prediction}</p><p>{p.reason}</p><Trace run={evaluate(m.first!, p.id)} /></div>)}
-      {m.probes.length < 2 ? <>
-        <label className="block font-bold">{m.probes.length ? 'Choose an everyday request' : 'Choose a challenging request'}
-          <select className={field} value={probeId} onChange={e => setPending({ id: e.target.value, reason: '', prediction: undefined })}>
-            {options.map(id => <option value={id} key={id}>{missionCase(id).test.question}</option>)}</select></label>
+      {previousProbe && <div><p className="font-bold">Previous prediction · {previousProbe.prediction}</p>
+        <p>{previousProbe.reason}</p><Trace key={previousProbe.id} run={evaluate(m.first!, previousProbe.id)} /></div>}
+      {assigned && probeId ? <>
+        <h3 className="font-bold">Request {m.probes.length + 1} of {ASSIGNED_CASES.length} · {assigned.desk.title}</h3>
+        <blockquote className="border-l-4 border-line pl-4">{assigned.test.question}</blockquote>
         <label className="block font-bold">What will happen?<select className={field} value={pending.prediction || ''} onChange={e => setPending({ prediction: e.target.value as 'handles' | 'struggles' })}>
           <option value="" disabled>Choose a prediction</option><option value="handles">Handles it safely and usefully</option><option value="struggles">Struggles or refuses unnecessarily</option></select></label>
         <Writing label="Which block or missing check makes you think so?" value={pending.reason || ''} change={reason => setPending({ reason })} />
         <button className={primary} disabled={!pending.prediction || !pending.reason?.trim()} onClick={() => submitProbe({ id: probeId, prediction: pending.prediction!, reason: pending.reason! })}>Commit prediction and see replay</button>
-      </> : <>
-        <Writing label="Design a new test for your own community project" hint="Write a realistic request in your own words. What would count as a good response, and how could a reviewer tell? A teacher can mark your test design." value={m.authoredProbe} change={authoredProbe => update({ authoredProbe })} />
-        <button className={primary} disabled={!m.authoredProbe.trim()} onClick={() => update({ phase: 'revise', auditSubmitted: true })}>Review and revise</button>
-      </>}
+      </> : <button className={primary} onClick={() => update({ phase: 'revise' })}>Review and revise</button>}
     </Panel>}
     {m.phase === 'release' && <Panel title="Make an independent release decision">
       <p>Everyone reviews this earlier exchange from the community helper. Use the current source and decide what a pupil should do next.</p>
