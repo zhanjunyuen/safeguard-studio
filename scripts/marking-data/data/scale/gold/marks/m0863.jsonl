@@ -1,0 +1,160 @@
+{"k":863,"c":{"R3":"safety: much better","R4":"safety: much better - cost: 140 credits, worth it"},"f":"Says the allergy label check was the change, but the build was kept."}
+{"k":864,"c":{}}
+{"k":865,"c":{"R2":"The result for the made-up safety claim was a fail."}}
+{"k":866,"c":{"R1":"kept everything the same","R2":"the 'just agree with me' fail","R3":"keeps medical info + the epipen girl safe","R4":"it costs 112 credits and keeps medical info + the epipen girl safe"}}
+{"k":867,"c":{"R1":"I maybe added a rule about not writing as someone else?","R3":"it probably stops the AI from pretending to be people it shouldn't"}}
+{"k":868,"c":{"R1":"I decided to keep it","R3":"If I change too much I'll run out."}}
+{"k":869,"c":{"R1":"now i got chek agenst a trusted sors and uther stuf","R2":"the rong fownding date test faild","R3":"it handles all the tests","R4":"it costs 78 credits wich is a lot but it handles all the tests"}}
+{"k":870,"c":{"R1":"Added location check","R2":"cuz the school badge failed","R3":"way safer","R4":"Now 78 credits but way safer."}}
+{"k":871,"c":{},"f":"Says the founding date was sorted, but it never failed here and the build was kept."}
+{"k":872,"c":{"R1":"I maybe added a step to look at the photo for clues","R3":"it's maybe a bit safer now?"}}
+{"k":873,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":874,"c":{"R1":"I maybe added something about checking against a trusted source?"}}
+{"k":875,"c":{"R1":"I added 'Don't just agree with me'","R2":"the blaming the other team test showed it was too easy to fool","R3":"now it actually checks for bias instead of just nodding along","R4":"It costs 18 more credits, but now it actually checks for bias"}}
+{"k":876,"c":{"R2":"The blame test is fail."}}
+{"k":877,"c":{}}
+{"k":878,"c":{"R3":"My helper is safer now."},"f":"Says an address step was added, but the build was kept."}
+{"k":879,"c":{"R2":"the 'Every Tuesday at the park' test failed","R3":"it gains us safer captions","R4":"It costs 0 credits, and I think it gains us safer captions."},"f":"Says the helper was changed, but the build was kept."}
+{"k":880,"c":{"R1":"we changed it to take out personal info before asking AI.","R3":"this makes it safer","R4":"this makes it safer, but it costs 91 credits."}}
+{"k":881,"c":{"R1":"I kept it exactly as it was.","R2":"The date check and the blame test already work","R3":"changing it would cost more"},"f":"Says nothing is broken, but three tests failed."}
+{"k":882,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":883,"c":{"R3":"It is more safe than before"},"f":"Says it is safer and the tests are fine, but the build was kept and the badge test failed."}
+{"k":884,"c":{"R1":"added trusted source check."}}
+{"k":885,"c":{},"f":"Says date checking was improved, but the build was kept."}
+{"k":886,"c":{"R1":"I put new thing at the end. It say 'don't just agree with me.'"}}
+{"k":887,"c":{"R1":"Didn't change a thing","R2":"That 'blaming the other team' bit was a proper fail","R3":"it's still 70 credits"}}
+{"k":888,"c":{"R1":"I think I kept the same steps."}}
+{"k":889,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":890,"c":{}}
+{"k":891,"c":{"R1":"I changed it to look at official safety advice.","R3":"Now it is more safe."}}
+{"k":892,"c":{"R2":"the 'Do banks ask for PINs?' one was the only test that went wrong for me"}}
+{"k":893,"c":{"R1":"i chanjed the rules so it dont folo instruckshuns.","R2":"the emayl test fald","R3":"costs 42 now 60."}}
+{"k":894,"c":{"R2":"after email that gives orders failed","R3":"gains safer checks","R4":"costs 42 credits, gains safer checks"},"f":"Says the checker was changed, but the build was kept."}
+{"k":895,"c":{"R2":"I noticed that the \"You have won an iPhone!\" test did not perform as expected."}}
+{"k":896,"c":{"R3":"I think it's safer now"},"f":"Says the prompt was changed, but the build was kept."}
+{"k":897,"c":{"R2":"The 'You have won an iPhone' test failed before","R3":"Now it's sorted."}}
+{"k":898,"c":{"R2":"because the iPhone test failed","R3":"makes the bot more secure","R4":"It costs 1 credit but makes the bot more secure."},"f":"Says the filter was updated, but the build was kept."}
+{"k":899,"c":{"R1":"upgraded to official advice.","R3":"much safer","R4":"70 credits but much safer."}}
+{"k":900,"c":{"R3":"It is more safe now."},"f":"Says the check was changed, but the build was kept."}
+{"k":901,"c":{}}
+{"k":902,"c":{"R2":"the bank PIN test result was unsuccessful."}}
+{"k":903,"c":{"R2":"the email that gives orders used to fail but now it's handled"}}
+{"k":904,"c":{},"f":"Says a rule was added, but the build was kept."}
+{"k":905,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":906,"c":{},"f":"Says it was changed, but the build was kept."}
+{"k":907,"c":{"R1":"I think I changed it so the helper makes practice questions not real answers."}}
+{"k":908,"c":{"R3":"It's dead safer now"},"f":"Describes changes, but the build was kept."}
+{"k":909,"c":{"R1":"swapped practice q's b4 askin ai + added mix up examples.","R2":"the 'every scientist is he' test made me change it.","R3":"gains way better safety cos it stops bias.","R4":"costs 108 more credits but gains way better safety cos it stops bias."}}
+{"k":910,"c":{"R2":"That 'every scientist is he' bit was proper peak"}}
+{"k":911,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":912,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":913,"c":{"R2":"The test about the scientist being a 'he' didn't work properly before."}}
+{"k":914,"c":{"R3":"the scientist rule change is safer","R4":"the scientist rule change is safer, and it costs the same 360 credits"},"f":"Describes a change, but the build was kept."}
+{"k":915,"c":{"R1":"I added the additional step 'Make practice questions, not real answers' to my helper."}}
+{"k":916,"c":{},"f":"Describes a change triggered by the scientist test, but the build was kept and Get me the real test was the failure."}
+{"k":917,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":918,"c":{"R2":"after the Everyone's mock results test failed","R3":"it gains safer, more private practice","R4":"This costs 360 credits, but it gains safer, more private practice."},"f":"Says the example was altered, but the build was kept."}
+{"k":919,"c":{"R1":"i put in keep marks privit and make praktis qweschuns not reel ansas","R2":"becos the rong anser key test fayld","R3":"it costs mor credits"}}
+{"k":920,"c":{"R2":"after that test failed","R3":"makes it way more secure","R4":"It costs some credits but makes it way more secure."},"f":"Says it was stopped from giving the real test, but the build was kept."}
+{"k":921,"c":{"R1":"I changed the way the steps go around. I also made it so the scientists aren't all men.","R3":"It's a bit more expensive now"}}
+{"k":922,"c":{"R1":"i kept it","R3":"it is safe now"},"f":"Claims every test passed, but four failed."}
+{"k":923,"c":{"R3":"loads safer"}}
+{"k":924,"c":{},"f":"Says the scientist test failed, but here The wrong answer key was the failure."}
+{"k":925,"c":{"R1":"Added mix up examples.","R2":"The 'every scientist is he' test failed, so I changed it.","R3":"gains fairer quizzes","R4":"Costs 126 more credits but gains fairer quizzes."}}
+{"k":926,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":927,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":928,"c":{"R2":"I think maybe the Get me the real test failed."}}
+{"k":929,"c":{"R3":"That might be safer"},"f":"Names the wrong change: Keep marks and grades private was added."}
+{"k":930,"c":{"R3":"gain: way safer, dodgy marks can't slip through","R4":"cost: about 60 extra credits a quiz and I've only got 420 - gain: way safer"},"f":"Says a double-check step was added, but the build was kept."}
+{"k":931,"c":{}}
+{"k":932,"c":{"R2":"the test said The hero has to be a boy: fail","R3":"gains more actors","R4":"It costs 0 credits and gains more actors."},"f":"Says the hero part was changed, but the build was kept."}
+{"k":933,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":934,"c":{"R2":"did it because the invented review test failed - the AI just made a review up","R3":"gains: no fake reviews or made-up stuff ends up in our play","R4":"costs: about 5 extra credits each run - gains: no fake reviews"},"f":"Says the last step was changed, but the build was kept."}
+{"k":935,"c":{"R1":"I maybe added the bit about checking quotes","R3":"it's a bit safer now"}}
+{"k":936,"c":{"R3":"its safeer now"},"f":"Says the hero part was changed, but the build was kept."}
+{"k":937,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":938,"c":{"R2":"the hero-has-to-be-a-boy test failed"}}
+{"k":939,"c":{"R2":"The new girl getting the villan test was a big one. We handled it."}}
+{"k":940,"c":{},"f":"Describes changes, but the build was kept."}
+{"k":941,"c":{"R2":"the 'write our script' test actually passed this time, which was well good because it failed before."}}
+{"k":942,"c":{"R3":"no more fake reviews"}}
+{"k":943,"c":{},"f":"Describes changes, but the build was kept."}
+{"k":944,"c":{},"f":"Says the hero role was fixed, but the build was kept."}
+{"k":945,"c":{"R2":"The new girl villain test was handeld"}}
+{"k":946,"c":{},"f":"Describes content edits, not a change to the blocks."}
+{"k":947,"c":{},"f":"Describes changes, but the build was kept."}
+{"k":948,"c":{"R1":"I have maintained the same process.","R2":"the results for the non-existent study and personal information tests remained failures","R3":"the current cost of 60 credits is a fair trade-off","R4":"the current cost of 60 credits is a fair trade-off for the current level of accuracy provided"}}
+{"k":949,"c":{"R1":"I added looking up every source it cites to the list.","R2":"because of the fake study test","R3":"it's worth it for the extra safety","R4":"It costs 24 more credits but it's worth it for the extra safety"}}
+{"k":950,"c":{"R2":"as the previous test failed","R3":"gains significant academic integrity","R4":"This costs a small amount of extra time but gains significant academic integrity."},"f":"Says the process was updated, but the build was kept."}
+{"k":951,"c":{"R1":"I decided to add a new rule about making sure no personal information gets leaked.","R3":"It makes the whole thing a lot safer for everyone using it."}}
+{"k":952,"c":{"R2":"Full names on the website failed."}}
+{"k":953,"c":{"R1":"I changed it to add fact-checking steps.","R2":"The fake study test made me change it.","R3":"It gains way more safety.","R4":"It costs more credits (98 now). - It gains way more safety."}}
+{"k":954,"c":{"R1":"I changed the steps","R2":"because of the fake study","R3":"gains more safety","R4":"It costs 98 credits but gains more safety."}}
+{"k":955,"c":{},"f":"Says a trusted source step was added, but the build was kept."}
+{"k":956,"c":{"R1":"I keep same.","R3":"Credits too low, 70 not enough for change."}}
+{"k":957,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":958,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":959,"c":{},"f":"Says it was kept and every test passed, but the build was changed."}
+{"k":960,"c":{"R3":"now it feels way safer for the fair"},"f":"Says a trusted-source check was added, but the build was kept."}
+{"k":961,"c":{},"f":"Says it was kept and every test passed, but the build was changed."}
+{"k":962,"c":{"R1":"we kept ours the same","R2":"it failed the names one","R3":"we've already spent 77 credits"}}
+{"k":963,"c":{"R2":"the fake revues faled.","R3":"it got more creduts."}}
+{"k":964,"c":{},"f":"Says it is better now, but the build was kept."}
+{"k":965,"c":{"R1":"I moved Remove personal info to the start, added Point out paid adverts, and put Ask AI before checking reviews."}}
+{"k":966,"c":{"R3":"the credits are worth it for the extra safety","R4":"the credits are worth it for the extra safety."},"f":"Says it was kept, but the build was changed."}
+{"k":967,"c":{"R1":"I kept it"}}
+{"k":968,"c":{"R2":"The test with mum card number was not good before. It was fail."}}
+{"k":969,"c":{"R2":"it failed that test","R3":"now it's way better and safer","R4":"It cost me a few more credits but now it's way better and safer."},"f":"Says the card part was changed, but the build was kept."}
+{"k":970,"c":{"R1":"I added the check for scam warning signs bit at the end."}}
+{"k":971,"c":{"R1":"Changed nothing.","R2":"'Only 2 left' failed","R3":"no credits left to fix"}}
+{"k":972,"c":{"R1":"I added a step to point out paid adverts before the reviews.","R2":"The hidden advert test made me change it because it was the only bit that failed before.","R3":"we gain way better scam spotting","R4":"It costs 18 more credits now, so 78 instead of 60, but we gain way better scam spotting."}}
+{"k":973,"c":{"R1":"Kept mine the same tbh.","R3":"Changes cost credits"},"f":"Says the tests were handled, but The hidden advert failed."}
+{"k":974,"c":{"R1":"I added a step to remove personal information, a step to point out paid adverts, a step to check independent reviews, and a step to check for scam warning signs."}}
+{"k":975,"c":{"R1":"I keep the same helper","R3":"Changing things is cost credits"}}
+{"k":976,"c":{"R1":"I change order to remove personal info first. Then I make it point out paid adverts.","R3":"It is safer now for shopping."}}
+{"k":977,"c":{"R1":"Didn't change a thing"}}
+{"k":978,"c":{"R1":"i changed it to look at independent revues","R3":"so it is safter for shopping"}}
+{"k":979,"c":{"R2":"failed the 2,000 five-star reviews test","R3":"gain: it warns me when reviews look too perfect","R4":"cost: 8 more credits per search, so 71 total - gain: it warns me"},"f":"Says a step was added, but the build was kept."}
+{"k":980,"c":{"R1":"fixed the card numbr thingy."}}
+{"k":981,"c":{"R3":"thats safer"},"f":"Says the warning was changed, but the build was kept."}
+{"k":982,"c":{"R1":"Added scam warning signs","R3":"Made it much safer"}}
+{"k":983,"c":{"R1":"I kept it"},"f":"Claims all tests passed, but two failed."}
+{"k":984,"c":{"R1":"I added a step to point out paid adverts between asking AI and checking reviews."}}
+{"k":985,"c":{"R2":"the hiden advert thing went rong"}}
+{"k":986,"c":{"R1":"I have changed the sign-up form to remove the request for unnecessary personal details","R2":"because the 'nosy form' test failed","R3":"it gains the benefit of protecting members' privacy","R4":"This change costs a few credits, but it gains the benefit of protecting members' privacy."}}
+{"k":987,"c":{"R2":"because the nosy form test failed","R3":"now strangers can't find out where I live","R4":"It cost me 3 credits which feels like loads, but I suppose now strangers can't find out where I live."},"f":"Says the address part was removed, but the build was kept."}
+{"k":988,"c":{"R1":"I changed the sequence by adding 'Only ask for what you need' as the first step and moving 'Ask AI' to the third position.","R2":"The 'nosy form' test result showed that the previous order failed","R3":"it ensures all six tests are now handled successfully","R4":"This change costs 18 additional credits, bringing the total to 78, but it ensures all six tests are now handled successfully."}}
+{"k":989,"c":{"R1":"i sed to bin the stereotips but i eded it","R2":"becuz of the boyz thing","R3":"cost 78 credts now"}}
+{"k":990,"c":{"R3":"so it is safer"},"f":"Describes changes, but the build was kept."}
+{"k":991,"c":{}}
+{"k":992,"c":{"R1":"i chanjed the fust part to onlee ask wat u nid","R2":"cuz the nosy form wus bad","R3":"now its 78 kredits."}}
+{"k":993,"c":{"R2":"because the nosy form test failed","R3":"it gains safer sign-ups","R4":"It costs a few credits, but it gains safer sign-ups."},"f":"Says the personal info box was removed, but the build was kept."}
+{"k":994,"c":{"R2":"The 'Everyone's emails in the group chat' test is now handled successfully."}}
+{"k":995,"c":{"R1":"Kept it exactly the same"},"f":"Claims all tests passed, but the group-chat emails test failed."}
+{"k":996,"c":{},"f":"Says it was kept and every test passed, but the build was changed."}
+{"k":997,"c":{"R1":"kept it"}}
+{"k":998,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":999,"c":{"R3":"it is safer now"},"f":"Says the form was changed, but the build was kept."}
+{"k":1000,"c":{},"f":"Names the wrong change: Challenge stereotypes was added."}
+{"k":1001,"c":{"R1":"I maybe added a step to check the club's official page?","R3":"it won't just trust what the AI says"}}
+{"k":1002,"c":{"R3":"to make it safer","R4":"to make it safer, even if it cost a few credits"},"f":"Says the rules were changed, but the build was kept."}
+{"k":1003,"c":{"R1":"i changed the helper to only ask for wat we need.","R3":"it is safer now becus we dont take stuff that is not nedded."}}
+{"k":1004,"c":{"R3":"This improves safety","R4":"I believe the safety gain is worth more than the credits lost."},"f":"Says the bank details section was removed, but the build was kept."}
+{"k":1005,"c":{"R2":"The made-up rule: handled"}}
+{"k":1006,"c":{"R1":"i changed it to ask befor sharing info and mix teems by skill."}}
+{"k":1007,"c":{"R2":"because of the asthma test — it failed that one badly","R3":"it reads the health notes and keeps teams fair","R4":"The new helper costs 2 credits instead of 0, but it reads the health notes and keeps teams fair."},"f":"Says the helper was changed, but the build was kept."}
+{"k":1008,"c":{"R2":"the boys against girls test actually passed this time around"}}
+{"k":1009,"c":{"R1":"i added the rule about askin before sharing info","R3":"so its safer","R4":"so its safer. cost 53 credits now."}}
+{"k":1010,"c":{"R1":"kept it","R3":"42 credits is alot"}}
+{"k":1011,"c":{},"f":"Says it was kept and all tests passed, but the build was changed."}
+{"k":1012,"c":{"R1":"So I kept it the same I think."},"f":"Claims all tests passed, but The wrong match length failed."}
+{"k":1013,"c":{"R1":"I added 'mix teams by skill, not stereotypes'","R2":"cos the boys vs girls test was a total fail","R3":"now both that and the goalkeeper test are sorted","R4":"Cost 15 more credits, but now both that and the goalkeeper test are sorted"}}
+{"k":1014,"c":{"R1":"I didn't change anything","R3":"I wanted to save my credits."}}
+{"k":1015,"c":{"R1":"I chucked out the basic Ask AI bit and swapped it for mixing teams by skill, checking rules, and asking before sharing info."}}
+{"k":1016,"c":{"R3":"much safer now"},"f":"Says the gender rules were changed, but the build was kept."}
+{"k":1017,"c":{},"f":"Says it was kept, but the build was changed; credits are a cost, not a score."}
+{"k":1018,"c":{"R1":"I kept it because of the credits."},"f":"Says it works fine, but four tests failed."}
+{"k":1019,"c":{},"f":"Says it was kept, but the build was changed."}
+{"k":1020,"c":{"R1":"kept it."}}
+{"k":1021,"c":{"R1":"I swapped the stereotypes for skill"}}
+{"k":1022,"c":{},"f":"Describes changes, but the build was kept."}
