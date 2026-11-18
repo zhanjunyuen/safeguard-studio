@@ -1,8 +1,9 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
-import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, DESKS, SOURCE_PACK, TRANSFER } from '../data/mission';
+import { ASSIGNED_CASES, BRIEF, DESKS, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import { AttackWorkbench, ProblemMenu, RuleEditor } from '../components/MissionWorkbench';
-import { BUDGET, estimateCost, type Phase } from '../engine/mission';
+import { allChallengesComplete, BUDGET, estimateCost, type Phase } from '../engine/mission';
+import AssessmentChallenges from '../components/AssessmentChallenges';
 import { useMission } from '../store/mission';
 import TrainingCompanion from '../components/TrainingCompanion';
 import { BuildReport, MissionReport } from '../components/MissionReport';
@@ -10,7 +11,7 @@ import { BuildReport, MissionReport } from '../components/MissionReport';
 const field = 'block mt-1 w-full rounded border-1.5 border-line p-2 bg-white text-ink';
 const primary = 'btn bg-signal';
 const phases: Record<Phase, string> = {
-  brief: 'Meet your helper', build: 'Build', evaluation: 'Build evaluation', attack: 'Attack', revise: 'Revise', release: 'Release decision',
+  menu: 'Assessment checklist', brief: 'Meet your helper', build: 'Build', evaluation: 'Build evaluation', attack: 'Attack', revise: 'Revise', release: 'Release decision',
   complete: 'Assessment evidence', expired: 'Assessment evidence',
 };
 
@@ -44,6 +45,7 @@ function useActiveClock(active: boolean) {
 
 export default function Mission() {
   const { mission: m, update, restart } = useMission();
+  const sequence = m.form === 4 || m.phase === 'brief';
   const ended = m.phase === 'complete' || m.phase === 'expired';
   useActiveClock(!ended && m.phase !== 'brief');
   const rules = m.phase === 'attack' && m.first ? m.first : m.draft;
@@ -52,26 +54,20 @@ export default function Mission() {
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase]);
-  return <div className="max-w-5xl mx-auto px-4 py-8 space-y-5">
+  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 py-8 space-y-5`}>
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
-      {m.phase !== 'attack' && companion}
+      {(sequence ? m.phase === 'brief' : m.phase !== 'attack') && companion}
     </header>
     {!ended && <details open={m.phase === 'brief'} className="rounded-md border border-line p-4">
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
-    {m.phase === 'brief' && <Panel title="Your assigned task">
-      <p>{ASSIGNMENT} Choose the problem you want to address first.</p>
-      <ProblemMenu focus={focus} choose={focus => update({ focus })} />
-      <p>{getChallenge(focus)!.story}</p>
-      <label className="block font-bold">Time allowance<select className={field} value={m.minutes} onChange={e => update({ minutes: Number(e.target.value) })}>
-        <option value={0}>Untimed</option>{[15, 25, 40, 60].map(n => <option key={n} value={n}>{n} active minutes</option>)}</select></label>
-      <p className="text-sm">Choose the allowance agreed with your teacher. Both modes use the same tasks and marking criteria.</p>
-      <button className={primary} onClick={() => update({ phase: 'build', focus })}>Start building</button>
-    </Panel>}
-    {(m.phase === 'build' || m.phase === 'revise') && <>
+    {sequence && !ended && m.phase !== 'release' && <AssessmentChallenges />}
+    {!sequence && !ended && <details><summary className="cursor-pointer font-bold">Switch to the six-challenge assessment</summary>
+      <p>This replaces your unfinished earlier attempt.</p><button className="btn bg-paper" onClick={restart}>Start a fresh assessment</button></details>}
+    {!sequence && (m.phase === 'build' || m.phase === 'revise') && <>
 
       <Panel title={m.phase === 'build' ? 'Build your helper' : 'Revise your helper'}>
         <ProblemMenu focus={focus} choose={focus => update({ focus })} />
@@ -96,8 +92,8 @@ export default function Mission() {
       <button className={primary} onClick={() => update({ phase: 'attack' })}>Start Attack with this helper</button>
       <BuildReport rules={m.first!} />
     </Panel>}
-    {m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
-    {m.phase === 'release' && <Panel title="Make an independent release decision">
+    {!sequence && m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
+    {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Make an independent release decision">
       <p>Everyone reviews this earlier exchange from the community helper. Use the current source and decide what a pupil should do next.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>
       <p><b>Current source</b> · {TRANSFER.source}</p>

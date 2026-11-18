@@ -35,8 +35,7 @@ export default function Home() {
             Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
           <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Build one helper for six assigned school services. Choose where to start, run the tests, then challenge your helper with attack blocks.
-            Its safeguards share a budget across six school services.
+            Complete all six challenges below in the order you choose. In each one, build with its safeguard blocks, run its six tests, then use attack blocks to test your own design.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">

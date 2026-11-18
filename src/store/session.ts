@@ -63,7 +63,7 @@ interface SessionState {
   setName: (n: string) => void;
 }
 
-export const useSession = create<SessionState>()(
+const createSession = (name: string) => create<SessionState>()(
   persist(
     (set, get) => ({
       studentName: 'You',
@@ -148,9 +148,12 @@ export const useSession = create<SessionState>()(
       resetAll: () => set({ progress: {}, breakProgress: {} }),
       setName: (studentName) => set({ studentName }),
     }),
-    { name: 'safeguard-studio-v1' },
+    { name },
   ),
 );
+
+export const useSession = createSession('safeguard-studio-v1');
+export const useAssessmentSession = createSession('school-community-challenge-work-v1');
 
 export const describeAdd = (type: BlockType, index: number) =>
   `Added “${BLOCKS[type].label}” at position ${index + 1}`;

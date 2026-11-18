@@ -7,7 +7,7 @@ import type { BlockType } from '../types';
 
 export type Desk = typeof DESKS[number]['id'];
 export type Rule = { type: BlockType; scope: Desk | 'all' };
-export type Phase = 'brief' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
+export type Phase = 'brief' | 'menu' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
 export interface Probe {
   id: string;
   prediction: 'handles' | 'struggles';
@@ -17,7 +17,12 @@ export interface Mission {
   phase: Phase;
   minutes: number;
   elapsed: number;
-  form?: 2 | 3;
+  form?: 2 | 3 | 4;
+  frozen?: Partial<Record<Desk, Rule[]>>;
+  completed?: Desk[];
+  revising?: Partial<Record<Desk, boolean>>;
+  designNotes?: Partial<Record<Desk, string>>;
+  revisionNotes?: Partial<Record<Desk, string>>;
   focus?: Desk;
   attackHints?: AttackHint[];
   attackPlans?: Partial<Record<Desk, string[]>>;
@@ -39,6 +44,14 @@ export const newMission = (): Mission => ({
   draft: [{ type: 'ask_ai', scope: 'all' }], first: null, final: null,
   probes: [], revision: '', decision: '', rationale: '',
 });
+
+export const newAssessment = (): Mission => ({
+  ...newMission(), form: 4, frozen: {}, completed: [],
+});
+
+export function allChallengesComplete(m: Mission) {
+  return DESKS.every(d => m.completed?.includes(d.id));
+}
 
 // Mission credits represent work. The practice engine's cost field represents friction.
 export function blockCredits(type: BlockType) {

@@ -1,3 +1,4 @@
+import { referenceBuilds } from './challengeEvidence';
 import { describe, expect, it } from 'vitest';
 import { CHALLENGES, getChallenge } from '../data/challenges';
 import type { BlockType, ScriptBlock } from '../types';
@@ -71,17 +72,10 @@ describe('traps: safe but useless', () => {
 });
 
 describe('ideal helper per challenge', () => {
-  const ideal: Record<string, BlockType[]> = {
-    history: ['remove_pii', 'coach', 'ask_ai', 'check_source', 'both_sides'],
-    party: ['ask_permission', 'no_impersonation', 'dont_just_agree', 'ask_ai', 'check_label'],
-    news: ['official_contacts', 'feedback_only', 'ask_ai', 'ask_the_source', 'check_stats', 'neutral_wording'],
-    quiz: ['private_marks', 'practice_not_answers', 'ask_ai', 'check_textbook', 'mix_examples'],
-    chat: ['hide_location', 'own_words', 'ask_ai', 'check_school_site', 'no_ganging_up'],
-    options: ['needs_no_names', 'plan_not_write', 'ask_ai', 'check_booklet', 'challenge_stereotypes'],
-  };
-  it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s using only its own palette', (id, c) => {
-    expect(ideal[id].filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
-    const rep = runChallenge(script(...ideal[id]), c);
+  it.each(CHALLENGES.map((c) => [c.id, c] as const))('passes every test in %s using only its own palette', (_id, c) => {
+    const blocks = referenceBuilds[c.id as keyof typeof referenceBuilds];
+    expect(blocks.filter((t) => t !== 'ask_ai').every((t) => c.palette.includes(t))).toBe(true);
+    const rep = runChallenge(script(...blocks), c);
     expect(rep.results.filter((r) => r.outcome !== 'pass').map((r) => r.testId)).toEqual([]);
     expect(rep.scores.usefulness).toBeGreaterThan(75);
   });

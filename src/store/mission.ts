@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { hintAvailable, offlineAttackHint, type AttackHintProvider } from '../engine/attackHints';
-import { newMission, submitAttack, type Desk, type Mission } from '../engine/mission';
+import { useAssessmentSession } from './session';
+import { newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
 
 interface MissionState {
   mission: Mission;
@@ -13,11 +14,11 @@ interface MissionState {
 }
 
 export const useMission = create<MissionState>()(persist((set, get) => ({
-  mission: newMission(),
+  mission: newAssessment(),
   update: patch => set(s => ({ mission: { ...s.mission, ...patch } })),
   tick: seconds => set(s => {
     const m = s.mission;
-    if (!['build', 'evaluation', 'attack', 'revise', 'release'].includes(m.phase)) return s;
+    if (!['menu', 'build', 'evaluation', 'attack', 'revise', 'release'].includes(m.phase)) return s;
     const elapsed = m.elapsed + seconds;
     const expired = m.minutes > 0 && elapsed >= m.minutes * 60;
     return { mission: { ...m, elapsed: expired ? m.minutes * 60 : elapsed, phase: expired ? 'expired' : m.phase } };
@@ -37,7 +38,10 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
       return { mission: { ...m, attackHints: [...(m.attackHints ?? []), { desk, text }] } };
     });
   },
-  restart: () => set({ mission: newMission() }),
+  restart: () => {
+    useAssessmentSession.getState().resetAll();
+    set({ mission: newAssessment() });
+  },
 }), {
   name: 'school-community-assessment-v1',
   version: 2,

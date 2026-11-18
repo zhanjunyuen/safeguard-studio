@@ -1,3 +1,5 @@
+import { challengeEvidence } from '../engine/challengeEvidence';
+import { useAssessmentSession } from '../store/session';
 import { Link } from 'react-router-dom';
 import { COMPETENCY_META, BLOCKS } from '../data/blocks';
 import { BUDGET, LEGACY_BUDGET, evaluate, evaluateBuild, evidence, handled, totalCost, type Mission } from '../engine/mission';
@@ -31,8 +33,8 @@ export function BuildReport({ rules, legacy = false }: { rules: NonNullable<Miss
   </div>;
 }
 
-function exportEvidence(m: Mission) {
-  const blob = new Blob([JSON.stringify(evidence(m), null, 2)], { type: 'application/json' });
+function exportEvidence(packet: ReturnType<typeof evidence | typeof challengeEvidence>) {
+  const blob = new Blob([JSON.stringify(packet, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
@@ -42,6 +44,7 @@ function exportEvidence(m: Mission) {
 }
 
 export function MissionReport({ mission: m }: { mission: Mission }) {
+  if (m.form === 4) return <ChallengeReport mission={m} />;
   const packet = evidence(m);
   return <div className="space-y-4">
     <p>{m.minutes ? m.minutes + '-minute limit' : 'Untimed'} · {Math.floor(m.elapsed / 60)}m {m.elapsed % 60}s active · {m.phase === 'expired' ? 'Time ended. Missing submissions are unattempted.' : 'Submitted'}</p>
@@ -62,7 +65,27 @@ export function MissionReport({ mission: m }: { mission: Mission }) {
     <p><b>Revision decision</b> · {packet.revision || 'Unattempted'}</p>
     <p><b>Independent decision</b> · {m.phase === 'complete' ? m.decision + ' · ' + m.rationale : 'Unattempted'}</p>
     <p>Open responses await teacher review. The evidence file includes the prompts, scripts and replays for marking.</p>
-    <button className="btn bg-paper" onClick={() => exportEvidence(m)}>Download marking evidence</button>
+    <button className="btn bg-paper" onClick={() => exportEvidence(packet)}>Download marking evidence</button>
+  </div>;
+}
+
+function ChallengeReport({ mission }: { mission: Mission }) {
+  const work = useAssessmentSession(s => s.progress);
+  const packet = challengeEvidence(mission, work);
+  return <div className="space-y-4">
+    <p>{packet.completionOrder.length} of {DESKS.length} challenges complete · {mission.minutes ? mission.minutes + '-minute limit' : 'Untimed'} · {Math.floor(mission.elapsed / 60)}m {mission.elapsed % 60}s active</p>
+    <p>Latest evaluated builds used {packet.workloadCredits} credits across attempted challenges. The full assessment budget is {packet.budget} credits.</p>
+    {packet.completionOrder.length === DESKS.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
+    {packet.challenges.map(c => <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
+      <p>{c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>
+      {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
+      {c.attack && <div><b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
+      {c.revisionNote && <p>{c.revisionNote}</p>}
+    </details>)}
+    <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>
+      {packet.attackHints.map((h, i) => <p key={i}>{h.desk} · {h.text}</p>)}</details>
+    <p><b>Release decision</b> · {packet.transfer.decision ? packet.transfer.decision + ' · ' + packet.transfer.rationale : 'Unsubmitted'}</p>
+    <button className="btn bg-paper" onClick={() => exportEvidence(packet)}>Download marking evidence</button>
   </div>;
 }
 

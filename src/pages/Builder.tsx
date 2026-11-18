@@ -24,9 +24,14 @@ import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge } from '../engine/run';
-import { describeAdd, freshProgress, newUid, useSession } from '../store/session';
+import { describeAdd, freshProgress, newUid, useAssessmentSession, useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, FailureKey, RunReport, StepStatus } from '../types';
+
+import { blockCredits, totalCost, type Desk } from '../engine/mission';
+import { evaluateDesk } from '../engine/challengeEvidence';
+import { Trace } from '../components/MissionReport';
+import { DESKS } from '../data/mission';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
@@ -36,11 +41,21 @@ const collision: CollisionDetection = (args) => {
   return p.length ? p : rectIntersection(args);
 };
 
-export default function Builder() {
-  const { id = '' } = useParams();
+interface AssessmentBuild {
+  id: Desk;
+  revising: boolean;
+  note: string;
+  onNote: (value: string) => void;
+  onMenu: () => void;
+  onAttack: () => void;
+}
+export default function Builder({ assessment }: { assessment?: AssessmentBuild }) {
+  const route = useParams();
+  const id = assessment?.id ?? route.id ?? '';
+  const useWork = assessment ? useAssessmentSession : useSession;
   const challenge = getChallenge(id);
-  const progress = useSession((s) => s.progress[id]) ?? freshProgress();
-  const { setScript, recordRun, reflect, reset } = useSession();
+  const progress = useWork((s) => s.progress[id]) ?? freshProgress();
+  const { setScript, recordRun, reflect, reset } = useWork();
   const script = progress.script;
 
   const [report, setReport] = useState<RunReport | null>(null);
@@ -54,8 +69,9 @@ export default function Builder() {
 
   // make sure the challenge has a progress entry persisted
   useEffect(() => {
-    if (challenge && !useSession.getState().progress[id]) setScript(id, script);
-    setReport(null);
+    if (challenge && !useWork.getState().progress[id]) setScript(id, script);
+    const latest = progress.attempts.slice(-1)[0];
+    setReport(assessment && latest && challenge ? runChallenge(latest.script.map(type => ({ type, uid: type })), challenge) : null);
     setReplay(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -98,7 +114,7 @@ export default function Builder() {
     if (!report) return;
     const firstBad = report.results.find((r) => r.outcome !== 'pass');
     setSelected(firstBad?.testId ?? report.results[0].testId);
-    const pending = useSession.getState().progress[id]?.pendingReflection;
+    const pending = useWork.getState().progress[id]?.pendingReflection;
     if (pending) setReflectFor(pending);
   };
 
@@ -122,6 +138,7 @@ export default function Builder() {
   const mustReflect = !!progress.pendingReflection;
 
   const update = (next: typeof script, event: { kind: 'add' | 'remove' | 'move'; text: string }) => {
+    if (locked) return;
     setScript(id, next, event);
     setDirty(true);
   };
@@ -189,6 +206,11 @@ export default function Builder() {
     finishReplay();
   };
 
+  const desk = assessment && DESKS.find(d => d.id === assessment.id);
+  const last = progress.attempts.slice(-1)[0];
+  const costs = desk && last && evaluateDesk(desk.id, last.script);
+  const evaluated = last && last.script.join() === script.map(b => b.type).join();
+
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
@@ -196,20 +218,30 @@ export default function Builder() {
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Assessment checklist</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
-          </Link>
+          </Link>}
           <h1 className="text-4xl font-extrabold leading-none">{challenge.title}</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">{challenge.story}</p>
         </div>
-        <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
+        {!assessment && <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
           <RotateCcw size={16} aria-hidden /> Start again
-        </button>
+        </button>}
       </div>
 
+      {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
+        <p><b>Workload × {desk.volume}</b> · Ask AI costs {blockCredits('ask_ai')} credits. Running every block for all {challenge.tests.length} cases would cost {script.reduce((n, b) => n + blockCredits(b.type), 0) * desk.volume * challenge.tests.length} credits.</p>
+        {costs && !locked && <details><summary className="cursor-pointer font-bold">Last evaluated build used {totalCost(costs)} credits</summary>
+          {costs.map(row => <Trace key={row.id} run={row} />)}
+        </details>}
+        <label className="block text-sm font-bold">{assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
+          <textarea className="block mt-1 w-full rounded border border-line p-2" rows={2} value={assessment.note} onChange={e => assessment.onNote(e.target.value)} />
+        </label>
+        <button disabled={(assessment.revising && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
+      </div>}
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
         <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
-          <Palette blocks={challenge.palette} used={used} onAdd={(t) => addAt(t, script.length)} />
+          <Palette blocks={challenge.palette} credits={assessment ? blockCredits : undefined} used={used} onAdd={(t) => addAt(t, script.length)} />
 
           <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
@@ -233,7 +265,7 @@ export default function Builder() {
                 Explain the last failure to run again
               </button>
             )}
-            <TrainingCompanion key={id} id={id} script={script} />
+            <TrainingCompanion key={id} id={assessment ? 'community' : id} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} />
