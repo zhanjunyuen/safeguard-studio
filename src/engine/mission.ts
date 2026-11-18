@@ -1,11 +1,11 @@
-import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, DESKS, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
+import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, catalogue, DESKS, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
 import type { AttackHint } from './attackHints';
 import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
 import type { BlockType } from '../types';
 
-export type Desk = typeof DESKS[number]['id'];
+export type Desk = typeof catalogue[number]['id'];
 export type Rule = { type: BlockType; scope: Desk | 'all' };
 export type Phase = 'brief' | 'menu' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
 export interface Probe {
@@ -18,6 +18,7 @@ export interface Mission {
   minutes: number;
   elapsed: number;
   form?: 2 | 3 | 4;
+  assigned?: Desk[];
   frozen?: Partial<Record<Desk, Rule[]>>;
   completed?: Desk[];
   revising?: Partial<Record<Desk, boolean>>;
@@ -49,8 +50,13 @@ export const newAssessment = (): Mission => ({
   ...newMission(), form: 4, frozen: {}, completed: [],
 });
 
+export function assignedDesks(m: Mission) {
+  return m.assigned ? catalogue.filter(d => m.assigned!.includes(d.id)) : DESKS;
+}
+
 export function allChallengesComplete(m: Mission) {
-  return DESKS.every(d => m.completed?.includes(d.id));
+  const desks = assignedDesks(m);
+  return desks.length === 6 && desks.every(d => m.completed?.includes(d.id));
 }
 
 // Mission credits represent work. The practice engine's cost field represents friction.
@@ -82,7 +88,7 @@ export function evaluate(rules: Rule[], id: string) {
 }
 
 export function submitAttack(m: Mission): Mission {
-  const desk = DESKS.find(d => d.id === m.focus);
+  const desk = assignedDesks(m).find(d => d.id === m.focus);
   if (m.phase !== 'attack' || !m.first || !desk || m.launches?.some(l => l.desk === desk.id)) return m;
   const ids = m.attackPlans?.[desk.id] ?? [];
   if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => desk.cases.includes(id))) return m;

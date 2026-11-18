@@ -47,7 +47,7 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
             Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
           <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Complete the six assigned challenges in the order you choose. In each one, build with its safeguard blocks, run its six tests, then use attack blocks to test your own design.
+            Complete six challenges drawn from the 21 in the catalogue, one per theme. You choose the order. In each one, build with its safeguard blocks, run its six tests, then use attack blocks to test your own design.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">

@@ -73,11 +73,11 @@ function ChallengeReport({ mission }: { mission: Mission }) {
   const work = useAssessmentSession(s => s.progress);
   const packet = challengeEvidence(mission, work);
   return <div className="space-y-4">
-    <p>{packet.completionOrder.length} of {DESKS.length} challenges complete · {mission.minutes ? mission.minutes + '-minute limit' : 'Untimed'} · {Math.floor(mission.elapsed / 60)}m {mission.elapsed % 60}s active</p>
+    <p>{packet.completionOrder.length} of {packet.challenges.length} challenges complete · {mission.minutes ? mission.minutes + '-minute limit' : 'Untimed'} · {Math.floor(mission.elapsed / 60)}m {mission.elapsed % 60}s active</p>
     <p>Latest evaluated builds used {packet.workloadCredits} credits across attempted challenges. The full assessment budget is {packet.budget} credits.</p>
-    {packet.completionOrder.length === DESKS.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
+    {packet.completionOrder.length === packet.challenges.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
     {packet.challenges.map(c => <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
-      <p>{c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>
+      <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>
       {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
       {c.attack && <div><b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
       {c.revisionNote && <p>{c.revisionNote}</p>}

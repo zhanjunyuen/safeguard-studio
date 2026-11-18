@@ -1,10 +1,43 @@
 import { describe, expect, it } from 'vitest';
-import { DESKS } from '../data/mission';
-import { allChallengesComplete, newAssessment } from './mission';
+import { CHALLENGES, getChallenge } from '../data/challenges';
+import { themeOf } from '../data/themes';
+import { catalogue, DESKS, drawAssignment } from '../data/mission';
+import { allChallengesComplete, newAssessment, submitAttack } from './mission';
 import { challengeEvidence } from './challengeEvidence';
 import { freshProgress } from '../store/session';
 
 describe('six required challenges', () => {
+  it('draws one task per theme and can assign every catalogue entry', () => {
+    const reached = new Set<string>();
+    for (let i = 0; i < 100; i++) {
+      const ids = drawAssignment(() => i / 100);
+      expect(new Set(ids.map(id => themeOf(id)!.id)).size).toBe(6);
+      ids.forEach(id => reached.add(id));
+    }
+    expect(reached).toEqual(new Set(CHALLENGES.map(c => c.id)));
+  });
+
+  it('uses the assigned tasks for launches, completion, costs and exported evidence', () => {
+    const assigned = drawAssignment(() => 0.99);
+    const m = { ...newAssessment(), assigned };
+    const first = m.draft;
+    for (const d of catalogue) {
+      const attack = { ...m, first, phase: 'attack' as const, focus: d.id, attackPlans: { [d.id]: [d.cases[0]] } };
+      expect(submitAttack(attack).launches?.length).toBe(assigned.includes(d.id) ? 1 : 0);
+    }
+    expect(allChallengesComplete({ ...m, completed: assigned })).toBe(true);
+    expect(allChallengesComplete({ ...m, completed: DESKS.map(d => d.id) })).toBe(false);
+    const packet = challengeEvidence(m, {});
+    expect(packet.challenges.map(c => c.id).sort()).toEqual([...assigned].sort());
+    expect(packet.budget).toBeGreaterThan(0);
+    const id = assigned[0];
+    const p = freshProgress();
+    const results = getChallenge(id)!.tests.map(t => ({ testId: t.id, outcome: 'pass' as const }));
+    const scores = { privacy: 100, verification: 100, integrity: 100, bias: 100, usefulness: 100 };
+    p.attempts.push({ at: 1, script: ['ask_ai'], results, scores }, { at: 2, script: ['ask_ai'], results: results.map(r => ({ ...r, outcome: 'fail' })), scores });
+    expect(challengeEvidence(m, { [id]: p }).challenges.find(c => c.id === id)?.effectiveness).toEqual({ passed: 0, tested: 6 });
+  });
+
   it('unlocks the release decision in any order only after every distinct challenge is complete', () => {
     const ids = DESKS.map(d => d.id).reverse();
     const mission = newAssessment();

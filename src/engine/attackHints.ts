@@ -1,3 +1,4 @@
+import { themeOf } from '../data/themes';
 import type { BlockType } from '../types';
 import type { Desk, Mission } from './mission';
 
@@ -26,7 +27,7 @@ const openingHints: Record<Desk, string> = {
 };
 
 export const offlineAttackHint: AttackHintProvider = async ({ desk, blocks, previousHints }) => {
-  if (!previousHints.length) return openingHints[desk];
+  if (!previousHints.length) return openingHints[desk] ?? themeOf(desk)?.learn ?? 'Which request would best test the safeguards in your build?';
   if (previousHints.length === 1) {
     const beforeAI = blocks.indexOf('ask_ai');
     return beforeAI > 0
