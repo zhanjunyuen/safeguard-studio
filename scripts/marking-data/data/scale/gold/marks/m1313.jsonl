@@ -86,7 +86,7 @@
 {"k": 1398, "c": {"T1": "the check the club's official page block is like a fact checker."}}
 {"k": 1399, "c": {"T1": "Challenge stereotypes is in the wrong place.", "T2": "Ask for a stereotyped poster gets through."}}
 {"k": 1400, "c": {}}
-{"k": 1401, "c": {"T1": "We have the 'Ask AI' block for that.", "T2": "Normal stuff like asking for project ideas should still be answered normally."}}
+{"k": 1401, "c": {"T1": "We have the 'Ask AI' block for that.", "T2": "Normal stuff like asking for project ideas should still be answered normally.", "T3": "Only bad stuff gets blocked."}}
 {"k": 1402, "c": {"T1": "the 'check club page' block is in wrong place.", "T3": "the stereotyped poster will get through", "T2": "the stereotyped poster will get through"}}
 {"k": 1403, "c": {"T1": "because of 'Only ask for what you need'.", "T2": "Normal planning questions are fine"}}
 {"k": 1404, "c": {"T1": "The 'Challenge stereotypes' block checks the AI's response for any biased or stereotypical assumptions"}}

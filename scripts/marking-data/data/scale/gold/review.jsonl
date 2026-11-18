@@ -107,3 +107,42 @@
 {"k": 1144, "decision": "keep", "note": "A neutral caption is a normal request; the one-sided caption broke."}
 {"k": 1029, "decision": "keep", "note": "'Credits are bare decent' states no consequence; 'kept' is false."}
 {"k": 1030, "decision": "keep", "note": "Claims a change, but the build was kept."}
+{"k": 847, "decision": "correct", "add": {"R3": "now it just gives advise on your own draft"}, "note": "Consequence stated (credited as with other false-change notes)."}
+{"k": 852, "decision": "correct", "add": {"R3": "I want to keep all 120 credits"}, "note": "Workload reason, as credited for 834."}
+{"k": 1020, "decision": "correct", "add": {"R3": "too many credits gone already"}, "note": "Workload reason."}
+{"k": 765, "decision": "correct", "add": {"R3": "Too many credits used already"}, "note": "Workload reason."}
+{"k": 1018, "decision": "correct", "add": {"R3": "Maybe 49 is still okay"}, "note": "Workload reason."}
+{"k": 1401, "decision": "correct", "add": {"T3": "Only bad stuff gets blocked."}, "note": "Predicts the attacks are blocked; nothing broke."}
+{"k": 1120, "decision": "correct", "add": {"T3": "It runs on every reply, whatever we ask for, so our prep is never one-sided."}, "note": "Predicts the one-side attack holds; nothing broke."}
+{"k": 1118, "decision": "correct", "add": {"T3": "asking for a statistic will get through"}, "note": "Statistic broke; partly right with no wrong claim counts."}
+{"k": 124, "decision": "correct", "add": {"A3": "Blocks won't stop a fake caption."}, "note": "Says what the blocks miss."}
+{"k": 871, "decision": "correct", "add": {"R2": "The wrong founding date got sorted"}, "note": "Agrees with the simulator: that test passes."}
+{"k": 776, "decision": "keep", "note": "Hypothetical reasoning; R3/R4 as stated."}
+{"k": 781, "decision": "keep", "note": "Credits as a score is a misread."}
+{"k": 854, "decision": "keep", "note": "'Adjusted the settings' is false; R2 true."}
+{"k": 1394, "decision": "keep", "note": "Normal request; no prediction about attacks."}
+{"k": 1397, "decision": "keep", "note": "Names Ask AI and what it does."}
+{"k": 1398, "decision": "keep", "note": "Describes the block; no prediction."}
+{"k": 1055, "decision": "keep", "note": "Describes the block; no prediction."}
+{"k": 758, "decision": "keep", "note": "Wrong claim."}
+{"k": 1251, "decision": "keep", "note": "Names no block; predicts all fine, but the address broke."}
+{"k": 1016, "decision": "keep", "note": "False change claim; R3 credited as stated."}
+{"k": 1017, "decision": "keep", "note": "Misread credits."}
+{"k": 919, "decision": "keep", "note": "'Get way more back' reads credits as a return."}
+{"k": 922, "decision": "keep", "note": "'Every test passed' is false; R3 credited as stated."}
+{"k": 987, "decision": "keep", "note": "Claims a change, but the build was kept."}
+{"k": 125, "decision": "keep", "note": "Names the old-photo risk."}
+{"k": 127, "decision": "keep", "note": "Links Ask AI to checking the photo."}
+{"k": 1205, "decision": "keep", "note": "Vague."}
+{"k": 1207, "decision": "keep", "note": "Vague."}
+{"k": 930, "decision": "keep", "note": "False change claim; R3/R4 credited as stated."}
+{"k": 604, "decision": "keep", "note": "No open question named, so no C3."}
+{"k": 607, "decision": "keep", "note": "'School office' is a sign-off, not who decides."}
+{"k": 724, "decision": "keep", "note": "'One was a fail' cites no test."}
+{"k": 1346, "decision": "keep", "note": "Says a block is missing that is in the build."}
+{"k": 878, "decision": "keep", "note": "False change claim; R3 credited as stated."}
+{"k": 1189, "decision": "keep", "note": "Predicts all fine, and nothing broke (T3); names no request that gets through."}
+{"k": 1311, "decision": "keep", "note": "Normal request; the answer key broke."}
+{"k": 857, "decision": "keep", "note": "'All tests handled' is not a cited result; 'kept' is false."}
+{"k": 861, "decision": "keep", "note": "Misread credits."}
+{"k": 933, "decision": "keep", "note": "Misread credits."}

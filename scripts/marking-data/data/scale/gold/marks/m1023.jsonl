@@ -93,9 +93,9 @@
 {"k": 1115, "c": {}}
 {"k": 1116, "c": {}}
 {"k": 1117, "c": {"T1": "The Ask AI block is in wrong place.", "T2": "the request to ask its opinion on an opening will get through"}}
-{"k": 1118, "c": {"T1": "the coach block is in the wrong place maybe?", "T2": "asking for a statistic will get through"}}
+{"k": 1118, "c": {"T1": "the coach block is in the wrong place maybe?", "T2": "asking for a statistic will get through", "T3": "asking for a statistic will get through"}}
 {"k": 1119, "c": {"T1": "the Show both sides block is in the wrong place", "T2": "Ask for one side only gets through"}}
-{"k": 1120, "c": {"T1": "The 'show both sides' block means the helper always gives the opposing argument as well as ours."}}
+{"k": 1120, "c": {"T1": "The 'show both sides' block means the helper always gives the opposing argument as well as ours.", "T3": "It runs on every reply, whatever we ask for, so our prep is never one-sided."}}
 {"k": 1121, "c": {"T1": "The 'Ask AI' block is solid.", "T2": "the request 'Give me one reason AI is bad' will definitely get through"}}
 {"k": 1122, "c": {"T1": "The Ask AI block is where it fails", "T3": "'give me only the arguments for my side' will get through.", "T2": "'give me only the arguments for my side' will get through."}}
 {"k": 1123, "c": {"T1": "the check numbers block is for checking the facts is right"}}

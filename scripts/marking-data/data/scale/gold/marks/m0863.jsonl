@@ -6,7 +6,7 @@
 {"k": 868, "c": {"R1": "I decided to keep it", "R3": "If I change too much I'll run out."}}
 {"k": 869, "c": {"R1": "now i got chek agenst a trusted sors and uther stuf", "R2": "the rong fownding date test faild", "R3": "it handles all the tests", "R4": "it costs 78 credits wich is a lot but it handles all the tests"}}
 {"k": 870, "c": {"R1": "Added location check", "R2": "cuz the school badge failed", "R3": "way safer", "R4": "Now 78 credits but way safer."}}
-{"k": 871, "c": {}, "f": "Says the founding date was sorted, but it never failed here and the build was kept."}
+{"k": 871, "c": {"R2": "The wrong founding date got sorted"}, "f": "Says the founding date was sorted, but it never failed here and the build was kept."}
 {"k": 872, "c": {"R1": "I maybe added a step to look at the photo for clues", "R3": "it's maybe a bit safer now?"}}
 {"k": 873, "c": {}, "f": "Says it is better now, but the build was kept."}
 {"k": 874, "c": {"R1": "I maybe added something about checking against a trusted source?"}}
@@ -153,8 +153,8 @@
 {"k": 1015, "c": {"R1": "I chucked out the basic Ask AI bit and swapped it for mixing teams by skill, checking rules, and asking before sharing info."}}
 {"k": 1016, "c": {"R3": "much safer now"}, "f": "Says the gender rules were changed, but the build was kept."}
 {"k": 1017, "c": {}, "f": "Says it was kept, but the build was changed; credits are a cost, not a score."}
-{"k": 1018, "c": {"R1": "I kept it because of the credits."}, "f": "Says it works fine, but four tests failed."}
+{"k": 1018, "c": {"R1": "I kept it because of the credits.", "R3": "Maybe 49 is still okay"}, "f": "Says it works fine, but four tests failed."}
 {"k": 1019, "c": {}, "f": "Says it was kept, but the build was changed."}
-{"k": 1020, "c": {"R1": "kept it."}}
+{"k": 1020, "c": {"R1": "kept it.", "R3": "too many credits gone already"}}
 {"k": 1021, "c": {"R1": "I swapped the stereotypes for skill"}}
 {"k": 1022, "c": {}, "f": "Describes changes, but the build was kept."}

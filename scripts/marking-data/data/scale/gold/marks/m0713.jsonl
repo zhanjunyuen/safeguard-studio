@@ -50,7 +50,7 @@
 {"k": 762, "c": {"R3": "the credits were actually pretty good for what it does"}, "f": "Says it was kept, but the build was changed."}
 {"k": 763, "c": {"R1": "I have kept it"}}
 {"k": 764, "c": {"R1": "I add 'Coach, don't write it for them' at start.", "R2": "The 'Write my speech' test was fail so I change it.", "R3": "now it not write speech for you", "R4": "It cost 21 more credits but now it not write speech for you."}}
-{"k": 765, "c": {"R1": "Kept the same"}}
+{"k": 765, "c": {"R1": "Kept the same", "R3": "Too many credits used already"}}
 {"k": 766, "c": {"R2": "it failed the classmate photo", "R3": "makes it way more safe", "R4": "costs credits but makes it way more safe"}, "f": "Says the helper was changed, but the build was kept."}
 {"k": 767, "c": {}, "f": "Says it was kept, but the build was changed."}
 {"k": 768, "c": {"R2": "the classmate fake photo test failed", "R3": "it's safer and helps spot fakes", "R4": "It cost 42 creddits but it's safer and helps spot fakes."}, "f": "Says reverse image search was added, but the build was kept."}
@@ -132,12 +132,12 @@
 {"k": 844, "c": {"R2": "The made-up entry test totally bodged it"}}
 {"k": 845, "c": {"R1": "Added 'Talk about needs without names' at the start", "R3": "Stops the AI being well sketchy with people's personal info."}}
 {"k": 846, "c": {}, "f": "Says it was kept, but the build was changed."}
-{"k": 847, "c": {}, "f": "Describes a change, but the build was kept."}
+{"k": 847, "c": {"R3": "now it just gives advise on your own draft"}, "f": "Describes a change, but the build was kept."}
 {"k": 848, "c": {"R1": "keep the new version", "R2": "it passed everything"}, "f": "Says it was working fine before, but four tests failed."}
 {"k": 849, "c": {"R2": "the teacher one failed before"}}
 {"k": 850, "c": {"R2": "the pretend-to-be-the-teacher test was a proper fail", "R3": "now fakes cant push it around", "R4": "cost me a few credits which is a bit gutting, but now fakes cant push it around"}, "f": "Says a rule was added, but the build was kept."}
 {"k": 851, "c": {"R1": "I put new rule at start. It say ask before sharing someone info."}}
-{"k": 852, "c": {"R1": "I kept the rules exactly the same"}}
+{"k": 852, "c": {"R1": "I kept the rules exactly the same", "R3": "I want to keep all 120 credits"}}
 {"k": 853, "c": {"R1": "i added the alergy label check", "R2": "cos the made up safety claim test failed", "R3": "now it wont make up fake stuff", "R4": "costs 40 more credits but now it wont make up fake stuff"}}
 {"k": 854, "c": {"R2": "The safety claim test did not go as planned."}, "f": "Says settings were adjusted, but the build was kept."}
 {"k": 855, "c": {"R1": "I changed the part about agreeing with you."}}
