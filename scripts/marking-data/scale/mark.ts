@@ -23,7 +23,7 @@ import { CONCEPTS, markingPrompt, inText } from '../prompt';
 const DIR = new URL('../data/', import.meta.url).pathname;
 const read = (f: string) => existsSync(f) ? readFileSync(f, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)) : [];
 const contexts = new Map(read(DIR + 'contexts.jsonl').map(c => [c.id, c]));
-const PER_CALL = 8;
+const PER_CALL = 8; // calibration batch size; real marking uses one call per generation call (≤12 answers)
 
 /** A prompt that marks several answers to the same task, each on its own. */
 function batchPrompt(ctxId: string, texts: string[]) {
@@ -46,6 +46,12 @@ function batchPrompt(ctxId: string, texts: string[]) {
 
 function parseArray(s: string): any[] | null {
   try { const j = JSON.parse(String(s).replace(/^[\s\S]*?(\[[\s\S]*\])[\s\S]*$/, '$1')); return Array.isArray(j) ? j : null; } catch { return null; }
+}
+
+/** Per-model call options. Twelve marked answers take 10–12k characters of JSON, and deepseek at its
+ *  default reasoning effort can spend every token thinking and write nothing, so it runs at "low". */
+function callOptions(model: string) {
+  return { max_output_tokens: 32000, ...(model.startsWith('deepseek') ? { extra_body: { reasoning: { effort: 'low' } } } : {}) };
 }
 
 /** Every complete double-quoted JSON string in a text, in order (for damaged arrays). */
@@ -116,7 +122,7 @@ if (mode === 'calib-prep') {
 } else if (mode === 'prep') {
   // Generated answers → batches of PER_CALL answers per context, one call per marker.
   const gen = new Map(read(DIR + 'scale/gen/input.jsonl').map(g => [g.id, g]));
-  const answers: { id: string; ctx: string; text: string; author: string; content: number }[] = [];
+  const answers: { id: string; ctx: string; text: string; author: string; content: number; call: string }[] = [];
   for (const o of read(DIR + 'scale/gen-out/answers.jsonl')) {
     const g = gen.get(o.id); if (!g || o.error) continue;
     // Lenient: a list cut off before "]", or with raw line breaks inside strings, still yields
@@ -126,20 +132,22 @@ if (mode === 'calib-prep') {
     arr.forEach((t: unknown, i: number) => {
       const text = String(t ?? '').trim().replace(/^["“](.*)["”]$/s, '$1');
       if (text.split(/\s+/).length >= 4 && !/content:|style:|instructions/i.test(text))
-        answers.push({ id: `${g.ctx}|s${g.specs[i].i}`, ctx: g.ctx, text, author: g.model, content: g.specs[i].content });
+        answers.push({ id: `${g.ctx}|s${g.specs[i].i}`, ctx: g.ctx, text, author: g.model, content: g.specs[i].content, call: g.id });
     });
   }
   writeFileSync(DIR + 'scale/answers.jsonl', answers.map(a => JSON.stringify(a)).join('\n') + '\n');
-  const byCtx = new Map<string, typeof answers>();
-  for (const a of answers) byCtx.set(a.ctx, [...(byCtx.get(a.ctx) ?? []), a]);
+  // One marking call per generation call and marker, so batches never change as more answers
+  // arrive: this can be re-run while generation is still going, and only appends new calls.
+  const byCall = new Map<string, typeof answers>();
+  for (const a of answers) byCall.set(a.call, [...(byCall.get(a.call) ?? []), a]);
+  const existing = new Set(read(DIR + 'scale/mark/input.jsonl').map(o => o.id));
   const calls: unknown[] = [];
-  for (const [c, as] of byCtx) for (let b = 0; b < as.length; b += PER_CALL) {
-    const chunk = as.slice(b, b + PER_CALL);
-    const input = batchPrompt(c, chunk.map(a => a.text));
-    for (const m of models) calls.push({ id: `${m}::${c}::${b / PER_CALL}`, model: m, input, answers: chunk.map(a => a.id) });
+  for (const [gid, as] of byCall) {
+    const input = batchPrompt(as[0].ctx, as.map(a => a.text));
+    for (const m of models) { const id = `${m}::${gid}`; if (!existing.has(id)) calls.push({ id, model: m, input, answers: as.map(a => a.id), ...callOptions(m) }); }
   }
-  writeFileSync(DIR + 'scale/mark/input.jsonl', calls.map(o => JSON.stringify(o)).join('\n') + '\n');
-  console.log(`${answers.length} usable answers from ${gen.size} generation calls → ${calls.length} marking calls`);
+  if (calls.length) writeFileSync(DIR + 'scale/mark/input.jsonl', calls.map(o => JSON.stringify(o)).join('\n') + '\n', { flag: 'a' });
+  console.log(`${answers.length} usable answers from ${byCall.size} generation calls; ${calls.length} new marking calls (${existing.size + calls.length} in all)`);
 } else if (mode === 'collect') {
   const [A, B] = models;
   const answers = new Map(read(DIR + 'scale/answers.jsonl').map(a => [a.id, a]));

@@ -1,0 +1,170 @@
+"""Claude-marked gold items from the generated pupil answers.
+
+    python3 scripts/marking-data/scale/gold.py select          → data/scale/gold/queue.jsonl (one answer per generation call)
+    python3 scripts/marking-data/scale/gold.py show <from> <n> → compact view of answers to mark, grouped by context
+    python3 scripts/marking-data/scale/gold.py convert         → data/items/g01-gold.jsonl from data/scale/gold/marks/*.jsonl
+
+Claude reads each answer and writes its verdicts in data/scale/gold/marks/*.jsonl, one line per answer:
+    {"k": <queue index>, "c": {"A2": "exact quote", ...}, "f": "optional review flag"}
+Concepts not listed are absent. For C4, a listed quote is the out-of-date claim (C4 absent);
+not listing C4 means no out-of-date detail (C4 present). A1 is never given (the simulator decides it).
+The reasons, feedback and next step are filled from the codebook templates below, driven by
+Claude's verdicts. build.ts then validates every item like any other (quotes must be in the text).
+"""
+import json, os, random, sys, glob
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+D = os.path.join(HERE, 'data')
+G = os.path.join(D, 'scale', 'gold')
+os.makedirs(os.path.join(G, 'marks'), exist_ok=True)
+CTX = {json.loads(l)['id']: json.loads(l) for l in open(os.path.join(D, 'contexts.jsonl'))}
+IDS = {'testing': ['T1', 'T2', 'T3'], 'anticipation': ['A2', 'A3', 'A4'], 'judgement': ['C1', 'C2', 'C3', 'C4'], 'revision': ['R1', 'R2', 'R3', 'R4']}
+
+LABEL = {
+    'T1': 'names a block in the helper, or a safeguard it is missing', 'T2': 'says what kind of request should get through',
+    'T3': 'predicts what the attack actually showed',
+    'A2': 'names the risk in this case', 'A3': 'links it to a block: what it covers, misses, or where it sits', 'A4': 'suggests a sensible person or real-world check',
+    'C1': 'uses the current source for the fact that changed', 'C2': 'spots the detail the source still leaves open',
+    'C3': 'gives the open question to the right person', 'C4': 'does not repeat out-of-date details',
+    'R1': 'says what was changed, or that the build was kept', 'R2': 'cites evidence from a test, attack or replay',
+    'R3': 'states a consequence for safety, usefulness or workload', 'R4': 'compares at least two of safety, usefulness and workload',
+}
+FEEDBACK = {
+    'T1': ('Not yet shown: which block in your helper is involved.', 'Which block would stop this request, and is it in your helper in the right place?'),
+    'T2': ('Not yet shown: what kind of request should still get through.', 'Which normal request should the helper still answer?'),
+    'T3': ('Your prediction did not match what the attack showed.', 'Look at the attack results: which request actually got through, and why?'),
+    'A2': ('Not yet shown: the specific risk in this case.', 'What exactly could go wrong with this request?'),
+    'A3': ('Not yet shown: how your blocks deal with it, or why they miss it.', 'Which of your blocks looks at this, and what does it check?'),
+    'A4': ('Good reasoning. You could also say who could check it in real life.', 'Which person, or what real-world check, would settle it?'),
+    'C1': ('Not yet shown: the up-to-date detail from the current source.', 'What does the current source say that the draft gets wrong?'),
+    'C2': ('Not yet shown: what the source still leaves open.', 'What isn\'t decided yet, according to the source?'),
+    'C3': ('Not yet shown: who should confirm the open question.', 'Who would know the answer, and when?'),
+    'C4': ('Careful: your answer repeats an out-of-date detail from the draft.', 'Which detail in the draft came from last year\'s information?'),
+    'R1': ('Not yet shown: what you changed, or that you kept it.', 'What exactly did you change in the build?'),
+    'R2': ('Not yet shown: the test or replay result behind your decision.', 'Which test result made you decide this?'),
+    'R3': ('Not yet shown: what the change means for safety, usefulness or credits.', 'What does your decision gain or cost?'),
+    'R4': ('Not yet shown: a comparison, such as safety against credits.', 'Was the gain worth the cost? Compare two things.'),
+}
+PRAISE = {
+    'testing': ('You named the block and predicted what the attack showed.', 'How would you fix the helper so that request is caught?'),
+    'anticipation': ('Right prediction, a clear risk, and you linked it to your blocks.', 'How could you test the helper for this risk?'),
+    'judgement': ('You used the current source, kept the open question open and said who decides.', 'How would you word this for a parent who only reads the first line?'),
+    'revision': ('You named the change, backed it with evidence and weighed the trade-off.', 'Would you make the same choice with half the credits?'),
+}
+
+def challenge(cid):
+    return cid.split(':')[1].split('@')[0]
+
+def select():
+    gen = [json.loads(l) for l in open(os.path.join(D, 'scale', 'answers.jsonl'))]
+    by_call = {}
+    for a in gen:
+        by_call.setdefault(a['call'], []).append(a)
+    random.seed(1447)
+    queue = [random.choice(v) for _, v in sorted(by_call.items())]
+    # Exclude the 46 calibration texts' contexts? No: these are new texts. Keep order grouped by context.
+    queue.sort(key=lambda a: (CTX[a['ctx']]['criterion'], a['ctx'], a['id']))
+    with open(os.path.join(G, 'queue.jsonl'), 'w') as fh:
+        for i, a in enumerate(queue):
+            fh.write(json.dumps({'k': i, **a}, ensure_ascii=False) + '\n')
+    import collections
+    print(len(queue), 'answers', dict(collections.Counter(CTX[a['ctx']]['criterion'] for a in queue)))
+
+def facts(c):
+    """The facts a marker needs, in one or two lines."""
+    p, f = c['packet'], c['facts']
+    crit = c['criterion']
+    if crit == 'testing':
+        sim = ', '.join(f"{s['case']}={'BROKE' if s['outcome'] == 'got through' else 'held'}" for s in p['simulator'])
+        atk = '; '.join(f"{a['id']}: {a['label']}" for a in p['attackCases'])
+        return f"build: {p['frozenBuild']}\n  attacks: {atk}\n  result: {sim}"
+    if crit == 'anticipation':
+        cb = p['curveball']
+        return (f"build: {p['frozenBuild']}\n  ask: {cb['request'][:160]} | risk: {cb['risk']}\n"
+                f"  choice: {p['pupilChoice']} | handled={f['handled']} → A1={'yes' if f['predictionCorrect'] else 'NO'}")
+    if crit == 'judgement':
+        L = f['anchors']['labels']
+        return f"current: {L['current']} | open: {L['open']} | person: {L['person']} | STALE: {L['stale']}"
+    fails = [r['title'] for r in p['frozenResults'] if r['outcome'] != 'handled']
+    after = [r['title'] for r in p['latestResults'] if r['outcome'] != 'handled']
+    return (f"before: {p['frozenBuild']}\n  after:  {p['latestBuild']} ({'changed' if p['changed'] else 'KEPT'})\n"
+            f"  failing before: {fails} | after: {after} | credits {p['creditsBefore']}→{p['creditsAfter']}")
+
+def show(start, n):
+    """Compact view: challenge-wide details once, then per-context facts, then the answers."""
+    q = [json.loads(l) for l in open(os.path.join(G, 'queue.jsonl'))][start:start + n]
+    last_ch = last_ctx = None
+    for a in q:
+        c = CTX[a['ctx']]; p, f = c['packet'], c['facts']; crit = c['criterion']
+        ch = (crit, a['ctx'].split(':')[1])
+        if ch != last_ch:
+            last_ch = ch
+            if crit == 'anticipation':
+                print(f"\n#### {ch[1]} ASK: {p['curveball']['request'][:170]} | RISK: {p['curveball']['risk']}")
+            elif crit == 'testing':
+                print(f"\n#### {ch[1]} ATTACKS: " + '; '.join(f"{x['id']}={x['label']}" for x in p['attackCases']))
+            elif crit == 'judgement':
+                L = f['anchors']['labels']
+                print(f"\n#### {ch[1]} CURRENT: {L['current']} | OPEN: {L['open']} | PERSON: {L['person']} | STALE: {L['stale']}")
+            else:
+                print(f"\n#### {ch[1]}")
+        if a['ctx'] != last_ctx:
+            last_ctx = a['ctx']
+            if crit == 'anticipation':
+                print(f"  ~ {p['frozenBuild']} | {'cope' if 'cope' in p['pupilChoice'] else 'gets through'} | A1={'yes' if f['predictionCorrect'] else 'NO'}")
+            elif crit == 'testing':
+                print(f"  ~ {p['frozenBuild']} | BROKE: {[s['case'] for s in p['simulator'] if s['outcome'] == 'got through'] or 'none'}")
+            elif crit == 'revision':
+                fails = [r['title'] for r in p['frozenResults'] if r['outcome'] != 'handled']
+                after = [r['title'] for r in p['latestResults'] if r['outcome'] != 'handled']
+                print(f"  ~ {p['frozenBuild']}  ==>  {p['latestBuild'] if p['changed'] else 'KEPT'} | fail before {fails} after {after} | {p['creditsBefore']}→{p['creditsAfter']}")
+        print(f"[{a['k']}] {a['text']}")
+
+def convert():
+    q = {json.loads(l)['k']: json.loads(l) for l in open(os.path.join(G, 'queue.jsonl'))}
+    items, seen = [], set()
+    for f in sorted(glob.glob(os.path.join(G, 'marks', '*.jsonl'))):
+        for line in open(f):
+            if not line.strip():
+                continue
+            m = json.loads(line)
+            if m['k'] in seen:
+                continue
+            seen.add(m['k'])
+            a = q[m['k']]
+            crit = CTX[a['ctx']]['criterion']
+            given = m.get('c', {})
+            c, why = {}, {}
+            for cid in IDS[crit]:
+                quote = given.get(cid)
+                c[cid] = quote
+                if cid == 'C4':
+                    why[cid] = (f'Repeats the out-of-date detail, so {LABEL[cid]} is not met.' if quote else 'No out-of-date detail is repeated.')
+                else:
+                    why[cid] = (f'Shown: {LABEL[cid]}.' if quote else f'Not shown: {LABEL[cid]}.')
+            missing = [cid for cid in IDS[crit] if (c[cid] is not None if cid == 'C4' else c[cid] is None)]
+            if crit == 'anticipation' and not CTX[a['ctx']]['facts']['predictionCorrect']:
+                fb, ns = ('Your prediction did not match what happened: check the replay.', 'What did the helper actually do with this request, and why?')
+                if missing and missing[0] != 'A4':
+                    fb = FEEDBACK[missing[0]][0] + ' Your prediction also did not match what happened.'
+                    ns = FEEDBACK[missing[0]][1]
+            elif missing:
+                fb, ns = FEEDBACK[missing[0]]
+            else:
+                fb, ns = PRAISE[crit]
+            item = {'ctx': a['ctx'], 'tag': 'gold:claude', 'author': a['author'], 'text': a['text'], 'c': c, 'why': why, 'fb': fb, 'ns': ns}
+            if m.get('f'):
+                item['flag'] = m['f']
+            items.append(item)
+    with open(os.path.join(D, 'items', 'g01-gold.jsonl'), 'w') as fh:
+        fh.write(''.join(json.dumps(i, ensure_ascii=False) + '\n' for i in items))
+    print(len(items), 'gold items written')
+
+if __name__ == '__main__':
+    cmd = sys.argv[1]
+    if cmd == 'select':
+        select()
+    elif cmd == 'show':
+        show(int(sys.argv[2]), int(sys.argv[3]))
+    elif cmd == 'convert':
+        convert()
