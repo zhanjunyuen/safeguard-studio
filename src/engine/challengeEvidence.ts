@@ -2,18 +2,22 @@ import { BRIEF, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType } from '../types';
-import { assignedDesks, evaluate, handled, totalCost, type Desk, type Mission } from './mission';
+import { assignedDesks, challengeIdFor, evaluate, handled, totalCost, type Desk, type Mission } from './mission';
+import { idealScript } from './targets';
+import { blockKey } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
 import { curveballHandled, runCurveball } from './curveball';
 import { markOffline, RUBRIC_VERSION } from './marking';
 
-export function evaluateDesk(id: Desk, blocks: BlockType[]) {
+/** Runs a desk's saved block keys against that desk's tests (Level 2 adds its edge case). */
+export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1) {
   const rules = blocks.map(type => ({ type, scope: id }));
-  return getChallenge(id)!.tests.map(t => evaluate(rules, t.id));
+  return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id));
 }
 
 export function assessmentBudget(m: Mission) {
-  return assignedDesks(m).reduce((sum, d) => sum + totalCost(evaluateDesk(d.id, getChallenge(d.id)!.ideal)), 0);
+  return assignedDesks(m).reduce((sum, d) =>
+    sum + totalCost(evaluateDesk(d.id, idealScript(challengeIdFor(m, d.id)).map(blockKey) as BlockType[], m.level)), 0);
 }
 
 export function latestEffectiveness(progress?: ChallengeProgress) {
@@ -25,13 +29,13 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const budget = assessmentBudget(m);
   const challenges = assignedDesks(m).map(d => {
     const p = progress[d.id];
-    const challenge = getChallenge(d.id)!;
-    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script) }));
+    const challenge = getChallenge(challengeIdFor(m, d.id))!;
+    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level) }));
     const evaluated = attempts.slice(-1)[0];
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
     return {
-      id: d.id, title: challenge.title, audience: challenge.audience, story: challenge.story, volume: d.volume,
+      id: d.id, challengeId: challenge.id, title: challenge.title, audience: challenge.audience, story: challenge.story, volume: d.volume,
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
@@ -48,7 +52,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
     && workloadCredits <= budget;
   return {
-    creditModel: 'safeguards-only', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
+    level: m.level ?? 1, creditModel: 'safeguards-only', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
     markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
     attackHints: m.attackHints ?? [], challenges, budget,

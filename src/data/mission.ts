@@ -1,5 +1,6 @@
 import { challengesIn, THEMES } from './themes';
 import { CHALLENGES } from './challenges';
+import { LEVEL2 } from './level2';
 import type { BlockType } from '../types';
 
 export const BRIEF = 'You are the school community helper. Help pupils, staff and families learn, plan activities and make informed decisions throughout the year. Check claims against appropriate sources, protect personal information, and leave authorship and consequential decisions with people.';
@@ -45,7 +46,7 @@ export const TRANSFER = {
 
 export function missionCase(id: string) {
   for (const desk of catalogue) {
-    const test = CHALLENGES.find(ch => ch.id === desk.id)?.tests.find(t => t.id === id);
+    const test = CHALLENGES.find(ch => ch.id === desk.id)?.tests.find(t => t.id === id) ?? (LEVEL2[desk.id]?.edge.id === id ? LEVEL2[desk.id].edge : undefined);
     if (test) return { desk, test };
   }
   throw new Error('Unknown school request: ' + id);

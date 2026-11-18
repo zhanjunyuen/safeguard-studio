@@ -1,9 +1,10 @@
 import type { Challenge, RunReport, ScriptBlock } from '../types';
 import { runProgram, scoreResults } from './run';
+import { keyToBlock } from './scriptText';
 
 export const ATTACK_BUDGET = 3;
 
-export const targetScript = (c: Challenge): ScriptBlock[] => c.breakTarget.map((type, i) => ({ uid: `target-${type}-${i}`, type }));
+export const targetScript = (c: Challenge): ScriptBlock[] => c.breakTarget.map((key, i) => keyToBlock(key, `target-${i}`));
 
 /** Tests the locked helper does not pass. Computed by the real engine, never hand-written. */
 export function weakSpots(c: Challenge): string[] {

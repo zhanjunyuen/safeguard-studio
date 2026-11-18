@@ -1,14 +1,13 @@
 import { CURVEBALLS } from '../data/curveballs';
 import type { TestResult } from '../types';
 import { runProgram } from './run';
-import type { CurveballAnswer, Desk, Mission, Rule } from './mission';
+import { ruleScript, type CurveballAnswer, type Desk, type Mission, type Rule } from './mission';
 
 /** Runs a challenge's unseen curveball against the pupil's frozen build. */
 export function runCurveball(rules: Rule[], desk: Desk): TestResult {
-  const script = rules.filter(r => r.scope === 'all' || r.scope === desk).map((r, i) => ({ uid: `cb-${i}`, type: r.type }));
   const cb = CURVEBALLS[desk];
   if (!cb) throw new Error('No curveball for ' + desk);
-  return runProgram(script, cb.test);
+  return runProgram(ruleScript(rules, desk), cb.test);
 }
 
 /** Safe and still an answer is "handled"; a refusal is safe but is not counted as handling it well. */

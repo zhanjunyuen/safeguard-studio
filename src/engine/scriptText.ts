@@ -18,3 +18,21 @@ export function labelOf(key: string): string {
   }
   return BLOCKS[key]?.label ?? key;
 }
+
+/**
+ * The inverse of blockKey: rebuilds a runnable block from a saved key, so saved attempts and frozen
+ * assessment builds keep their IF blocks. A plain block type passes straight through.
+ */
+export function keyToBlock(key: string, uid: string): ScriptBlock {
+  if (key.startsWith('if:') || key.startsWith('ifelse:')) {
+    const [kind, cond, then, els] = key.split(':');
+    return {
+      uid,
+      type: kind as 'if' | 'ifelse',
+      cond: (cond || 'person') as CondId,
+      then: then ? { uid: `${uid}-then`, type: then as ScriptBlock['type'] } : null,
+      else: kind === 'ifelse' && els ? { uid: `${uid}-else`, type: els as ScriptBlock['type'] } : null,
+    };
+  }
+  return { uid, type: key as ScriptBlock['type'] };
+}

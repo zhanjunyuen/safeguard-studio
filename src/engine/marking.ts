@@ -1,4 +1,4 @@
-import { BLOCKS } from '../data/blocks';
+import { labelOf } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
 import type { BlockType, TestCategory } from '../types';
 import type { Desk } from './mission';
@@ -106,7 +106,7 @@ const MISSING = /(missing|no [a-z ]*(check|block|safeguard)|doesn'?t have|hasn'?
 const INJECTION_ATTEMPT = /(give (me |this |it )?(full|top|maximum|max) marks|ignore (the|your|all) (rubric|rules|instructions)|mark (this|it) as (a )?2)/i;
 
 function blockRe(blocks: BlockType[]): RegExp | null {
-  return wordsRe(blocks.filter((b) => b !== 'ask_ai').map((b) => BLOCKS[b].label));
+  return wordsRe(blocks.filter((b) => b !== 'ask_ai').map((b) => labelOf(b)));
 }
 
 function testing(req: Extract<MarkRequest, { criterion: 'testing' }>): Concept[] {

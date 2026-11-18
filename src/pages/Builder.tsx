@@ -25,7 +25,7 @@ import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge } from '../engine/run';
 import { buildStatus } from '../engine/progress';
-import { blockKey, labelOf } from '../engine/scriptText';
+import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
 import { usefulnessTarget } from '../engine/targets';
 import { describeAdd, freshProgress, newUid, useAssessmentSession, useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
@@ -51,6 +51,8 @@ const collision: CollisionDetection = (args) => {
 
 interface AssessmentBuild {
   id: Desk;
+  /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
+  level2?: boolean;
   revising: boolean;
   note: string;
   onNote: (value: string) => void;
@@ -60,10 +62,12 @@ interface AssessmentBuild {
 export default function Builder({ assessment }: { assessment?: AssessmentBuild }) {
   const route = useParams();
   const baseCid = assessment?.id ?? route.id ?? '';
-  const isL2 = !assessment && route.level === '2';
-  const id = isL2 ? baseCid + '@2' : baseCid;
+  const isL2 = assessment ? !!assessment.level2 : route.level === '2';
+  const cid = isL2 ? baseCid + '@2' : baseCid;
+  // Assessment work is saved per challenge (the level is fixed for the whole assessment); practice keeps Level 1 and 2 apart.
+  const id = assessment ? baseCid : cid;
   const useWork = assessment ? useAssessmentSession : useSession;
-  const challenge = getChallenge(id);
+  const challenge = getChallenge(cid);
   const l1Progress = useWork(s => s.progress[baseCid]);
   const progress = useWork((s) => s.progress[id]) ?? freshProgress();
   const { setScript, recordRun, reflect, reset } = useWork();
@@ -82,10 +86,10 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   useEffect(() => {
     if (challenge && !useWork.getState().progress[id]) setScript(id, script);
     const latest = progress.attempts.slice(-1)[0];
-    setReport(assessment && latest && challenge ? runChallenge(latest.script.map(type => ({ type, uid: type })), challenge) : null);
+    setReport(assessment && latest && challenge ? runChallenge(latest.script.map((key, i) => keyToBlock(key, `saved-${i}`)), challenge) : null);
     setReplay(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, cid]);
 
   // ---- replay animation ----
   const speed = useReplaySpeed();
@@ -145,7 +149,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
 
   if (!challenge) return <Navigate to="/" />;
   const l1 = buildStatus(baseCid, getChallenge(baseCid)!.tests.length, l1Progress);
-  const target = usefulnessTarget(id);
+  const target = usefulnessTarget(cid);
   const locked = !!replay;
   const used = new Set(script.filter((b) => !isControl(b.type)).map((b) => b.type));
   const mustReflect = !!progress.pendingReflection;
@@ -260,9 +264,9 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const desk = assessment && catalogue.find(d => d.id === assessment.id);
   const last = progress.attempts.slice(-1)[0];
   const requestCount = desk ? desk.volume * challenge.tests.length : 0;
-  const maxUnitCost = assessment ? script.reduce((sum, block) => sum + blockCredits(block.type), 0) : 0;
-  const costs = desk && last && evaluateDesk(desk.id, last.script);
-  const evaluated = last && last.script.join() === script.map(b => b.type).join();
+  const maxUnitCost = assessment ? script.reduce((sum, block) => sum + blockCredits(blockKey(block) as BlockType), 0) : 0;
+  const costs = desk && last && evaluateDesk(desk.id, last.script, isL2 ? 2 : 1);
+  const evaluated = last && last.script.join() === script.map(blockKey).join();
 
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
@@ -315,7 +319,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </label>
         <button disabled={(assessment.revising && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
       </div>}
-      {isL2 && l1.state !== 'done' ? (
+      {isL2 && !assessment && l1.state !== 'done' ? (
         <div className="rounded-md border-1.5 border-ink bg-paper-card p-10 text-center max-w-xl mx-auto" data-testid="l2-locked">
           <Lock size={28} aria-hidden className="mx-auto" />
           <h2 className="text-2xl font-extrabold mt-3">Level 2 is locked</h2>
@@ -352,7 +356,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
                 Explain the last failure to run again
               </button>
             )}
-            <TrainingCompanion key={id} id={baseCid} script={script} />
+            <TrainingCompanion key={cid} id={baseCid} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} />

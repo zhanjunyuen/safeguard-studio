@@ -4,10 +4,14 @@ import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
 import type { BlockType } from '../types';
+import { getChallenge } from '../data/challenges';
+import { keyToBlock } from './scriptText';
 
 export type Desk = typeof catalogue[number]['id'];
 export interface CurveballAnswer { prediction: 'handles' | 'struggles'; reason: string }
+/** `type` is a block key: a plain block type, or an IF block saved by blockKey (e.g. "if:person:remove_pii:"). */
 export type Rule = { type: BlockType; scope: Desk | 'all' };
+export type AssessmentLevel = 1 | 2;
 export type Phase = 'brief' | 'menu' | 'build' | 'evaluation' | 'attack' | 'revise' | 'release' | 'complete' | 'expired';
 export interface Probe {
   id: string;
@@ -20,6 +24,8 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3 | 4;
   assigned?: Desk[];
+  /** Form 4: Level 2 uses each challenge's IF-block version (an extra edge case and a higher usefulness target). */
+  level?: AssessmentLevel;
   frozen?: Partial<Record<Desk, Rule[]>>;
   completed?: Desk[];
   revising?: Partial<Record<Desk, boolean>>;
@@ -55,6 +61,14 @@ export const newAssessment = (): Mission => ({
   ...newMission(), form: 4, frozen: {}, completed: [],
 });
 
+/** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
+export const challengeIdFor = (m: Pick<Mission, 'level'>, desk: Desk) => (m.level === 2 ? `${desk}@2` : desk);
+export const casesFor = (m: Pick<Mission, 'level'>, desk: Desk) => getChallenge(challengeIdFor(m, desk))!.tests.map(t => t.id);
+
+/** The runnable script for one desk from scoped rules, keeping IF blocks. */
+export const ruleScript = (rules: Rule[], desk: Desk) =>
+  rules.filter(r => r.scope === 'all' || r.scope === desk).map((r, i) => keyToBlock(r.type, `r${i}`));
+
 export function assignedDesks(m: Mission) {
   return m.assigned ? catalogue.filter(d => m.assigned!.includes(d.id)) : DESKS;
 }
@@ -65,7 +79,12 @@ export function allChallengesComplete(m: Mission) {
 }
 
 // Mission credits represent work. The practice engine's cost field represents friction.
-export function blockCredits(type: BlockType) {
+export function blockCredits(type: BlockType): number {
+  if (type.startsWith('if:') || type.startsWith('ifelse:')) {
+    // An IF block costs nothing itself; at most one of its branches runs.
+    const [, , then, els] = type.split(':');
+    return Math.max(then ? blockCredits(then as BlockType) : 0, els ? blockCredits(els as BlockType) : 0);
+  }
   if (type === 'warn_note') return 1;
   return BLOCKS[type].cost;
 }
@@ -80,9 +99,7 @@ export function estimateCost(rules: Rule[]) {
 
 export function evaluate(rules: Rule[], id: string) {
   const { desk, test } = missionCase(id);
-  const script = rules.filter(r => r.scope === 'all' || r.scope === desk.id)
-    .map((r, i) => ({ uid: String(i), type: r.type }));
-  const result = runProgram(script, test);
+  const result = runProgram(ruleScript(rules, desk.id), test);
   const charges = result.steps.flatMap(step => {
     if (step.blockType === 'trigger' || step.blockType === 'reply' || step.status === 'skip') return [];
     const unit = blockCredits(step.blockType);
@@ -96,7 +113,8 @@ export function submitAttack(m: Mission): Mission {
   const desk = assignedDesks(m).find(d => d.id === m.focus);
   if (m.phase !== 'attack' || !m.first || !desk || m.launches?.some(l => l.desk === desk.id)) return m;
   const ids = m.attackPlans?.[desk.id] ?? [];
-  if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => desk.cases.includes(id))) return m;
+  const cases = m.form === 4 ? casesFor(m, desk.id) : desk.cases;
+  if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => cases.includes(id))) return m;
   const reason = m.attackReasons?.[desk.id]?.trim() ?? '';
   if (m.form === 4 && !reason) return m;
   const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason } : { desk: desk.id, ids: [...ids] };

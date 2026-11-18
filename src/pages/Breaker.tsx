@@ -37,6 +37,8 @@ const collision: CollisionDetection = (args) => {
 
 interface AssessmentAttack {
   id: Desk;
+  /** Level 2 assessment: attack menu includes the Level 2 edge case */
+  level2?: boolean;
   rules: Rule[];
   hintCount: number;
   plan: string[];
@@ -55,7 +57,7 @@ interface AssessmentAttack {
 export default function Breaker({ assessment }: { assessment?: AssessmentAttack }) {
   const route = useParams();
   const id = assessment?.id ?? route.id ?? '';
-  const original = getChallenge(id);
+  const original = getChallenge(assessment?.level2 ? `${id}@2` : id);
   const challenge = useMemo(() => original && assessment
     ? { ...original, breakTarget: assessment.rules.map(r => r.type) } : original, [original, assessment?.rules]);
   const saved = useMemo(() => challenge && assessment?.submitted ? launch(challenge, assessment.submitted) : null, [challenge, assessment?.submitted]);

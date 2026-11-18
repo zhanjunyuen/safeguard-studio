@@ -12,6 +12,17 @@ The overarching commission is to run **a year-round AI helper for the school com
 
 Choose **Start the assessment**, select the time allowance, then choose a challenge from the checklist. Starting an assessment draws one challenge per theme from the 21-challenge practice catalogue. The six are saved with the attempt. Earlier attempts keep their original six. Pupils can work in any order and pause a challenge to work on another. A task menu stays visible during Build, Attack and revision. It tracks completed challenges and the number of tests passed on the latest evaluated build for each attempted task. Front-page practice has its own progress.
 
+**Two levels.** Pupils choose a level before the six challenges are drawn, and it applies to the whole assessment:
+
+| | Level 1 | Level 2 · IF blocks |
+|---|---|---|
+| Blocks | Safeguard blocks for each challenge | The same blocks plus IF … THEN and IF … THEN … ELSE |
+| Tests per challenge | 6 hidden tests | 7: the same six plus an edge case built to slip past the obvious condition (an address with no name, a worry with no "feelings" words, a scam with no link) |
+| Usefulness target | Just below the reference helper | Higher than any always-on helper can reach, so safeguards must run only when needed |
+| Traps | Over-blocking costs usefulness | Also: conditions only see the words in a message, and "the AI isn't sure" is never true |
+
+Level 2 builds keep their IF blocks everywhere they are used: evaluation, the frozen attack target, curveballs, workload credits (an IF only charges for the branch that runs) and the evidence export (`level`, `challengeId`). Attacks at Level 2 can target the edge case, and the budget uses the Level 2 reference helpers. `src/engine/assessmentLevel.test.ts` checks that the always-on Level 1 answer misses every Level 2 target.
+
 1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. Inspect the replay, explain a failure when prompted, and try a new design if needed.
 2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. The cases also appeared during evaluation, so this measures targeted testing after feedback.
 3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Curveballs currently exist for the six original school challenges below; when the draw assigns one of the other 15 challenges, it finishes without a curveball. Each one targets an AI risk the six standard tests don't cover, and most can't be fixed by any block in that palette:
