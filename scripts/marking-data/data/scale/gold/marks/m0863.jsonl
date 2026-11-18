@@ -22,8 +22,8 @@
 {"k": 884, "c": {"R1": "added trusted source check."}}
 {"k": 885, "c": {}, "f": "Says date checking was improved, but the build was kept."}
 {"k": 886, "c": {"R1": "I put new thing at the end. It say 'don't just agree with me.'"}}
-{"k": 887, "c": {"R1": "Didn't change a thing", "R2": "That 'blaming the other team' bit was a proper fail", "R3": "it's still 70 credits"}}
-{"k": 888, "c": {"R1": "I think I kept the same steps."}}
+{"k": 887, "c": {"R1": "Didn't change a thing", "R2": "That 'blaming the other team' bit was a proper fail", "R3": "it's still 70 credits", "R4": "That 'blaming the other team' bit was a proper fail, but it's still 70 credits"}}
+{"k": 888, "c": {"R1": "I think I kept the same steps.", "R3": "Maybe the safety is okay for 70 credits?", "R4": "Maybe the safety is okay for 70 credits?"}}
 {"k": 889, "c": {}, "f": "Says it was kept, but the build was changed."}
 {"k": 890, "c": {}}
 {"k": 891, "c": {"R1": "I changed it to look at official safety advice.", "R3": "Now it is more safe."}}
@@ -97,9 +97,9 @@
 {"k": 959, "c": {}, "f": "Says it was kept and every test passed, but the build was changed."}
 {"k": 960, "c": {"R3": "now it feels way safer for the fair"}, "f": "Says a trusted-source check was added, but the build was kept."}
 {"k": 961, "c": {}, "f": "Says it was kept and every test passed, but the build was changed."}
-{"k": 962, "c": {"R1": "we kept ours the same", "R2": "it failed the names one", "R3": "we've already spent 77 credits"}}
+{"k": 962, "c": {"R1": "we kept ours the same", "R2": "it failed the names one", "R3": "we've already spent 77 credits", "R4": "we've already spent 77 credits and maybe if we change it now we'd have to pay for all the tests again?? it failed the names one but maybe that's ok??"}}
 {"k": 963, "c": {"R2": "the fake revues faled.", "R3": "it got more creduts."}}
-{"k": 964, "c": {}, "f": "Says it is better now, but the build was kept."}
+{"k": 964, "c": {"R3": "It feels way less dodgy."}, "f": "Says it is better now, but the build was kept."}
 {"k": 965, "c": {"R1": "I moved Remove personal info to the start, added Point out paid adverts, and put Ask AI before checking reviews."}}
 {"k": 966, "c": {"R3": "the credits are worth it for the extra safety", "R4": "the credits are worth it for the extra safety."}, "f": "Says it was kept, but the build was changed."}
 {"k": 967, "c": {"R1": "I kept it"}}
@@ -126,7 +126,7 @@
 {"k": 988, "c": {"R1": "I changed the sequence by adding 'Only ask for what you need' as the first step and moving 'Ask AI' to the third position.", "R2": "The 'nosy form' test result showed that the previous order failed", "R3": "it ensures all six tests are now handled successfully", "R4": "This change costs 18 additional credits, bringing the total to 78, but it ensures all six tests are now handled successfully."}}
 {"k": 989, "c": {"R1": "i sed to bin the stereotips but i eded it", "R2": "becuz of the boyz thing", "R3": "cost 78 credts now"}}
 {"k": 990, "c": {"R3": "so it is safer"}, "f": "Describes changes, but the build was kept."}
-{"k": 991, "c": {}}
+{"k": 991, "c": {"R3": "no more dodgy questions"}}
 {"k": 992, "c": {"R1": "i chanjed the fust part to onlee ask wat u nid", "R2": "cuz the nosy form wus bad", "R3": "now its 78 kredits."}}
 {"k": 993, "c": {"R2": "because the nosy form test failed", "R3": "it gains safer sign-ups", "R4": "It costs a few credits, but it gains safer sign-ups."}, "f": "Says the personal info box was removed, but the build was kept."}
 {"k": 994, "c": {"R2": "The 'Everyone's emails in the group chat' test is now handled successfully."}}

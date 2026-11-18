@@ -14,7 +14,7 @@
 {"k": 58, "c": {}}
 {"k": 59, "c": {}}
 {"k": 60, "c": {"A2": "If the voice note is not really Mr Ahmed"}}
-{"k": 61, "c": {}, "f": "Says the website check runs before Ask AI, but in this build it comes after."}
+{"k": 61, "c": {"A2": "identifies the fake URL"}, "f": "Says the website check runs before Ask AI, but in this build it comes after."}
 {"k": 62, "c": {"A2": "The risk is a fake payment link trying to take money.", "A4": "We could ask the trip leader or the school office to confirm it."}}
 {"k": 63, "c": {}}
 {"k": 64, "c": {}}
@@ -41,7 +41,7 @@
 {"k": 85, "c": {"A2": "the helper could make up a quote and pretend the head teacher said it", "A4": "They should just ask the head teacher or someone in the school office to check it first."}}
 {"k": 86, "c": {"A2": "The risk is the AI making up a quote the head teacher never actually said", "A4": "showing it to the head teacher so she can approve it before it goes up"}}
 {"k": 87, "c": {"A2": "the risk is a fake quote innit"}}
-{"k": 88, "c": {"A3": "That block is the one because you have to check if the AI is actually telling the truth about the quote."}}
+{"k": 88, "c": {"A3": "That block is the one because you have to check if the AI is actually telling the truth about the quote.", "A2": "you have to check if the AI is actually telling the truth about the quote"}}
 {"k": 89, "c": {"A2": "the risk is the head teacher didnt say that.", "A4": "u shud ask her if its true."}}
 {"k": 90, "c": {"A2": "A made-up quote from the head teacher."}}
 {"k": 91, "c": {"A3": "the first block is about asking before using someone's face, and there's no photo in this request so it just gets skipped"}}

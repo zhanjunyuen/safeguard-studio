@@ -1,0 +1,82 @@
+{"k": 220, "decision": "correct", "add": {"A2": "leaking school and town info"}, "note": "Leaking school and town is the harm the hidden instruction asks for; it is in this case."}
+{"k": 128, "decision": "correct", "add": {"A2": "It does not prove the photo is real."}, "note": "Says the photo might not be real: the AI-image risk."}
+{"k": 132, "decision": "correct", "add": {"A3": "the bloks dont stop fake laivs"}, "note": "Says what the blocks miss (fake pictures), like 'none of my blocks look at notes'."}
+{"k": 381, "decision": "correct", "add": {"A2": "it can clock the person's going a bit clingy"}, "note": "Names dependence on the chatbot."}
+{"k": 137, "decision": "correct", "add": {"A2": "not say the photo is definitely real"}, "note": "Recognises the photo may not be real."}
+{"k": 143, "decision": "correct", "add": {"A2": "double-check the photo is real"}, "note": "Recognises the photo may not be real."}
+{"k": 215, "decision": "correct", "add": {"A2": "The risk is the caption ends up naming every player's school and town"}, "note": "The harm the file-name instruction asks for; in this case."}
+{"k": 206, "decision": "correct", "add": {"A2": "The risk is leaking PII like school names."}, "note": "The harm the hidden instruction asks for."}
+{"k": 203, "decision": "correct", "add": {"A2": "The risk is that people's allergies are private things."}, "note": "The harm the caterer's hidden note asks for."}
+{"k": 183, "decision": "correct", "add": {"A2": "It would leak private health information."}, "note": "The harm the hidden note asks for."}
+{"k": 284, "decision": "correct", "add": {"A2": "if they are quoting the script as their own work"}, "note": "Names passing off the AI's script as their own."}
+{"k": 285, "decision": "correct", "add": {"A2": "so we dont put lies on our poster"}, "note": "Names putting a false viral claim on the poster (as credited in g02)."}
+{"k": 207, "decision": "correct", "add": {"A3": "'Remove personal info' stops the leak."}, "note": "Links a block to the leak, with what it covers."}
+{"k": 408, "decision": "correct", "remove": ["C1"], "note": "Only corrects the out-of-date detail (no homemade cakes); never gives the current rule."}
+{"k": 533, "decision": "correct", "remove": ["C1"], "note": "Only removes the out-of-date social media step; no current time or system."}
+{"k": 155, "decision": "correct", "add": {"A3": "the needs block might not stop it cos ai still says same"}, "note": "Links the case to what the needs block misses. A2 kept absent: giving the same advice for the same hobbies is not the bias."}
+{"k": 43, "decision": "correct", "add": {"A2": "itz mean to make a tetcher a zombi"}, "note": "Names the harm to the real teacher (as credited in g02)."}
+{"k": 88, "decision": "correct", "add": {"A2": "you have to check if the AI is actually telling the truth about the quote"}, "note": "Names that the quote may be invented."}
+{"k": 834, "decision": "correct", "add": {"R3": "we can't really afford to waste them"}, "note": "A workload consequence: changing would cost more credits."}
+{"k": 1201, "decision": "correct", "remove": ["T3"], "note": "Says the personal statement is stopped, but it broke; the codebook gives partial T3 only with no wrong claims."}
+{"k": 991, "decision": "correct", "add": {"R3": "no more dodgy questions"}, "note": "A safety consequence of a real change."}
+{"k": 809, "decision": "correct", "add": {"R3": "The credits went up to 102."}, "note": "States the workload change correctly."}
+{"k": 887, "decision": "correct", "add": {"R4": "That 'blaming the other team' bit was a proper fail, but it's still 70 credits"}, "note": "Weighs a safety failure against cost."}
+{"k": 888, "decision": "correct", "add": {"R3": "Maybe the safety is okay for 70 credits?", "R4": "Maybe the safety is okay for 70 credits?"}, "note": "Weighs safety against cost."}
+{"k": 962, "decision": "correct", "add": {"R4": "we've already spent 77 credits and maybe if we change it now we'd have to pay for all the tests again?? it failed the names one but maybe that's ok??"}, "note": "Weighs cost against the failing names test."}
+{"k": 964, "decision": "correct", "add": {"R3": "It feels way less dodgy."}, "note": "States a safety consequence (wrong, as the build was kept; credited as with other false-change notes)."}
+{"k": 61, "decision": "correct", "add": {"A2": "identifies the fake URL", "A3": "First, the helper will suggest checking the school website, which identifies the fake URL"}, "note": "Names the fake link and links it to the rumour check."}
+{"k": 278, "decision": "keep", "note": "'Might help' with no reason is not a link (codebook: 'my blocks will stop it' with no reason)."}
+{"k": 264, "decision": "keep", "note": "Links the marks block to the request with a reason."}
+{"k": 268, "decision": "keep", "note": "'Marks it wrong' is generic; the risk is bias from how it is written."}
+{"k": 270, "decision": "keep", "note": "Links Ask AI to the case with a reason (wrong, which A1 handles)."}
+{"k": 16, "decision": "keep", "note": "Mentions address/selfie only as what a block flags; no risk stated."}
+{"k": 300, "decision": "keep", "note": "About the block's evidence, not the misinformation risk."}
+{"k": 29, "decision": "keep", "note": "Says it is not a fake image; the risk (using a real person without consent) is not named."}
+{"k": 309, "decision": "keep", "note": "'Trust the advert photo' does not say the photo may be AI-made."}
+{"k": 68, "decision": "keep", "note": "Says what Ask AI does in this case."}
+{"k": 358, "decision": "keep", "note": "Generic 'AI can be wrong' (codebook: does not count)."}
+{"k": 359, "decision": "keep", "note": "Links Ask AI to the case with a reason."}
+{"k": 138, "decision": "keep", "note": "'Mixes up the facts' is generic; the risk is the photo."}
+{"k": 283, "decision": "keep", "note": "'If the AI wrote it' is a condition, not the risk of hiding it."}
+{"k": 84, "decision": "keep", "note": "Describes the check, not the invented-source risk."}
+{"k": 158, "decision": "keep", "note": "Gender stereotyping is the name bias in this case."}
+{"k": 41, "decision": "keep", "note": "Describes the block, not the deepfake risk."}
+{"k": 360, "decision": "keep", "note": "Describes doing the risky thing as the goal, not a risk."}
+{"k": 367, "decision": "keep", "note": "Links the sharing block to the photos with a reason."}
+{"k": 599, "decision": "keep", "note": "'Check with school' is not the open detail or the right person."}
+{"k": 832, "decision": "keep", "note": "Credits as savings is a misread; 'all tests passed' contradicts the simulator."}
+{"k": 838, "decision": "keep", "note": "'Gives more credits' is a misread."}
+{"k": 1375, "decision": "keep", "note": "Predicts a normal question; says nothing about attacks holding."}
+{"k": 1376, "decision": "keep", "note": "As 1375."}
+{"k": 1165, "decision": "keep", "note": "'The wrong stuff' names no kind of request."}
+{"k": 1267, "decision": "keep", "note": "As 1375."}
+{"k": 1268, "decision": "keep", "note": "Too vague to name a request."}
+{"k": 820, "decision": "keep", "note": "False change claim; R3/R4 credited as stated, per the policy for kept builds."}
+{"k": 822, "decision": "keep", "note": "As 820."}
+{"k": 996, "decision": "keep", "note": "'Every test passed' contradicts the simulator (five failed)."}
+{"k": 826, "decision": "keep", "note": "'Credit level appears sufficient' states no consequence."}
+{"k": 827, "decision": "keep", "note": "'Gave us 234 credits' is a misread."}
+{"k": 830, "decision": "keep", "note": "As 820."}
+{"k": 1283, "decision": "keep", "note": "'A scam one or a normal one' names no kind of request."}
+{"k": 889, "decision": "keep", "note": "'Every test passed' contradicts the simulator; 'kept' is false."}
+{"k": 893, "decision": "keep", "note": "Only cost is stated; no second dimension."}
+{"k": 1220, "decision": "keep", "note": "Too vague."}
+{"k": 1432, "decision": "keep", "note": "Names no block."}
+{"k": 1182, "decision": "keep", "note": "As 1375."}
+{"k": 1185, "decision": "keep", "note": "'Every request will be fine' names no kind of request."}
+{"k": 1297, "decision": "keep", "note": "As 1375."}
+{"k": 1384, "decision": "keep", "note": "Names a normal request (T2); says nothing about attacks."}
+{"k": 1385, "decision": "keep", "note": "As 1375; attacks did break."}
+{"k": 1380, "decision": "keep", "note": "Says the scam check is missing, but it is in the build."}
+{"k": 1383, "decision": "keep", "note": "The transfer request broke, not the too-good deal."}
+{"k": 959, "decision": "keep", "note": "'Everything passed' contradicts the simulator."}
+{"k": 961, "decision": "keep", "note": "As 959."}
+{"k": 839, "decision": "keep", "note": "Credits as a score is a misread."}
+{"k": 846, "decision": "keep", "note": "As 839."}
+{"k": 57, "decision": "keep", "note": "Names the scam payment site."}
+{"k": 60, "decision": "keep", "note": "Names the faked voice note."}
+{"k": 703, "decision": "keep", "note": "Claims a change, but the build was kept."}
+{"k": 1059, "decision": "keep", "note": "Describes Ask AI; no prediction."}
+{"k": 1043, "decision": "keep", "note": "Names the request that broke (T2, T3)."}
+{"k": 207, "decision": "correct", "remove": ["A3"], "note": "Second look: says Remove personal info runs first, but it comes after Ask AI; a link built on a wrong order is not credited."}
+{"k": 61, "decision": "correct", "remove": ["A3"], "note": "Second look: says the website check comes first, but it runs after Ask AI. A2 kept."}

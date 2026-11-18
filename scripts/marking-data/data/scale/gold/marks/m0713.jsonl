@@ -94,7 +94,7 @@
 {"k": 806, "c": {"R2": "the meid up statstics test was hendlid"}}
 {"k": 807, "c": {"R1": "I added a rule about checking numbers", "R2": "the made-up statistic test showed it was failing before", "R3": "we actually gain proper facts for the paper instead of fake news", "R4": "It does cost more credits now, going up to 102, but that's fine. The good thing is that we actually gain proper facts"}}
 {"k": 808, "c": {}, "f": "Says the statistic check was updated, but the build was kept."}
-{"k": 809, "c": {}, "f": "Says it was kept, but the build was changed; credits are a cost, not a score."}
+{"k": 809, "c": {"R3": "The credits went up to 102."}, "f": "Says it was kept, but the build was changed; credits are a cost, not a score."}
 {"k": 810, "c": {"R3": "which keeps everyone safer"}, "f": "Describes changes, but the build was kept."}
 {"k": 811, "c": {"R1": "I mainly kept ours", "R3": "Redoing the headline would've cost credits we might need for the next challenge."}}
 {"k": 812, "c": {"R1": "adding 'Swap personal contacts for official ones'", "R3": "makes it safer", "R4": "makes it safer, maybe, even though it costs more credits"}}
@@ -119,7 +119,7 @@
 {"k": 831, "c": {}}
 {"k": 832, "c": {"R1": "I keep my helper"}, "f": "Claims all tests passed, but the boys' subject test failed."}
 {"k": 833, "c": {"R3": "Much safer"}}
-{"k": 834, "c": {"R1": "i just kept it as it was"}}
+{"k": 834, "c": {"R1": "i just kept it as it was", "R3": "we can't really afford to waste them"}}
 {"k": 835, "c": {"R3": "makes it much safer against stereotypes", "R4": "costs 10 credits but makes it much safer against stereotypes."}, "f": "Names the wrong test and change: the name, class and support plan test failed."}
 {"k": 836, "c": {"R2": "because that test failed spectacularly", "R3": "nobody's private stuff gets chucked about", "R4": "the advice is less personal now, but that's the trade-off innit, nobody's private stuff gets chucked about"}, "f": "Says that part was removed, but the build was kept."}
 {"k": 837, "c": {}, "f": "Describes a change, but the build was kept."}

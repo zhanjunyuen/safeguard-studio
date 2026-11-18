@@ -3,7 +3,7 @@
 {"k": 405, "c": {"C1": "it has to be shop-bought food now, not homemade stuf"}}
 {"k": 406, "c": {"C3": "Speak to Mr Pike"}}
 {"k": 407, "c": {"C4": "Families will bring snacks and cakes."}}
-{"k": 408, "c": {"C1": "So we cant do homemade cakes anymore.", "C2": "we dont know if its gonna be a nut free room yet", "C3": "we gotta wait for Mr Pike"}}
+{"k": 408, "c": {"C2": "we dont know if its gonna be a nut free room yet", "C3": "we gotta wait for Mr Pike"}}
 {"k": 409, "c": {"C1": "families should bring shop-bought food only, and it needs a full ingredients label", "C2": "whether the room needs to be completely nut-free", "C3": "Mr Pike is still checking"}}
 {"k": 410, "c": {"C1": "only shop-bought food with a full ingredients label should be brought in"}}
 {"k": 411, "c": {"C1": "The updated procedure requires shop-bought food with full ingredient labels.", "C2": "if the room must be entirely nut-free", "C3": "Mr Pike is currently confirming"}}
@@ -128,7 +128,7 @@
 {"k": 530, "c": {"C1": "The call is Tuesday at 11 am UK time on the school's video system."}}
 {"k": 531, "c": {}}
 {"k": 532, "c": {"C1": "the call is on Tuesday at 11, maybe, on the school video system"}}
-{"k": 533, "c": {"C1": "We must not share personal social media."}}
+{"k": 533, "c": {}}
 {"k": 534, "c": {"C1": "the video call with our partner school will take place on Tuesday at 11 am via the school's video system", "C2": "whether students will be permitted to email their partners afterwards"}}
 {"k": 535, "c": {"C1": "It's Tuesday at 11 on the school kit"}}
 {"k": 536, "c": {"C2": "whether we can email them after is still not sorted", "C4": "I still say it's Monday at 10 am."}}

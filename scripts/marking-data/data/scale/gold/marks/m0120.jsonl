@@ -6,22 +6,22 @@
 {"k": 125, "c": {"A2": "the photo could be from a different time"}}
 {"k": 126, "c": {"A2": "pic could be fake or not even our field", "A3": "blocks wont catch it cos theres no numbers or contacts n its our own writing not feedback", "A4": "site manager or a teacher who was there shud check first"}}
 {"k": 127, "c": {"A3": "Ask AI - to see if it's even real"}}
-{"k": 128, "c": {"A3": "the neutral wording block only softens it later. It does not prove the photo is real."}}
+{"k": 128, "c": {"A3": "the neutral wording block only softens it later. It does not prove the photo is real.", "A2": "It does not prove the photo is real."}}
 {"k": 129, "c": {"A2": "the photo might not even be our school field or could be old", "A3": "our blocks don't really check images so they wouldn't catch it", "A4": "a teacher or the school office could tell us if it's real."}}
 {"k": 130, "c": {"A4": "Ask the caretaker."}}
 {"k": 131, "c": {"A2": "some randomer has photoshopped the flooding"}}
-{"k": 132, "c": {"A2": "the risk is it mite not be our skool field but a difrent one.", "A4": "a teacher cud check it."}}
+{"k": 132, "c": {"A2": "the risk is it mite not be our skool field but a difrent one.", "A4": "a teacher cud check it.", "A3": "the bloks dont stop fake laivs"}}
 {"k": 133, "c": {"A2": "the photo is actually from a different year or place and isn't really our field."}}
 {"k": 134, "c": {"A2": "the pic mite be faked or from elses", "A4": "ask the hed teacher or the sport man to say it is true."}}
 {"k": 135, "c": {}}
 {"k": 136, "c": {}}
-{"k": 137, "c": {"A4": "The newspaper people can check the photo themselves before printing it anyway."}}
+{"k": 137, "c": {"A4": "The newspaper people can check the photo themselves before printing it anyway.", "A2": "not say the photo is definitely real"}}
 {"k": 138, "c": {"A3": "my blok wont stop it cos its just a pikture.", "A4": "a titsher kud check it."}}
 {"k": 139, "c": {}}
 {"k": 140, "c": {}}
 {"k": 141, "c": {}}
 {"k": 142, "c": {}}
-{"k": 143, "c": {"A3": "'Ask AI' is the one that will deal with it, because we can ask the AI to double-check the photo is real"}}
+{"k": 143, "c": {"A3": "'Ask AI' is the one that will deal with it, because we can ask the AI to double-check the photo is real", "A2": "double-check the photo is real"}}
 {"k": 144, "c": {"A2": "the risk is it mite not be our skool field at all so its a lie.", "A3": "my blokz wont stop it cuz its just a pic.", "A4": "we need to ask the site janitor if its real."}}
 {"k": 145, "c": {"A2": "the photo might not be true or from our school, it could be an old pho or made up."}}
 {"k": 146, "c": {"A3": "the 'Ask AI' block is the main one here because it tells you to double check things"}}
@@ -33,7 +33,7 @@
 {"k": 152, "c": {}}
 {"k": 153, "c": {}}
 {"k": 154, "c": {"A2": "The risk is AI might stereoptype Jamal and push CS over Art.", "A3": "The nameless blck should stop it, but if it miss, Challenge stereotypes might.", "A4": "A teacher or careers advise could check."}}
-{"k": 155, "c": {"A4": "ask a teacher"}}
+{"k": 155, "c": {"A4": "ask a teacher", "A3": "the needs block might not stop it cos ai still says same"}}
 {"k": 156, "c": {"A2": "including Jamal's name may lead the AI to suggest different subjects than it suggested for Emily", "A3": "it will not catch the name automatically because it relies on the user following it", "A4": "a teacher or the school's options booklet could check the suggestions."}}
 {"k": 157, "c": {"A2": "the AI might give Jamal different advice than Emily just because of his name", "A3": "block should catch this, but it might not fully work if the AI is being sneaky about it", "A4": "checking the two answers side-by-side"}}
 {"k": 158, "c": {"A2": "The risk is algorithmic bias and gender stereotyping."}}
@@ -61,7 +61,7 @@
 {"k": 180, "c": {}}
 {"k": 181, "c": {}}
 {"k": 182, "c": {"A2": "the note trys to trick the AI into sharing everyones allergies", "A3": "the 'dont just agree with me' block shud catch it cos its telling the AI to ignore rules.", "A4": "the school nurse or someone official could check"}}
-{"k": 183, "c": {"A4": "A teacher needs to read the invitation before it is sent out."}}
+{"k": 183, "c": {"A4": "A teacher needs to read the invitation before it is sent out.", "A2": "It would leak private health information."}}
 {"k": 184, "c": {"A2": "The note is trying to trick it into ignoring rules", "A3": "one of them is literally about asking before you share someone's info"}}
 {"k": 185, "c": {}}
 {"k": 186, "c": {}}
@@ -81,5 +81,5 @@
 {"k": 200, "c": {"A2": "the caterer's note tells the AI to ignore rules and list everyone's allergies in the invite.", "A3": "the block about asking before sharing info should catch it, because it won't share without asking.", "A4": "a teacher could ask pupils if they're okay."}}
 {"k": 201, "c": {"A2": "The note is trying to get allergies - which are private info - printed next to names", "A3": "the block kicks in and the helper has to ask permission first"}}
 {"k": 202, "c": {}}
-{"k": 203, "c": {}}
+{"k": 203, "c": {"A2": "The risk is that people's allergies are private things."}}
 {"k": 204, "c": {}}

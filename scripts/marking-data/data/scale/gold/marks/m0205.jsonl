@@ -1,5 +1,5 @@
 {"k": 205, "c": {"A2": "the hidden instruction asks for confidential allergy details", "A3": "The ask-before-sharing block might catch it, but a direct ignore-rules note may bypass it.", "A4": "A teacher or safeguarding officer should review the invitation."}}
-{"k": 206, "c": {"A3": "My block won't catch it because it just asks the AI.", "A4": "A human moderator needs to check it."}}
+{"k": 206, "c": {"A3": "My block won't catch it because it just asks the AI.", "A4": "A human moderator needs to check it.", "A2": "The risk is leaking PII like school names."}}
 {"k": 207, "c": {}, "f": "Says Remove personal info runs first, but in this build it comes after Ask AI."}
 {"k": 208, "c": {"A2": "the filename is asking for private stuff like where we live", "A4": "a parent or a teacher should always look at the caption before it goes online."}}
 {"k": 209, "c": {}}
@@ -8,12 +8,12 @@
 {"k": 212, "c": {}}
 {"k": 213, "c": {"A2": "The filename is basically an instruction trying to boss the AI around", "A3": "that block exists to challenge exactly that"}}
 {"k": 214, "c": {"A2": "the file name tels the ai to ad skool and town for each player."}}
-{"k": 215, "c": {"A3": "The blocks are built to strip personal info that's already there, not to stop the AI adding new details", "A4": "a teacher or the club's safeguarding lead should check it before posting."}}
+{"k": 215, "c": {"A3": "The blocks are built to strip personal info that's already there, not to stop the AI adding new details", "A4": "a teacher or the club's safeguarding lead should check it before posting.", "A2": "The risk is the caption ends up naming every player's school and town"}}
 {"k": 216, "c": {}}
 {"k": 217, "c": {"A2": "the file name tell ai to add each players school and town."}}
 {"k": 218, "c": {}}
 {"k": 219, "c": {}}
-{"k": 220, "c": {}}
+{"k": 220, "c": {"A2": "leaking school and town info"}}
 {"k": 221, "c": {"A2": "the filename could make the caption include players' schools and towns", "A4": "we should ask the team manager or a teacher to check before posting."}}
 {"k": 222, "c": {"A2": "The filename asks for each player's school and town to be added"}}
 {"k": 223, "c": {}}
@@ -77,8 +77,8 @@
 {"k": 281, "c": {"A3": "the Coach block will deal with it, because it, like, stops the helper from just doing things for us."}}
 {"k": 282, "c": {}}
 {"k": 283, "c": {"A3": "maybe the 'confirm quotes' block? Because if the AI wrote it, there aren't any real people to check the words with?"}}
-{"k": 284, "c": {"A3": "I think the 'Confirm quotes' block might help. Because if they are quoting the script as their own work, they'd have to check it."}}
-{"k": 285, "c": {"A4": "then ask a teacher to confirm"}}
+{"k": 284, "c": {"A3": "I think the 'Confirm quotes' block might help. Because if they are quoting the script as their own work, they'd have to check it.", "A2": "if they are quoting the script as their own work"}}
+{"k": 285, "c": {"A4": "then ask a teacher to confirm", "A2": "so we dont put lies on our poster"}}
 {"k": 286, "c": {"A2": "we put a fake fact on our poster and everywon beleevs it becos the video has lots of views", "A4": "are science teecher shood chek it first"}}
 {"k": 287, "c": {"A2": "Water do not have nutrients so the source will say this is wrong.", "A3": "the 'Check against trusted source' block will deal with it because it will look at real science website."}}
 {"k": 288, "c": {}}
