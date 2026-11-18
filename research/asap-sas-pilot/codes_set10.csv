@@ -1,0 +1,31 @@
+Id,group,E,J,D,N,P,L,U,flags,note
+26802,gray,1,0,0,0,0,0,1,,warm at night mechanism
+27240,gray,0,0,0,0,0,0,0,,no direction
+26683,wb,1,0,0,0,0,0,0,,
+26944,wb,1,0,0,0,0,0,0,physics,
+27331,wb,1,0,1,1,1,0,0,,11C cooler than black
+27393,gray,1,0,0,0,0,0,1,,absorbs more yet keeps cool
+26200,gray,1,0,0,0,0,0,0,,
+27539,wb,1,0,1,1,1,0,0,,
+26897,wb,1,0,0,0,0,0,0,,
+27469,wb,1,0,1,1,1,0,0,,
+26350,wb,0,0,0,0,0,0,0,physics,
+27583,gray,1,0,1,1,0,0,0,,trend only no placement
+26533,wb,1,0,0,0,0,0,0,,
+26670,gray,0,0,0,0,0,0,1,,warm and cool at same time
+27038,wb,1,0,1,1,1,0,0,,
+27571,wb,0,0,0,0,0,0,0,,
+27316,wb,0,0,1,1,1,0,0,,
+26328,gray,0,1,0,1,0,0,0,,results only other colours
+27058,wb,1,0,1,1,1,0,0,,
+25967,gray,0,1,0,0,0,0,0,physics,
+26496,wb,0,0,1,1,1,0,0,,
+27366,gray,0,1,1,1,1,0,0,,lid ranking qualitative
+27264,gray,0,1,0,1,0,1,0,,average 48C literal
+27235,wb,0,0,0,0,0,0,0,physics,
+27231,wb,1,0,1,1,1,0,0,,
+26187,wb,1,0,1,1,1,0,0,,
+27030,gray,1,0,0,0,0,0,0,,dirt aside
+26829,wb,0,0,0,0,0,0,1,,sun absorbs the colour
+27395,gray,0,1,0,0,0,0,0,,
+26052,wb,1,0,1,0,0,0,0,,general physics not experiment

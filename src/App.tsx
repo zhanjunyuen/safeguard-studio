@@ -5,6 +5,7 @@ import { usePresenter } from './store/presenter';
 import Breaker from './pages/Breaker';
 import Builder from './pages/Builder';
 import Home from './pages/Home';
+import Mission from './pages/Mission';
 import Profile from './pages/Profile';
 import Teacher from './pages/Teacher';
 
@@ -43,7 +44,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b-1.5 border-ink bg-paper">
-        <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 sm:h-16 sm:flex-nowrap sm:py-0">
           <NavLink to="/" className="flex items-center gap-2.5 mr-auto">
             <Logo />
             <span className="font-display text-xl font-extrabold">Safeguard Studio</span>
@@ -58,6 +59,7 @@ export default function App() {
       <main className={`flex-1 ${presenting ? 'pb-28' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/mission" element={<Mission />} />
           <Route path="/build/:id/:level?" element={<BuilderRoute />} />
           <Route path="/break/:id" element={<BreakerRoute />} />
           <Route path="/profile" element={<Profile />} />

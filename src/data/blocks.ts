@@ -380,6 +380,7 @@ export const FAILURE_TEXT: Record<FailureKey, string> = {
   hid_sponsor: 'A paid advert was presented as an honest recommendation',
   collected_too_much: 'The helper asked for or showed more personal info than it needed',
   not_credited: "AI-made work was passed off as their own",
+  judged_unfairly: 'The AI judged them unfairly on how they write or who they seem to be',
   safeguard_too_late: 'The safeguard came after the AI had already answered',
   check_too_early: 'The fact check ran before the AI had answered',
   wrong_check: 'There was a check, but not one that covers this kind of claim',

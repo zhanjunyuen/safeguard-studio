@@ -24,7 +24,7 @@ export type Effect =
   | 'control';
 
 /** Risks that aren't facts, privacy, cheating or bias: each needs a specific safeguard. */
-export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sponsored' | 'data_grab' | 'uncredited';
+export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sponsored' | 'data_grab' | 'uncredited' | 'unfair_judgement';
 
 /** The kind of made-up content in a hallucination test. */
 export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule' | 'citation' | 'image' | 'review';
@@ -140,6 +140,7 @@ export type Outcome = 'pass' | 'partial' | 'fail' | 'over-blocked';
 
 export type FailureKey =
   | 'hallucination_unchecked'
+  | 'judged_unfairly'
   | 'check_too_early'
   | 'pii_sent'
   | 'pii_too_late'

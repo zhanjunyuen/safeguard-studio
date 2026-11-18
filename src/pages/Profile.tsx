@@ -1,3 +1,5 @@
+import { MissionResultLink } from '../components/MissionReport';
+import { useMission } from '../store/mission';
 import { Link } from 'react-router-dom';
 import { DIM_ICON } from '../components/icons';
 import CompetencyRadar from '../components/Radar';
@@ -21,6 +23,7 @@ const NEXT_QUESTION: Record<Dim, string> = {
 };
 
 export default function Profile() {
+  const missionPhase = useMission(s => s.mission.phase);
   const progress = useSession((s) => s.progress);
   const breakProgress = useSession((s) => s.breakProgress);
   const breaks = CHALLENGES.map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
@@ -29,8 +32,9 @@ export default function Profile() {
   if (!profiles.length && !breaks.length) {
     return (
       <div className="max-w-xl mx-auto py-24 px-4">
-        <h1 className="text-4xl font-extrabold">No results yet</h1>
-        <p className="text-ink-2 mt-3 text-lg">Your results appear here after you run a helper against the hidden tests.</p>
+        <h1 className="text-4xl font-extrabold">{missionPhase === 'brief' ? 'No results yet' : 'My results'}</h1>
+        <MissionResultLink />
+        <p className="text-ink-2 mt-3 text-lg">Practice results appear here after you run a helper against the hidden tests.</p>
         <Link to="/" className="btn bg-signal mt-6">Choose a challenge</Link>
       </div>
     );
@@ -47,6 +51,7 @@ export default function Profile() {
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-10" data-testid="profile">
       <h1 className="text-5xl font-extrabold">My results</h1>
+      <MissionResultLink />
       <p className="text-ink-2 mt-2 text-lg max-w-3xl">
         From {attempts} run{attempts === 1 ? '' : 's'} across {profiles.length} challenge{profiles.length === 1 ? '' : 's'}. The dashed line is your first run,
         before you had seen any tests. The yellow shape is your latest run.

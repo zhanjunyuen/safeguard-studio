@@ -1,13 +1,11 @@
+import { stackCollision } from '../components/stackCollision';
 import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
-  pointerWithin,
-  rectIntersection,
   useSensor,
   useSensors,
-  type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
@@ -16,6 +14,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Lock, Play, RotateCcw } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Block from '../components/Block';
+import TrainingCompanion from '../components/TrainingCompanion';
 import Palette from '../components/Palette';
 import ReflectModal from '../components/ReflectModal';
 import RunPanel from '../components/RunPanel';
@@ -24,34 +23,44 @@ import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge } from '../engine/run';
 import { buildStatus } from '../engine/progress';
-import { blockKey, labelOf } from '../engine/scriptText';
+import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
 import { usefulnessTarget } from '../engine/targets';
-import { describeAdd, freshProgress, newUid, useSession } from '../store/session';
+import { describeAdd, freshProgress, newUid, useAssessmentSession, useSession } from '../store/session';
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
+
+import { blockCredits, totalCost, type Desk } from '../engine/mission';
+import { evaluateDesk } from '../engine/challengeEvidence';
+import { Trace } from '../components/MissionReport';
+import { catalogue } from '../data/mission';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
 
 const isControl = (t: string) => t === 'if' || t === 'ifelse';
 
-// Prefer an IF's inner slot over the IF block it sits in.
-const collision: CollisionDetection = (args) => {
-  const p = pointerWithin(args);
-  const slot = p.find((c) => String(c.id).startsWith('slot:'));
-  if (slot) return [slot];
-  return p.length ? p : rectIntersection(args);
-};
-
-export default function Builder() {
-  const { id: baseCid = '', level } = useParams();
-  const isL2 = level === '2';
-  // Level 2 progress is stored under "id@2" so it never mixes with Level 1.
-  const id = isL2 ? `${baseCid}@2` : baseCid;
-  const challenge = getChallenge(id);
-  const l1Progress = useSession((s) => s.progress[baseCid]);
-  const progress = useSession((s) => s.progress[id]) ?? freshProgress();
-  const { setScript, recordRun, reflect, reset } = useSession();
+interface AssessmentBuild {
+  id: Desk;
+  /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
+  level2?: boolean;
+  revising: boolean;
+  note: string;
+  onNote: (value: string) => void;
+  onMenu: () => void;
+  onAttack: () => void;
+}
+export default function Builder({ assessment }: { assessment?: AssessmentBuild }) {
+  const route = useParams();
+  const baseCid = assessment?.id ?? route.id ?? '';
+  const isL2 = assessment ? !!assessment.level2 : route.level === '2';
+  const cid = isL2 ? baseCid + '@2' : baseCid;
+  // Assessment work is saved per challenge (the level is fixed for the whole assessment); practice keeps Level 1 and 2 apart.
+  const id = assessment ? baseCid : cid;
+  const useWork = assessment ? useAssessmentSession : useSession;
+  const challenge = getChallenge(cid);
+  const l1Progress = useWork(s => s.progress[baseCid]);
+  const progress = useWork((s) => s.progress[id]) ?? freshProgress();
+  const { setScript, recordRun, reflect, reset } = useWork();
   const script = progress.script;
 
   const [report, setReport] = useState<RunReport | null>(null);
@@ -66,11 +75,12 @@ export default function Builder() {
 
   // make sure the challenge has a progress entry persisted
   useEffect(() => {
-    if (challenge && !useSession.getState().progress[id]) setScript(id, script);
-    setReport(null);
+    if (challenge && !useWork.getState().progress[id]) setScript(id, script);
+    const latest = progress.attempts.slice(-1)[0];
+    setReport(assessment && latest && challenge ? runChallenge(latest.script.map((key, i) => keyToBlock(key, `saved-${i}`)), challenge) : null);
     setReplay(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, cid]);
 
   // ---- replay animation ----
   const speed = useReplaySpeed();
@@ -110,7 +120,7 @@ export default function Builder() {
     if (!report) return;
     const firstBad = report.results.find((r) => r.outcome !== 'pass');
     setSelected(firstBad?.testId ?? report.results[0].testId);
-    const pending = useSession.getState().progress[id]?.pendingReflection;
+    const pending = useWork.getState().progress[id]?.pendingReflection;
     if (pending) setReflectFor(pending);
   };
 
@@ -130,12 +140,13 @@ export default function Builder() {
 
   if (!challenge) return <Navigate to="/" />;
   const l1 = buildStatus(baseCid, getChallenge(baseCid)!.tests.length, l1Progress);
-  const target = usefulnessTarget(id);
+  const target = usefulnessTarget(cid);
   const locked = !!replay;
   const used = new Set(script.filter((b) => !isControl(b.type)).map((b) => b.type));
   const mustReflect = !!progress.pendingReflection;
 
   const update = (next: typeof script, event: { kind: 'add' | 'remove' | 'move'; text: string }) => {
+    if (locked) return;
     setScript(id, next, event);
     setDirty(true);
   };
@@ -210,6 +221,7 @@ export default function Builder() {
     }
 
     if (d?.from === 'palette') {
+      if (over.data.current?.insertion) return addAt(d.type!, over.data.current.index);
       if (overId === 'palette') return;
       const idx = overId === 'stack-start' ? 0 : overId === 'stack-end' ? script.length : overIdx + (below ? 1 : 0);
       if (idx >= 0) addAt(d.type!, idx);
@@ -242,6 +254,13 @@ export default function Builder() {
     finishReplay();
   };
 
+  const desk = assessment && catalogue.find(d => d.id === assessment.id);
+  const last = progress.attempts.slice(-1)[0];
+  const requestCount = desk ? desk.volume * challenge.tests.length : 0;
+  const maxUnitCost = assessment ? script.reduce((sum, block) => sum + blockCredits(blockKey(block) as BlockType), 0) : 0;
+  const costs = desk && last && evaluateDesk(desk.id, last.script, isL2 ? 2 : 1);
+  const evaluated = last && last.script.join() === script.map(blockKey).join();
+
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
@@ -249,13 +268,13 @@ export default function Builder() {
     <div className="max-w-[1400px] mx-auto px-4 py-6">
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Assessment checklist</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
-          </Link>
+          </Link>}
           <h1 className="text-4xl font-extrabold leading-none">{challenge.title}</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">{challenge.story}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <nav aria-label="Level" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
+            {!assessment && <nav aria-label="Level" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
               <Link to={`/build/${baseCid}`} aria-current={!isL2 ? 'page' : undefined} className={`px-3 py-1.5 ${!isL2 ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`} data-testid="level-1">
                 Level 1
               </Link>
@@ -267,19 +286,33 @@ export default function Builder() {
               >
                 {l1.state !== 'done' && <Lock size={13} aria-hidden />} Level 2: IF blocks
               </Link>
-            </nav>
+            </nav>}
             <p className="text-sm text-ink-2" data-testid="goal">
               <b className="text-ink">Goal:</b> pass all {challenge.tests.length} tests <b className="text-ink">and</b> keep usefulness at {target} or more.
               {isL2 ? ' Use IF blocks so safeguards only run when they are needed.' : ' Every extra block slows the helper down.'}
             </p>
           </div>
         </div>
-        <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
+        {!assessment && <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
           <RotateCcw size={16} aria-hidden /> Start again
-        </button>
+        </button>}
       </div>
 
-      {isL2 && l1.state !== 'done' ? (
+      {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
+        <p><b>Cost per request</b> · {maxUnitCost ? 'Up to ' + maxUnitCost + ' credits' : '0 credits'} with these blocks.</p>
+        <p className="text-sm text-ink-2">Ask AI is included for free. You spend credits when the safeguards you add run.</p>
+        <details><summary className="cursor-pointer font-bold">How much does a test run cost?</summary>
+          <p>There are {challenge.tests.length} test questions. {desk.volume === 1 ? 'Each is asked once.' : 'Each is asked ' + desk.volume + ' times to simulate a busier service.'} At up to {maxUnitCost} credits each, those {requestCount} requests can use up to {maxUnitCost * requestCount} credits in total. Skipped blocks use zero credits.</p>
+        </details>
+        {costs && !locked && <details><summary className="cursor-pointer font-bold">Last run used {totalCost(costs)} credits</summary>
+          {costs.map(row => <Trace key={row.id} run={row} />)}
+        </details>}
+        <label className="block text-sm font-bold">{assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
+          <textarea className="block mt-1 w-full rounded border border-line p-2" rows={2} value={assessment.note} onChange={e => assessment.onNote(e.target.value)} />
+        </label>
+        <button disabled={(assessment.revising && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
+      </div>}
+      {isL2 && !assessment && l1.state !== 'done' ? (
         <div className="rounded-md border-1.5 border-ink bg-paper-card p-10 text-center max-w-xl mx-auto" data-testid="l2-locked">
           <Lock size={28} aria-hidden className="mx-auto" />
           <h2 className="text-2xl font-extrabold mt-3">Level 2 is locked</h2>
@@ -290,11 +323,11 @@ export default function Builder() {
           <Link to={`/build/${baseCid}`} className="btn bg-signal mt-5">Go to Level 1</Link>
         </div>
       ) : (
-      <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
+      <DndContext sensors={sensors} collisionDetection={stackCollision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
         <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
-          <Palette blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
+          <Palette credits={assessment ? blockCredits : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
-          <section className="graph rounded-md border-1.5 border-ink p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
+          <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
               <div>
                 <h2 className="text-lg font-extrabold leading-none">Your helper</h2>
@@ -316,12 +349,13 @@ export default function Builder() {
                 Explain the last failure to run again
               </button>
             )}
+            <TrainingCompanion key={cid} id={baseCid} script={script} />
           </section>
 
           <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} />
         </div>
 
-        <DragOverlay dropAnimation={{ duration: 180 }}>
+        <DragOverlay dropAnimation={null}>
           {activeDrag ? (
             <div className="rotate-2" style={{ filter: "drop-shadow(3px 3px 0 #16161A)" }}>
               <Block kind={activeDrag} label={BLOCKS[activeDrag].label} color={BLOCKS[activeDrag].color} textColor={isControl(activeDrag) ? '#16161A' : undefined} width={STACK_W} />

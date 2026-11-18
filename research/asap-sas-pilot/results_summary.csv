@@ -1,0 +1,5 @@
+set,rule,n,qwk_me_vs_score1,ci95,qwk_me_vs_score2,qwk_human1_vs_human2,exact_me,exact_humans,mean_me,mean_score1,off_by_2plus
+set10,pred_b,30,0.755,"[0.58, 0.89]",0.658,0.735,0.77,0.73,1.13,1.3,0
+set10,pred_a,30,0.641,"[0.37, 0.84]",0.721,0.735,0.7,0.73,1.03,1.3,1
+set1,pred,50,0.871,"[0.75, 0.95]",0.921,0.906,0.82,0.82,1.24,1.36,1
+set1,pred_borderline,50,0.872,"[0.75, 0.95]",0.901,0.906,0.82,0.82,1.4,1.36,1

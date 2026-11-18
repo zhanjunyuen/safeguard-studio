@@ -2,6 +2,7 @@ import { ArrowRight, Check, Circle, CircleDot, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMission } from '../store/mission';
 import Block from '../components/Block';
 import JoinClass from '../components/JoinClass';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
@@ -22,6 +23,7 @@ const STEPS = [
 
 export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   const nav = useNavigate();
+  const phase = useMission(s => s.mission.phase);
   const { progress, reset, setScript } = useSession();
   const breakProgress = useSession((s) => s.breakProgress);
 
@@ -42,18 +44,17 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
         <div>
           <p className="label text-ink-2 mb-4">AI literacy assessment · Ages 11 to 14</p>
           <h1 className="text-5xl md:text-[64px] font-extrabold leading-[0.98]">
-            Can your AI helper handle a <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">bad answer</span>?
+            Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
           <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Pick a job, like helping a Year 7 with history homework, and build a helper out of blocks. It then faces six hidden
-            tests, including a made-up date, a friend's home address and a request to write a whole essay. You see exactly what
-            it told them, fix it, and run it again.
+            Complete six challenges drawn from the 21 in the catalogue, one per theme. You choose the order. In each one, build with its safeguard blocks, run its six tests, then use attack blocks to test your own design.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={quickDemo} className="btn bg-signal text-ink" data-testid="quick-demo">
-              Try the history demo <ArrowRight size={18} aria-hidden />
+            <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">
+              {phase === 'brief' ? 'Start the assessment' : phase === 'complete' || phase === 'expired' ? 'View assessment evidence' : 'Resume assessment'} <ArrowRight size={18} aria-hidden />
             </button>
             <button onClick={() => document.getElementById('challenges')?.scrollIntoView({ behavior: 'smooth' })} className="btn bg-paper-card">See all challenges</button>
+            <button onClick={quickDemo} className="btn bg-paper-card" data-testid="quick-demo">Try the history demo</button>
           </div>
           <JoinClass />
         </div>
@@ -90,7 +91,7 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
 
       <section id="challenges" className="mt-28">
         <div className="flex items-end justify-between flex-wrap gap-2 border-b-1.5 border-ink pb-3 mb-6">
-          <h2 className="text-3xl font-extrabold">Challenges</h2>
+          <h2 className="text-3xl font-extrabold">Practice challenges</h2>
           <p className="text-ink-2">{CHALLENGES.length} challenges in {THEMES.length} themes. Each has six hidden tests you only see after your first run.</p>
         </div>
         {THEMES.map((t, ti) => {
@@ -195,7 +196,7 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
 
       <section className="mt-24 grid md:grid-cols-[280px_1fr] gap-8">
         <div>
-          <h2 className="text-3xl font-extrabold leading-tight">How it assesses AI literacy</h2>
+          <h2 className="text-3xl font-extrabold leading-tight">How the practice challenges work</h2>
           <p className="text-ink-2 mt-2">The score comes from what students build and fix, rather than what they say they would do.</p>
         </div>
         <ol className="grid sm:grid-cols-2 gap-x-8 gap-y-6">

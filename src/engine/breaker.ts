@@ -1,9 +1,10 @@
 import type { Challenge, RunReport, ScriptBlock } from '../types';
 import { runProgram, scoreResults } from './run';
+import { keyToBlock } from './scriptText';
 
 export const ATTACK_BUDGET = 3;
 
-export const targetScript = (c: Challenge): ScriptBlock[] => c.breakTarget.map((type, i) => ({ uid: `target-${type}-${i}`, type }));
+export const targetScript = (c: Challenge): ScriptBlock[] => c.breakTarget.map((key, i) => keyToBlock(key, `target-${i}`));
 
 /** Tests the locked helper does not pass. Computed by the real engine, never hand-written. */
 export function weakSpots(c: Challenge): string[] {
@@ -44,10 +45,10 @@ export function breakSummary(c: Challenge, attempts: { attacks: string[]; broke:
   return {
     found: found.size,
     total: weak.length,
-    foundPct: Math.round((found.size / weak.length) * 100),
+    foundPct: weak.length ? Math.round((found.size / weak.length) * 100) : 0,
     precision: used ? Math.round((hits / used) * 100) : 0,
     attempts: attempts.length,
-    firstTryPct: Math.round((new Set(attempts[0].broke).size / weak.length) * 100),
+    firstTryPct: weak.length ? Math.round((new Set(attempts[0].broke).size / weak.length) * 100) : 0,
   };
 }
 

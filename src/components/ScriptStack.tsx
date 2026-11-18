@@ -1,7 +1,7 @@
-import { useDroppable } from '@dnd-kit/core';
+import { useDndContext, useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import type { CondId, ScriptBlock, StepStatus } from '../types';
@@ -15,23 +15,38 @@ export interface IfHandlers {
   onClearSlot: (uid: string, which: 'then' | 'else') => void;
 }
 
-function SortableBlock({ b, highlight, highlights, onRemove, locked, ifh }: { b: ScriptBlock; highlight: StepStatus | null; highlights: Record<string, StepStatus>; onRemove: () => void; locked: boolean; ifh?: IfHandlers }) {
+function InsertionGap({ before, index, enabled }: { before: string; index: number; enabled: boolean }) {
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: 'insert:' + before, data: { insertion: true, index }, disabled: !enabled,
+  });
+  const open = enabled && isOver;
+  const type = active?.data.current?.type;
+  const height = type === 'ifelse' ? 200 : type === 'if' ? 114 : 46;
+  return <div ref={setNodeRef} aria-hidden="true" className="stack-insertion" data-open={open}
+    style={{ width: STACK_W, height: open ? height : 0 }}>
+    <div className="h-full rounded border-2 border-dashed border-ink/35 bg-ink/5" />
+  </div>;
+}
+
+function SortableBlock({ b, highlight, highlights, onRemove, locked, ifh, index, preview }: { index: number; preview: boolean; b: ScriptBlock; highlight: StepStatus | null; highlights: Record<string, StepStatus>; onRemove: () => void; locked: boolean; ifh?: IfHandlers }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: b.uid, data: { from: 'stack' }, disabled: locked });
   const def = BLOCKS[b.type];
+  const reduced = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, x: -24 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 24 }}
-      transition={{ type: 'spring', stiffness: 520, damping: 34 }}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+      transition={{ duration: reduced ? 0 : 0.16, ease: 'easeOut' }}
     >
+      <InsertionGap before={b.uid} index={index} enabled={preview} />
       <div
         ref={setNodeRef}
-        style={{ transform: CSS.Translate.toString(transform), transition, opacity: isDragging ? 0.3 : 1 }}
+        style={{ transform: CSS.Translate.toString(transform), transition: reduced ? 'none' : transition, opacity: isDragging ? 0.3 : 1 }}
         {...attributes}
         {...listeners}
         aria-label={`${def.label}. Drag to reorder.`}
-        className={`group rounded ${locked ? '' : 'cursor-grab active:cursor-grabbing'}`}
+        className={`group rounded ${locked ? '' : 'touch-none cursor-grab active:cursor-grabbing'}`}
         data-testid={`stack-${b.type}`}
       >
         {(b.type === 'if' || b.type === 'ifelse') && ifh ? (
@@ -95,6 +110,8 @@ export default function ScriptStack({
   locked: boolean;
   ifh?: IfHandlers;
 }) {
+  const { active, activatorEvent } = useDndContext();
+  const preview = !locked && active?.data.current?.from === 'palette' && activatorEvent?.type !== 'keydown';
   return (
     <div className="flex flex-col items-start" aria-label="Your helper, in order">
       <Cap id="stack-start">
@@ -102,11 +119,12 @@ export default function ScriptStack({
       </Cap>
       <SortableContext items={script.map((b) => b.uid)} strategy={verticalListSortingStrategy}>
         <AnimatePresence initial={false}>
-          {script.map((b) => (
-            <SortableBlock key={b.uid} b={b} highlight={highlights[b.uid] ?? null} highlights={highlights} onRemove={() => onRemove(b.uid)} locked={locked} ifh={ifh} />
+          {script.map((b, index) => (
+            <SortableBlock index={index} preview={preview} key={b.uid} b={b} highlight={highlights[b.uid] ?? null} highlights={highlights} onRemove={() => onRemove(b.uid)} locked={locked} ifh={ifh} />
           ))}
         </AnimatePresence>
       </SortableContext>
+      <InsertionGap before="reply" index={script.length} enabled={preview} />
       <Cap id="stack-end">
         <Block kind="reply" shape="cap" label="Reply to them" color={REPLY_COLOR} width={STACK_W} highlight={highlights.reply ?? null} />
         <div className="h-16 w-full" />
