@@ -86,3 +86,20 @@
   width: 100%;
   margin: 0;
 }
+
+.companion-clip {
+  border-radius: 6px;
+  mix-blend-mode: multiply;
+}
+.companion-clip::before { display: none; }
+.companion-clip video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.companion-clip.reacting img { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .companion-clip video { display: none; }
+}

@@ -48,7 +48,7 @@ export default function Mission() {
   useActiveClock(!ended && m.phase !== 'brief');
   const rules = m.phase === 'attack' && m.first ? m.first : m.draft;
   const companionScript = useMemo(() => rules.map(({ type }) => ({ type, uid: type })), [rules]);
-  const companion = <TrainingCompanion id="community" script={companionScript} />;
+  const companion = <TrainingCompanion id="community" script={companionScript} hintCount={m.attackHints?.length} />;
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase]);
