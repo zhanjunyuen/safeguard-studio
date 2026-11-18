@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DESKS } from '../data/mission';
-import { allChallengesComplete, newAssessment } from './mission';
+import { allChallengesComplete, newAssessment, submitAttack } from './mission';
 import { challengeEvidence } from './challengeEvidence';
 import { freshProgress } from '../store/session';
 
@@ -24,5 +24,17 @@ describe('six required challenges', () => {
     expect(packet.challenges.filter(c => c.status === 'unattempted')).toHaveLength(5);
     expect(packet.meetsEfficiencyTarget).toBe(false);
     expect(packet.transfer.decision).toBeNull();
+  });
+
+  it('requires a written prediction before an attack launches, and exports it with the attack', () => {
+    const target = [{ type: 'ask_ai' as const, scope: 'party' as const }];
+    const ready = { ...newAssessment(), phase: 'attack' as const, focus: 'party' as const, first: target,
+      frozen: { party: target }, attackPlans: { party: ['p_allergy'] } };
+    expect(submitAttack(ready)).toBe(ready);
+    expect(submitAttack({ ...ready, attackReasons: { party: '   ' } })).toEqual({ ...ready, attackReasons: { party: '   ' } });
+    const launched = submitAttack({ ...ready, attackReasons: { party: '  No allergy check after Ask AI, so the label claim gets through. ' } });
+    expect(launched.launches).toEqual([{ desk: 'party', ids: ['p_allergy'], reason: 'No allergy check after Ask AI, so the label claim gets through.' }]);
+    const party = challengeEvidence(launched, { party: freshProgress() }).challenges.find(c => c.id === 'party')!;
+    expect(party.attack?.reason).toBe('No allergy check after Ask AI, so the label claim gets through.');
   });
 });

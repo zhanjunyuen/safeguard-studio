@@ -31,24 +31,28 @@ Train a model that, for a pupil's open response in the Safeguard Studio assessme
 | **The model records concepts and code computes the level.** Each criterion becomes yes/no concepts with quoted evidence; a deterministic rule maps concepts to 0/1/2/insufficient. | Makes the score auditable. Concept-based rubrics improve LLM marking (Wei et al. 2025, arXiv 2504.03877). The pilot in `research/asap-sas-pilot/` reached human-level agreement with this method on public data. |
 | **The simulator stays the source of truth** for outcomes and credits. Reject any model output whose facts disagree with it. | Those values are computable exactly. |
 | **No teachers are available.** Validity comes from public human-marked data, ground truth by construction, a mixed-family judge panel, and robustness tests (§6). | The user has no educators to mark a calibration set. |
-| **The most capable available Claude model writes and marks the synthetic data; Adaption trains and runs win-rate evaluation.** Adaption's dataset generation (`invent`) is at most a source of extra variety. | Rows must be tightly controlled: scenario × criterion × target level × reading level × style, each tied to a real simulator trace. |
+| **Claude writes almost all the training data (about 95%), including its reasoning.** Use the most capable available Claude model. Each row carries Claude's written marking reasoning in Adaption's `reasoning_trace` column. Adaption trains and runs win-rate evaluation; do not use Adaption's dataset generation or augmentation (`invent`, `augment`, `augmentation_*_rows = 0`). | The user's stated preference (2026-11-18): spend generation on Claude-written data so the trained model learns Claude's reasoning. Rows must also be tightly controlled: scenario × criterion × target level × reading level × style, each tied to a real simulator trace. |
 | **Upload marked data with `processing_mode="raw"`. Never use "adapt" mode on labelled rows.** | In the public dataset `Fernandosr85/adaption-math-misconception-match` (20,000 rows processed with Adaption), 28% of labels were rewritten into free text and 22% of the remaining labels were flipped; only 56% kept the original label. |
 | **Keep the hint companion separate from the marker at first.** Prompt a model for hints; consider preference training (DPO) later. | It is a different job, and its main failure (giving the answer away) suits preference pairs. |
 
-## 4. Open decision for the user (ask before generating data)
+## 4. What pupils write, and what is still open
 
-In form 4 only the **release-decision rationale** is required free text:
-- the design note is optional,
-- reflection text is optional,
-- the attack step has **no** free text,
-- revision notes appear only on finish or revise.
+**Decided (2026-11-18): the attack prediction is required.**
+- Before launching an attack in form 4, the pupil must write which block they expect to fail and why.
+- `submitAttack` refuses a blank prediction. It is stored on the launch (`launches[].reason`) and exported as `challenges[].attack.reason` by `challengeEvidence()`.
+- This is the main evidence for **Testing and diagnosis**. One of its concepts can be checked partly in code: "the block or risk the pupil names matches a case the simulator shows failing" (compare with `attack.cases`).
 
-So Anticipation and Testing and diagnosis have little to mark, and a model trained on real inputs would mostly learn "insufficient evidence". Ask the user to choose one:
+Free text in form 4 now:
 
-- **(a)** make the design note and a one-line attack reason required, or
-- **(b)** mark Testing and diagnosis from the reflections (chosen vs expected failure, plus text) and narrow the rubric.
+| Field | Status |
+|---|---|
+| Release-decision rationale | Required |
+| Attack prediction (one per challenge) | Required |
+| Design note | Optional |
+| Reflection text | Optional |
+| Revision note | Only on finish or revise |
 
-The training rows must match what pupils will actually submit.
+**Still open:** the design note is optional, so **Anticipation** will often be "insufficient evidence". Ask the user whether to require it too, or to mark Anticipation only when present. The training rows must match what pupils actually submit, including a realistic share of blank optional fields.
 
 ## 5. Adaption API facts
 
@@ -59,7 +63,10 @@ From docs.adaptionlabs.ai, read 2026-11-18. **Verify each against the live SDK f
   - `client.datasets.upload_file("train.csv", processing_mode="raw", column_mapping={"prompt": ..., "completion": ...})`.
   - Poll `client.datasets.get_status(id)` until `row_count` is set.
   - Preference data uses `chosen`/`rejected`.
+  - Optional `reasoning_trace` column (in `column_mapping` for both upload and training). We rely on it to carry Claude's reasoning.
   - **Not documented:** the JSONL row schema for chat data. Test with a 5-row file.
+  - **Not documented:** how `reasoning_trace` is formatted during training, and whether the trained model emits the reasoning at inference. Test with a tiny run before the full dataset.
+  - **Check** each base model's context length (supported-models page). Rows over the limit are truncated, not rejected, and reasoning makes rows long.
 - **Training.**
   - `client.autoscientist.create(dataset_id=..., model=..., training_method="instruction"|"alignment", max_iterations=1..5, target_win_rate=0.5..1, hyperparams=..., augmentation_domain_rows=0, augmentation_general_rows=0)`.
   - Wait with `client.autoscientist.wait_for_completion(run.id)`.
@@ -105,19 +112,30 @@ Each step has a check that counts as done.
 4. **More transfer scenarios.** Write 20–40 new scenarios like the ecology club, each a transcript plus a conflicting source plus an unresolved detail plus a proportionate next step, with checked reference answers. *Done when* each one has a reference answer that passes the codebook.
 5. **Generator** (`scripts/marking-data/`).
    - Input packets come from `challengeEvidence()` and `simulateStudent`.
-   - Pupil text is written by Claude to a spec grid with planted concepts; a share comes from a second model family.
-   - Marking is a separate blind call.
-   - The validator rejects a row if quoted evidence is missing from the response, source or trace; if any stated outcome or credit disagrees with the simulator; or if the JSON schema fails.
+   - Claude writes the pupil text to a spec grid with planted concepts. Keep a small share (about 10% of pupil texts) from a second model family so the marker does not learn "Claude-style prose means a high mark". These are inputs only; every mark, reasoning trace and feedback is Claude-written.
+   - Marking is a separate blind Claude call that returns **visible, structured reasoning** plus the output JSON (§8).
+     - Use the reasoning Claude writes in its answer, not hidden thinking blocks, so it can be checked and stored.
+     - For each concept: the exact quote, whether it meets the concept's definition and boundary examples, and why.
+     - Then the rule applied, and why the feedback targets that concept.
+     - Store it in the `reasoning_trace` column.
+   - The validator rejects a row if:
+     - a quote in the reasoning or JSON is missing from the response, source or trace,
+     - the reasoning's concept verdicts disagree with the JSON,
+     - the stated level disagrees with `marking/rules.ts`,
+     - any outcome or credit disagrees with the simulator,
+     - or the JSON schema fails.
+   - Also generate **follow-up Q&A rows** (goal 2): a pupil question about their mark or feedback, and Claude's answer, which must cite the same concepts and evidence and must not change the mark without new evidence.
    - *Done when* the row-acceptance rate and the reasons for rejection are reported.
-6. **Training set.**
+6. **Training set** (target about 20,000 rows).
 
    | Share | Content |
    |---|---|
-   | About 75–80% | Synthetic concept-marking rows |
-   | 10–15% | `Short-Answer-Feedback/saf_communication_networks_english` (CC-BY-4.0, human-written feedback) converted to the output schema |
-   | About 10% | Robustness rows |
+   | About 65% | Claude concept-marking rows with reasoning traces |
+   | About 20% | Claude follow-up Q&A rows |
+   | About 10% | Claude robustness rows (attacks and edge cases from §6) |
+   | 0–5%, optional | Human-written feedback from `Short-Answer-Feedback/saf_communication_networks_english` (CC-BY-4.0), converted to the output schema. Otherwise use it only for evaluation. |
 
-   Optionally add `IsmaelMousa/engsaf`; check its card for whether the rationales were written by humans. Never include ASAP-SAS. Hold out whole scenario families: 2–3 assessed challenges and some transfer scenarios. Upload with `processing_mode="raw"`.
+   Never include ASAP-SAS. Hold out whole scenario families: 2–3 assessed challenges and some transfer scenarios. Upload with `processing_mode="raw"`, and set augmentation rows to 0.
 7. **Train.** One `"instruction"` run on a small model (e.g. `google/gemma-3-4b-it`), after confirming the budget with the user. Record the run ID, `best_win_rate` and settings in `research/adaption-runs.md`.
 8. **Evaluate (§6).** Report for the trained model, the base model and the prompted Claude marker:
    - concept accuracy against planted concepts,
@@ -129,7 +147,10 @@ Each step has a check that counts as done.
 
    Ship only if the trained model is close to the prompted marker.
 9. **Serving.** Run marking and hints behind a server function (the app is static; Supabase is already used). Implement `AttackHintProvider` there. No keys in the browser.
-10. **Later: hint preference training.** Pairs from `dmacjam/pedagogical-rewardmodel-data` (CC-BY-4.0: guiding question preferred, give-away rejected) plus pairs written for the six challenges, up to the 12,000 minimum.
+10. **Later: hint preference training.**
+    - Mostly Claude-written pairs for the six challenges: a guiding question is preferred; a reply that gives the answer away is rejected.
+    - Each pair is built from a real `AttackHintContext` and carries Claude's reasoning about why the preferred hint guides without revealing.
+    - `dmacjam/pedagogical-rewardmodel-data` (CC-BY-4.0, maths) can top the set up to the 12,000 minimum if needed.
 
 ## 8. Output schema (proposal)
 
@@ -147,6 +168,8 @@ Each step has a check that counts as done.
 ```
 
 `level` is recomputed by `marking/rules.ts`. A model-reported level that disagrees with it is an error.
+
+In training rows, Claude's per-concept reasoning goes in the separate `reasoning_trace` column, and the completion is this JSON. Every quote in the reasoning must also pass the evidence check.
 
 ## 9. Guardrails
 

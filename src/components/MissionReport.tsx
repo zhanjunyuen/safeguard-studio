@@ -79,7 +79,8 @@ function ChallengeReport({ mission }: { mission: Mission }) {
     {packet.challenges.map(c => <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
       <p>{c.attempts.length} build runs · {c.workloadCredits ?? 0} workload credits · {c.attack?.ids.length ?? 0} attack cases tested</p>
       {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
-      {c.attack && <div><b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
+      {c.attack && <div><p><b>Attack prediction</b> · {c.attack.reason ?? 'Not recorded (earlier format)'}</p>
+        <b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
       {c.revisionNote && <p>{c.revisionNote}</p>}
     </details>)}
     <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>

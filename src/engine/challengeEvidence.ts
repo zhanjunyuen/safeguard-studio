@@ -26,7 +26,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
       attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
-      attack: target && plan ? { rules: target, ids: plan.ids, cases: plan.ids.map(id => evaluate(target, id)) } : null,
+      attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
     };
   });
   const workloadCredits = challenges.reduce((sum, c) => sum + (c.workloadCredits ?? 0), 0);

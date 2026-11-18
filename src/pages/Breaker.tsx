@@ -41,6 +41,9 @@ interface AssessmentAttack {
   plan: string[];
   submitted?: string[];
   changePlan: (plan: string[]) => void;
+  /** Required written prediction for the plan; recorded with the launch. */
+  reason: string;
+  changeReason: (reason: string) => void;
   submit: () => void;
   onMenu: () => void;
   onFinish: () => void;
@@ -129,8 +132,9 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     if (tid && over?.id === 'plan') add(tid);
   };
 
+  const needsReason = !!assessment && !assessment.reason.trim();
   const go = () => {
-    if (!plan.length || locked || assessment?.submitted) return;
+    if (!plan.length || locked || assessment?.submitted || needsReason) return;
     const rep = launch(challenge, plan);
     if (assessment) assessment.submit();
     else recordBreak(id, plan, rep.broke);
@@ -177,7 +181,28 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             </div>
             <ScriptStack script={script} highlights={highlights} onRemove={() => {}} locked />
             <Plan plan={plan} labels={labels} onRemove={(tid) => setPlan(plan.filter((x) => x !== tid))} locked={locked || !!assessment?.submitted} />
-            {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
+            {assessment && (assessment.submitted ? (
+              <div className="w-full rounded border-1.5 border-line bg-paper-card p-3" style={{ maxWidth: STACK_W + 40 }} data-testid="attack-reason-saved">
+                <div className="label text-ink-3">Your prediction</div>
+                <p className="mt-1">{assessment.reason || 'Not recorded'}</p>
+              </div>
+            ) : (
+              <label className="block w-full font-bold" style={{ maxWidth: STACK_W + 40 }} htmlFor="attack-reason">
+                Why these attacks? Say which block you expect to fail, and why. <span className="font-normal text-ink-3">(required)</span>
+                <textarea
+                  id="attack-reason"
+                  required
+                  aria-required="true"
+                  value={assessment.reason}
+                  onChange={(e) => assessment.changeReason(e.target.value)}
+                  disabled={locked}
+                  rows={3}
+                  className="mt-1 w-full rounded border-1.5 border-line bg-paper-card p-3 font-normal focus:border-ink focus:outline-none"
+                  data-testid="attack-reason"
+                />
+              </label>
+            ))}
+            {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
               <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
             </button>}
             {assessment && <>

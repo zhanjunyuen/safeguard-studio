@@ -39,6 +39,8 @@ export default function AssessmentChallenges() {
     return <Breaker key={desk} assessment={{ id: desk, rules: m.frozen[desk], hintCount: m.attackHints?.length ?? 0,
       plan: m.attackPlans?.[desk] ?? [], submitted: m.launches?.find(l => l.desk === desk)?.ids,
       changePlan: ids => update({ attackPlans: { ...m.attackPlans, [desk]: ids } }), submit: launch,
+      reason: m.launches?.find(l => l.desk === desk)?.reason ?? m.attackReasons?.[desk] ?? '',
+      changeReason: value => update({ attackReasons: { ...m.attackReasons, [desk]: value } }),
       onMenu: menu, onFinish: () => finish(desk),
       onRevise: () => update({ phase: 'revise', revising: { ...m.revising, [desk]: true } }),
     }} />;

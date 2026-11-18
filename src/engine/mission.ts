@@ -26,7 +26,9 @@ export interface Mission {
   focus?: Desk;
   attackHints?: AttackHint[];
   attackPlans?: Partial<Record<Desk, string[]>>;
-  launches?: { desk: Desk; ids: string[] }[];
+  /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
+  attackReasons?: Partial<Record<Desk, string>>;
+  launches?: { desk: Desk; ids: string[]; reason?: string }[];
   project?: string; // Earlier, pupil-authored briefs in saved reports.
   anticipation: string;
   draft: Rule[];
@@ -86,7 +88,10 @@ export function submitAttack(m: Mission): Mission {
   if (m.phase !== 'attack' || !m.first || !desk || m.launches?.some(l => l.desk === desk.id)) return m;
   const ids = m.attackPlans?.[desk.id] ?? [];
   if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => desk.cases.includes(id))) return m;
-  return { ...m, launches: [...(m.launches ?? []), { desk: desk.id, ids: [...ids] }] };
+  const reason = m.attackReasons?.[desk.id]?.trim() ?? '';
+  if (m.form === 4 && !reason) return m;
+  const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason } : { desk: desk.id, ids: [...ids] };
+  return { ...m, launches: [...(m.launches ?? []), round] };
 }
 
 export const evaluateBuild = (rules: Rule[], legacy = false) =>
