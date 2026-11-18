@@ -13,17 +13,22 @@ many kinds of pupil.
 import json, os, random
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(HERE, 'data', 'scale', 'gen')
+# GEN_HOLDOUT=1 writes answers for the held-out challenges and scenarios only, to data/scale/gen-test/,
+# for the evaluation set; they never enter training (build.ts puts held-out contexts in `test`).
+HOLDOUT = os.environ.get('GEN_HOLDOUT') == '1'
+OUT = os.path.join(HERE, 'data', 'scale', 'gen-test' if HOLDOUT else 'gen')
 os.makedirs(OUT, exist_ok=True)
-random.seed(20261119)
+random.seed(20261119 + (7 if os.environ.get('GEN_HOLDOUT') == '1' else 0))
 
 HELD_OUT = {'coding', 'firstaid', 'gamemod'}
 ctx = [json.loads(l) for l in open(os.path.join(HERE, 'data', 'contexts.jsonl'))]
 challenge = lambda c: c['id'].split(':')[1].split('@')[0]
-train = [c for c in ctx if challenge(c) not in HELD_OUT and not c['holdOut']]
+train = [c for c in ctx if (challenge(c) in HELD_OUT or c['holdOut']) == HOLDOUT]
 
 # How many answers per context, by criterion (judgement has only 26 scenarios, so it gets many).
 PER_CONTEXT = {'testing': 20, 'anticipation': 12, 'revision': 12, 'judgement': 150}
+if HOLDOUT:  # enough to pick a balanced evaluation set from
+    PER_CONTEXT = {'testing': 8, 'anticipation': 8, 'revision': 8, 'judgement': 40}
 
 # Generator models, used in turn so no single model's voice dominates.
 GENERATORS = ['deepseek-v4-flash', 'glm-5.3-flash', 'gemma-4-26b-a4b-it', 'qwen3.8-27b', 'glm-5.2', 'gemma-4-31b-it']
