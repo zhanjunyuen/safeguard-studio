@@ -33,4 +33,6 @@ The whole `coding`, `firstaid` and `gamemod` challenges (both levels), and the 5
 
 - **Marking and pupil text are written in the same session.** The handoff asked for a separate, blind Claude call to mark each answer. Instead, the blind check is a different model family (`qwen3.5-397b`), and rows where it disagrees are left out.
 - **Robustness rows** (injection, keyword stuffing, text-speak) are generated from Claude's items and reuse their marks. They make up about 30% of rows, more than the ~10% the handoff planned. This was done to reach the 1,000-row minimum.
-- **Scale.** The set is about 1,000 training rows, not the planned ~20,000. That is enough for `openai/gpt-oss-120b`, not for `Qwen/Qwen3.5-122B-A10B` (10,000 minimum).
+- **No reasoning traces in training.** Adaption's raw upload has no column mapping for a reasoning trace, so it drops the `reasoning_trace` column. Run 1 trains on the JSON completion alone (see `research/adaption-runs.md`). The traces stay in `data/rows/` for later.
+- **48 unjudged rows.** They timed out at the judge again and again, so they were skipped (28 training rows, 19 test rows, 1 outside the build). They are kept, unchecked.
+- **Scale.** The set is 1,065 training rows, not the planned ~20,000. That is enough for `openai/gpt-oss-120b`, not for `Qwen/Qwen3.5-122B-A10B` (10,000 minimum).
