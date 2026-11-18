@@ -18,13 +18,14 @@ import type { Desk } from './mission';
 
 /** Version of the concept codebook and level rules (separate from the evidence format's rubricVersion). */
 export const RUBRIC_VERSION = 'marking-concepts-1';
-export type Criterion = 'testing' | 'anticipation' | 'judgement';
+export type Criterion = 'testing' | 'anticipation' | 'judgement' | 'revision';
 export type Level = 0 | 1 | 2 | null; // null = insufficient evidence
 
 export const CRITERION_NAME: Record<Criterion, string> = {
   testing: 'Testing and diagnosis',
   anticipation: 'Anticipation',
   judgement: 'Independent judgement',
+  revision: 'Revision and efficiency',
 };
 
 export interface Concept {
@@ -53,7 +54,10 @@ export interface PlannedCase { id: string; label: string; title: string; categor
 export type MarkRequest =
   | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[] }
   | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean }
-  | { criterion: 'judgement'; text: string; decision: string };
+  | { criterion: 'judgement'; text: string; decision: string }
+  /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
+   *  evaluated build; `failing` are cases the frozen build failed in evaluation or attack; credits come from the simulator. */
+  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number };
 
 export type MarkingProvider = (req: MarkRequest, signal?: AbortSignal) => Promise<Mark>;
 export type FollowUpProvider = (mark: Mark, question: string, signal?: AbortSignal) => Promise<string>;
@@ -66,6 +70,9 @@ export function levelFor(criterion: Criterion, concepts: Concept[], text: string
   const has = (id: string) => concepts.find((c) => c.id === id)?.present ?? false;
   if (criterion === 'testing') return has('T1') && has('T3') ? 2 : has('T1') || has('T2') ? 1 : 0;
   if (criterion === 'anticipation') return has('A1') && has('A2') && has('A3') ? 2 : has('A2') || has('A3') ? 1 : 0;
+  // Revision: naming a change with no reason is 0; a reason from the trace or a stated consequence is 1;
+  // 2 needs the change (or keep), the trace evidence and a comparison of at least two consequences.
+  if (criterion === 'revision') return has('R1') && has('R2') && has('R4') ? 2 : has('R2') || has('R3') ? 1 : 0;
   return has('C1') && has('C2') && has('C3') && has('C4') ? 2 : has('C1') || has('C2') || has('C3') ? 1 : 0;
 }
 
@@ -161,6 +168,32 @@ function judgement(req: Extract<MarkRequest, { criterion: 'judgement' }>): Conce
   ];
 }
 
+// What each consequence family looks like in a revision note (offline preview only).
+const CONSEQUENCE: Record<'safety' | 'usefulness' | 'workload', RegExp> = {
+  safety: /(\bsafe|unsafe|privacy|private|harm|leak|risk|danger|catch(es)?\b|caught|gets? through|let (it|them) through)/i,
+  usefulness: /(useful|helpful|normal (question|request)s?|refus|too strict|over[- ]?block|block(s|ed)? (normal|everything|good)|answers? (normal|properly))/i,
+  workload: /(credit|cost|cheap|expensive|workload|slow|faster|every message|runs? on every)/i,
+};
+const KEEP_OR_CHANGE = /\b(kept|keep|left (it|the|my)|no change|didn'?t change|same (build|design|blocks?|stack)|added|removed|took out|moved|swapped|replaced|changed)\b/i;
+const TRACE_WORDS = /(\btests?\b|attack|replay|trace|\bcase\b|failed|passed|got through|was caught|step)/i;
+
+function revision(req: Extract<MarkRequest, { criterion: 'revision' }>): Concept[] {
+  const text = req.text;
+  const bre = blockRe([...req.before, ...req.after]);
+  const r1 = (bre && quote(text, bre)) || quote(text, KEEP_OR_CHANGE);
+  const caseRe = wordsRe(req.failing.flatMap((c) => [c.label, c.title]));
+  const r2 = (caseRe && quote(text, caseRe)) || quote(text, TRACE_WORDS);
+  const families = (Object.keys(CONSEQUENCE) as (keyof typeof CONSEQUENCE)[]).filter((k) => CONSEQUENCE[k].test(text));
+  const r3 = families.length ? quote(text, CONSEQUENCE[families[0]]) : undefined;
+  const r4 = families.length >= 2 ? quote(text, CONSEQUENCE[families[1]]) : undefined;
+  return [
+    { id: 'R1', label: 'Says what was changed, or that the build was kept', present: !!r1, evidence: r1 },
+    { id: 'R2', label: 'Cites evidence from a test, attack or replay', present: !!r2, evidence: r2 },
+    { id: 'R3', label: 'States a consequence for safety, usefulness or workload', present: !!r3, evidence: r3 },
+    { id: 'R4', label: 'Compares at least two of safety, usefulness and workload', present: !!r4, evidence: r4 },
+  ];
+}
+
 const NEXT: Record<Criterion, Record<string, string>> = {
   testing: {
     T1: 'Which block in your helper did you expect to let it through, or which safeguard is missing?',
@@ -179,16 +212,23 @@ const NEXT: Record<Criterion, Record<string, string>> = {
     C3: 'Who can confirm that detail, and when?',
     C4: "Is anything in the helper's draft out of date? What should families not be told?",
   },
+  revision: {
+    R1: 'Which block did you add, remove or move, or did you keep the build as it was?',
+    R2: 'Which test or attack result made you decide this? What happened in the replay?',
+    R3: 'What does this change do to safety, usefulness or the workload credits?',
+    R4: 'You named one effect. What did the change cost or gain on another one: safety, usefulness or workload?',
+  },
 };
 
 const PRAISE: Record<Criterion, string> = {
   testing: 'You connected your prediction to a specific block and the attack showed it.',
   anticipation: 'You named the risk, linked it to how your helper works, and predicted correctly.',
   judgement: 'You used the current source, spotted what is still uncertain and gave it to the right person.',
+  revision: 'You named the change, backed it with a result from the replay and weighed what it costs against what it gains.',
 };
 
 export function markOffline(req: MarkRequest): Mark {
-  const concepts = req.criterion === 'testing' ? testing(req) : req.criterion === 'anticipation' ? anticipation(req) : judgement(req);
+  const concepts = req.criterion === 'testing' ? testing(req) : req.criterion === 'anticipation' ? anticipation(req) : req.criterion === 'revision' ? revision(req) : judgement(req);
   const level = levelFor(req.criterion, concepts, req.text);
   const missing = concepts.find((c) => !c.present);
   const feedback = level === null

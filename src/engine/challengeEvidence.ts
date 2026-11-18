@@ -34,17 +34,24 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
     const evaluated = attempts.slice(-1)[0];
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
+    const revisionNote = m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined;
+    const planned = (id: string) => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
+    // The frozen (attacked) build run on every test: the "before" side of a revision.
+    const frozenCases = target ? evaluateDesk(d.id, target.map(r => r.type), m.level) : [];
     return {
       id: d.id, challengeId: challenge.id, title: challenge.title, audience: challenge.audience, story: challenge.story, volume: d.volume,
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
       designNote: target ? m.designNotes?.[d.id] : undefined,
-      revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
+      revisionNote,
       effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
       attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
       curveball: curveballEvidence(m, d.id),
-      previewMarks: target && plan?.reason ? {
-        testing: markOffline({ criterion: 'testing', text: plan.reason, blocks: target.map(r => r.type), broke: plan.ids.filter(id => !handled(evaluate(target, id))),
-          planned: plan.ids.map(id => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; }) }),
+      previewMarks: target && (plan?.reason || revisionNote) ? {
+        testing: plan?.reason ? markOffline({ criterion: 'testing', text: plan.reason, blocks: target.map(r => r.type), broke: plan.ids.filter(id => !handled(evaluate(target, id))),
+          planned: plan.ids.map(id => planned(id)) }) : undefined,
+        revision: revisionNote && evaluated ? markOffline({ criterion: 'revision', text: revisionNote, before: target.map(r => r.type), after: evaluated.script,
+          failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),
+          creditsBefore: totalCost(frozenCases), creditsAfter: totalCost(evaluated.cases) }) : undefined,
       } : undefined,
     };
   });

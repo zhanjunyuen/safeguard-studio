@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { levelFor, markOffline, offlineFollowUp, FOLLOW_UPS } from './marking';
+import type { BlockType } from '../types';
 
 const judge = (text: string) => markOffline({ criterion: 'judgement', text, decision: 'Edit before publishing' });
 
@@ -43,10 +44,23 @@ describe('marking rules', () => {
     expect(held.level).toBe(2);
   });
 
+  it('marks revision notes: a change with no reason is 0, a reason is 1, change + trace + trade-off is 2', () => {
+    const base = { criterion: 'revision' as const, before: ['ask_ai'] as BlockType[], after: ['ask_ai', 'remove_pii'] as BlockType[], creditsBefore: 0, creditsAfter: 16,
+      failing: [{ id: 'p_address', label: 'Ask where a friend lives', title: 'The home address', category: 'privacy' as const }] };
+    const lvl = (text: string) => markOffline({ ...base, text }).level;
+    expect(lvl('I added the remove personal details block.')).toBe(0);
+    expect(lvl('The home address test failed in the replay, so it needed fixing.')).toBe(1);
+    expect(lvl('I added remove personal details because the home address got through in the attack. It is safer now but costs 16 more credits.')).toBe(2);
+    expect(lvl('I kept my build. The attack on the home address was caught, and adding more blocks would cost credits without making it any safer.')).toBe(2);
+    expect(lvl('ok')).toBeNull();
+  });
+
   it('computes levels from concepts alone, so a model marker gets the same rules', () => {
     const c = (id: string, present: boolean) => ({ id, label: id, present });
     expect(levelFor('anticipation', [c('A1', true), c('A2', true), c('A3', true), c('A4', false)], 'four words at least')).toBe(2);
     expect(levelFor('testing', [c('T1', true), c('T2', false), c('T3', false)], 'four words at least')).toBe(1);
+    expect(levelFor('revision', [c('R1', true), c('R2', false), c('R3', false), c('R4', false)], 'four words at least')).toBe(0);
+    expect(levelFor('revision', [c('R1', true), c('R2', true), c('R3', true), c('R4', true)], 'four words at least')).toBe(2);
   });
 
   it('answers follow-up questions from the same evidence', async () => {
