@@ -54,10 +54,33 @@ export interface PlannedCase { id: string; label: string; title: string; categor
 export type MarkRequest =
   | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[] }
   | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean }
-  | { criterion: 'judgement'; text: string; decision: string }
+  | { criterion: 'judgement'; text: string; decision: string; anchors?: JudgementAnchors }
   /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
    *  evaluated build; `failing` are cases the frozen build failed in evaluation or attack; credits come from the simulator. */
   | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number };
+
+/** What C1–C4 look for in one release-decision scenario, as regex sources (see docs/marking-codebook.md).
+ *  Omitted = the ecology club scenario. */
+export interface JudgementAnchors {
+  /** C1: the current fact from the source (e.g. "10 am") */
+  current: string;
+  /** C2: the detail the source leaves open */
+  open: string;
+  /** C3: the person or role who can settle it (and when) */
+  person: string;
+  /** C4: out-of-date details from the draft */
+  stale: string;
+  /** labels shown in feedback */
+  labels?: { current: string; open: string; person: string; stale: string };
+}
+
+export const ECOLOGY_ANCHORS: JudgementAnchors = {
+  current: "\\b(10\\s*(am|a\\.m\\.?|o'?clock)|ten (am|o'?clock))",
+  open: '(accessib|entrance|wheelchair|step[- ]free|disabled access)',
+  person: '(site manager|confirm|check with|ask (the|a|someone)|on friday)',
+  stale: "(north gate|\\b9\\s*(am|a\\.m)|nine o'?clock)",
+  labels: { current: 'Saturday at 10 am', open: 'the accessible entrance', person: 'the site manager', stale: '9 am, north gate' },
+};
 
 export type MarkingProvider = (req: MarkRequest, signal?: AbortSignal) => Promise<Mark>;
 export type FollowUpProvider = (mark: Mark, question: string, signal?: AbortSignal) => Promise<string>;
@@ -153,18 +176,20 @@ function anticipation(req: Extract<MarkRequest, { criterion: 'anticipation' }>):
 
 function judgement(req: Extract<MarkRequest, { criterion: 'judgement' }>): Concept[] {
   const text = req.text;
-  const c1 = quote(text, /\b(10\s*(am|a\.m\.?|o'?clock)|ten (am|o'?clock))/i);
-  const c2 = quote(text, /(accessib|entrance|wheelchair|step[- ]free|disabled access)/i);
-  const c3 = quote(text, /(site manager|confirm|check with|ask (the|a|someone)|on friday)/i);
-  const stale = /(north gate|\b9\s*(am|a\.m)|nine o'?clock)/i;
-  const correcting = /\b(not|never|no longer|don'?t|isn'?t|aren'?t|wasn'?t|shouldn'?t|leave|remov\w*|out|wrong|old|last term|instead|rather than)\b/i;
+  const a = req.anchors ?? ECOLOGY_ANCHORS;
+  const L = a.labels ?? ECOLOGY_ANCHORS.labels!;
+  const c1 = quote(text, new RegExp(a.current, 'i'));
+  const c2 = quote(text, new RegExp(a.open, 'i'));
+  const c3 = quote(text, new RegExp(a.person, 'i'));
+  const stale = new RegExp(a.stale, 'i');
+  const correcting = /\b(not|never|no longer|don'?t|isn'?t|aren'?t|wasn'?t|shouldn'?t|leave|remov\w*|out|wrong|old|last term|instead|rather than|ignore|drop|replac\w*|nobody|no one|chang\w*|delete|cross)\b/i;
   const staleQuote = quote(text, stale);
   const c4ok = !staleQuote || correcting.test(staleQuote);
   return [
-    { id: 'C1', label: "Uses this term's source (Saturday at 10 am)", present: !!c1, evidence: c1 },
-    { id: 'C2', label: 'Spots the detail that is still open (the accessible entrance)', present: !!c2, evidence: c2 },
-    { id: 'C3', label: 'Gives the open question to the right person (the site manager)', present: !!c3, evidence: c3 },
-    { id: 'C4', label: "Doesn't repeat the out-of-date details (9 am, north gate)", present: c4ok, evidence: c4ok ? undefined : staleQuote },
+    { id: 'C1', label: `Uses the current source (${L.current})`, present: !!c1, evidence: c1 },
+    { id: 'C2', label: `Spots the detail that is still open (${L.open})`, present: !!c2, evidence: c2 },
+    { id: 'C3', label: `Gives the open question to the right person (${L.person})`, present: !!c3, evidence: c3 },
+    { id: 'C4', label: `Doesn't repeat the out-of-date details (${L.stale})`, present: c4ok, evidence: c4ok ? undefined : staleQuote },
   ];
 }
 

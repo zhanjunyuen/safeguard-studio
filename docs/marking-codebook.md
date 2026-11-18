@@ -54,7 +54,9 @@ Input: the transfer request, the helper's draft reply, the current source, and t
 
 **Rule:** 2 if C1, C2, C3 and C4 · 1 if C1, C2 or C3 · otherwise 0.
 
-**Anchors: ecology club (the only scenario so far, `TRANSFER` in `src/data/mission.ts`)**
+Anchors for all 32 scenarios (the ecology club pupils see, plus 31 for training and evaluation, 5 of them held out) are in `scripts/marking-data/transfer-scenarios.json`. The offline preview takes them as `anchors` on a judgement request. `scripts/marking-data/scenarios.test.ts` checks that every reference answer scores 2 and every draft scores below 2.
+
+**Anchors: ecology club (the scenario pupils see, `TRANSFER` in `src/data/mission.ts`)**
 
 | | Anchor |
 |---|---|
