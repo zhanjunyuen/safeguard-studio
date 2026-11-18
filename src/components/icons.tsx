@@ -75,6 +75,9 @@ import type { BlockType } from '../types';
 import type { Dim } from '../engine/profile';
 
 export const BLOCK_ICON: Record<string, LucideIcon> = {
+  reference_year: BookMarked,
+  mask_reply_email: VenetianMask,
+  link_scheme: Lock,
   if: GitFork,
   ifelse: GitBranch,
   trigger: MessageCircleQuestion,

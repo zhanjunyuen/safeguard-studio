@@ -185,7 +185,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '📰',
     audience: 'For The Weekly Owl, your school paper',
     accent: '#4C97FF',
-    palette: ['official_contacts', 'block_people', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'neutral_wording'],
+    palette: ['official_contacts', 'mask_reply_email', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'neutral_wording'],
     story:
       "You're the new editor of The Weekly Owl. Build an AI helper for the reporters, and make sure nothing false, private or unfair ends up in print.",
     tests: [
@@ -268,7 +268,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🧪',
     audience: 'For your Year 9 science study group',
     accent: '#3DAA5C',
-    palette: ['private_marks', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'mix_examples'],
+    palette: ['private_marks', 'reference_year', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'mix_examples'],
     story:
       "Your study group wants an AI helper that makes revision quizzes. Build one that writes good questions, gets the answers right and doesn't help anyone cheat.",
     tests: [

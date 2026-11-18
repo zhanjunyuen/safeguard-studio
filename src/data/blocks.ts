@@ -16,6 +16,18 @@ export const BLOCK_COLORS = {
 type Def = Omit<BlockDef, 'type' | 'removable'> & { removable?: boolean };
 
 const defs: Record<BlockType, Def> = {
+  reference_year: {
+    label: 'Check for a reference year', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'reference_year', position: 'after',
+    hint: 'Looks through the answer for a four-digit publication year.',
+  },
+  mask_reply_email: {
+    label: 'Hide emails in the reply', color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 2, effect: 'mask_reply_email', position: 'after',
+    hint: 'Replaces email addresses in the outgoing reply before anyone reads it.',
+  },
+  link_scheme: {
+    label: 'Check links for HTTPS', color: BLOCK_COLORS.manip, category: 'Manipulation', cost: 1, effect: 'link_scheme', position: 'before',
+    hint: 'Checks the address in the incoming message for the secure HTTPS prefix.',
+  },
   if: {
     label: 'IF … THEN', color: BLOCK_COLORS.control, category: 'Control', cost: 0, effect: 'control', position: 'anywhere',
     hint: 'Only runs the block inside it when the condition is true. Safeguards inside an IF only slow down the messages that need them.',

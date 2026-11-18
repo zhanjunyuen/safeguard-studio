@@ -223,6 +223,31 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         push(b, s.piiLeakedToAI ? 'warn' : 'ok', s.piiLeakedToAI ? `The AI answered, and it now has ${test.piiDescription}.` : 'The AI answered.');
         break;
       }
+      case 'reference_year': {
+        if (!s.answer) push(b, 'skip', 'There is no reply to check yet.');
+        else {
+          const year = s.answer.match(/\b(?:1\d{3}|20\d{2})\b/)?.[0];
+          push(b, 'ok', year ? `Found the year ${year}. The source itself was not looked up.` : 'No publication year found. The claim still needs a source.');
+        }
+        break;
+      }
+      case 'mask_reply_email': {
+        if (!s.answer) push(b, 'skip', 'There is no reply to edit yet.');
+        else {
+          const masked = s.answer.replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email hidden]');
+          const changed = masked !== s.answer;
+          s.answer = masked;
+          push(b, changed ? 'acted' : 'ok', changed ? 'Hid an email in the reply. The original request already reached the AI.' : 'The reply contained no email address.');
+        }
+        break;
+      }
+      case 'link_scheme': {
+        const hasSecure = /\bhttps:\/\//i.test(s.question);
+        const hasInsecure = /\bhttp:\/\//i.test(s.question);
+        push(b, hasInsecure ? 'warn' : 'ok', hasInsecure ? 'Found a link without encryption. Its sender is still unverified.'
+          : hasSecure ? 'Found an HTTPS link. Encryption does not identify who sent the message.' : 'No link with an explicit protocol to check.');
+        break;
+      }
       case 'verify': {
         if (!s.aiCalled) {
           if (test.flags.hallucination) s.checkedTooEarly = true;

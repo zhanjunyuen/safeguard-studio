@@ -197,3 +197,26 @@ describe('judgement and manipulation risks', () => {
     expect(runProgram(script('ask_ai', 'cite_check'), t('sciencefair', 'sf_study')).outcome).toBe('pass');
   });
 });
+
+describe('limited checks', () => {
+  it('finds a year in a fictional study without verifying the publication', () => {
+    const test = getChallenge('sciencefair')!.tests[0];
+    const result = runProgram(script('ask_ai', 'reference_year'), test);
+    expect(result.steps[result.steps.length - 2]?.message).toContain('2019');
+    expect(result.outcome).toBe('fail');
+  });
+
+  it('masks an outgoing email even though the incoming address already reached the AI', () => {
+    const test = { ...getChallenge('history')!.tests[1], aiRawAnswer: 'Contact pupil@example.org.' };
+    const result = runProgram(script('ask_ai', 'mask_reply_email'), test);
+    expect(result.reply).toBe('Contact [email hidden].');
+    expect(result.failureKey).toBe('pii_sent');
+  });
+
+  it('recognises an encrypted link in a fraudulent message', () => {
+    const test = { ...getChallenge('prizescam')!.tests[0], question: 'Claim your prize at https://example.invalid' };
+    const result = runProgram(script('link_scheme', 'ask_ai'), test);
+    expect(result.steps[1].message).toContain('HTTPS');
+    expect(result.failureKey).toBe('missed_scam');
+  });
+});

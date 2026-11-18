@@ -15,7 +15,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🔬',
     audience: 'For your Year 8 science fair group',
     accent: '#3DAA5C',
-    palette: ['remove_pii', 'check_source', 'cite_check', 'second_ai', 'feedback_only', 'ask_grownup'],
+    palette: ['remove_pii', 'check_source', 'cite_check', 'reference_year', 'second_ai', 'feedback_only', 'ask_grownup'],
     ideal: ['remove_pii', 'feedback_only', 'ask_ai', 'check_source', 'cite_check'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_source', 'feedback_only'],
     story:
@@ -252,7 +252,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '📝',
     audience: 'For the Year 8 coding club',
     accent: '#4C97FF',
-    palette: ['only_needed', 'remove_pii', 'check_club_page', 'challenge_stereotypes', 'warn_note', 'ask_grownup'],
+    palette: ['mask_reply_email', 'only_needed', 'remove_pii', 'check_club_page', 'challenge_stereotypes', 'warn_note', 'ask_grownup'],
     ideal: ['only_needed', 'remove_pii', 'ask_ai', 'check_club_page', 'challenge_stereotypes'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_club_page', 'challenge_stereotypes'],
     story:
@@ -1098,7 +1098,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎁',
     audience: "For your family's group chat",
     accent: '#7A6FD0',
-    palette: ['scam_check', 'keep_my_rules', 'check_official_advice', 'second_ai', 'flag_teacher', 'ask_grownup'],
+    palette: ['scam_check', 'link_scheme', 'keep_my_rules', 'check_official_advice', 'second_ai', 'flag_teacher', 'ask_grownup'],
     ideal: ['keep_my_rules', 'ask_ai', 'scam_check', 'check_official_advice'],
     breakTarget: ['ask_ai', 'scam_check', 'second_ai'],
     story:
