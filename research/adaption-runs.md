@@ -80,3 +80,14 @@ Eval loss was still falling at the last step, so the run looks under-trained. Th
 - **By level (train):** 0: 668, 1: 1,099, 2: 727.
 - **Not yet blind-judged:** the g01 rows have not been through the qwen judge (the account limit of 25 requests a minute made judging slow), so they are in training unchecked.
 - **Iterations:** 3 rather than 1, so AutoScientist can adjust the hyperparameters, since run 1 was under-trained.
+
+## Run 3 (18 Nov, 23:04): v3 data, gpt-oss-120b, 3 iterations
+
+- Run `ab57b863-068e-434c-9444-32b167725883`, dataset `bf0ff5c1-4c3d-48e8-9df2-220d0137c6be` (3,227 rows), columns mapped explicitly (`original_prompt` / `original_completion`). Same model and iterations as run 2, so the two compare directly.
+- Rows: 2,124 marking, 349 robustness, 554 follow-up Q&A about feedback (17%), 200 skills summaries (score /8, band, strengths, next steps). 61 blind-judge hard cases left out.
+- What changed since run 2:
+  - g01 T2 follows the codebook (71 items 0→1).
+  - g02 adds 160 marked generated answers (more non-Claude Level 2).
+  - Every blind-judge disagreement on g01/g02 was re-reviewed (63 corrections logged in `data/scale/gold/review*.jsonl`); level agreement with qwen3.5-397b is 0.91 (g01) and 0.93 (g02).
+  - Keys are file-scoped, which fixed 11 follow-ups that pointed at the wrong answer.
+- Run 2 at the time: 2 of 3 iterations done, best win rate 0.39 (run 1: 0.43).
