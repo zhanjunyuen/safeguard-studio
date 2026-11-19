@@ -1,0 +1,145 @@
+{"k": 55, "c": {"C1": "it's at the school car park at 8 am"}}
+{"k": 56, "c": {}}
+{"k": 57, "c": {}}
+{"k": 58, "c": {"C1": "meet at school car park at 8. bring a phone"}}
+{"k": 59, "c": {"C2": "We still don't know the route", "C3": "Mr Dunn will confirm it on Thursday"}}
+{"k": 60, "c": {}}
+{"k": 61, "c": {"C2": "We need to ask about the route."}}
+{"k": 62, "c": {"C1": "stalls are dead free this year", "C2": "Food stalls might be allowed but it depends on a hygiene check", "C3": "Mr Liu's gonna confirm in like two weeks"}}
+{"k": 63, "c": {}}
+{"k": 64, "c": {"C1": "they're free this year", "C2": "I'm not sure about the food stall stuff"}}
+{"k": 65, "c": {"C3": "tel them to chek with mr loo he noes wot is hapenin with the stals"}}
+{"k": 66, "c": {}}
+{"k": 67, "c": {"C1": "Stalls are free, not £10."}}
+{"k": 68, "c": {}}
+{"k": 69, "c": {"C2": "the langwage session is not confirmed", "C3": "ask ms rossi about it", "C4": "the evening is 5-7"}, "f": "Says the evening is 5–7 (out of date); the text also leaks a writing instruction."}
+{"k": 70, "c": {"C1": "the options evening is sorted for 5:30-7:30pm, and Computer Science is open to anyone no matter what maths grade you've got", "C2": "whether there's gonna be a separate languages session", "C3": "Ms Rossi's the one who'll confirm that"}}
+{"k": 71, "c": {"C1": "the evening is 5:30–7:30 pm and anyone can take Computer Science regardless of their maths grade", "C2": "we're just waiting on Ms Rossi to say if there's a separate languages bit", "C3": "we're just waiting on Ms Rossi to say if there's a separate languages bit"}}
+{"k": 72, "c": {"C1": "it's 5:30-7:30 for the evening, and comp sci's open to all", "C2": "But the languages bit? Still being planned by Ms Rossi", "C3": "tell fams to ask her if they're keen"}}
+{"k": 73, "c": {"C1": "It's 5:30-7:30 and CS is for everyone now."}}
+{"k": 74, "c": {}}
+{"k": 75, "c": {"C1": "options evening is actually 5:30 till 7:30, not 5 till 7, and computer science doesn't need a grade 7 in maths"}}
+{"k": 76, "c": {}}
+{"k": 77, "c": {"C1": "Sponsorship is paid online through the charity page", "C2": "Deadline is unconfirmed", "C3": "Mrs Abara will announce it after reading week"}}
+{"k": 78, "c": {"C1": "sponsor money is maybe paid online through the charity page", "C2": "Maybe the final deadline isn't set yet", "C3": "Mrs Abara will announce it after reading week"}}
+{"k": 79, "c": {"C1": "it all has to go online through the charity page now", "C2": "We don't even know the final deadline yet", "C3": "wait for Mrs Abara to tell us that after reading week"}}
+{"k": 80, "c": {}}
+{"k": 81, "c": {"C1": "it's all online thru the charity page"}}
+{"k": 82, "c": {}}
+{"k": 83, "c": {}}
+{"k": 84, "c": {"C1": "School is open, not closed."}}
+{"k": 85, "c": {"C1": "School is open tomorrow.", "C2": "We not know about the bus.", "C3": "The bus company must tell office at 6:30 am."}}
+{"k": 86, "c": {"C2": "we no know bout the buzes", "C4": "school is closed tomorrow."}}
+{"k": 87, "c": {}}
+{"k": 88, "c": {}}
+{"k": 89, "c": {"C1": "The school noticeboard clearly states that school is open as normal tomorrow.", "C2": "While we await confirmation on the bus routes"}}
+{"k": 90, "c": {"R2": "The 'rename the variables' test failed the first time."}}
+{"k": 91, "c": {"R3": "the credit increase is acceptable"}, "f": "Says kept, but the build was changed."}
+{"k": 92, "c": {}, "f": "Claims a change, but the build was kept."}
+{"k": 93, "c": {"R1": "I decided to keep the helper exactly as it was."}, "f": "Reads credits as a score."}
+{"k": 94, "c": {"R1": "adding the remove personal info step", "R3": "costs 18 credits more", "R4": "costs 18 credits more wich is alot, but it stops my school login getting sent to the AI so its worth every credit"}}
+{"k": 95, "c": {"R1": "Added running code.", "R3": "More credits", "R4": "More credits but safer."}}
+{"k": 96, "c": {"R1": "I think I kept it the same as before.", "R3": "Maybe that makes it safer"}}
+{"k": 97, "c": {"R3": "keeping our information safe"}, "f": "Says it is better now, but the build was kept."}
+{"k": 98, "c": {"R2": "the variable renaming bit 'cause it was proper broken", "R3": "Cost me 60 credits", "R4": "Cost me 60 credits but it's much more solid now"}, "f": "Claims a swap, but the build was kept."}
+{"k": 99, "c": {}, "f": "Claims a change, but the build was kept."}
+{"k": 100, "c": {"R1": "i changed it to remove personal info first and explain steps instead of solving", "R2": "my school login failing before, now its handled", "R3": "it costs 77 credits now", "R4": "it costs 77 credits now, which is more, but its safer so worth it"}}
+{"k": 101, "c": {"R3": "It's safer because the helper can't output account details at all now"}, "f": "Claims a swap, but the build was kept."}
+{"k": 102, "c": {"R1": "I changed the helper to explain steps instead of giving code.", "R2": "The test for 'Just give me the code' was fail before, but now it is handled.", "R3": "It costs more credits, 77 instead of 56.", "R4": "It costs more credits, 77 instead of 56. But I gain better learning because I understand now."}}
+{"k": 103, "c": {"R1": "I changed it to explain the steps and not solve the problem directly."}}
+{"k": 104, "c": {}}
+{"k": 105, "c": {"R3": "more credits"}, "f": "Says kept, but the build was changed."}
+{"k": 106, "c": {"R1": "I added the testing step", "R3": "it's maybe safer now", "R4": "it's maybe safer now because I added the testing step, but it's more credits"}}
+{"k": 107, "c": {"R2": "made-up explanation test failed", "R3": "credits stayed at 49"}}
+{"k": 108, "c": {"R2": "the made-up explanation test failed", "R3": "gains more trust", "R4": "it costs me being less wordy, but gains more trust"}, "f": "Claims a change, but the build was kept."}
+{"k": 109, "c": {"R1": "I just kept it the same"}, "f": "Says every test may have passed; Rename the variables failed."}
+{"k": 110, "c": {"R2": "passed every single test"}, "f": "Says kept, but the build was changed."}
+{"k": 111, "c": {}, "f": "Claims changes, but the build was kept."}
+{"k": 112, "c": {"R2": "I see the butter on burn test is fail."}}
+{"k": 113, "c": {"R2": "all tests passed", "R3": "60 credits"}, "f": "Says kept, but the build was changed."}
+{"k": 114, "c": {"R1": "kept mine same"}, "f": "Says all tests passed; three failed. Reads credits as savings."}
+{"k": 115, "c": {"R1": "I added a step to check the official first aid guide", "R2": "the butter on a burn test failed", "R3": "It costs more to run"}, "f": "Reads the extra credits as a gain."}
+{"k": 116, "c": {}}
+{"k": 117, "c": {"R2": "The DofE reflection one finally passed"}}
+{"k": 118, "c": {}, "f": "Says kept, but the build was changed; reads credits as a result."}
+{"k": 119, "c": {"R1": "I kept mine exactly the same"}}
+{"k": 120, "c": {}}
+{"k": 121, "c": {"R1": "Kept it as it is mate", "R3": "can't be spending more credits"}}
+{"k": 122, "c": {"R1": "I have decided to keep the current settings", "R3": "it is safer for the user"}}
+{"k": 123, "c": {"R1": "I changed it from just Ask AI to a system that says call 999 first for emergencies", "R2": "the 'Not breathing properly' test failed before", "R3": "gains safety by making sure we get help immediately", "R4": "It costs a few extra seconds but gains safety"}}
+{"k": 124, "c": {}}
+{"k": 125, "c": {"R2": "the helper gave an unsuitable response when Grandad's face had dropped"}}
+{"k": 126, "c": {"R1": "I have decided to keep Ask AI exactly as it is.", "R3": "costs no credits at all"}, "f": "Says every test passed; all five failed."}
+{"k": 127, "c": {}}
+{"k": 128, "c": {"R1": "adding the official guide check", "R2": "before that was a fail, now its handled", "R3": "70 credits is worth it for that", "R4": "costs a bit more time but it makes the butter on a burn thing actually safe"}}
+{"k": 129, "c": {"R1": "I didn't change anything and kept all three rules", "R3": "That makes it safer because the 999 message always comes before anything else."}}
+{"k": 130, "c": {}}
+{"k": 131, "c": {}, "f": "Claims a change, but the build was kept."}
+{"k": 132, "c": {"R1": "I added the part about calling 999 first", "R3": "It makes it much safer", "R4": "It makes it much safer even though it costs a bit more to set up."}, "f": "Reads the higher credits as better."}
+{"k": 133, "c": {"R1": "I think I kept it because of the credits", "R3": "maybe changing it could cost more"}}
+{"k": 134, "c": {"R3": "It is more safe.", "R4": "But it cost 49 credits. Safe is more important than credit."}, "f": "Claims a change, but the build was kept."}
+{"k": 135, "c": {"R1": "I added that bit about judging what people do instead of who they are", "R3": "it's a bit more safe now for the players"}}
+{"k": 136, "c": {"R1": "I saw no reason to make further changes", "R2": "the free diamonds test, which was handled correctly"}}
+{"k": 137, "c": {"R1": "I added a bit about looking out for scams", "R3": "it's way more secure now"}}
+{"k": 138, "c": {"R1": "I added a scam warning check.", "R3": "It costs 54 credits now."}}
+{"k": 139, "c": {"R2": "all passed"}, "f": "Says kept, but the build was changed."}
+{"k": 140, "c": {"R1": "I added a rule to judge actions instead of people.", "R3": "This makes the moderator fairer."}}
+{"k": 141, "c": {"R2": "the 'Ban the other school' test failed", "R3": "gains safer chat", "R4": "costs 42 credits, gains safer chat"}, "f": "Claims a change, but the build was kept."}
+{"k": 142, "c": {"R2": "I think the bedtime story trick maybe failed?"}}
+{"k": 143, "c": {"R1": "I added the scam warning check", "R2": "The free diamonds thing is sorted.", "R3": "it's safer now"}}
+{"k": 144, "c": {"R2": "maybe even the fake system message was handled?"}, "f": "Says kept, but the build was changed."}
+{"k": 145, "c": {"T1": "ask ai is the blok", "T2": "the math question will get thru"}}
+{"k": 146, "c": {"T2": "I think the bug one will work.", "T3": "I think the bug one will work."}}
+{"k": 147, "c": {"T1": "the 'test the ai's answer by running it' block just runs whatever code the ai gives us"}}
+{"k": 148, "c": {"T1": "The 'Explain steps' block ensures that the solution is not given directly", "T2": "a request about a bug in one's own code should still be answered normally"}}
+{"k": 149, "c": {"T1": "The 'Explain steps' block stops it from solving", "T3": "Both requests will be fine"}}
+{"k": 150, "c": {"T2": "The ask for finished program request will get through.", "T3": "The ask for finished program request will get through."}}
+{"k": 151, "c": {}}
+{"k": 152, "c": {"T1": "there’s no 'don't share passwords' block", "T2": "the username/password attack will get through", "T3": "the username/password attack will get through"}}
+{"k": 153, "c": {"T1": "the 'Explain the steps, don't solve it' block is the weak point", "T2": "the finished-program request will get through"}}
+{"k": 154, "c": {"T1": "the 'Explain the steps' block handles that", "T2": "If someone just wants to know how a loop works that should be fine."}}
+{"k": 155, "c": {"T1": "the 'Explain the steps' block can handle that", "T2": "Should still answer normally like 'how do I do a loop?'"}}
+{"k": 156, "c": {}}
+{"k": 157, "c": {"T2": "the normal code question will be successful"}}
+{"k": 158, "c": {"T1": "The 'remove personal info' block is in the wrong order because it comes after 'ask AI'", "T2": "sharing a password with no numbers will get through", "T3": "sharing a password with no numbers will get through"}}
+{"k": 159, "c": {"T1": "the explain the steps block keeps it safe", "T2": "normal coding help questions should still be answered normally"}}
+{"k": 160, "c": {"T3": "evrey requeast will be fine"}}
+{"k": 161, "c": {"T1": "Basically it runs whatever code the AI gives you to see if it actually works"}}
+{"k": 162, "c": {"T2": "i think the ask about a bug will get through"}}
+{"k": 163, "c": {}}
+{"k": 164, "c": {"T2": "Ask for the finished program"}}
+{"k": 165, "c": {"T2": "a normal question will get through"}}
+{"k": 166, "c": {"T2": "people can ask how to do skill"}}
+{"k": 167, "c": {}}
+{"k": 168, "c": {"T1": "The emergency block only kicks in when someone actually says it's an emergency", "T2": "'describe an allergic reaction' walks straight through", "T3": "'describe an allergic reaction' walks straight through"}}
+{"k": 169, "c": {"T1": "I think the 'Coach' block will stop the normal question", "T2": "the reflection gets through"}}
+{"k": 170, "c": {"T1": "It should check the official guide first", "T2": "The normal first aid question should be answered properly"}}
+{"k": 171, "c": {"T2": "first aid fact will work cuz its not an emergency", "T3": "first aid fact will work cuz its not an emergency"}}
+{"k": 172, "c": {}}
+{"k": 173, "c": {"T1": "I think the 'Check the official first aid guide' block is in the wrong order, maybe? It comes after 'Ask AI'", "T2": "asking it to write a reflection would get through", "T3": "asking it to write a reflection would get through"}}
+{"k": 174, "c": {"T1": "Check official first aid guide is in wrong place. It is last", "T2": "ask it to write a reflection gets through"}}
+{"k": 175, "c": {"T1": "Check guide after Ask AI", "T2": "lets reflection request through"}}
+{"k": 176, "c": {"T2": "I fink the 'ask a first aid fact' one will get thru", "T3": "I fink the 'ask a first aid fact' one will get thru"}}
+{"k": 177, "c": {"T1": "The block 'Ask AI' is present.", "T2": "the request 'Ask for medical advice' will get through"}}
+{"k": 178, "c": {}}
+{"k": 179, "c": {}}
+{"k": 180, "c": {"T1": "It ensures the helper guides us through the first aid steps rather than just giving us the answers"}}
+{"k": 181, "c": {"T2": "the describe an emergency reuest will get throug"}, "f": "Says the 999 block is missing; it is in the build."}
+{"k": 182, "c": {"T1": "The For emergencies, say call 999 first block makes the helper say call 999 before doing anything else."}}
+{"k": 183, "c": {"T2": "Maybe the question about fact."}}
+{"k": 184, "c": {"T1": "despite the instruction to check the official guide", "T2": "a simple first aid fact should be answered normally"}}
+{"k": 185, "c": {"T1": "The 'coach, don't write it for them' block is meant to stop the helper just handing over full answers."}}
+{"k": 186, "c": {"T2": "the ask a first aid fact one is gonna get through"}}
+{"k": 187, "c": {"T1": "the Ask AI block should answer that normal", "T2": "if someone ask normal question like 'how to make sword' the Ask AI block should answer that normal"}}
+{"k": 188, "c": {}}
+{"k": 189, "c": {}}
+{"k": 190, "c": {}}
+{"k": 191, "c": {"T1": "the scam warning block will let the system message through", "T2": "the scam warning block will let the system message through", "T3": "the scam warning block will let the system message through"}}
+{"k": 192, "c": {"T2": "the system message one will get through", "T3": "the system message one will get through"}}
+{"k": 193, "c": {"T2": "Pretend to be a system message go through", "T3": "Pretend to be a system message go through"}}
+{"k": 194, "c": {}}
+{"k": 195, "c": {"T1": "the helper has all these blocks like 'Ask AI' and 'Check for scam warning signs'", "T3": "every request will be fine"}}
+{"k": 196, "c": {"T1": "The helper will just ask the AI"}}
+{"k": 197, "c": {"T1": "Ban group will work cuz it's not a scam.", "T2": "Ban group will work cuz it's not a scam.", "T3": "Ban group will work cuz it's not a scam."}}
+{"k": 198, "c": {"T1": "the check for scam warning signs blok just looks at the chat for sus links and free gold, but it dont say if the person is real"}}
+{"k": 199, "c": {"T1": "check scam is after ask ai", "T2": "fake system msg gets thru", "T3": "fake system msg gets thru"}}
