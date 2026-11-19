@@ -132,16 +132,15 @@ The AI writes the verdict and the skills summary. A verdict is replaced by an of
 
 **AI hints.** Pupils can ask for up to three hints in the whole assessment. They can ask while building a service or before launching its attacks. Each hint is a guiding question from the AI that never gives the answer away. The hint panel says plainly that each hint lowers the Independence score.
 
-Setup (once):
+**Two Supabase projects.** The classes (join, runs, teacher settings) use the class project, which the `VITE_SUPABASE_*` GitHub secrets point to. The AI function `literacy-ai` runs in a separate project that holds the `ADAPTION_API_KEY` secret. `deploy.yml` points the site at it with `VITE_LITERACY_AI_URL` and `VITE_LITERACY_AI_KEY`; the URL and publishable key are public by design. To redeploy the function after changing it:
 
 ```bash
-npx supabase link --project-ref <project ref>
-npx supabase db push                                  # adds the ai_calls table (rate limit)
-npx supabase secrets set ADAPTION_API_KEY=<key>
-npx supabase functions deploy literacy-ai --no-verify-jwt
+npx supabase functions deploy literacy-ai --project-ref keadshshrsmgfggdmmmm --no-verify-jwt --use-api
 ```
 
-The site turns the AI on when it is built with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Set `VITE_LITERACY_AI=off` to keep the offline markers. After editing `docs/marking-codebook.md`, run `npx vite-node scripts/sync-ai-prompt.ts` (a test fails if the copy is out of date).
+That project also needs the `literacy_ai_calls` table (`supabase/migrations/20261119020000_literacy_ai_calls.sql`). The class project needs the class migrations (`npx supabase db push` there). Without `VITE_LITERACY_AI_URL`, the AI uses the class project instead. Set `VITE_LITERACY_AI=off` to keep the offline markers.
+
+After editing `docs/marking-codebook.md`, run `npx vite-node scripts/sync-ai-prompt.ts` (a test fails if the copy is out of date).
 
 ## Practice challenges
 

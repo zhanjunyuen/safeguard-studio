@@ -20,6 +20,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # The AI (literacy-ai Edge Function) runs in a separate Supabase project that holds the Adaption key.
+          # URL and publishable key are public by design; the Adaption key never leaves that project.
+          VITE_LITERACY_AI_URL: https://keadshshrsmgfggdmmmm.supabase.co
+          VITE_LITERACY_AI_KEY: sb_publishable_VfrkWev-mIWVzlHcqXjIAw_lAppBMFe
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
   deploy:

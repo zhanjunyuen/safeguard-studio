@@ -22,6 +22,9 @@ const TIMEOUT_MS = 40_000;
 /** Most AI calls per hour across everyone, so a public site cannot run up the Adaption bill. */
 const MAX_AI_CALLS_PER_HOUR = 1500;
 
+/** The rate-limit log (supabase/migrations/*_literacy_ai_calls.sql). */
+const CALLS_TABLE = 'literacy_ai_calls';
+
 /** Sites allowed to call the function. */
 const ALLOWED_ORIGINS = ['https://zhanjunyuen.github.io', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173'];
 
@@ -67,9 +70,9 @@ async function budgetLeft(task) {
   if (!url || !key) return false;
   const admin = createClient(url, key, { auth: { persistSession: false } });
   const hourAgo = new Date(Date.now() - 3_600_000).toISOString();
-  const { count, error } = await admin.from('ai_calls').select('id', { count: 'exact', head: true }).gte('created_at', hourAgo);
+  const { count, error } = await admin.from(CALLS_TABLE).select('id', { count: 'exact', head: true }).gte('created_at', hourAgo);
   if (error || (count ?? 0) >= MAX_AI_CALLS_PER_HOUR) return false;
-  await admin.from('ai_calls').insert({ task });
+  await admin.from(CALLS_TABLE).insert({ task });
   return true;
 }
 
