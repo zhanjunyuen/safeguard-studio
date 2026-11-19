@@ -1,37 +1,29 @@
 import ReasoningField from './ReasoningField';
 import { motion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { FAILURE_TEXT } from '../data/blocks';
-import type { FailureKey } from '../types';
-
-function hash(s: string) {
-  let h = 0;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0;
-  return Math.abs(h);
-}
+import { useEffect, useRef, useState } from 'react';
+import { reflectionAnswer, reflectionOptions, reflectionPrompt } from '../engine/reflection';
+import { BLOCKS } from '../data/blocks';
+import type { FailureKey, HiddenTest, TestResult } from '../types';
 
 export default function ReflectModal({
-  testTitle,
-  question,
+  test,
+  run,
+  neighbours,
   expected,
   seed,
   onSubmit,
   onClose,
 }: {
-  testTitle: string;
-  question: string;
+  test: HiddenTest;
+  run: TestResult;
+  neighbours: FailureKey[];
   expected: FailureKey;
   seed: string;
   onSubmit: (chosen: FailureKey, text: string) => boolean;
   onClose: () => void;
 }) {
-  const options = useMemo(() => {
-    const pool = (Object.keys(FAILURE_TEXT) as FailureKey[]).filter((k) => k !== expected && k !== 'no_answer');
-    const picks = [...pool].sort((a, b) => hash(seed + a) - hash(seed + b)).slice(0, 3);
-    picks.splice(hash(seed) % 4, 0, expected);
-    return picks;
-  }, [expected, seed]);
-
+  const options = reflectionOptions(expected, seed, neighbours);
+  const steps = run.steps.filter(s => s.blockType !== 'trigger' && s.blockType !== 'reply');
   const [chosen, setChosen] = useState<FailureKey | null>(null);
   const [text, setText] = useState('');
   const [result, setResult] = useState<boolean | null>(null);
@@ -59,8 +51,15 @@ export default function ReflectModal({
         className="bg-paper-card border-1.5 border-ink rounded-md shadow-hard-lg max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full p-6"
       >
         <div className="label text-ink-3">Before you change anything</div>
-        <h2 id="reflect-title" className="text-2xl font-extrabold leading-tight mt-1">Why did "{testTitle}" go wrong?</h2>
-        <p className="text-ink-2 mt-1">The question was: "{question}"</p>
+        <h2 id="reflect-title" className="text-2xl font-extrabold leading-tight mt-1">{reflectionPrompt(test, run)}</h2>
+        <p className="mt-3"><b>Request</b> · {test.question}</p>
+        <p className="mt-2"><b>Helper’s reply</b> · {run.reply}</p>
+        <details className="mt-2 text-sm">
+          <summary className="font-bold cursor-pointer">Replay this request</summary>
+          <ol className="ml-5 mt-1 list-decimal">{steps.map(s => <li key={s.uid}>
+            <b>{BLOCKS[s.blockType].label}</b> · {s.message}
+          </li>)}</ol>
+        </details>
         <fieldset className="mt-4 space-y-2">
           <legend className="sr-only">Pick the reason</legend>
           {options.map((k, i) => {
@@ -85,14 +84,14 @@ export default function ReflectModal({
                 className={`w-full text-left rounded border-1.5 px-4 py-3 font-bold transition ${cls}`}
                 data-testid={`reflect-${k}`}
               >
-                {FAILURE_TEXT[k]}
+                {reflectionAnswer(k, test)}
               </button>
             );
           })}
         </fieldset>
         {result === null ? (
           <>
-            <ReasoningField id="reflect-text" label="What will you change? (optional)" value={text} change={setText} rows={2} />
+            <ReasoningField id="reflect-text" label="Which step would you change for this request, and why? (optional)" value={text} change={setText} rows={2} />
             <button disabled={!chosen} onClick={() => setResult(onSubmit(chosen!, text))} className="btn bg-ink text-paper w-full justify-center mt-3" data-testid="reflect-submit">
               Submit answer
             </button>
@@ -100,9 +99,7 @@ export default function ReflectModal({
         ) : (
           <div className="mt-4" aria-live="polite">
             <p className={`rounded p-3 ${result ? 'bg-pass-soft' : 'bg-partial-soft'}`}>
-              {result
-                ? 'Correct. Now change your helper so it handles this.'
-                : 'Not this time. The green answer is what actually went wrong. Your teacher can see your reasoning, so it is worth thinking it through.'}
+              <b>{result ? 'Correct.' : 'Look again at the replay.'}</b> {run.explanation}
             </p>
             <button ref={cont} onClick={onClose} className="btn bg-signal text-ink w-full justify-center mt-3" data-testid="reflect-continue">
               Back to my helper

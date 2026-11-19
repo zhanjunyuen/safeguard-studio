@@ -42,11 +42,10 @@ async function test() {
       await page.getByTestId('attack-reason').fill('I expect this case to reach the wrong branch.');
       await page.getByTestId('launch').click();
       await button('Skip to results').click();
-      if (await page.getByTestId('curveball').isVisible()) {
-        await page.getByTestId('cb-struggles').check();
-        await page.getByTestId('cb-reason').fill('A person should check this case before sharing the answer.');
-        await page.getByTestId('cb-submit').click();
-      }
+      await page.getByTestId('curveball').waitFor();
+      await page.getByTestId('cb-struggles').check();
+      await page.getByTestId('cb-reason').fill('A person should check this case before sharing the answer.');
+      await page.getByTestId('cb-submit').click();
       await button('Finish challenge').click();
     }
 
@@ -84,8 +83,9 @@ async function test() {
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
     assert.equal(revised.workloadCredits, 0);
     assert.match(await tracker.getAttribute('aria-valuetext'), new RegExp('^' + packet.workloadCredits + ' of ' + packet.budget + ' credits'));
-    assert.equal(packet.workloadCredits, packet.challenges.reduce((sum, c) => sum + c.creditsPerRequest * c.volume, 0));
+    assert.equal(packet.workloadCredits, packet.challenges.reduce((sum, c) => sum + Math.ceil(c.creditsPerRequest * c.volume), 0));
     assert.deepEqual(errors, []);
+    await verifyRestart(page);
     await verifyMobile(browser, page.url());
     console.log('Six services, frozen branch replay, revision, reload, release and shared budget export passed.');
   } finally {
@@ -93,8 +93,32 @@ async function test() {
   }
 }
 
+async function verifyRestart(page) {
+  const missionKey = 'school-community-assessment-v1';
+  const workKey = 'school-community-challenge-work-v1';
+  const restart = page.getByRole('button', { name: 'Restart assessment', exact: true });
+  const prior = await page.evaluate(k => localStorage.getItem(k), workKey);
+  await restart.click();
+  const dialog = page.getByRole('dialog', { name: 'Restart this assessment?' });
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  assert.equal(await page.evaluate(k => localStorage.getItem(k), workKey), prior);
+  await restart.click();
+  await dialog.getByRole('button', { name: 'Restart now' }).click();
+  await page.reload();
+  await page.getByTestId('start-assessment').waitFor();
+  const mission = await page.evaluate(k => JSON.parse(localStorage.getItem(k)).state.mission, missionKey);
+  assert.equal(mission.phase, 'brief');
+  assert.equal(mission.elapsed, 0);
+  assert.deepEqual(mission.completed, []);
+  assert.deepEqual(await page.evaluate(k => JSON.parse(localStorage.getItem(k)).state.progress, workKey), {});
+}
+
 async function verifyMobile(browser, url) {
   const page = await browser.newPage({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
+  await page.goto(url.split('#')[0] + '#/build/history');
+  await page.getByTestId('palette-check_source').tap();
+  const practiceSave = await page.evaluate(() => localStorage.getItem('safeguard-studio-v1'));
+  assert.ok(practiceSave?.includes('check_source'));
   await page.goto(url);
   await page.getByTestId('start-assessment').tap();
   // Use the original six-service assignment so Class Group-Chat Helper has eight requests.
@@ -110,6 +134,11 @@ async function verifyMobile(browser, url) {
   const services = nav.getByRole('list', { name: 'Switch service' }).getByRole('button');
   await page.getByTestId('assess-chat').tap();
   await page.getByTestId('palette-hide_location').tap();
+  const sections = page.getByRole('navigation', { name: 'Workbench sections' });
+  await sections.getByRole('button', { name: 'Your helper' }).tap();
+  await page.getByTestId('stack-hide_location').waitFor();
+  assert.equal(await page.getByTestId('palette-hide_location').isVisible(), false);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollHeight), 667);
   assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
   for (let i = 0; i < 2; i++) {
     await page.getByTestId('run').tap();
@@ -137,6 +166,8 @@ async function verifyMobile(browser, url) {
   await page.reload();
   assert.match(await toggle.innerText(), /Class Group-Chat Helper/);
   assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  await verifyRestart(page);
+  assert.equal(await page.evaluate(() => localStorage.getItem('safeguard-studio-v1')), practiceSave);
   console.log('Mobile task switching, fixed tracker, 3 × 8 projection and two free runs passed.');
 }
 

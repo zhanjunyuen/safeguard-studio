@@ -18,6 +18,7 @@ async function test() {
     await page.getByTestId('start-assessment').click();
     const tasks = page.locator('[data-testid^="assess-"]');
     await tasks.first().click();
+    await page.getByText('Task details and design note', { exact: true }).click();
     const note = page.getByRole('textbox');
     await note.fill('First');
     await page.getByRole('button', { name: 'Speak your reasoning' }).click();
@@ -30,6 +31,7 @@ async function test() {
     assert.equal(await page.evaluate(() => window.testMic.aborted), true);
     await page.evaluate(() => window.testMic.say('late result'));
     await tasks.first().click();
+    await page.getByText('Task details and design note', { exact: true }).click();
     assert.equal(await note.inputValue(), 'Edited prediction.');
     await page.getByRole('button', { name: 'Speak your reasoning' }).click();
     await page.evaluate(() => { window.testMic.onerror({ error: 'not-allowed' }); window.testMic.onend(); });

@@ -45,6 +45,13 @@ describe('six required challenges', () => {
     expect(allChallengesComplete({ ...mission, completed: [...ids.slice(1), ids[1]] })).toBe(false);
   });
 
+  it('unlocks release for shorter teacher-selected assignments', () => {
+    const assigned = ['quiz', 'history'];
+    const m = { ...newAssessment(), assigned };
+    expect(allChallengesComplete({ ...m, completed: ['quiz'] })).toBe(false);
+    expect(allChallengesComplete({ ...m, completed: ['history', 'quiz'] })).toBe(true);
+  });
+
   it('exports an interrupted challenge and its original attack target independently of other challenges', () => {
     const mission = newAssessment();
     const packet = challengeEvidence({
@@ -103,4 +110,19 @@ it('projects current safeguards at service volume, independently of tests and re
   expect(challengeEvidence({ ...m, level: 2 }, progress).workloadCredits).toBe(28);
   chat.script.pop();
   expect(challengeEvidence(m, progress).workloadCredits).toBe(4);
+});
+
+it('charges for the actual case mix and keeps the earlier tariff for saved assessments', () => {
+  const m = { ...newAssessment(), level: 2 as const };
+  const p = freshProgress();
+  const conditional = { uid: 'if', type: 'if', cond: 'ai_unsure' as const, then: { uid: 'teacher', type: 'teacher_confirm' } };
+  p.script.push(conditional);
+  const cost = () => serviceWorkloads(m, { history: p }).find(d => d.id === 'history')!;
+  expect(cost().credits).toBe(0);
+  expect(serviceWorkloads({ ...m, workloadModel: undefined }, { history: p }).find(d => d.id === 'history')?.credits).toBe(48);
+  p.script[1] = { ...conditional, cond: 'finished' };
+  // One finished-work request in seven, times four history requests. Reserve whole credits.
+  expect(cost()).toMatchObject({ perRequest: 8 / 7, volume: 4, credits: 5 });
+  p.script = [{ uid: 'handoff', type: 'ask_grownup' }, ...p.script];
+  expect(cost().credits).toBe(32);
 });

@@ -2,6 +2,7 @@ import { usePresenter } from './presenter';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
+import { reflectionCase } from '../engine/reflection';
 import { blockKey } from '../engine/scriptText';
 import { pushRun } from '../lib/sync';
 import type { BlockType, FailureKey, Outcome, RunReport, Scores, ScriptBlock } from '../types';
@@ -96,7 +97,7 @@ const createSession = (name: string) => create<SessionState>()(
       recordRun: (cid, report) =>
         set((st) => {
           const p = st.progress[cid] ?? freshProgress();
-          const firstFail = report.results.find((r) => r.outcome !== 'pass' && r.failureKey);
+          const firstFail = reflectionCase(report.results, p.attempts[p.attempts.length - 1], p.reflections);
           const attempt: Attempt = {
             at: Date.now(),
             script: p.script.map(blockKey),

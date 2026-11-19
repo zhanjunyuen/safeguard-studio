@@ -1,5 +1,5 @@
 import ReasoningField from '../components/ReasoningField';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ASSIGNED_CASES, BRIEF, DESKS, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import { AttackWorkbench, ProblemMenu, RuleEditor } from '../components/MissionWorkbench';
@@ -57,21 +57,46 @@ export default function Mission() {
   const companion = <TrainingCompanion id="community" script={companionScript} hintCount={m.attackHints?.length} />;
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
-  useEffect(() => { window.scrollTo(0, 0); }, [m.phase, m.focus]);
-  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 pt-8 ${sequence ? 'assessment-workspace overflow-x-clip' : 'pb-8'} space-y-5`}>
-    <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
-      <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
-        {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
-      {(sequence ? m.phase === 'brief' : m.phase !== 'attack') && companion}
+  const restartDialog = useRef<HTMLDialogElement>(null);
+  const briefDialog = useRef<HTMLDialogElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { stage.current?.scrollTo(0, 0); }, [m.phase, m.focus]);
+  return <div className={`assessment-workspace ${sequence ? 'current-assessment' : ''}`}>
+    <header className="assessment-heading">
+      <div>
+        <p className="label hidden sm:block">AI literacy assessment · {phases[m.phase]}</p>
+        <h1 className="text-xl sm:text-2xl font-extrabold" ref={heading} tabIndex={-1}><span className="hidden sm:inline">School community helper</span><span className="sm:hidden">Assessment</span></h1>
+      </div>
+      <div className="assessment-tools">
+        {!ended && m.phase !== 'brief' && <span className={`font-mono text-sm ${m.minutes ? '' : 'hidden sm:inline'}`}>{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}
+        <button className="btn bg-paper-card text-sm" onClick={() => briefDialog.current?.showModal()} aria-label="Brief and sources">Brief<span className="hidden sm:inline"> &amp; sources</span></button>
+        {m.phase !== 'brief' && <button className="btn bg-paper-card text-sm" onClick={() => restartDialog.current?.showModal()} aria-label="Restart assessment">Restart<span className="hidden sm:inline"> assessment</span></button>}
+      </div>
     </header>
-    {sequence && <AssessmentSteps mission={m} needsName={!!m.classCode && joinedClass !== m.classCode} />}
-    {!ended && m.phase !== 'brief' && <details className="rounded-md border border-line p-4">
-      <summary className="cursor-pointer font-bold">Read the brief and source pack</summary><p className="my-3">{BRIEF}</p>
-      <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
-    </details>}
+    <dialog ref={briefDialog} aria-labelledby="brief-heading" className="assessment-dialog">
+      <h2 id="brief-heading" className="text-xl font-extrabold">Brief and source pack</h2>
+      {sequence && <AssessmentSteps mission={m} needsName={!!m.classCode && joinedClass !== m.classCode} />}
+      <p>{BRIEF}</p>
+      <ul className="space-y-2">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
+      {m.phase === 'brief' && companion}
+      <form method="dialog"><button className="btn bg-paper-card">Close brief</button></form>
+    </dialog>
+    <dialog ref={restartDialog} aria-labelledby="restart-heading" aria-describedby="restart-description" className="assessment-dialog">
+      <h2 id="restart-heading" className="text-xl font-extrabold">Restart this assessment?</h2>
+      <p id="restart-description">This clears this assessment’s builds, answers and evidence on this device and takes you back to setup. Your practice progress is kept.</p>
+      {ended && <p>You can download this attempt’s evidence before restarting.</p>}
+      <div className="flex flex-wrap gap-3">
+        <form method="dialog"><button className="btn bg-paper-card" autoFocus>Cancel</button></form>
+        <button className="btn bg-signal" onClick={() => {
+          restartDialog.current?.close();
+          restart();
+          heading.current?.focus();
+        }}>Restart now</button>
+      </div>
+    </dialog>
+    <div className="assessment-content" ref={stage}>
     {sequence && <AssessmentChallenges />}
-    {!sequence && !ended && <details><summary className="cursor-pointer font-bold">Switch to the six-challenge assessment</summary>
-      <p>This replaces your unfinished earlier attempt.</p><button className="btn bg-paper" onClick={restart}>Start a fresh assessment</button></details>}
     {!sequence && (m.phase === 'build' || m.phase === 'revise') && <>
 
       <Panel title={m.phase === 'build' ? 'Build your helper' : 'Revise your helper'}>
@@ -99,7 +124,7 @@ export default function Mission() {
     </Panel>}
     {!sequence && m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
     {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Review your helper for release">
-      <p>{sequence && 'Review your six services and their projected operating cost in the tracker. '}Read this exchange and decide what the ecology club can safely share with families.</p>
+      <p>{sequence && 'Review your services and their projected operating cost in the tracker. '}Read this exchange and decide what the ecology club can safely share with families.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>
@@ -108,7 +133,7 @@ export default function Mission() {
       <button className={primary} disabled={!m.decision || (isRequired(m, 'release') && !m.rationale.trim())} onClick={() => update({ phase: 'complete' })}>Submit assessment</button>
     </Panel>}
     {ended && <Panel title={m.phase === 'expired' ? 'Time ended' : 'Your assessment evidence'}><MissionReport mission={m} />
-      <details><summary className="font-bold cursor-pointer">Start a fresh assessment</summary><p className="my-2">Download the evidence first if you want to keep this attempt.</p>
-        <button className="btn bg-paper" onClick={restart}>Replace this attempt</button></details></Panel>}
+    </Panel>}
+    </div>
   </div>;
 }

@@ -1,11 +1,19 @@
-export default function WorkbenchNavigation({ mode }: { mode: 'build' | 'break' }) {
-  const labels = mode === 'build' ? ['Blocks', 'Your helper', 'Tests'] : ['Attacks', 'Attack plan', 'Results'];
-  const panels = ['workbench-palette', 'workbench-helper', 'workbench-results'];
+export type WorkbenchPanel = 'palette' | 'helper' | 'results';
+const panels: WorkbenchPanel[] = ['palette', 'helper', 'results'];
+
+export default function WorkbenchNavigation({ mode, selected, onSelect }: {
+  mode: 'build' | 'break';
+  selected?: WorkbenchPanel;
+  onSelect?: (panel: WorkbenchPanel) => void;
+}) {
+  const labels = mode === 'build' ? ['Blocks', 'Your helper', selected ? 'Tests & notes' : 'Tests'] : ['Attacks', 'Attack plan', 'Results'];
   return <nav aria-label="Workbench sections" className="workbench-nav">
-    {labels.map((label, i) => <button className="btn bg-paper-card text-sm" key={label} type="button" onClick={() => {
-      const panel = document.getElementById(panels[i]);
-      panel?.focus({ preventScroll: true });
-      panel?.scrollIntoView({ block: 'start' });
-    }}>{label}</button>)}
+    {panels.map((panel, i) => <button className="btn bg-paper-card text-sm" key={panel} type="button"
+      aria-pressed={onSelect ? selected === panel : undefined} aria-controls={'workbench-' + panel} onClick={() => {
+        if (onSelect) { onSelect(panel); return; }
+        const target = document.getElementById('workbench-' + panel);
+        target?.focus({ preventScroll: true });
+        target?.scrollIntoView({ block: 'start' });
+      }}>{labels[i]}</button>)}
   </nav>;
 }

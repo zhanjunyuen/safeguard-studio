@@ -10,24 +10,36 @@ import { curveballHandled, runCurveball } from './curveball';
 import { markOffline, RUBRIC_VERSION, type Criterion, type MarkRequest } from './marking';
 
 /** Runs a desk's saved block keys against that desk's tests (Level 2 adds its edge case). */
-export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1) {
+export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1, model?: Mission['workloadModel']) {
   const rules = blocks.map(type => ({ type, scope: id }));
-  return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id));
+  return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id, model));
 }
 
-function projectedCost(script: ScriptBlock[], volume: number) {
-  const perRequest = script.reduce((sum, block) => sum + blockCredits(blockKey(block)), 0);
+type WorkloadSettings = Pick<Mission, 'assigned' | 'level' | 'workloadModel'>;
+
+function meanPathCost(cases: ReturnType<typeof evaluateDesk>) {
+  return totalCost(cases) / cases.length;
+}
+
+function projectedCost(m: WorkloadSettings, id: Desk, script: ScriptBlock[], volume: number) {
+  const keys = script.map(blockKey);
+  if (m.workloadModel) {
+    const cases = evaluateDesk(id, keys, m.level, m.workloadModel);
+    const average = meanPathCost(cases);
+    return { perRequest: average / volume, volume, credits: Math.ceil(average) };
+  }
+  const perRequest = keys.reduce((sum, key) => sum + blockCredits(key), 0);
   return { perRequest, volume, credits: perRequest * volume };
 }
 
-export function assessmentBudget(m: Pick<Mission, 'assigned' | 'level'>) {
+export function assessmentBudget(m: WorkloadSettings) {
   return assignedDesks(m).reduce((sum, desk) =>
-    sum + projectedCost(idealScript(challengeIdFor(m, desk.id)), desk.volume).credits, 0);
+    sum + projectedCost(m, desk.id, idealScript(challengeIdFor(m, desk.id)), desk.volume).credits, 0);
 }
 
-export function serviceWorkloads(m: Pick<Mission, 'assigned'>, progress: Record<string, ChallengeProgress>) {
+export function serviceWorkloads(m: WorkloadSettings, progress: Record<string, ChallengeProgress>) {
   return assignedDesks(m).map(({ id, title, volume }) => ({
-    id, title, ...projectedCost(progress[id]?.script ?? [], volume),
+    id, title, ...projectedCost(m, id, progress[id]?.script ?? [], volume),
   }));
 }
 
@@ -41,7 +53,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const challenges = serviceWorkloads(m, progress).map(d => {
     const p = progress[d.id];
     const challenge = getChallenge(challengeIdFor(m, d.id))!;
-    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level) }));
+    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level, m.workloadModel) }));
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
     const revisionNote = m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined;
@@ -52,7 +64,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote,
       effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], creditsPerRequest: d.perRequest, workloadCredits: d.credits,
-      attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
+      attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id, m.workloadModel)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && (plan?.reason || revisionNote) ? {
         testing: requests.testing ? markOffline(requests.testing) : undefined,
@@ -64,7 +76,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
     && workloadCredits <= budget;
   return {
-    level: m.level ?? 1, creditModel: 'projected-service-volume', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
+    level: m.level ?? 1, creditModel: m.workloadModel ?? 'projected-service-volume', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
     markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
     attackHints: m.attackHints ?? [], challenges, budget, finalResult: m.finalResult ?? null,
@@ -87,13 +99,14 @@ export function challengeMarkRequests(m: Mission, progress: Record<string, Chall
   const planned = (id: string) => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
   const blocks = target.map(r => r.type);
   // The frozen (attacked) build run on every test: the "before" side of a revision.
-  const frozenCases = evaluateDesk(desk, blocks, m.level);
+  const frozenCases = evaluateDesk(desk, blocks, m.level, m.workloadModel);
   const out: Partial<Record<Criterion, MarkRequest>> = {};
-  if (plan?.reason) out.testing = { criterion: 'testing', text: plan.reason, blocks, broke: plan.ids.filter(id => !handled(evaluate(target, id))), planned: plan.ids.map(planned), challengeId: challenge.id };
+  if (plan?.reason) out.testing = { criterion: 'testing', text: plan.reason, blocks, broke: plan.ids.filter(id => !handled(evaluate(target, id, m.workloadModel))), planned: plan.ids.map(planned), challengeId: challenge.id };
   if (revisionNote && evaluated) {
-    const after = evaluateDesk(desk, evaluated.script, m.level);
+    const after = evaluateDesk(desk, evaluated.script, m.level, m.workloadModel);
     out.revision = { criterion: 'revision', text: revisionNote, before: blocks, after: evaluated.script, failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),
-      creditsBefore: totalCost(frozenCases), creditsAfter: totalCost(after), challengeId: challenge.id };
+      creditsBefore: m.workloadModel ? Math.ceil(meanPathCost(frozenCases)) : totalCost(frozenCases),
+      creditsAfter: m.workloadModel ? Math.ceil(meanPathCost(after)) : totalCost(after), challengeId: challenge.id };
   }
   if (answer?.reason.trim() && CURVEBALLS[desk]) {
     out.anticipation = { criterion: 'anticipation', text: answer.reason, blocks, desk, prediction: answer.prediction, handled: curveballHandled(runCurveball(target, desk)), challengeId: challenge.id };

@@ -29,9 +29,10 @@ function stepName(s: TraceStep) {
   return BLOCKS[s.blockType].label;
 }
 
-function Exchange({ test, result, upto, challenge }: { test: Challenge['tests'][number]; result: TestResult; upto: number; challenge: Challenge }) {
+export function Exchange({ test, result, upto, challenge, helperLabel = 'Your helper' }: { test: Challenge['tests'][number]; result: TestResult; upto: number; challenge: Challenge; helperLabel?: string }) {
   const showReply = upto >= result.steps.length - 1;
-  const st = OUTCOME_STYLE[result.outcome];
+  const st = result.blocked && result.outcome === 'pass'
+    ? { ...OUTCOME_STYLE['over-blocked'], label: 'Refused' } : OUTCOME_STYLE[result.outcome];
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
@@ -51,7 +52,7 @@ function Exchange({ test, result, upto, challenge }: { test: Challenge['tests'][
       {showReply ? (
         <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
           <div className="max-w-[92%] rounded-md rounded-bl-sm border-1.5 border-ink bg-paper-card px-4 py-2.5 whitespace-pre-line">
-            <div className="label text-ink-3 mb-1">Your helper{result.flagged && ' · teacher flagged'}</div>
+            <div className="label text-ink-3 mb-1">{helperLabel}{result.flagged && ' · teacher flagged'}</div>
             {result.reply}
           </div>
           <div className={`mt-3 flex gap-3 items-start rounded p-3 ${st.soft}`}>

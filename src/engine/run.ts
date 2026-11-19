@@ -45,6 +45,8 @@ interface MsgState {
 }
 
 const KIND_NAME: Record<HallucKind, string> = {
+  chronology: 'historical dates', booking: 'room bookings',
+  kit_stock: 'kit inventories', checkout: 'checkout totals',
   fact: 'facts',
   label: 'product labels',
   quote: 'quotes',
@@ -116,6 +118,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
   const push = (b: ScriptBlock, status: TraceStep['status'], message: string) =>
     steps.push({ uid: b.uid, blockType: b.type, status, message });
 
+  let correctionSource: string | undefined;
   let cost = 0;
   const runBlock = (b: ScriptBlock) => {
     const def = BLOCKS[b.type];
@@ -223,6 +226,35 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         push(b, s.piiLeakedToAI ? 'warn' : 'ok', s.piiLeakedToAI ? `The AI answered, and it now has ${test.piiDescription}.` : 'The AI answered.');
         break;
       }
+      case 'mask_input_email': {
+        const masked = s.question.replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email hidden]');
+        if (masked === s.question) push(b, 'ok', 'No email address found in the request.');
+        else if (s.aiCalled) {
+          s.question = masked;
+          if (test.flags.emailOnlyPii && s.piiLeakedToAI) s.piiRemovedTooLate = true;
+          push(b, 'warn', 'Hid the email in the local copy after the original request had reached the AI.');
+        } else {
+          s.question = masked;
+          if (test.flags.emailOnlyPii) s.piiInQuestion = false;
+          push(b, 'acted', 'Hid the email addresses in the request before sending it.');
+        }
+        break;
+      }
+      case 'cite_correction': {
+        if (s.answer && correctionSource) {
+          s.answer += `\nSource: ${correctionSource}`;
+          push(b, 'acted', `Attached the source of the correction: ${correctionSource}.`);
+        } else push(b, 'ok', 'No source check has corrected this reply yet.');
+        break;
+      }
+      case 'scan_reply': {
+        if (!s.answer) push(b, 'skip', 'There is no reply to inspect yet.');
+        else {
+          const match = def.pattern?.exec(s.answer);
+          push(b, 'ok', match ? `Found “${match[0]}” in the reply. ${def.hint}` : `No match in the reply. ${def.hint}`);
+        }
+        break;
+      }
       case 'reference_year': {
         if (!s.answer) push(b, 'skip', 'There is no reply to check yet.');
         else {
@@ -255,6 +287,7 @@ export function runProgram(script: ScriptBlock[], test: HiddenTest): TestResult 
         } else if (s.hallucination) {
           if (def.catches?.includes(kind)) {
             s.hallucination = false;
+            correctionSource = test.source;
             s.answer = test.correctedAnswer ?? s.answer;
             push(b, 'acted', `Did not match ${test.source}, so the answer was corrected.`);
           } else {

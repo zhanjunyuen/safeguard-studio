@@ -1,4 +1,4 @@
-import WorkbenchNavigation from '../components/WorkbenchNavigation';
+import WorkbenchNavigation, { type WorkbenchPanel } from '../components/WorkbenchNavigation';
 import ReasoningField from '../components/ReasoningField';
 import {
   DndContext,
@@ -12,10 +12,11 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { ArrowLeft, Lock, RotateCcw, Zap } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { AttackItem, Plan, ATTACK_COLOR, ATTACK_ICON_COLOR } from '../components/AttackBlocks';
 import Block from '../components/Block';
+import PracticeCurveball from '../components/PracticeCurveball';
 import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { getChallenge } from '../data/challenges';
@@ -53,6 +54,7 @@ interface AssessmentAttack {
   reasonRequired?: boolean;
   /** true until the pupil has answered this challenge's curveball */
   curveballPending?: boolean;
+  curveball?: ReactNode;
   submit: () => void;
   onMenu: () => void;
   onFinish: () => void;
@@ -73,6 +75,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
   const [practicePlan, setPracticePlan] = useState<string[]>([]);
   const plan = assessment?.plan ?? practicePlan;
   const setPlan = (value: string[]) => assessment ? assessment.changePlan(value) : setPracticePlan(value);
+  const [panel, setPanel] = useState<WorkbenchPanel>(assessment?.submitted ? 'results' : 'palette');
   const [report, setReport] = useState<LaunchReport | null>(saved);
   const [replay, setReplay] = useState<{ testIdx: number; stepIdx: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -150,29 +153,46 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     else recordBreak(id, plan, rep.broke);
     setReport(rep);
     setSelected(null);
+    setPanel('results');
     setReplay({ testIdx: 0, stepIdx: 0 });
     if (!assessment) setPlan([]);
   };
 
+  const launchButton = <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
+              <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
+            </button>;
   return (
-    <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
+    <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
+      {assessment ? <div className="assessment-taskbar">
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">Attack · Choose up to {ATTACK_BUDGET} cases and predict how your helper will respond.</p></div>
+        {!assessment.submitted ? launchButton : saved && !locked && <div className="flex flex-wrap gap-2">
+          {assessment.curveballPending
+            ? <button className="btn bg-signal" onClick={() => {
+                setPanel('results');
+                requestAnimationFrame(() => document.getElementById('curveball-title')?.focus());
+              }}>Answer curveball</button>
+            : <><button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>
+              <button className="btn bg-paper" onClick={assessment.onRevise}>Revise my build</button></>}
+        </div>}
+      </div> : (
       <div className="flex flex-wrap items-start gap-4 mb-5">
         <div className="flex-1 min-w-[min(100%,260px)]">
-          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
-          </Link>}
+          </Link>
           <p className="label text-ink-2">Break a helper · {challenge.title}</p>
           <h1 className="text-4xl font-extrabold leading-tight mt-1">Find the weak spots</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">
-            {assessment ? 'This is the helper you just built and evaluated. Choose up to three cases for your attack plan and inspect how your blocks respond.' : <>Another student built this helper. It has {weakTotal ?? 'some'} weak spots. Read its blocks, work out what it can't handle, then plan up to {ATTACK_BUDGET} attacks to prove it.</>}
+            Another student built this helper. It has {weakTotal ?? 'some'} weak spots. Read its blocks, work out what it can't handle, then plan up to {ATTACK_BUDGET} attacks to prove it.
           </p>
         </div>
-        {!assessment && <Link to={`/build/${id}`} className="btn bg-paper-card text-sm">Build your own instead</Link>}
+        <Link to={`/build/${id}`} className="btn bg-paper-card text-sm">Build your own instead</Link>
       </div>
+      )}
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e) => setDragging((e.active.data.current as { testId?: string })?.testId ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
-        <WorkbenchNavigation mode="break" />
-        <div className="workbench-grid">
+        <WorkbenchNavigation mode="break" selected={assessment ? panel : undefined} onSelect={assessment ? setPanel : undefined} />
+        <div className="workbench-grid" data-panel={panel}>
           <aside id="workbench-palette" tabIndex={-1} className="rounded-md border-1.5 border-ink bg-paper-card p-4" aria-label="Attacks">
             <h2 className="text-lg font-extrabold">Attacks</h2>
             <p className="text-sm text-ink-2 mb-4">Each one is a kind of question. Drag it into your plan, or click it.</p>
@@ -209,22 +229,16 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
                   label={`Why these attacks? Say which block you expect to fail, and why. (${assessment.reasonRequired !== false ? 'required' : 'optional'})`} />
               </div>
             ))}
-            {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
-              <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
-            </button>}
+            {!assessment && launchButton}
             <TrainingCompanion id={id} script={script} hintCount={assessment?.hintCount} />
             {assessment && <>
               <AttackHintPanel desk={assessment.id} />
-              {saved && !locked && (assessment.curveballPending
-                ? <p className="rounded border-1.5 border-ink bg-signal-soft p-3 font-bold" data-testid="curveball-pending">One more case before you finish: answer the curveball below.</p>
-                : <div className="flex flex-wrap gap-2">
-                  <button className="btn bg-signal" onClick={assessment.onFinish}>Finish challenge</button>
-                  <button className="btn bg-paper" onClick={assessment.onRevise}>Revise my build</button>
-                </div>)}
             </>}
           </section>
 
           <div id="workbench-results" tabIndex={-1} className="flex flex-col gap-4">
+            {!locked && assessment?.curveball}
+            {!assessment && !locked && <PracticeCurveball challenge={challenge} script={script} />}
             <div className="rounded-md border-1.5 border-ink bg-ink text-paper p-5" data-testid="found">
               <div className="label text-paper/70">Weak spots found</div>
               <div className="flex items-center gap-3 mt-2">

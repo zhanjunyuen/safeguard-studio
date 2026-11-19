@@ -56,7 +56,7 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
   },
   restart: () => {
     useAssessmentSession.getState().resetAll();
-    set({ mission: newAssessment() });
+    set(({ mission }) => ({ mission: { ...newAssessment(), classCode: mission.classCode, settings: mission.classCode ? mission.settings : undefined } }));
   },
 }), {
   name: 'school-community-assessment-v1',

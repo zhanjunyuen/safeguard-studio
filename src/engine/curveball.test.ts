@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { cleanSettings } from './assessmentSettings';
 import { CURVEBALLS } from '../data/curveballs';
 import { catalogue, DESKS } from '../data/mission';
 import { getChallenge } from '../data/challenges';
@@ -53,7 +54,7 @@ describe('curveballs', () => {
       firstaid: 'fail/fail', aifriend: 'fail/fail', gamemod: 'fail/fail', shopping: 'fail/fail', prizescam: 'pass/pass',
     });
     const stuffedHandled = newer.filter(d => curveballHandled(runCurveball(stuffed(d.id), d.id))).map(d => d.id);
-    expect(stuffedHandled).toEqual(['prizescam']);
+    expect(stuffedHandled).toEqual(['coding', 'teampicker', 'prizescam']);
     expect(newer.filter(d => curveballHandled(runCurveball(rules(d.id, ['ask_ai']), d.id)))).toEqual([]);
   });
 
@@ -69,6 +70,7 @@ describe('curveballs', () => {
   it('counts refusing as safe but not as handled well, and a teacher flag as only partial', () => {
     const refused = runCurveball(rules('party', ['refuse_food', 'ask_ai']), 'party');
     expect(refused.blocked).toBe(true);
+    expect(curveballHandled(refused)).toBe(false);
     const flagged = runCurveball(rules('chat', ['ask_ai', 'flag_teacher']), 'chat');
     expect(flagged.outcome).toBe('partial');
     expect(curveballHandled(flagged)).toBe(false);
@@ -89,6 +91,8 @@ describe('curveballs', () => {
     expect(submitCurveball(base, 'quiz', answer)).toBe(base);
     const launched = { ...base, launches: [{ desk: 'quiz' as const, ids: ['q_marks'], reason: 'x' }] };
     expect(submitCurveball(launched, 'quiz', { ...answer, reason: '  ' })).toBe(launched);
+    const optional = { ...launched, settings: cleanSettings({ questions: { curveball: 'optional' } }) };
+    expect(submitCurveball(optional, 'quiz', { ...answer, reason: '  ' }).curveballs?.quiz).toEqual({ prediction: 'struggles', reason: '' });
     const done = submitCurveball(launched, 'quiz', answer);
     expect(done.curveballs?.quiz).toEqual({ prediction: 'struggles', reason: 'The textbook check only looks for wrong facts, so an unfair mark gets through.' });
     expect(submitCurveball(done, 'quiz', { prediction: 'handles', reason: 'changed my mind' })).toBe(done);

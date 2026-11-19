@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
 import { ChevronUp } from 'lucide-react';
 import type { latestEffectiveness, serviceWorkloads } from '../engine/challengeEvidence';
-import type { Desk, Phase } from '../engine/mission';
+import type { Desk, Mission, Phase } from '../engine/mission';
 import WorkloadBar, { workloadFormula } from './WorkloadBar';
 
 interface Props {
   phase: Phase;
+  serviceCount: number;
+  workloadModel?: Mission['workloadModel'];
   focus?: Desk;
   levelName: string;
   workloads: ReturnType<typeof serviceWorkloads>;
@@ -21,7 +23,7 @@ interface Props {
 }
 
 export default function AssessmentTracker({
-  phase, focus, levelName, workloads, used, budget, completed, effectiveness, current,
+  phase, serviceCount, workloadModel, focus, levelName, workloads, used, budget, completed, effectiveness, current,
   finished, onService, onOverview, onRelease,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
@@ -50,7 +52,7 @@ export default function AssessmentTracker({
             {service && !ended && <span className="font-normal text-ink-2">{stage} · </span>}{task}
           </strong>
           <span className="mt-1 block text-sm leading-tight text-ink-2" aria-live="polite" aria-atomic="true">
-            <b className={used > budget ? 'text-fail' : 'text-ink'}>{setup ? '0' : `${used} / ${budget}`} credits</b> · 6 services
+            <b className={used > budget ? 'text-fail' : 'text-ink'}>{setup ? '0' : `${used} / ${budget}`} credits</b> · {serviceCount} {serviceCount === 1 ? 'service' : 'services'}
           </span>
         </span>
         <span className="btn bg-signal">
@@ -66,9 +68,9 @@ export default function AssessmentTracker({
         className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
         <div className="min-h-0 overflow-hidden">
           <div className={`max-h-[60dvh] overflow-y-auto overscroll-contain border-t border-line py-3 space-y-3 transition-[visibility] motion-reduce:transition-none ${expanded ? 'visible' : 'invisible delay-200'}`}>
-            {setup ? <p className="text-sm">Start the assessment to see the budget for your six assigned services and switch between them here.</p> : <>
+            {setup ? <p className="text-sm">Start the assessment to see the budget for your assigned services and switch between them here.</p> : <>
               <WorkloadBar used={used} budget={budget} />
-              <p className="text-sm">Each projection multiplies safeguard credits per request by service volume. Test runs are free.</p>
+              <p className="text-sm">{workloadModel ? 'Each case counts equally. We average the cost of the blocks that run, multiply by service volume and round up once per service.' : 'Each projection multiplies safeguard credits per request by service volume.'} Test runs are free.</p>
               <ul aria-label={ended ? 'Service costs' : 'Switch service'} className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {workloads.map(row => {
                   const summary = <><b className="block">{row.title}{completed.includes(row.id) && ' · Complete'}</b>

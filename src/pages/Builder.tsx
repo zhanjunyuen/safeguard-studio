@@ -1,4 +1,4 @@
-import WorkbenchNavigation from '../components/WorkbenchNavigation';
+import WorkbenchNavigation, { type WorkbenchPanel } from '../components/WorkbenchNavigation';
 import ReasoningField from '../components/ReasoningField';
 import { stackCollision } from '../components/stackCollision';
 import {
@@ -19,11 +19,12 @@ import Block from '../components/Block';
 import TrainingCompanion from '../components/TrainingCompanion';
 import Palette from '../components/Palette';
 import ReflectModal from '../components/ReflectModal';
+import PracticeCurveball from '../components/PracticeCurveball';
 import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
-import { runChallenge } from '../engine/run';
+import { runChallenge, runProgram } from '../engine/run';
 import { buildStatus } from '../engine/progress';
 import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
 import { usefulnessTarget } from '../engine/targets';
@@ -31,7 +32,7 @@ import { describeAdd, freshProgress, newUid, useAssessmentSession, usePracticeSt
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
 
-import { blockCredits, type Desk } from '../engine/mission';
+import { safeguardRate, type Desk, type Mission } from '../engine/mission';
 import AttackHintPanel from '../components/AttackHintPanel';
 import { evaluateDesk, type serviceWorkloads } from '../engine/challengeEvidence';
 import { Trace } from '../components/MissionReport';
@@ -47,6 +48,7 @@ interface AssessmentBuild {
   /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
   level2?: boolean;
   revising: boolean;
+  workloadModel?: Mission['workloadModel'];
   workload: ReturnType<typeof serviceWorkloads>[number];
   note: string;
   onNote: (value: string) => void;
@@ -56,6 +58,7 @@ interface AssessmentBuild {
   onAttack: () => void;
 }
 export default function Builder({ assessment }: { assessment?: AssessmentBuild }) {
+  const noteRequired = assessment?.noteRequired ?? assessment?.revising;
   const route = useParams();
   const baseCid = assessment?.id ?? route.id ?? '';
   const isL2 = assessment ? !!assessment.level2 : route.level === '2';
@@ -70,6 +73,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const { setScript, recordRun, reflect, reset } = useWork();
   const script = progress.script;
 
+  const [panel, setPanel] = useState<WorkbenchPanel>('palette');
   const [report, setReport] = useState<RunReport | null>(null);
   const [ranScript, setRanScript] = useState<ScriptBlock[] | null>(null);
   const [replay, setReplay] = useState<{ testIdx: number; stepIdx: number } | null>(null);
@@ -86,6 +90,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     const latest = progress.attempts.slice(-1)[0];
     setReport(assessment && latest && challenge ? runChallenge(latest.script.map((key, i) => keyToBlock(key, `saved-${i}`)), challenge) : null);
     setReplay(null);
+    setReflectFor(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, cid]);
 
@@ -126,8 +131,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     setReplay(null);
     if (!report) return;
     const firstBad = report.results.find((r) => r.outcome !== 'pass');
-    setSelected(firstBad?.testId ?? report.results[0].testId);
     const pending = useWork.getState().progress[id]?.pendingReflection;
+    setSelected(pending?.testId ?? firstBad?.testId ?? report.results[0].testId);
     if (pending) setReflectFor(pending);
   };
 
@@ -252,6 +257,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     setRanScript(script);
     setDirty(false);
     setSelected(null);
+    setPanel('results');
     setReplay({ testIdx: 0, stepIdx: 0 });
   };
 
@@ -262,23 +268,36 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   };
 
   const last = progress.attempts.slice(-1)[0];
-  const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1);
+  const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1, assessment.workloadModel);
   const evaluated = last && last.script.join() === script.map(blockKey).join();
 
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
+  // Reconstruct the submitted attempt, including IF branches, even after a reload or draft edit.
+  const reflectRun = reflectTest && last && runProgram(last.script.map((key, i) => keyToBlock(key, String(i))), reflectTest);
+  const runButton = <button onClick={run} disabled={locked || mustReflect} title={mustReflect ? 'Explain the last failure first' : undefined}
+    className="btn bg-pass text-white text-lg px-5" data-testid="run">
+    <Play size={18} fill="currentColor" aria-hidden /> {locked ? 'Running…' : 'Run tests'}
+  </button>;
   return (
-    <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
+    <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
+      {assessment ? <div className="assessment-taskbar">
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p></div>
+        <div className="flex flex-wrap gap-2">
+          {mustReflect && !locked ? <button className="btn bg-paper-card" onClick={() => setReflectFor(progress.pendingReflection)}>Explain last failure</button> : runButton}
+          <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>
+        </div>
+      </div> : (
       <div className="flex flex-wrap items-start gap-4 mb-5">
         <div className="flex-1 min-w-[min(100%,260px)]">
-          {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
+          <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
-          </Link>}
+          </Link>
           <h1 className="text-4xl font-extrabold leading-none">{challenge.title}</h1>
           <p className="text-ink-2 mt-2 max-w-3xl text-[17px]">{challenge.story}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            {!assessment && <nav aria-label="Level" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
+            <nav aria-label="Level" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">
               <Link to={`/build/${baseCid}`} aria-current={!isL2 ? 'page' : undefined} className={`px-3 py-1.5 ${!isL2 ? 'bg-ink text-paper' : 'bg-paper-card hover:bg-paper-deep'}`} data-testid="level-1">
                 Level 1
               </Link>
@@ -290,29 +309,18 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
               >
                 {l1.state !== 'done' && <Lock size={13} aria-hidden />} Level 2: IF blocks
               </Link>
-            </nav>}
+            </nav>
             <p className="text-sm text-ink-2" data-testid="goal">
               <b className="text-ink">Goal:</b> pass all {challenge.tests.length} tests <b className="text-ink">and</b> keep usefulness at {target} or more.
               {isL2 ? ' Use IF blocks so safeguards only run when they are needed.' : ' Every extra block slows the helper down.'}
             </p>
           </div>
         </div>
-        {!assessment && <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
+        <button onClick={() => { reset(id); setReport(null); setReplay(null); }} className="btn bg-paper-card text-sm">
           <RotateCcw size={16} aria-hidden /> Start again
-        </button>}
+        </button>
       </div>
-
-      {assessment && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
-        <p><b>Projected service cost</b> · {workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}</p>
-        <p className="text-sm text-ink-2">Ask AI and test runs are free.{isL2 && ' Each IF block budgets for its more expensive branch.'}</p>
-        {costs && !locked && <details><summary className="cursor-pointer font-bold">Latest test results</summary>
-          {costs.map(row => <Trace key={row.id} run={row} />)}
-        </details>}
-        <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${(assessment.noteRequired ?? assessment.revising) ? 'required' : 'optional'})`}
-          value={assessment.note} change={assessment.onNote} required={assessment.noteRequired ?? assessment.revising} rows={2} />
-        <AttackHintPanel desk={assessment.id as Desk} />
-        <button disabled={((assessment.noteRequired ?? assessment.revising) && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
-      </div>}
+      )}
       {isL2 && !assessment && l1.state !== 'done' ? (
         <div className="rounded-md border-1.5 border-ink bg-paper-card p-10 text-center max-w-xl mx-auto" data-testid="l2-locked">
           <Lock size={28} aria-hidden className="mx-auto" />
@@ -325,9 +333,9 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </div>
       ) : (
       <DndContext sensors={sensors} collisionDetection={stackCollision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
-        <WorkbenchNavigation mode="build" />
-        <div className="workbench-grid">
-          <Palette credits={assessment ? blockCredits : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
+        <WorkbenchNavigation mode="build" selected={assessment ? panel : undefined} onSelect={assessment ? setPanel : undefined} />
+        <div className="workbench-grid" data-panel={panel}>
+          <Palette credits={assessment ? t => safeguardRate(t, assessment.workloadModel) : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
           <section id="workbench-helper" tabIndex={-1} className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
@@ -335,15 +343,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
                 <h2 className="text-lg font-extrabold leading-none">Your helper</h2>
                 <div className="text-sm text-ink-2 mt-1">{attemptNo ? `Run ${attemptNo + (dirty ? 1 : 0)}` : 'Not run yet'}</div>
               </div>
-              <button
-                onClick={run}
-                disabled={locked || mustReflect}
-                title={mustReflect ? 'Explain the last failure first' : undefined}
-                className="btn bg-pass text-white text-lg px-5"
-                data-testid="run"
-              >
-                <Play size={18} fill="currentColor" aria-hidden /> {locked ? 'Running…' : 'Run tests'}
-              </button>
+              {!assessment && runButton}
             </div>
             <ScriptStack script={script} highlights={highlights} onRemove={remove} locked={locked} ifh={ifh} />
             {mustReflect && !reflectFor && !locked && (
@@ -354,7 +354,20 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
             <TrainingCompanion key={cid} id={baseCid} script={script} />
           </section>
 
-          <div id="workbench-results" tabIndex={-1}><RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} /></div>
+          <div id="workbench-results" tabIndex={-1} className="space-y-3">
+            {!assessment && !locked && !mustReflect && <PracticeCurveball challenge={challenge} script={script} />}
+
+            {assessment && !locked && <details open={noteRequired || undefined} className="rounded-md border border-line bg-paper-card p-3 space-y-2">
+              <summary className="font-bold cursor-pointer">{assessment.revising ? 'Revision note and task details' : 'Task details and design note'}</summary>
+              <p>{challenge.audience}. {challenge.story}</p><p>Pass {challenge.tests.length} tests and aim for usefulness of {target}.</p>
+              <p>{workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}. Test runs are free. {assessment.workloadModel ? 'The estimate averages the cost of the blocks that run across the cases.' : isL2 && 'Each IF budgets for its more expensive branch.'}</p>
+              <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${noteRequired ? 'required' : 'optional'})`}
+                value={assessment.note} change={assessment.onNote} required={noteRequired} rows={2} />
+              {costs && !locked && <details><summary>Latest test costs</summary>{costs.map(row => <Trace key={row.id} run={row} />)}</details>}
+            </details>}
+            {assessment && !locked && <AttackHintPanel desk={assessment.id} />}
+            <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} />
+          </div>
         </div>
 
         <DragOverlay dropAnimation={null}>
@@ -367,10 +380,11 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
       </DndContext>
       )}
 
-      {reflectFor && reflectTest && (
+      {reflectFor && reflectTest && reflectRun && (
         <ReflectModal
-          testTitle={reflectTest.title}
-          question={reflectTest.question}
+          test={reflectTest}
+          run={reflectRun}
+          neighbours={last.results.flatMap(r => r.failureKey ? [r.failureKey] : [])}
           expected={reflectFor.expected}
           seed={`${reflectFor.testId}-${attemptNo}`}
           onSubmit={(chosen, text) => reflect(id, chosen, text)}

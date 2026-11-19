@@ -1,9 +1,9 @@
 import { getChallenge } from '../data/challenges';
 import { CURVEBALLS } from '../data/curveballs';
 import { TRANSFER } from '../data/mission';
-import { curveballHandled, runCurveball } from './curveball';
+import { runCurveball } from './curveball';
 import { ECOLOGY_ANCHORS, type MarkRequest } from './marking';
-import { evaluate, handled, totalCost, type Desk, type Rule } from './mission';
+import { evaluate, handled, type Desk, type Rule } from './mission';
 import { labelOf } from './scriptText';
 import type { BlockType } from '../types';
 
@@ -47,7 +47,7 @@ export function markPacket(req: MarkRequest): unknown {
       ...found?.base, frozenBuild: flow(req.blocks),
       ...(cb ? { curveball: { title: cb.test.title, request: cb.test.question, context: cb.context ?? null, risk: cb.risk } } : {}),
       pupilChoice: req.prediction === 'handles' ? 'The helper will cope' : 'It will get through',
-      simulator: res ? { handled: curveballHandled(res), outcome: res.outcome, reply: res.reply, why: res.explanation } : { handled: req.handled },
+      simulator: res ? { handled: req.handled, outcome: res.outcome, reply: res.reply, why: res.explanation } : { handled: req.handled },
     };
   }
   // Revision: every test on the frozen and the latest build.
@@ -58,7 +58,7 @@ export function markPacket(req: MarkRequest): unknown {
   return {
     ...found?.base, frozenBuild: flow(req.before), latestBuild: flow(req.after), changed: req.before.join() !== req.after.join(),
     frozenResults: results(before), latestResults: results(after),
-    creditsBefore: found ? totalCost(before) : req.creditsBefore, creditsAfter: found ? totalCost(after) : req.creditsAfter,
+    creditsBefore: req.creditsBefore, creditsAfter: req.creditsAfter,
   };
 }
 

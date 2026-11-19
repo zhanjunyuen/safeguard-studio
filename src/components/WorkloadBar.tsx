@@ -1,4 +1,7 @@
 export function workloadFormula(perRequest: number, volume: number, credits: number) {
+  if (!Number.isInteger(perRequest)) {
+    return `about ${Number(perRequest.toFixed(2))} credits/request × ${volume} ${volume === 1 ? 'request' : 'requests'} → ${credits} credits (rounded up)`;
+  }
   return `${perRequest} credits/request × ${volume} ${volume === 1 ? 'request' : 'requests'} = ${credits} credits`;
 }
 
@@ -18,6 +21,6 @@ export default function WorkloadBar({ used, budget }: Props) {
     <progress aria-label="Shared workload budget" aria-valuetext={`${used} of ${budget} credits, ${balance}`}
       className={`block w-full h-3 my-1 ${remaining < 0 ? 'accent-red-700' : 'accent-green-700'}`}
       value={Math.min(used, budget)} max={budget} />
-    <p className={`text-sm ${remaining < 0 ? 'font-bold text-fail' : 'text-ink-2'}`}>{balance} across all six services</p>
+    <p className={`text-sm ${remaining < 0 ? 'font-bold text-fail' : 'text-ink-2'}`}>{balance} across assigned services</p>
   </div>;
 }

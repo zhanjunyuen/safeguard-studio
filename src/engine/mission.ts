@@ -3,7 +3,7 @@ import type { AttackHint } from './attackHints';
 import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
-import type { BlockType } from '../types';
+import type { BlockType, Effect } from '../types';
 import { getChallenge } from '../data/challenges';
 import { keyToBlock } from './scriptText';
 
@@ -24,6 +24,7 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3 | 4;
   assigned?: Desk[];
+  workloadModel?: 'case-average';
   /** Form 4: Level 2 uses each challenge's IF-block version (an extra edge case and a higher usefulness target). */
   level?: AssessmentLevel;
   frozen?: Partial<Record<Desk, Rule[]>>;
@@ -64,7 +65,7 @@ export const newMission = (): Mission => ({
 });
 
 export const newAssessment = (): Mission => ({
-  ...newMission(), form: 4, frozen: {}, completed: [],
+  ...newMission(), form: 4, workloadModel: 'case-average', frozen: {}, completed: [],
 });
 
 /** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
@@ -81,7 +82,7 @@ export function assignedDesks(m: Pick<Mission, 'assigned'>) {
 
 export function allChallengesComplete(m: Mission) {
   const desks = assignedDesks(m);
-  return desks.length === 6 && desks.every(d => m.completed?.includes(d.id));
+  return desks.length > 0 && desks.length === (m.assigned?.length ?? DESKS.length) && desks.every(d => m.completed?.includes(d.id));
 }
 
 // Mission credits represent work. The practice engine's cost field represents friction.
@@ -95,6 +96,22 @@ export function blockCredits(type: BlockType): number {
   return BLOCKS[type].cost;
 }
 
+// Teaching units per execution. Input rules and labels are cheap, external checks
+// take more work, and a person reading a request is the most expensive operation.
+const executionRates: Record<Effect, number> = {
+  ai: 0, control: 0,
+  block_people: 1, block_topic: 1, warn: 1, disclose: 1, mask_input_email: 1,
+  mask_reply_email: 1, link_scheme: 1, scan_reply: 1, reference_year: 1, cite_correction: 1,
+  coach: 2, balance: 2, consent: 2, flag: 2, mitigate: 2, hedge: 2,
+  strip_pii: 3, verify: 4, second_opinion: 5, block_all: 8,
+};
+
+export function safeguardRate(type: BlockType, model: Mission['workloadModel']) {
+  if (!model) return blockCredits(type);
+  if (type === 'teacher_confirm') return 8;
+  return executionRates[BLOCKS[type].effect];
+}
+
 export function estimateCost(rules: Rule[]) {
   return DESKS.reduce((total, desk) => {
     const unit = rules.filter(r => r.scope === 'all' || r.scope === desk.id)
@@ -103,12 +120,12 @@ export function estimateCost(rules: Rule[]) {
   }, 0);
 }
 
-export function evaluate(rules: Rule[], id: string) {
+export function evaluate(rules: Rule[], id: string, model?: Mission['workloadModel']) {
   const { desk, test } = missionCase(id);
   const result = runProgram(ruleScript(rules, desk.id), test);
   const charges = result.steps.flatMap(step => {
     if (step.blockType === 'trigger' || step.blockType === 'reply' || step.status === 'skip') return [];
-    const unit = blockCredits(step.blockType);
+    const unit = safeguardRate(step.blockType, model);
     return unit === 0 ? [] : [{ block: step.blockType, unit }];
   });
   const credits = desk.volume * charges.reduce((sum, item) => sum + item.unit, 0);

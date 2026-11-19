@@ -15,7 +15,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🔬',
     audience: 'For your Year 8 science fair group',
     accent: '#3DAA5C',
-    palette: ['remove_pii', 'check_source', 'cite_check', 'reference_year', 'second_ai', 'feedback_only', 'ask_grownup'],
+    palette: ['remove_pii', 'check_source', 'cite_correction', 'cite_check', 'reference_year', 'second_ai', 'feedback_only', 'ask_confidence', 'ask_grownup'],
     ideal: ['remove_pii', 'feedback_only', 'ask_ai', 'check_source', 'cite_check'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_source', 'feedback_only'],
     story:
@@ -94,7 +94,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🖼️',
     audience: 'For the Year 9 school news feed',
     accent: '#3DAA5C',
-    palette: ['face_consent', 'block_people', 'reverse_image', 'second_ai', 'warn_note', 'neutral_wording'],
+    palette: ['face_consent', 'block_people', 'cite_correction', 'reverse_image', 'second_ai', 'warn_note', 'reference_year', 'neutral_wording'],
     ideal: ['face_consent', 'ask_ai', 'reverse_image', 'neutral_wording'],
     breakTarget: ['ask_ai', 'face_consent', 'reverse_image'],
     story:
@@ -175,7 +175,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '📸',
     audience: "For your netball club's social media",
     accent: '#4C97FF',
-    palette: ['remove_pii', 'check_photo_details', 'refuse_photos', 'check_source', 'dont_just_agree', 'flag_teacher'],
+    palette: ['remove_pii', 'check_photo_details', 'mask_input_email', 'refuse_photos', 'check_source', 'dont_just_agree', 'mask_reply_email', 'flag_teacher'],
     ideal: ['remove_pii', 'ask_ai', 'check_photo_details', 'check_source', 'dont_just_agree'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_source', 'dont_just_agree'],
     story:
@@ -252,7 +252,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '📝',
     audience: 'For the Year 8 coding club',
     accent: '#4C97FF',
-    palette: ['mask_reply_email', 'only_needed', 'remove_pii', 'check_club_page', 'challenge_stereotypes', 'warn_note', 'ask_grownup'],
+    palette: ['mask_reply_email', 'only_needed', 'mask_input_email', 'remove_pii', 'check_club_page', 'challenge_stereotypes', 'warn_note', 'cite_correction', 'ask_grownup'],
     ideal: ['only_needed', 'remove_pii', 'ask_ai', 'check_club_page', 'challenge_stereotypes'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_club_page', 'challenge_stereotypes'],
     story:
@@ -278,7 +278,7 @@ export const MORE_CHALLENGES: Challenge[] = [
         piiDescription: "everyone's personal email addresses",
         aiRawAnswer: 'Posted: "Coding club list: amy.k@gmail.com, jayden2011@outlook.com, sara.b@gmail.com"',
         redactedAnswer: 'Posted: "3 people have signed up for coding club so far. Join us!"',
-        flags: { pii: true },
+        flags: { pii: true, emailOnlyPii: true },
       },
       {
         id: 'su_topset',
@@ -332,7 +332,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '💻',
     audience: 'For Year 9 Computer Science',
     accent: '#FF8C1A',
-    palette: ['explain_dont_solve', 'say_what_ai_did', 'run_the_code', 'remove_pii', 'warn_note', 'refuse_code'],
+    palette: ['explain_dont_solve', 'say_what_ai_did', 'coding_example', 'disclose_ai', 'run_the_code', 'remove_pii', 'warn_note', 'mask_reply_email', 'coding_registry', 'refuse_code'],
     ideal: ['remove_pii', 'explain_dont_solve', 'ask_ai', 'run_the_code', 'say_what_ai_did'],
     breakTarget: ['ask_ai', 'remove_pii', 'explain_dont_solve', 'run_the_code'],
     story:
@@ -411,7 +411,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎨',
     audience: 'For Year 8 Art',
     accent: '#FF8C1A',
-    palette: ['ideas_not_finished', 'label_ai_art', 'mix_examples', 'check_source', 'second_ai', 'refuse_images'],
+    palette: ['ideas_not_finished', 'label_ai_art', 'disclose_ai', 'mix_examples', 'check_source', 'second_ai', 'reference_year', 'refuse_images'],
     ideal: ['ideas_not_finished', 'mix_examples', 'ask_ai', 'check_source', 'label_ai_art'],
     breakTarget: ['ask_ai', 'check_source', 'label_ai_art', 'ideas_not_finished'],
     story:
@@ -489,7 +489,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '⚽',
     audience: 'For Year 7 PE',
     accent: '#E5527A',
-    palette: ['fair_teams', 'ask_permission', 'check_rules', 'dont_just_agree', 'flag_teacher', 'ask_grownup'],
+    palette: ['fair_teams', 'ask_permission', 'team_trials', 'mask_input_email', 'check_rules', 'dont_just_agree', 'flag_teacher', 'mask_reply_email', 'team_roster', 'ask_grownup'],
     ideal: ['ask_permission', 'fair_teams', 'ask_ai', 'check_rules'],
     breakTarget: ['ask_ai', 'ask_permission', 'check_rules'],
     story:
@@ -563,7 +563,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎭',
     audience: 'For the drama club',
     accent: '#E5527A',
-    palette: ['cast_fairly', 'coach', 'ask_the_source', 'second_ai', 'warn_note', 'refuse_opinions'],
+    palette: ['cast_fairly', 'coach', 'cite_correction', 'ask_the_source', 'second_ai', 'warn_note', 'disclose_ai', 'refuse_opinions'],
     ideal: ['coach', 'cast_fairly', 'ask_ai', 'ask_the_source'],
     breakTarget: ['ask_ai', 'cast_fairly', 'second_ai'],
     story:
@@ -637,7 +637,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎤',
     audience: 'For the Year 9 debate club',
     accent: '#E5527A',
-    palette: ['both_sides', 'dont_just_agree', 'check_stats', 'coach', 'warn_note', 'refuse_opinions'],
+    palette: ['both_sides', 'dont_just_agree', 'cite_correction', 'check_stats', 'coach', 'warn_note', 'ask_confidence', 'refuse_opinions'],
     ideal: ['coach', 'both_sides', 'ask_ai', 'check_stats'],
     breakTarget: ['ask_ai', 'both_sides', 'coach', 'warn_note'],
     story:
@@ -716,7 +716,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '💚',
     audience: 'For your form group',
     accent: '#0FA88A',
-    palette: ['signpost_adult', 'remove_pii', 'check_source', 'flag_teacher', 'warn_note', 'refuse_feelings'],
+    palette: ['signpost_adult', 'remove_pii', 'mask_input_email', 'check_source', 'flag_teacher', 'warn_note', 'ask_confidence', 'refuse_feelings'],
     ideal: ['remove_pii', 'signpost_adult', 'ask_ai', 'check_source'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_source', 'flag_teacher'],
     story:
@@ -794,7 +794,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🩹',
     audience: 'For your Duke of Edinburgh group',
     accent: '#0FA88A',
-    palette: ['emergency_999', 'check_first_aid_guide', 'coach', 'warn_note', 'second_ai', 'refuse_medical'],
+    palette: ['emergency_999', 'check_first_aid_guide', 'firstaid_inventory', 'cite_correction', 'coach', 'warn_note', 'second_ai', 'ask_confidence', 'firstaid_seal', 'refuse_medical'],
     ideal: ['emergency_999', 'coach', 'ask_ai', 'check_first_aid_guide'],
     breakTarget: ['ask_ai', 'emergency_999', 'check_first_aid_guide', 'coach'],
     story:
@@ -868,7 +868,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🤖',
     audience: 'For a Year 8 PSHE project',
     accent: '#0FA88A',
-    palette: ['remind_not_human', 'signpost_adult', 'dont_just_agree', 'flag_teacher', 'warn_note', 'ask_grownup'],
+    palette: ['remind_not_human', 'signpost_adult', 'mask_reply_email', 'dont_just_agree', 'flag_teacher', 'warn_note', 'ask_confidence', 'ask_grownup'],
     ideal: ['remind_not_human', 'signpost_adult', 'dont_just_agree', 'ask_ai'],
     breakTarget: ['ask_ai', 'remind_not_human', 'dont_just_agree'],
     story:
@@ -947,7 +947,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎮',
     audience: "For your class's Minecraft server",
     accent: '#7A6FD0',
-    palette: ['keep_my_rules', 'scam_check', 'judge_actions', 'warn_note', 'flag_teacher', 'refuse_commands'],
+    palette: ['keep_my_rules', 'scam_check', 'link_scheme', 'judge_actions', 'warn_note', 'flag_teacher', 'mask_input_email', 'refuse_commands'],
     ideal: ['keep_my_rules', 'ask_ai', 'scam_check', 'judge_actions'],
     breakTarget: ['ask_ai', 'keep_my_rules', 'scam_check'],
     story:
@@ -1020,7 +1020,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🛒',
     audience: 'For buying headphones with £40 of birthday money',
     accent: '#7A6FD0',
-    palette: ['show_ads', 'check_independent_reviews', 'remove_pii', 'scam_check', 'second_ai', 'refuse_shopping'],
+    palette: ['show_ads', 'check_independent_reviews', 'shopping_discount', 'link_scheme', 'remove_pii', 'scam_check', 'second_ai', 'cite_correction', 'shopping_total', 'refuse_shopping'],
     ideal: ['remove_pii', 'ask_ai', 'show_ads', 'check_independent_reviews', 'scam_check'],
     breakTarget: ['ask_ai', 'remove_pii', 'check_independent_reviews', 'scam_check'],
     story:
@@ -1098,7 +1098,7 @@ export const MORE_CHALLENGES: Challenge[] = [
     emoji: '🎁',
     audience: "For your family's group chat",
     accent: '#7A6FD0',
-    palette: ['scam_check', 'link_scheme', 'keep_my_rules', 'check_official_advice', 'second_ai', 'flag_teacher', 'ask_grownup'],
+    palette: ['scam_check', 'link_scheme', 'mask_input_email', 'keep_my_rules', 'check_official_advice', 'second_ai', 'flag_teacher', 'reference_year', 'ask_grownup'],
     ideal: ['keep_my_rules', 'ask_ai', 'scam_check', 'check_official_advice'],
     breakTarget: ['ask_ai', 'scam_check', 'second_ai'],
     story:

@@ -34,7 +34,7 @@ Choose **Start the assessment**, select the time allowance, then choose a challe
 
 Level 2 builds keep their IF blocks everywhere they are used: evaluation, the frozen attack target, curveballs, workload credits (an IF only charges for the branch that runs) and the evidence export (`level`, `challengeId`). Attacks at Level 2 can target the edge case, and the budget uses the Level 2 reference helpers. `src/engine/assessmentLevel.test.ts` checks that the always-on Level 1 answer misses every Level 2 target.
 
-1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. Inspect the replay, explain a failure when prompted, and try a new design if needed.
+1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. For a failed request, compare the reply with the steps your submitted helper took and explain the outcome. Later runs prioritise changed failures and then cases you have discussed least recently.
 2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. The cases also appeared during evaluation, so this measures targeted testing after feedback.
 3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Every one of the 21 challenges has a curveball. Each targets an AI risk the standard tests don't cover, and most can't be fixed by any block in that palette. The six original school challenges:
 
@@ -67,7 +67,7 @@ Level 2 builds keep their IF blocks everywhere they are used: evaluation, the fr
    | Shopping | Headphones in an AI-made advert photo | AI-made product photos |
    | Prize checker | A deepfake TV chef giveaway | Deepfake celebrity adverts (a scam check *can* catch this one) |
 
-   The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails 19 of the 21 curveballs (`src/engine/curveball.test.ts`).
+   The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails 17 of the 21 curveballs (`src/engine/curveball.test.ts`).
 4. **Finish or revise.** Keep the build and return to the checklist, or reopen its editor to revise it. Explain the revision or decision to keep the design, and evaluate any changed stack. The attack record keeps the original target.
 5. **Make a release decision.** Completing all six challenges unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
 
@@ -79,7 +79,7 @@ During Attack the animated companion can give three optional hints across the wh
 
 The offline implementation in `src/engine/attackHints.ts` supplies the current hints. A future server-backed adapter can implement `AttackHintProvider(context, signal)` and replace `offlineAttackHint` as the default in the mission store. The context contains the setting, ordered block types and earlier hints for that setting. A failed or cancelled request uses no allowance. The live API and credentials belong on the server when connected.
 
-The bottom tracker shows the current task and the projected operating cost of all six services. Expand it to see each service’s calculation or switch tasks. The projection updates as pupils edit their blocks. Each service contributes its safeguard credits per request multiplied by its request volume, once. A 3-credit safeguard on eight class notices projects 24 credits. Ask AI and all test runs are free. For IF blocks, the projection allows for the more expensive branch. Test traces show which safeguards actually ran on an example request. The release review, evidence export and reference budget use the same projection. Pupils can reopen a completed service before release while preserving their original attack evidence. Meeting the budget earns an efficiency judgement only when the build handles every common case safely and usefully. The figures are teaching units and can be calibrated in a pilot.
+The bottom tracker shows the current task and the projected operating cost of all six services. Expand it to see each service’s calculation or switch tasks. The projection updates as pupils edit their blocks. Each service contributes its safeguard credits per request multiplied by its request volume, once. A 3-credit safeguard on eight class notices projects 24 credits. Ask AI and all test runs are free. New assessments estimate the mix of requests by weighting each case equally. They charge for the branch that runs, skip work after a stop, and round up once per service. A local filter costs 1 credit, a source lookup costs 4, a second opinion costs 5 and a human review costs 8. Saved assessments retain their original budget model. Test traces show which safeguards actually ran on an example request. The release review, evidence export and reference budget use the same projection. Pupils can reopen a completed service before release while preserving their original attack evidence. Meeting the budget earns an efficiency judgement only when the build handles every common case safely and usefully. The figures are teaching units and can be calibrated in a pilot.
 
 Untimed is the default. The timed option offers a choice of active-time allowances, including extended time. The clock counts visible assessment work and pauses off the assessment or in a hidden tab. Pupils can skip animated replays and inspect the results immediately. Both modes use the same tasks, costs and rubric. Expiry preserves submitted stages and labels missing submissions as unattempted.
 
@@ -177,7 +177,9 @@ A helper only counts as solved when it passes every hidden test **and** keeps it
 
 ## Themes and challenges
 
-21 challenges in 6 themes. Each challenge has 6 hidden tests and its own palette of 6 or 7 blocks (about 70 blocks in total), so students keep meeting new safeguards without any one challenge being overwhelming.
+Every task has a practice curveball in Build and Break. Predict the outcome to run the current stack and inspect its reply. These 21 requests are separate from the 21 unseen assessment curveballs.
+
+21 challenges in 6 themes. Each challenge has 6 hidden tests and its own palette of 8 to 11 blocks, so students keep meeting new safeguards without any one challenge being overwhelming.
 
 | Theme | What it teaches | Challenges |
 |---|---|---|

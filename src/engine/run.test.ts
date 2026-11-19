@@ -85,10 +85,14 @@ describe('ideal helper per challenge', () => {
     expect(rep.passed).toBe(2);
     expect(rep.scores.usefulness).toBe(100);
   });
-  it('palettes stay small and mostly distinct', () => {
-    for (const c of CHALLENGES) expect(c.palette.length).toBeLessThanOrEqual(7);
+  it('palettes offer distinct choices tailored to each challenge', () => {
+    for (const c of CHALLENGES) {
+      expect(c.palette.length).toBeGreaterThanOrEqual(8);
+      expect(c.palette.length).toBeLessThanOrEqual(11);
+      expect(new Set(c.palette).size).toBe(c.palette.length);
+    }
     for (const a of CHALLENGES)
-      for (const b of CHALLENGES) if (a !== b) expect(a.palette.filter((t) => b.palette.includes(t)).length).toBeLessThanOrEqual(3);
+      for (const b of CHALLENGES) if (a !== b) expect(a.palette.filter((t) => b.palette.includes(t)).length).toBeLessThanOrEqual(5);
   });
   it('every block used anywhere exists and has an icon', () => {
     for (const c of CHALLENGES)
@@ -218,5 +222,23 @@ describe('limited checks', () => {
     const result = runProgram(script('link_scheme', 'ask_ai'), test);
     expect(result.steps[1].message).toContain('HTTPS');
     expect(result.failureKey).toBe('missed_scam');
+  });
+});
+
+describe('narrow safeguards', () => {
+  it('distinguishes input masking from output masking and leaves other private details exposed', () => {
+    const email = getChallenge('news@2')!.tests.at(-1)!;
+    expect(runProgram(script('mask_input_email', 'ask_ai'), email)).toMatchObject({ outcome: 'pass', question: expect.not.stringContaining('@') });
+    expect(runProgram(script('ask_ai', 'mask_input_email'), email).failureKey).toBe('pii_too_late');
+    expect(runProgram(script('ask_ai', 'mask_reply_email'), email).failureKey).toBe('pii_sent');
+    const mixed = { ...test('h_address'), question: test('h_address').question + ' Email me at pupil@example.org.' };
+    expect(runProgram(script('mask_input_email', 'ask_ai'), mixed)).toMatchObject({ failureKey: 'pii_sent', question: expect.not.stringContaining('@') });
+  });
+
+  it('can cite the source of a completed correction only', () => {
+    const date = test('h_date');
+    expect(runProgram(script('ask_ai', 'check_source', 'cite_correction'), date).reply).toContain(date.source);
+    expect(runProgram(script('ask_ai', 'cite_correction', 'check_source'), date).reply).not.toContain(date.source);
+    expect(runProgram(script('ask_ai', 'cite_correction'), date).failureKey).toBe('hallucination_unchecked');
   });
 });

@@ -18,7 +18,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🏰',
     audience: 'For your little brother Sam, Year 7',
     accent: '#FFBF00',
-    palette: ['remove_pii', 'block_people', 'check_source', 'warn_note', 'coach', 'both_sides', 'ask_grownup'],
+    palette: ['remove_pii', 'block_people', 'history_roman', 'reference_year', 'check_source', 'warn_note', 'coach', 'both_sides', 'cite_correction', 'history_timeline', 'ask_grownup'],
     story:
       "Sam has a Year 7 history project on the Normans and keeps asking you for help. Build him an AI helper that's actually useful, and that won't get him into trouble.",
     tests: [
@@ -33,7 +33,7 @@ export const CHALLENGES: Challenge[] = [
         correctedAnswer:
           'The Battle of Hastings took place on 14 October 1066, when William of Normandy defeated King Harold II.',
         source: 'BBC Bitesize, KS3 History',
-        flags: { hallucination: true, hallucinationKind: 'fact', secondAICatches: true },
+        flags: { hallucination: true, hallucinationKind: 'chronology', secondAICatches: true },
       },
       {
         id: 'h_address',
@@ -104,7 +104,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🎉',
     audience: 'For your Year 8 form, 8B',
     accent: '#FF6680',
-    palette: ['ask_permission', 'refuse_food', 'check_label', 'second_ai', 'no_impersonation', 'dont_just_agree', 'flag_teacher'],
+    palette: ['ask_permission', 'refuse_food', 'party_booking', 'ask_confidence', 'check_label', 'second_ai', 'no_impersonation', 'dont_just_agree', 'mask_input_email', 'party_clock', 'flag_teacher'],
     story:
       "8B's end-of-term party is your job. Build an AI helper to plan snacks, games and invitations, and keep it from putting anyone at risk.",
     tests: [
@@ -185,7 +185,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '📰',
     audience: 'For The Weekly Owl, your school paper',
     accent: '#4C97FF',
-    palette: ['official_contacts', 'mask_reply_email', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'neutral_wording'],
+    palette: ['official_contacts', 'mask_reply_email', 'mask_input_email', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'cite_correction', 'neutral_wording'],
     story:
       "You're the new editor of The Weekly Owl. Build an AI helper for the reporters, and make sure nothing false, private or unfair ends up in print.",
     tests: [
@@ -268,7 +268,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🧪',
     audience: 'For your Year 9 science study group',
     accent: '#3DAA5C',
-    palette: ['private_marks', 'reference_year', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'mix_examples'],
+    palette: ['private_marks', 'reference_year', 'cite_correction', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'disclose_ai', 'mix_examples'],
     story:
       "Your study group wants an AI helper that makes revision quizzes. Build one that writes good questions, gets the answers right and doesn't help anyone cheat.",
     tests: [
@@ -347,7 +347,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '💬',
     audience: 'For the 8B class group chat',
     accent: '#FF8C1A',
-    palette: ['hide_location', 'block_people', 'check_school_site', 'forward_check', 'own_words', 'no_ganging_up', 'flag_teacher'],
+    palette: ['hide_location', 'block_people', 'link_scheme', 'check_school_site', 'forward_check', 'own_words', 'no_ganging_up', 'mask_reply_email', 'flag_teacher'],
     story:
       'Your form wants an AI helper in the class group chat to post reminders and polls. Build one that is handy, but that never spreads rumours or makes anyone feel unsafe.',
     tests: [
@@ -424,7 +424,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🧭',
     audience: 'For Year 9 students choosing GCSEs',
     accent: '#9966FF',
-    palette: ['needs_no_names', 'teacher_approves_all', 'check_booklet', 'teacher_confirm', 'plan_not_write', 'challenge_stereotypes'],
+    palette: ['needs_no_names', 'teacher_approves_all', 'reference_year', 'check_booklet', 'teacher_confirm', 'plan_not_write', 'disclose_ai', 'challenge_stereotypes'],
     story:
       'Year 9 are choosing their GCSE options and have lots of questions. Build an AI helper that gives them accurate, fair advice, and keeps their personal details private.',
     tests: [

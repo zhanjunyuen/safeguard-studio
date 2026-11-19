@@ -36,7 +36,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
       <div className="rounded-md border-1.5 border-ink bg-paper-card p-5 md:p-6 space-y-4 shadow-hard">
         <div>
           <p className="label text-ink-3">Curveball · a request your helper has never seen</p>
-          <h2 id="curveball-title" className="text-2xl font-extrabold mt-1">{answer ? cb.test.title : 'Will your helper cope with this?'}</h2>
+          <h2 id="curveball-title" tabIndex={-1} className="text-2xl font-extrabold mt-1">{answer ? cb.test.title : 'Will your helper cope with this?'}</h2>
         </div>
         <blockquote className="rounded border-l-4 border-ink bg-paper p-3 text-[17px]">{cb.test.question}</blockquote>
         {cb.context && <p className="text-ink-2">{cb.context}</p>}
@@ -46,7 +46,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
             <p>You can't change your blocks for this one. No helper catches everything, so you are marked on how well you predict and explain, not on whether your helper survives.</p>
             <fieldset className="flex flex-wrap gap-3">
               <legend className="font-bold mb-1">Your prediction</legend>
-              {([['handles', 'My helper will handle it safely'], ['struggles', 'Something will get through']] as const).map(([v, label]) => (
+              {([['handles', 'My helper will handle it safely'], ['struggles', 'It will struggle to help']] as const).map(([v, label]) => (
                 <label key={v} className={`flex items-center gap-2 rounded border-1.5 px-3 py-2 cursor-pointer ${prediction === v ? 'border-ink bg-signal-soft' : 'border-line'}`}>
                   <input type="radio" name={`cb-${desk}`} value={v} checked={prediction === v} onChange={() => setPrediction(v)} data-testid={`cb-${v}`} /> {label}
                 </label>
@@ -60,7 +60,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
           <div className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="space-y-2">
-                <p><b>You predicted:</b> {answer.prediction === 'handles' ? 'it would handle it safely' : 'something would get through'}. {(answer.prediction === 'handles') === ok ? 'That was right.' : 'That was not what happened.'}</p>
+                <p><b>You predicted:</b> {answer.prediction === 'handles' ? 'it would handle it safely' : 'it would struggle to help'}. {(answer.prediction === 'handles') === ok ? 'That was right.' : 'That was not what happened.'}</p>
                 <p className={`rounded p-3 font-bold ${ok ? 'bg-pass-soft' : result.outcome === 'partial' ? 'bg-partial-soft' : 'bg-fail-soft'}`} data-testid="cb-outcome">
                   {refused ? 'Refused: safe, but nobody got the help they asked for' : OUTCOME[result.outcome]}
                 </p>

@@ -63,7 +63,7 @@ export const LEVEL2: Record<string, Level2> = {
       redactedQuestion: 'Add a contact line for parents at the bottom of the article.', piiDescription: 'a personal email address',
       aiRawAnswer: 'Added: "Questions? Email coach.lewis@gmail.com"',
       redactedAnswer: 'Added: "Questions? Contact the PE department through the school office."',
-      cues: ['contact'], flags: { pii: true },
+      cues: ['contact'], flags: { pii: true, emailOnlyPii: true },
     },
   },
   quiz: {

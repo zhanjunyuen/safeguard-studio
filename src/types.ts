@@ -10,7 +10,10 @@ export type Effect =
   | 'strip_pii'
   | 'consent'
   | 'verify'
+  | 'scan_reply'
   | 'reference_year'
+  | 'mask_input_email'
+  | 'cite_correction'
   | 'mask_reply_email'
   | 'link_scheme'
   | 'second_opinion'
@@ -30,7 +33,8 @@ export type Effect =
 export type RiskKind = 'needs_human' | 'dependency' | 'injection' | 'scam' | 'sponsored' | 'data_grab' | 'uncredited' | 'unfair_judgement';
 
 /** The kind of made-up content in a hallucination test. */
-export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule' | 'citation' | 'image' | 'review';
+export type HallucKind = 'fact' | 'label' | 'quote' | 'stat' | 'rumour' | 'rule' | 'citation' | 'image' | 'review'
+  | 'chronology' | 'booking' | 'kit_stock' | 'checkout';
 
 /** Conditions for IF blocks. They look at what the message says, not at what it really is. */
 export type CondId = 'person' | 'numbers' | 'contact' | 'health' | 'finished' | 'opinion' | 'urgent' | 'ai_unsure';
@@ -57,6 +61,8 @@ export interface BlockDef {
   effect: Effect;
   /** for verify blocks: which kinds of made-up content this check can catch */
   catches?: HallucKind[];
+  /** Visible feature a scan_reply block looks for in the drafted reply. */
+  pattern?: RegExp;
   /** where it needs to go to work, shown in the README and teacher notes */
   position: 'before' | 'after' | 'either' | 'anywhere';
   /** for mitigate blocks: which risks this block deals with */
@@ -96,6 +102,8 @@ export interface HiddenTest {
   cues?: CondId[];
   flags: {
     pii?: boolean;
+    /** Email masking fully removes the private information in this case. */
+    emailOnlyPii?: boolean;
     hallucination?: boolean;
     essayRequest?: boolean;
     oneSided?: boolean;

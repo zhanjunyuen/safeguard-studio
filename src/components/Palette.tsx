@@ -51,7 +51,7 @@ export default function Palette({ blocks, used, onAdd, credits, control = [] }: 
       <div className="flex flex-col gap-2.5">
         {blocks.map((t) => (
           <div key={t}><PaletteItem type={t} used={used.has(t)} onAdd={() => onAdd(t)} onHover={setHover} />
-            {credits && <span className="text-xs font-mono">{credits(t)} credits</span>}</div>
+            {credits && <span className="text-xs font-mono">{credits(t)} {credits(t) === 1 ? 'credit' : 'credits'} each time it runs</span>}</div>
         ))}
       </div>
       {/* Fixed height: a hint box that resized on hover made the page jump. */}

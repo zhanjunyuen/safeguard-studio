@@ -59,8 +59,8 @@ describe('Level 2 assessment', () => {
   it('exports the level, uses Level 2 references for the budget, and runs curveballs through IF blocks', () => {
     const m = { ...newAssessment(), level: 2 as const, assigned: ['history', 'party', 'news', 'quiz', 'chat', 'options'] };
     const referenceBudget = DESKS.reduce((sum, d) => {
-      const perRequest = keys(d.id).reduce((cost, key) => cost + blockCredits(key), 0);
-      return sum + perRequest * d.volume;
+      const rows = evaluateDesk(d.id, keys(d.id), 2, m.workloadModel);
+      return sum + Math.ceil(totalCost(rows) / rows.length);
     }, 0);
     expect(assessmentBudget(m)).toBe(referenceBudget);
     const p = freshProgress();

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate, NavLink, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, NavLink, Route, Routes, useMatch, useParams } from 'react-router-dom';
 import PresenterBar from './components/PresenterBar';
 import { usePresenter } from './store/presenter';
 import Breaker from './pages/Breaker';
@@ -42,9 +42,10 @@ function PresentRoute() {
 }
 
 export default function App() {
+  const assessment = useMatch('/mission');
   const presenting = usePresenter((s) => s.active);
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col ${assessment ? 'assessment-shell' : ''}`}>
       <button className="skip-to-content btn bg-paper-card" onClick={() => document.getElementById('main-content')?.focus()}>Skip to content</button>
       <header className="border-b-1.5 border-ink bg-paper">
         <div className="max-w-[1400px] mx-auto px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 sm:h-16 sm:flex-nowrap sm:py-0">

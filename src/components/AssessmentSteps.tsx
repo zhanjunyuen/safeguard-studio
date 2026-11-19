@@ -20,7 +20,7 @@ export function assessmentStep(m: Mission, needsName: boolean): { step: StepId; 
   if (m.phase === 'attack' && m.focus) {
     const launched = m.launches?.some((l) => l.desk === m.focus);
     if (!launched) return { step: 'challenges', next: `${title}: pick up to three attacks, predict which block will fail, then launch.` };
-    if (CURVEBALLS[m.focus] && !m.curveballs?.[m.focus]) return { step: 'challenges', next: `${title}: scroll down to the curveball and predict whether your helper copes.` };
+    if (CURVEBALLS[m.focus] && !m.curveballs?.[m.focus]) return { step: 'challenges', next: `${title}: predict whether your helper can handle the curveball.` };
     return { step: 'challenges', next: `${title}: finish the challenge, or revise your build first.` };
   }
   if (done >= n && n > 0) return { step: 'challenges', next: 'All challenges are done. Continue to the release decision.' };

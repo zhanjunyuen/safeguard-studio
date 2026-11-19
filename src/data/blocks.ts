@@ -1,4 +1,4 @@
-import type { BlockDef, BlockType, FailureKey } from '../types';
+import type { BlockDef, BlockType, FailureKey, HallucKind } from '../types';
 
 // Block fills are darkened Scratch hues; every one keeps white text above 4.5:1.
 export const BLOCK_COLORS = {
@@ -15,7 +15,40 @@ export const BLOCK_COLORS = {
 
 type Def = Omit<BlockDef, 'type' | 'removable'> & { removable?: boolean };
 
+function sourceCheck(label: string, kind: HallucKind, hint: string): Def {
+  return { label, hint, category: 'Verification', color: BLOCK_COLORS.verify, cost: 4, effect: 'verify', catches: [kind], position: 'after' };
+}
+
+function replyScan(label: string, pattern: RegExp, hint: string): Def {
+  return { label, hint, pattern, category: 'Verification', color: BLOCK_COLORS.verify, cost: 1, effect: 'scan_reply', position: 'after' };
+}
+
 const defs: Record<BlockType, Def> = {
+  history_timeline: sourceCheck('Compare the museum timeline', 'chronology', 'Checks the dates of historical events against the museum timeline.'),
+  history_roman: replyScan('Check for a Roman numeral', /\b[IVX]+\b/, 'A numeral identifies a ruler in the caption. It gives no date for the event.'),
+  party_booking: sourceCheck('Read the hall booking', 'booking', 'Checks the party date and time against the confirmed hall reservation.'),
+  party_clock: replyScan('Look for a clock time', /\b\d{1,2}(:\d{2})?\s?[ap]m\b/i, 'This checks that the invitation gives a time.'),
+  coding_registry: sourceCheck('Look up the Python package', 'citation', 'Looks up the exact package name in the Python package index before recommending it.'),
+  coding_example: replyScan('Look for a worked example', /\[\d+(?:,\s*\d+)*\]/, 'This looks for an example containing at least one number.'),
+  team_trials: {
+    label: 'Select from recorded trials', hint: 'Use players’ results on the same trial when selecting a team.',
+    category: 'Bias', color: BLOCK_COLORS.bias, cost: 3, effect: 'mitigate', position: 'before',
+    handles: ['unfair_judgement'], acted: 'Asked for comparable trial results before selecting players.',
+  },
+  team_roster: replyScan('Check both teams are listed', /\b(?:reds.*blues|blues.*reds)\b/i, 'This checks that both team names appear on the rota.'),
+  firstaid_inventory: sourceCheck('Read the kit inspection log', 'kit_stock', 'Checks what the most recent inspection recorded inside the trip kit.'),
+  firstaid_seal: replyScan('Look for the kit seal', /\bsealed\b/i, 'This checks whether the kit is described as sealed.'),
+  shopping_total: sourceCheck('Compare delivered prices', 'checkout', 'Adds the required delivery fee to each price before comparing the offers.'),
+  shopping_discount: replyScan('Look for a discount percentage', /\b\d+\s?%/, 'This looks for an advertised percentage discount.'),
+
+  mask_input_email: {
+    label: 'Hide emails in the request', color: BLOCK_COLORS.privacy, category: 'Privacy', cost: 1, effect: 'mask_input_email', position: 'before',
+    hint: 'Replaces email addresses before the message is sent. Names, phone numbers and other details can still get through.',
+  },
+  cite_correction: {
+    label: 'Show the source of a correction', color: BLOCK_COLORS.verify, category: 'Verification', cost: 1, effect: 'cite_correction', position: 'after',
+    hint: 'Adds the source a verification block used to correct the reply. It can only cite a check that has already succeeded.',
+  },
   reference_year: {
     label: 'Check for a reference year', color: BLOCK_COLORS.verify, category: 'Verification', cost: 2, effect: 'reference_year', position: 'after',
     hint: 'Looks through the answer for a four-digit publication year.',
@@ -52,7 +85,7 @@ const defs: Record<BlockType, Def> = {
   },
   check_source: {
     label: 'Check against a trusted source', color: BLOCK_COLORS.verify, category: 'Verification', cost: 4, effect: 'verify', position: 'after',
-    catches: ['fact', 'label', 'quote', 'stat'],
+    catches: ['fact', 'label', 'quote', 'stat', 'chronology'],
     hint: 'Looks up the facts in the answer (BBC Bitesize, official sites) and corrects anything that does not match.',
   },
   warn_note: {
