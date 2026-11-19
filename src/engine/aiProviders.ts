@@ -9,6 +9,7 @@ import {
   type FollowUpProvider, type Mark, type MarkingProvider, type MarkRequest, type SkillsSummaryProvider,
 } from './marking';
 import { labelOf } from './scriptText';
+import { claimedFinal, offlineVerdict, type FinalScore } from './finalScore';
 
 /**
  * The Adaption AI behind the four AI features: marking, follow-up answers, attack hints and the
@@ -23,8 +24,35 @@ export const AI_MARKER = 'adaption-literacy-model';
 
 /** The request behind each AI mark, so follow-ups and the summary can send the same evidence. */
 const requestOf = new WeakMap<Mark, MarkRequest>();
-/** One mark per request for this page visit: re-renders and React's double effects don't call the AI twice. */
+/** One mark per request: re-renders and React's double effects don't call the AI twice. */
 const markCache = new Map<string, Promise<Mark>>();
+
+/** Same request, same key, whatever order its fields were written in. */
+export function requestKey(req: MarkRequest) {
+  const sort = (v: unknown): unknown => Array.isArray(v) ? v.map(sort)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sort((v as Record<string, unknown>)[k])])) : v;
+  return JSON.stringify(sort(req));
+}
+
+/** AI marks kept in this browser, so the report and the final score reuse marks already shown
+ *  instead of asking again after a reload. Only the pupil's own answers and marks; capped. */
+const STORE = 'safeguard-ai-marks-v1';
+const STORE_MAX = 200;
+const saved = new Map<string, Mark>();
+try {
+  for (const [k, { req, mark }] of JSON.parse(localStorage.getItem(STORE) ?? '[]') as [string, { req: MarkRequest; mark: Mark }][]) {
+    saved.set(k, mark); requestOf.set(mark, req); markCache.set(k, Promise.resolve(mark));
+  }
+} catch { /* no storage: marks last for this visit only */ }
+function remember(key: string, req: MarkRequest, mark: Mark) {
+  saved.set(key, mark);
+  try {
+    const rows = [...saved].slice(-STORE_MAX).map(([k, m]) => [k, { req: requestOf.get(m) ?? req, mark: m }]);
+    localStorage.setItem(STORE, JSON.stringify(rows));
+  } catch { /* full or blocked: keep it in memory */ }
+}
+/** The AI mark for a request if it has already been made (no network call). */
+export const savedMark = (req: MarkRequest) => saved.get(requestKey(req)) ?? null;
 
 /** A mark in the shape the model was trained on (the training completion JSON). */
 const markForModel = (m: Mark) => ({
@@ -34,7 +62,7 @@ const markForModel = (m: Mark) => ({
 });
 
 export const aiMarker: MarkingProvider = (req) => {
-  const key = JSON.stringify(req);
+  const key = requestKey(req);
   const cached = markCache.get(key);
   if (cached) return cached;
   // Not tied to the component's abort signal: the answer is cached and reused when it remounts.
@@ -43,6 +71,7 @@ export const aiMarker: MarkingProvider = (req) => {
     if (!raw) { markCache.delete(key); return markOffline(req); }
     const mark = parseModelMark(raw, req, AI_MARKER);
     requestOf.set(mark, req);
+    if (mark.marker === AI_MARKER) remember(key, req, mark);
     return mark;
   })();
   markCache.set(key, pending);
@@ -89,6 +118,25 @@ export const aiAttackHint: AttackHintProvider = async (ctx, signal) => {
   if (signal.aborted) return '';
   return typeof hint === 'string' && hint.trim().length >= 10 && hint.length <= 400 ? hint.trim() : offlineAttackHint(ctx, signal);
 };
+
+/** The final verdict: the AI explains the rule-based final score in plain words. Rejected (offline
+ *  verdict instead) unless it states exactly that score. */
+export async function finalVerdict(f: FinalScore, marks: Mark[], signal?: AbortSignal): Promise<{ text: string; ai: boolean }> {
+  if (!literacyAiUrl) return { text: offlineVerdict(f), ai: false };
+  const raw = await askLiteracyAi({
+    task: 'final',
+    final: {
+      total: f.total, band: f.band, parts: f.parts, skills: f.skills.scores,
+      challenges: f.challenges.map((c) => ({ title: c.title, runs: c.runs, testsHandled: `${c.passed} of ${c.tested}` })),
+      feedback: marks.map((m) => `${m.criterion}: ${m.feedback} Next: ${m.nextStep}`),
+    },
+  }, signal);
+  const text = raw ? jsonIn(raw)?.verdict : undefined;
+  if (typeof text !== 'string' || !text.trim() || text.length > 900) return { text: offlineVerdict(f), ai: false };
+  const stated = claimedFinal(text);
+  if (!stated.length || stated.some((n) => n !== f.total)) return { text: offlineVerdict(f), ai: false };
+  return { text: text.trim(), ai: true };
+}
 
 /** Switches every AI feature to the Adaption model when the app is built with Supabase. Returns whether it did. */
 export function connectLiteracyAi() {

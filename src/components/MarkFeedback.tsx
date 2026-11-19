@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AiBadge from './AiBadge';
 import { CRITERION_NAME, FOLLOW_UPS, getFollowUpProvider, getMarkingProvider, type Mark, type MarkRequest } from '../engine/marking';
 
 /**
@@ -34,7 +35,7 @@ export default function MarkFeedback({ request }: { request: MarkRequest }) {
   return (
     <section className="rounded-md border-1.5 border-ink bg-paper-card p-4 space-y-3" aria-label={`Feedback: ${CRITERION_NAME[mark.criterion]}`} data-testid={`mark-${mark.criterion}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-extrabold">Feedback · {CRITERION_NAME[mark.criterion]}</h3>
+        <h3 className="font-extrabold flex flex-wrap items-center gap-2">Feedback · {CRITERION_NAME[mark.criterion]} <AiBadge ai={!offline} /></h3>
         <span className="font-mono text-sm" data-testid="mark-level">{mark.level === null ? 'Not enough evidence yet' : `Level ${mark.level} of 2`}</span>
       </div>
       {offline

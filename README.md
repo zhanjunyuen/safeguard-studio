@@ -105,6 +105,17 @@ To extend the mission, add a scripted case to its existing school service. The a
 
 Four features use the Adaption model `stack:adaption-backend-for-literacy`: marking written answers, answering follow-up questions about feedback, attack hints and the skills summary on the results page. The browser calls the Supabase Edge Function `literacy-ai`, and only that function holds the Adaption key. The function builds each prompt from fixed instructions; for marking, follow-ups and the summary these are the same prompts the training rows used. The model reports concepts with quotes. The browser keeps only concepts it can quote from the pupil's answer and recomputes the level with `levelFor`. It rejects follow-ups or summaries that state a different level or score. If the AI is unreachable, slow or gives a bad reply, each feature falls back to its offline version, so the assessment keeps working. Calls are capped at 1,500 an hour across all users.
 
+**Final score.** When the assessment ends, the report opens with a final score out of 100. The weights are fixed in `src/engine/finalScore.ts`:
+
+| Part | Points | From |
+|---|---|---|
+| Written answers | 50 | The four skills marked from the pupil's latest answers (0–2 each, out of 8) |
+| Blocks: tests handled | 25 | The share of tests the latest builds handle safely and usefully |
+| Blocks: workload | 10 | Staying within the credit budget, scaled by how well the builds work, so an empty helper earns nothing here |
+| Attempts | 15 | Full marks for a working build in one or two runs; each extra run costs 10%, down to a floor of 40% |
+
+Bands: 85+ Outstanding, 65+ Strong, 40+ Developing, otherwise Getting started. The AI writes the verdict and the skills summary. A verdict that states a different score is replaced by an offline one. The result is saved with the attempt, shown on "My results" and included in the evidence export. Next to the score, a radar in the same style as the practice radar compares each challenge's first and latest builds.
+
 Setup (once):
 
 ```bash

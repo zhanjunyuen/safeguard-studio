@@ -67,7 +67,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
     level: m.level ?? 1, creditModel: 'projected-service-volume', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
     markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
-    attackHints: m.attackHints ?? [], challenges, budget,
+    attackHints: m.attackHints ?? [], challenges, budget, finalResult: m.finalResult ?? null,
     workloadCredits, meetsEfficiencyTarget,
     transfer: { ...TRANSFER, decision: m.phase === 'complete' ? m.decision : null, rationale: m.phase === 'complete' ? m.rationale : null,
       previewMark: m.phase === 'complete' && m.rationale.trim() ? markOffline({ criterion: 'judgement', text: m.rationale, decision: m.decision }) : undefined },

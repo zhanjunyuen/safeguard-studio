@@ -77,3 +77,19 @@ describe('AI attack hints', () => {
     expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/organiser/);
   });
 });
+
+describe('AI final verdict', () => {
+  it('keeps a verdict that states the computed score and replaces one that does not', async () => {
+    vi.resetModules();
+    vi.doMock('../lib/supabase', () => ({ literacyAiUrl: 'https://example.test/functions/v1/literacy-ai', supabaseKey: 'k' }));
+    const { finalVerdict } = await import('./aiProviders');
+    const f = { total: 64, band: 'Developing', parts: { answers: 25, tests: 20, workload: 8, attempts: 11 }, skills: { scores: {}, total: 4 }, challenges: [] } as never;
+    reply.next = [JSON.stringify({ verdict: 'You scored 64 out of 100, Developing. Your builds were strong.' })];
+    expect(await finalVerdict(f, [])).toEqual({ text: 'You scored 64 out of 100, Developing. Your builds were strong.', ai: true });
+    reply.next = [JSON.stringify({ verdict: 'You scored 90 out of 100!' })];
+    expect((await finalVerdict(f, [])).ai).toBe(false);
+    reply.next = [JSON.stringify({ verdict: 'Great work overall.' })];
+    expect((await finalVerdict(f, [])).ai).toBe(false);
+    expect((reply.bodies.at(-1) as any).task).toBe('final');
+  });
+});

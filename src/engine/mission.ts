@@ -33,6 +33,8 @@ export interface Mission {
   revisionNotes?: Partial<Record<Desk, string>>;
   focus?: Desk;
   attackHints?: AttackHint[];
+  /** the final score and the AI's verdict, saved when the assessment report is first shown */
+  finalResult?: import('./finalScore').FinalResult;
   attackPlans?: Partial<Record<Desk, string[]>>;
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;
