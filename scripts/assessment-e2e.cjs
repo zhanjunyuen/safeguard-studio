@@ -17,6 +17,13 @@ async function test() {
     await toggle.press('Escape');
     await page.getByTestId('choose-level-2').check();
     await page.getByTestId('start-assessment').click();
+    const intro = page.getByRole('dialog', { name: 'Assessment introduction' });
+    const video = intro.locator('video');
+    await page.waitForFunction(() => document.querySelector('dialog.assessment-intro video')?.currentTime > 1);
+    assert.equal(await page.getByTestId('assessment-brief').count(), 1);
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('school-community-assessment-v1')).state.mission.elapsed), 0);
+    await video.evaluate(player => { player.currentTime = player.duration - 0.3; });
+    await intro.waitFor({ state: 'hidden' });
     const ids = await page.locator('[data-testid^="assess-"]').evaluateAll(items => items.map(item => item.dataset.testid));
     assert.equal(ids.length, 6);
     const tracker = page.getByRole('progressbar', { name: 'Shared workload budget' });
@@ -122,6 +129,7 @@ async function verifyMobile(browser, url) {
   assert.ok(practiceSave?.includes('check_source'));
   await page.goto(url);
   await page.getByTestId('start-assessment').tap();
+  await page.getByRole('button', { name: 'Skip video' }).tap();
   // Use the original six-service assignment so Class Group-Chat Helper has eight requests.
   await page.evaluate(() => {
     const key = 'school-community-assessment-v1';

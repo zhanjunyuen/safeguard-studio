@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { joinClass } from '../lib/sync';
 import { useTeacherSettings } from '../store/teacherSettings';
 import { THEMES } from '../data/themes';
+import AssessmentIntro from './AssessmentIntro';
 import AssessmentTracker from './AssessmentTracker';
 import { Trace } from './MissionReport';
 import { getChallenge } from '../data/challenges';
@@ -156,11 +157,11 @@ export default function AssessmentChallenges() {
           {TIME_OPTIONS.map(n => <option key={n} value={n}>{n ? `${n} active minutes` : 'Untimed'}</option>)}
         </select>
       </label>}
-      <button className="btn bg-signal text-lg" data-testid="start-assessment" onClick={() => {
+      <AssessmentIntro onContinue={() => {
         useAssessmentSession.getState().resetAll();
         update({ ...newAssessment(), classCode: m.classCode, settings, assigned: assignmentFor(settings),
           minutes: settings.minutes ?? m.minutes, level: chosenLevel, phase: 'menu' });
-      }}>Start {chosenLevel === 2 ? 'Level 2' : 'Level 1'} <ArrowRight size={18} aria-hidden /></button>
+      }}>Start {chosenLevel === 2 ? 'Level 2' : 'Level 1'} <ArrowRight size={18} aria-hidden /></AssessmentIntro>
     </section></>;
   }
   return <>{tracker}<section className="assessment-overview">

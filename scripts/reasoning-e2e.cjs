@@ -16,6 +16,7 @@ async function test() {
     });
     await page.goto((process.argv[2] || 'http://localhost:4173') + '/#/mission');
     await page.getByTestId('start-assessment').click();
+    await page.getByRole('button', { name: 'Skip video' }).click();
     const tasks = page.locator('[data-testid^="assess-"]');
     await tasks.first().click();
     await page.getByText('Task details and design note', { exact: true }).click();
