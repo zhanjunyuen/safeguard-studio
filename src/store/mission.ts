@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getAttackHintProvider, hintAvailable, hintStage, type AttackHintProvider } from '../engine/attackHints';
 import { blockKey } from '../engine/scriptText';
+import { getChallenge } from '../data/challenges';
 import type { BlockType } from '../types';
 import { useAssessmentSession } from './session';
 import { challengeIdFor, newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
@@ -35,7 +36,16 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
       ? before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type)
       : (useAssessmentSession.getState().progress[desk]?.script.map(blockKey) ?? ['ask_ai']) as BlockType[];
     const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk).map(h => h.text);
-    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk), stage }, signal)).trim();
+    // What the pupil has already seen and chosen, so the hint builds on their own work.
+    const challenge = getChallenge(challengeIdFor(before, desk));
+    const lastRun = useAssessmentSession.getState().progress[desk]?.attempts.slice(-1)[0];
+    const latestResults = lastRun?.results.map(r => ({
+      test: challenge?.tests.find(t => t.id === r.testId)?.title ?? r.testId,
+      outcome: r.outcome === 'pass' ? 'handled' : r.outcome === 'partial' ? 'partly handled' : r.outcome === 'over-blocked' ? 'refused a normal request' : 'got through',
+    }));
+    const plannedAttacks = stage === 'attack'
+      ? (before.attackPlans?.[desk] ?? []).map(id => challenge?.tests.find(t => t.id === id)?.attackLabel ?? id) : undefined;
+    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk), stage, latestResults, plannedAttacks }, signal)).trim();
     if (signal.aborted) return;
     if (!text) throw new Error('The hint provider returned an empty response.');
     set(state => {

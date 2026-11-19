@@ -111,7 +111,8 @@ export const aiAttackHint: AttackHintProvider = async (ctx, signal) => {
     task: 'hint',
     context: {
       challenge: c?.title, audience: c?.audience, story: c?.story, level: c?.id.endsWith('@2') ? 2 : 1,
-      stage: ctx.stage ?? 'attack', build: ctx.blocks.map(labelOf).join(' → '), attackOptions: c?.tests.map((t) => t.attackLabel) ?? [], previousHints: ctx.previousHints,
+      stage: ctx.stage ?? 'attack', build: ctx.blocks.map(labelOf).join(' → '),
+      latestResults: ctx.latestResults ?? [], plannedAttacks: ctx.plannedAttacks ?? [], attackOptions: c?.tests.map((t) => t.attackLabel) ?? [], previousHints: ctx.previousHints,
     },
   }, signal);
   const hint = raw ? jsonIn(raw)?.hint : undefined;

@@ -55,7 +55,7 @@ describe('companion attack hints', () => {
     useMission.setState({ mission: { ...m, form: 4, phase: 'build', focus: 'history', first: null, attackHints: [] } });
     expect(hintStage(useMission.getState().mission, 'history')).toBe('build');
     expect(hintStage(useMission.getState().mission, 'quiz')).toBeNull();
-    const provider = vi.fn(async (ctx: { stage?: string }) => `hint for ${ctx.stage}`);
+    const provider = vi.fn(async (ctx: { stage?: string; blocks: string[] }) => `hint for ${ctx.stage}`);
     await useMission.getState().requestHint('history', signal, provider);
     expect(useMission.getState().mission.attackHints).toEqual([{ desk: 'history', text: 'hint for build', stage: 'build' }]);
   });

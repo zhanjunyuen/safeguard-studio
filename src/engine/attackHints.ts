@@ -21,6 +21,10 @@ export interface AttackHintContext {
   /** e.g. "party@2" at Level 2; lets the AI companion see the right challenge */
   challengeId?: string;
   stage?: HintStage;
+  /** the latest test run of this build, in plain words (what the pupil has already seen) */
+  latestResults?: { test: string; outcome: string }[];
+  /** attacks the pupil has picked so far (attack stage) */
+  plannedAttacks?: string[];
 }
 
 export type AttackHintProvider = (context: AttackHintContext, signal: AbortSignal) => Promise<string>;

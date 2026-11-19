@@ -73,6 +73,9 @@ describe('AI attack hints', () => {
     reply.next = [JSON.stringify({ hint: 'Who at the party needs to know about allergies, and who does not?' })];
     expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/allergies/);
     expect((reply.bodies[0] as any).context.build).toBe('Ask AI');
+    reply.next = [JSON.stringify({ hint: 'Your allergy test got through: what reaches Ask AI before any check runs?' })];
+    await aiAttackHint({ ...ctx, stage: 'build', latestResults: [{ test: 'The allergy question', outcome: 'got through' }], plannedAttacks: [] }, new AbortController().signal);
+    expect((reply.bodies.at(-1) as any).context).toMatchObject({ stage: 'build', latestResults: [{ test: 'The allergy question', outcome: 'got through' }] });
     reply.next = [JSON.stringify({ hint: '' })];
     expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/organiser/);
   });
