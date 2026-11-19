@@ -30,10 +30,10 @@ import { describeAdd, freshProgress, newUid, useAssessmentSession, usePracticeSt
 import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
 
-import { blockCredits, totalCost, type Desk } from '../engine/mission';
-import { evaluateDesk } from '../engine/challengeEvidence';
+import { blockCredits, type Desk } from '../engine/mission';
+import { evaluateDesk, type serviceWorkloads } from '../engine/challengeEvidence';
 import { Trace } from '../components/MissionReport';
-import { catalogue } from '../data/mission';
+import { workloadFormula } from '../components/WorkloadBar';
 
 const BASE_STEP_MS = 520;
 const BASE_PAUSE_MS = 1500;
@@ -45,7 +45,7 @@ interface AssessmentBuild {
   /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
   level2?: boolean;
   revising: boolean;
-  otherCredits: number;
+  workload: ReturnType<typeof serviceWorkloads>[number];
   note: string;
   onNote: (value: string) => void;
   onMenu: () => void;
@@ -257,18 +257,15 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
     finishReplay();
   };
 
-  const desk = assessment && catalogue.find(d => d.id === assessment.id);
   const last = progress.attempts.slice(-1)[0];
-  const requestCount = desk ? desk.volume * challenge.tests.length : 0;
-  const maxUnitCost = assessment ? script.reduce((sum, block) => sum + blockCredits(blockKey(block) as BlockType), 0) : 0;
-  const costs = desk && last && evaluateDesk(desk.id, last.script, isL2 ? 2 : 1);
+  const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1);
   const evaluated = last && last.script.join() === script.map(blockKey).join();
 
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-6">
+    <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
           {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
@@ -301,15 +298,10 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </button>}
       </div>
 
-      {assessment && desk && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
-        <p><b>Projected whole-helper workload</b> · Up to {assessment.otherCredits + maxUnitCost * requestCount} credits with this draft.</p>
-        <p className="text-sm text-ink-2">{assessment.otherCredits} credits from the other services + up to {maxUnitCost * requestCount} here. Run this service to replace its previous cost in the shared budget.</p>
-        <p><b>Cost per request</b> · {maxUnitCost ? 'Up to ' + maxUnitCost + ' credits' : '0 credits'} with these blocks.</p>
-        <p className="text-sm text-ink-2">Ask AI is included for free. You spend credits when the safeguards you add run.</p>
-        <details><summary className="cursor-pointer font-bold">How much does a test run cost?</summary>
-          <p>There are {challenge.tests.length} test questions. {desk.volume === 1 ? 'Each is asked once.' : 'Each is asked ' + desk.volume + ' times to simulate a busier service.'} At up to {maxUnitCost} credits each, those {requestCount} requests can use up to {maxUnitCost * requestCount} credits in total. Skipped blocks use zero credits.</p>
-        </details>
-        {costs && !locked && <details><summary className="cursor-pointer font-bold">Last run used {totalCost(costs)} credits</summary>
+      {assessment && <div className="rounded-md border border-line p-4 mb-5 space-y-2">
+        <p><b>Projected service cost</b> · {workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}</p>
+        <p className="text-sm text-ink-2">Ask AI and test runs are free.{isL2 && ' Each IF block budgets for its more expensive branch.'}</p>
+        {costs && !locked && <details><summary className="cursor-pointer font-bold">Latest test results</summary>
           {costs.map(row => <Trace key={row.id} run={row} />)}
         </details>}
         <ReasoningField label={assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
@@ -328,7 +320,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </div>
       ) : (
       <DndContext sensors={sensors} collisionDetection={stackCollision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
-        <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
           <Palette credits={assessment ? blockCredits : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
           <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">

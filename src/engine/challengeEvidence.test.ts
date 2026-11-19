@@ -3,7 +3,7 @@ import { CHALLENGES, getChallenge } from '../data/challenges';
 import { themeOf } from '../data/themes';
 import { catalogue, DESKS, drawAssignment } from '../data/mission';
 import { allChallengesComplete, newAssessment, submitAttack } from './mission';
-import { assessmentBudget, challengeEvidence, serviceWorkloads } from './challengeEvidence';
+import { challengeEvidence, serviceWorkloads } from './challengeEvidence';
 import { freshProgress } from '../store/session';
 
 describe('six required challenges', () => {
@@ -72,20 +72,24 @@ describe('six required challenges', () => {
   });
 });
 
-it('counts only the latest evaluated build of each assigned service, exactly as exported', () => {
-  const m = { ...newAssessment(), assigned: drawAssignment(() => 0), level: 2 as const };
-  const [first, second] = m.assigned;
-  const scores = { privacy: null, verification: null, integrity: null, bias: null, usefulness: 100 };
-  const attempt = (script: string[]) => ({ at: 1, script, scores, results: [] });
-  const progress = {
-    [first]: { ...freshProgress(), attempts: [attempt(['ask_ai', 'warn_note']), attempt(['ask_ai'])] },
-    [second]: { ...freshProgress(), attempts: [attempt(['if:person:remove_pii:', 'ask_ai'])] },
-  };
+it('projects current safeguards at service volume, independently of tests and reruns', () => {
+  const m = newAssessment();
+  const chat = freshProgress();
+  chat.script.push({ uid: 'privacy', type: 'hide_location' });
+  const history = freshProgress();
+  history.script.push({ uid: 'note', type: 'warn_note' });
+  const progress = { chat, history };
   const workloads = serviceWorkloads(m, progress);
-  expect(workloads.find(d => d.id === first)?.credits).toBe(0);
-  expect(workloads.find(d => d.id === second)?.credits).toBeGreaterThan(0);
-  expect(workloads.filter(d => d.credits === null)).toHaveLength(4);
-  const report = challengeEvidence(m, progress);
-  expect(workloads.reduce((used, d) => used + (d.credits ?? 0), 0)).toBe(report.workloadCredits);
-  expect(assessmentBudget(m)).toBe(report.budget);
+  expect(workloads).toHaveLength(6);
+  expect(workloads.find(d => d.id === 'chat')).toMatchObject({ perRequest: 3, volume: 8, credits: 24 });
+  expect(workloads.filter(d => d.credits === 0)).toHaveLength(4);
+  expect(challengeEvidence(m, progress).workloadCredits).toBe(28);
+
+  const scores = { privacy: null, verification: null, integrity: null, bias: null, usefulness: 100 };
+  const attempt = { at: 1, script: ['ask_ai', 'hide_location'], scores, results: [] };
+  chat.attempts.push(attempt, attempt);
+  expect(serviceWorkloads(m, progress)).toEqual(workloads);
+  expect(challengeEvidence({ ...m, level: 2 }, progress).workloadCredits).toBe(28);
+  chat.script.pop();
+  expect(challengeEvidence(m, progress).workloadCredits).toBe(4);
 });

@@ -41,3 +41,7 @@ h1, h2, h3, .font-display { font-family: "Bricolage Grotesque", system-ui, sans-
 @media (prefers-reduced-motion: reduce) {
   .stack-insertion { transition: none; }
 }
+
+html:has(.assessment-workspace) {
+  scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}

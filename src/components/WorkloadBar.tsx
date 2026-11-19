@@ -1,3 +1,7 @@
+export function workloadFormula(perRequest: number, volume: number, credits: number) {
+  return `${perRequest} credits/request × ${volume} ${volume === 1 ? 'request' : 'requests'} = ${credits} credits`;
+}
+
 interface Props {
   used: number;
   budget: number;

@@ -54,7 +54,7 @@ export default function Mission() {
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase, m.focus]);
-  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 py-8 space-y-5`}>
+  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 pt-8 ${sequence && !ended && m.phase !== 'brief' ? 'assessment-workspace overflow-x-clip pb-[calc(8rem+env(safe-area-inset-bottom))]' : 'pb-8'} space-y-5`}>
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
@@ -94,7 +94,7 @@ export default function Mission() {
     </Panel>}
     {!sequence && m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
     {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Review your helper for release">
-      <p>{sequence && 'Review your six services and their workload above. '}Read this exchange and decide what the ecology club can safely share with families.</p>
+      <p>{sequence && 'Review your six services and their projected operating cost in the tracker. '}Read this exchange and decide what the ecology club can safely share with families.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>

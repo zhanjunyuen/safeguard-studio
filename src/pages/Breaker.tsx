@@ -152,7 +152,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-6">
+    <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
       <div className="flex flex-wrap items-start gap-4 mb-6">
         <div className="flex-1 min-w-[280px]">
           {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
@@ -168,7 +168,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
       </div>
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e) => setDragging((e.active.data.current as { testId?: string })?.testId ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
-        <div className="grid gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
           <aside className="rounded-md border-1.5 border-ink bg-paper-card p-4" aria-label="Attacks">
             <h2 className="text-lg font-extrabold">Attacks</h2>
             <p className="text-sm text-ink-2 mb-4">Each one is a kind of question. Drag it into your plan, or click it.</p>

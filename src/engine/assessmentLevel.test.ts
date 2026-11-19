@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getChallenge } from '../data/challenges';
+import { DESKS } from '../data/mission';
 import { LEVEL2, toScript } from '../data/level2';
 import { freshProgress } from '../store/session';
 import type { BlockType } from '../types';
@@ -57,7 +58,11 @@ describe('Level 2 assessment', () => {
 
   it('exports the level, uses Level 2 references for the budget, and runs curveballs through IF blocks', () => {
     const m = { ...newAssessment(), level: 2 as const, assigned: ['history', 'party', 'news', 'quiz', 'chat', 'options'] };
-    expect(assessmentBudget(m)).toBeLessThan(assessmentBudget({ ...m, level: 1 }));
+    const referenceBudget = DESKS.reduce((sum, d) => {
+      const perRequest = keys(d.id).reduce((cost, key) => cost + blockCredits(key), 0);
+      return sum + perRequest * d.volume;
+    }, 0);
+    expect(assessmentBudget(m)).toBe(referenceBudget);
     const p = freshProgress();
     const packet = challengeEvidence(m, { history: p });
     expect(packet.level).toBe(2);

@@ -14,6 +14,8 @@ async function test() {
     await page.getByTestId('start-assessment').click();
     const ids = await page.locator('[data-testid^="assess-"]').evaluateAll(items => items.map(item => item.dataset.testid));
     assert.equal(ids.length, 6);
+    const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
+    const toggle = nav.locator('button[aria-expanded]');
     const tracker = page.getByRole('progressbar', { name: 'Shared workload budget' });
     const button = name => page.getByRole('button', { name, exact: true });
     async function run() {
@@ -46,10 +48,12 @@ async function test() {
     }
 
     await button('Continue to release decision').click();
+    await toggle.click();
     const prior = await tracker.getAttribute('aria-valuetext');
     await page.reload();
+    await toggle.click();
     assert.equal(await tracker.getAttribute('aria-valuetext'), prior);
-    await page.getByLabel('Switch service').selectOption(ids[0].slice(7));
+    await nav.getByRole('list', { name: 'Switch service' }).getByRole('button').first().click();
     await button('Revise this service').click();
     await page.getByRole('textbox').fill('The branch adds workload without catching this case.');
     await page.getByRole('button', { name: 'Remove this IF block' }).click();
@@ -71,11 +75,58 @@ async function test() {
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
     assert.equal(revised.workloadCredits, 0);
     assert.match(await tracker.getAttribute('aria-valuetext'), new RegExp('^' + packet.workloadCredits + ' of ' + packet.budget + ' credits'));
+    assert.equal(packet.workloadCredits, packet.challenges.reduce((sum, c) => sum + c.creditsPerRequest * c.volume, 0));
     assert.deepEqual(errors, []);
+    await verifyMobile(browser, page.url());
     console.log('Six services, frozen branch replay, revision, reload, release and shared budget export passed.');
   } finally {
     await browser.close();
   }
+}
+
+async function verifyMobile(browser, url) {
+  const page = await browser.newPage({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
+  await page.goto(url);
+  await page.getByTestId('start-assessment').tap();
+  // Use the original six-service assignment so Class Group-Chat Helper has eight requests.
+  await page.evaluate(() => {
+    const key = 'school-community-assessment-v1';
+    const saved = JSON.parse(localStorage.getItem(key));
+    delete saved.state.mission.assigned;
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await page.reload();
+  const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
+  const toggle = nav.locator('button[aria-expanded]');
+  const services = nav.getByRole('list', { name: 'Switch service' }).getByRole('button');
+  await page.getByTestId('assess-chat').tap();
+  await page.getByTestId('palette-hide_location').tap();
+  assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  for (let i = 0; i < 2; i++) {
+    await page.getByTestId('run').tap();
+    await page.getByRole('button', { name: 'Skip to results' }).tap();
+    await page.getByTestId('reflect-modal').locator('fieldset button').first().tap();
+    await page.getByTestId('reflect-submit').tap();
+    await page.getByTestId('reflect-continue').tap();
+    assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  }
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 375);
+  const bounds = await nav.boundingBox();
+  assert.ok(Math.abs(bounds.y + bounds.height - 667) <= 1);
+  await toggle.tap();
+  await services.first().waitFor();
+  assert.equal(await services.count(), 6);
+  assert.match(await services.filter({ hasText: 'Class Group-Chat Helper' }).innerText(), /3 credits\/request × 8 requests = 24 credits/);
+  await services.last().tap();
+  await nav.locator('button[aria-expanded="false"]').waitFor();
+  assert.match(await toggle.innerText(), /GCSE Options Adviser/);
+  await toggle.tap();
+  await services.filter({ hasText: 'Class Group-Chat Helper' }).tap();
+  await page.reload();
+  assert.match(await toggle.innerText(), /Class Group-Chat Helper/);
+  assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  console.log('Mobile task switching, fixed tracker, 3 × 8 projection and two free runs passed.');
 }
 
 test().catch(error => { console.error(error); process.exitCode = 1; });

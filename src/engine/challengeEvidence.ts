@@ -1,8 +1,8 @@
 import { BRIEF, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
-import type { BlockType } from '../types';
-import { assignedDesks, challengeIdFor, evaluate, handled, totalCost, type Desk, type Mission } from './mission';
+import type { BlockType, ScriptBlock } from '../types';
+import { assignedDesks, challengeIdFor, evaluate, handled, blockCredits, type Desk, type Mission } from './mission';
 import { idealScript } from './targets';
 import { blockKey } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
@@ -15,16 +15,20 @@ export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['leve
   return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id));
 }
 
-export function assessmentBudget(m: Pick<Mission, 'assigned' | 'level'>) {
-  return assignedDesks(m).reduce((sum, d) =>
-    sum + totalCost(evaluateDesk(d.id, idealScript(challengeIdFor(m, d.id)).map(blockKey) as BlockType[], m.level)), 0);
+function projectedCost(script: ScriptBlock[], volume: number) {
+  const perRequest = script.reduce((sum, block) => sum + blockCredits(blockKey(block)), 0);
+  return { perRequest, volume, credits: perRequest * volume };
 }
 
-export function serviceWorkloads(m: Pick<Mission, 'assigned' | 'level'>, progress: Record<string, ChallengeProgress>) {
-  return assignedDesks(m).map(({ id, title }) => {
-    const last = progress[id]?.attempts.slice(-1)[0];
-    return { id, title, credits: last ? totalCost(evaluateDesk(id, last.script, m.level)) : null };
-  });
+export function assessmentBudget(m: Pick<Mission, 'assigned' | 'level'>) {
+  return assignedDesks(m).reduce((sum, desk) =>
+    sum + projectedCost(idealScript(challengeIdFor(m, desk.id)), desk.volume).credits, 0);
+}
+
+export function serviceWorkloads(m: Pick<Mission, 'assigned'>, progress: Record<string, ChallengeProgress>) {
+  return assignedDesks(m).map(({ id, title, volume }) => ({
+    id, title, ...projectedCost(progress[id]?.script ?? [], volume),
+  }));
 }
 
 export function latestEffectiveness(progress?: ChallengeProgress) {
@@ -34,11 +38,10 @@ export function latestEffectiveness(progress?: ChallengeProgress) {
 
 export function challengeEvidence(m: Mission, progress: Record<string, ChallengeProgress>) {
   const budget = assessmentBudget(m);
-  const challenges = assignedDesks(m).map(d => {
+  const challenges = serviceWorkloads(m, progress).map(d => {
     const p = progress[d.id];
     const challenge = getChallenge(challengeIdFor(m, d.id))!;
     const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level) }));
-    const evaluated = attempts.slice(-1)[0];
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
     return {
@@ -46,7 +49,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote: m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined,
-      effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], workloadCredits: evaluated ? totalCost(evaluated.cases) : null,
+      effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], creditsPerRequest: d.perRequest, workloadCredits: d.credits,
       attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && plan?.reason ? {
@@ -55,11 +58,11 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       } : undefined,
     };
   });
-  const workloadCredits = challenges.reduce((sum, c) => sum + (c.workloadCredits ?? 0), 0);
+  const workloadCredits = challenges.reduce((sum, c) => sum + c.workloadCredits, 0);
   const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
     && workloadCredits <= budget;
   return {
-    level: m.level ?? 1, creditModel: 'safeguards-only', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
+    level: m.level ?? 1, creditModel: 'projected-service-volume', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
     markerNote: 'previewMarks come from the offline keyword marker; a trained model replaces it.', status: m.phase, brief: BRIEF, sources: SOURCE_PACK,
     timeLimitMinutes: m.minutes || null, activeSeconds: m.elapsed, completionOrder: m.completed ?? [],
     attackHints: m.attackHints ?? [], challenges, budget,

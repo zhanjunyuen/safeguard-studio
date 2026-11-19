@@ -19,7 +19,7 @@ export const DESKS = services.map(service => {
   const challenge = CHALLENGES.find(c => c.id === service.id)!;
   return { ...service, title: challenge.title, cases: challenge.tests.map(t => t.id) };
 });
-// Existing services keep their classroom workloads. Other challenges simulate one request per test.
+// Existing services keep their classroom workloads. Other services have a request volume of one.
 export const catalogue = CHALLENGES.map(challenge => DESKS.find(d => d.id === challenge.id) ?? {
   id: challenge.id, title: challenge.title, name: challenge.title, volume: 1, cases: challenge.tests.map(t => t.id),
 });

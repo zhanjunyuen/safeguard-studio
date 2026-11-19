@@ -56,7 +56,7 @@ export default function ReflectModal({
         aria-labelledby="reflect-title"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-paper-card border-1.5 border-ink rounded-md shadow-hard-lg max-w-lg w-full p-6"
+        className="bg-paper-card border-1.5 border-ink rounded-md shadow-hard-lg max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full p-6"
       >
         <div className="label text-ink-3">Before you change anything</div>
         <h2 id="reflect-title" className="text-2xl font-extrabold leading-tight mt-1">Why did "{testTitle}" go wrong?</h2>
