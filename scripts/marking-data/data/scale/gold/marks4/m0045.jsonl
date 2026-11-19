@@ -53,7 +53,7 @@
 {"k": 97, "c": {"T2": "the request to use a classmate's face for a joke will likely succeed"}, "f": "Says reverse image search is missing; it is in the build."}
 {"k": 98, "c": {"T2": "the classmate joke will probably get through", "T3": "the classmate joke will probably get through"}}
 {"k": 99, "c": {"T1": "the 'Show both sides' block is in the wrong place cos it's right at the end", "T2": "the loaded question will get through"}}
-{"k": 100, "c": {"T1": "the label one only kicks in after its already written", "T2": "theres no block that actually stops it writing the whole article tho"}}
+{"k": 100, "c": {"T1": "the label one only kicks in after its already written", "T2": "theres no block that actually stops it writing the whole article tho", "T3": "so that ones getting thru"}}
 {"k": 101, "c": {"T1": "theres no block for checking facts about peple", "T2": "a normal question about someone will get thru"}}
 {"k": 102, "c": {"T1": "the missing block is 'check facts about people'", "T2": "The ask a normal question about people might get through"}}
 {"k": 103, "c": {"T1": "The 'Label anything AI wrote' block should be earlier.", "T2": "a request for a statistic will get through", "T3": "a request for a statistic will get through"}}
