@@ -71,7 +71,7 @@ describe('final verdict task', () => {
   it('sends the computed numbers with fixed instructions', () => {
     const t = buildTask({ task: 'final', final: { total: 64, band: 'Developing', parts: { answers: 25 }, feedback: ['testing: good'] } });
     expect(t.expect).toBe('verdict');
-    expect(t.instructions).toMatch(/must not change it/);
+    expect(t.instructions).toMatch(/must not change/);
     expect(JSON.parse(t.input).total).toBe(64);
   });
 });

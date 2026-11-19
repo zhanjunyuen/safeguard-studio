@@ -32,6 +32,7 @@ import { usePresenter, useReplaySpeed } from '../store/presenter';
 import type { BlockType, CondId, FailureKey, RunReport, ScriptBlock, StepStatus } from '../types';
 
 import { blockCredits, type Desk } from '../engine/mission';
+import AttackHintPanel from '../components/AttackHintPanel';
 import { evaluateDesk, type serviceWorkloads } from '../engine/challengeEvidence';
 import { Trace } from '../components/MissionReport';
 import { workloadFormula } from '../components/WorkloadBar';
@@ -309,6 +310,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </details>}
         <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${(assessment.noteRequired ?? assessment.revising) ? 'required' : 'optional'})`}
           value={assessment.note} change={assessment.onNote} required={assessment.noteRequired ?? assessment.revising} rows={2} />
+        <AttackHintPanel desk={assessment.id as Desk} />
         <button disabled={((assessment.noteRequired ?? assessment.revising) && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
       </div>}
       {isL2 && !assessment && l1.state !== 'done' ? (

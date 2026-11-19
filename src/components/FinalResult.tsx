@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AI_MARKER, finalVerdict } from '../engine/aiProviders';
 import { latestMarkRequests } from '../engine/challengeEvidence';
-import { assessmentRadar, finalScore, WEIGHTS, type FinalResult as Result } from '../engine/finalScore';
+import { assessmentRadar, finalScore, WEIGHTS, type Category } from '../engine/finalScore';
 import { CRITERION_NAME, getMarkingProvider, getSkillsSummaryProvider, SKILL_ORDER } from '../engine/marking';
 import type { Mission } from '../engine/mission';
 import { useMission } from '../store/mission';
@@ -9,12 +9,13 @@ import type { ChallengeProgress } from '../store/session';
 import AiBadge from './AiBadge';
 import CompetencyRadar from './Radar';
 
-/** The three parts of the final score, with their maximum points. */
-const PARTS: { key: keyof Result['score']['parts']; label: string; max: number; what: string }[] = [
-  { key: 'answers', label: 'Written answers', max: WEIGHTS.answers, what: 'the four skills marked from what you wrote' },
-  { key: 'tests', label: 'Blocks: tests handled', max: WEIGHTS.tests, what: 'tests your latest builds handle safely and usefully' },
-  { key: 'workload', label: 'Blocks: workload', max: WEIGHTS.workload, what: 'staying within the credit budget with working builds' },
-  { key: 'attempts', label: 'Attempts', max: WEIGHTS.attempts, what: 'getting each build working in one or two runs' },
+/** The scoring categories: each is scored out of 100, and the final score is their weighted average. */
+const PARTS: { key: Category; label: string; what: string }[] = [
+  { key: 'answers', label: 'Written answers', what: 'the four skills marked from what you wrote' },
+  { key: 'tests', label: 'Blocks: tests handled', what: 'tests your latest builds handle safely and usefully' },
+  { key: 'workload', label: 'Blocks: workload', what: 'staying within the credit budget with working builds' },
+  { key: 'attempts', label: 'Attempts', what: 'getting each build working in one or two runs' },
+  { key: 'independence', label: 'Independence', what: 'working without AI hints: each hint used costs a third' },
 ];
 
 /**
@@ -27,7 +28,8 @@ export default function FinalResult({ mission, progress }: { mission: Mission; p
   const update = useMission((s) => s.update);
   const [step, setStep] = useState<string | null>(null);
   const started = useRef(false);
-  const result = mission.finalResult;
+  // Results saved before the score had categories are worked out again.
+  const result = mission.finalResult?.score.categories ? mission.finalResult : undefined;
   const radar = assessmentRadar(mission, progress);
 
   async function run() {
@@ -80,11 +82,13 @@ export default function FinalResult({ mission, progress }: { mission: Mission; p
     <div className="grid lg:grid-cols-2 gap-6 p-5 md:p-6 border-t-1.5 border-line">
       <div className="space-y-3">
         <h4 className="font-bold">How the score is made</h4>
-        {PARTS.map((p) => <div key={p.key}>
-          <div className="flex justify-between text-sm"><span className="font-bold">{p.label}</span><span className="font-mono">{score.parts[p.key]} / {p.max}</span></div>
-          <div className="h-2.5 rounded-sm bg-paper-deep mt-1 overflow-hidden" aria-hidden><div className="h-full bg-signal border-r-1.5 border-ink" style={{ width: `${100 * score.parts[p.key] / p.max}%` }} /></div>
-          <p className="text-xs text-ink-3 mt-0.5">{p.what}</p>
-        </div>)}
+        <p className="text-xs text-ink-3">Each category is scored out of 100. The final score is their average, weighted as shown.</p>
+        {PARTS.map((p) => { const v = score.categories?.[p.key] ?? null; return <div key={p.key} data-testid={`category-${p.key}`}>
+          <div className="flex justify-between gap-2 text-sm"><span className="font-bold">{p.label} <span className="font-normal text-ink-3">· {WEIGHTS[p.key]}%</span></span>
+            <span className="font-mono">{v === null ? 'not counted' : `${Math.round(v)} / 100`}</span></div>
+          <div className="h-2.5 rounded-sm bg-paper-deep mt-1 overflow-hidden" aria-hidden><div className="h-full bg-signal border-r-1.5 border-ink" style={{ width: `${v ?? 0}%` }} /></div>
+          <p className="text-xs text-ink-3 mt-0.5">{p.what}{p.key === 'independence' ? ` (${score.hintsUsed ?? 0} used)` : ''}</p>
+        </div>; })}
         <h4 className="font-bold pt-2">Skills from your answers · {score.skills.total} of 8</h4>
         <ul className="space-y-1 text-sm">{SKILL_ORDER.map((c) => { const m = markerOf(c); return <li key={c} className="flex items-center gap-2">
           <span className="flex-1">{CRITERION_NAME[c]}</span>

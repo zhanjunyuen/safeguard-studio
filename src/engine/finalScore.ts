@@ -4,17 +4,22 @@ import { scoreOf, SKILL_ORDER, type Mark } from './marking';
 import { optionalSkills } from './assessmentSettings';
 import { assignedDesks, handled, type Mission } from './mission';
 import { DIMS, type Dim } from './profile';
+import { ATTACK_HINT_LIMIT } from './attackHints';
 
 /**
- * The final assessment score out of 100, from fixed, published weights. Like levelFor, these are
- * rules, not model judgements: the AI explains the score but never sets it.
+ * The final assessment score out of 100. Each category gets its own score out of 100, and the final
+ * score is their weighted average. Fixed, published rules, like levelFor: the AI explains the score
+ * but never sets it.
  *
- *   Written answers  50  the four skills marked from the pupil's answers (0–2 each, out of 8)
- *   Blocks           35  25 for how many tests the latest builds handle safely and usefully,
- *                        10 for keeping the projected workload within the budget
- *   Attempts         15  reaching a working build in few runs (1–2 runs is full marks)
+ *   Written answers     40%  the four skills marked from the pupil's answers (0–2 each)
+ *   Blocks: tests       25%  share of tests the latest builds handle safely and usefully
+ *   Blocks: workload    10%  keeping the projected workload within the budget, with working builds
+ *   Attempts            15%  getting each build working in few runs (1–2 runs is full marks)
+ *   Independence        10%  AI hints used: each of the 3 hints costs a third of this category
  */
-export const WEIGHTS = { answers: 50, tests: 25, workload: 10, attempts: 15 } as const;
+export const WEIGHTS = { answers: 40, tests: 25, workload: 10, attempts: 15, independence: 10 } as const;
+export type Category = keyof typeof WEIGHTS;
+export const CATEGORIES = Object.keys(WEIGHTS) as Category[];
 
 /** Runs that still earn full attempt points; each run after that costs ATTEMPT_STEP, down to ATTEMPT_FLOOR. */
 export const FREE_RUNS = 2;
@@ -39,13 +44,17 @@ export interface ChallengeScore {
 
 export interface FinalScore {
   total: number; outOf: 100; band: string;
-  parts: { answers: number; tests: number; workload: number; attempts: number };
+  /** each category's score out of 100; null = not counted (every written question optional and skipped) */
+  categories: Record<Category, number | null>;
+  /** each category's contribution to the total, in points */
+  parts: Record<Category, number>;
   skills: ReturnType<typeof scoreOf>;
   challenges: ChallengeScore[];
   workloadCredits: number; budget: number;
+  hintsUsed: number;
 }
 
-/** Points for one challenge's attempts: full for up to FREE_RUNS runs, then less per extra run. */
+/** Share of attempt points for one challenge: full for up to FREE_RUNS runs, then less per extra run. */
 export const runFactor = (runs: number) => (runs === 0 ? 0 : Math.max(ATTEMPT_FLOOR, 1 - ATTEMPT_STEP * Math.max(0, runs - FREE_RUNS)));
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -69,17 +78,20 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   // Skills count unless their question was optional and left blank: skipping an optional question costs nothing.
   const optional = optionalSkills(m);
   const counted = SKILL_ORDER.filter((c) => !(optional.includes(c) && !marks.some((x) => x.criterion === c)));
-  const answerShare = counted.length ? counted.reduce((s, c) => s + (skills.scores[c] ?? 0), 0) / (2 * counted.length) : null;
-  const parts = {
-    answers: round1(WEIGHTS.answers * (answerShare ?? 0)),
-    tests: round1(WEIGHTS.tests * testShare),
-    workload: round1(WEIGHTS.workload * withinBudget * testShare),
-    attempts: round1(WEIGHTS.attempts * challenges.reduce((s, c) => s + c.attempts, 0) / n),
+  const hintsUsed = Math.min(ATTACK_HINT_LIMIT, m.attackHints?.length ?? 0);
+  const categories: Record<Category, number | null> = {
+    answers: counted.length ? round1(100 * counted.reduce((s, c) => s + (skills.scores[c] ?? 0), 0) / (2 * counted.length)) : null,
+    tests: round1(100 * testShare),
+    workload: round1(100 * withinBudget * testShare),
+    attempts: round1(100 * challenges.reduce((s, c) => s + c.attempts, 0) / n),
+    independence: round1(100 * (1 - hintsUsed / ATTACK_HINT_LIMIT)),
   };
-  const blocksAndAttempts = parts.tests + parts.workload + parts.attempts;
-  // With every written question optional and skipped, builds and attempts make up the whole score.
-  const total = Math.round(answerShare === null ? blocksAndAttempts * 100 / (100 - WEIGHTS.answers) : parts.answers + blocksAndAttempts);
-  return { total, outOf: 100, band: FINAL_BANDS.find((b) => total >= b.min)!.band, parts, skills, challenges, workloadCredits, budget };
+  // Weighted average over the categories that count (a category that doesn't count gives its weight to the others).
+  const live = CATEGORIES.filter((c) => categories[c] !== null);
+  const weightSum = live.reduce((s, c) => s + WEIGHTS[c], 0);
+  const parts = Object.fromEntries(CATEGORIES.map((c) => [c, categories[c] === null ? 0 : round1(categories[c]! * WEIGHTS[c] / weightSum)])) as Record<Category, number>;
+  const total = Math.round(live.reduce((s, c) => s + categories[c]! * WEIGHTS[c], 0) / weightSum);
+  return { total, outOf: 100, band: FINAL_BANDS.find((b) => total >= b.min)!.band, categories, parts, skills, challenges, workloadCredits, budget, hintsUsed };
 }
 
 /** The assessment's competency radar: the share of each kind of test handled, on the first and the latest build of each challenge. */
@@ -113,13 +125,23 @@ export interface FinalResult {
   at: string;
 }
 
+/** Plain names for the categories, used in verdicts and the result card. */
+export const CATEGORY_NAME: Record<Category, string> = {
+  answers: 'your written answers', tests: 'how well your builds handled the tests', workload: 'keeping the workload within budget',
+  attempts: 'getting builds working in few runs', independence: 'working without AI hints',
+};
+
 /** A plain verdict without AI, used when the AI is not connected or its reply fails the checks. */
 export function offlineVerdict(f: FinalScore): string {
-  const strongest = (Object.keys(f.parts) as (keyof FinalScore['parts'])[])
-    .map((k) => [k, f.parts[k] / (k === 'answers' ? WEIGHTS.answers : WEIGHTS[k])] as const).sort((a, b) => b[1] - a[1]);
-  const name = { answers: 'your written answers', tests: 'how well your builds handled the tests', workload: 'keeping the workload within budget', attempts: 'getting builds working in few runs' };
-  return `Final score: ${f.total} out of 100 (${f.band}). Your strongest part was ${name[strongest[0][0]]}; the part with most room to grow is ${name[strongest[strongest.length - 1][0]]}.`;
+  const ranked = CATEGORIES.filter((c) => f.categories[c] !== null).sort((a, b) => f.categories[b]! - f.categories[a]!);
+  return `Final score: ${f.total} out of 100 (${f.band}). Your strongest part was ${CATEGORY_NAME[ranked[0]]} (${f.categories[ranked[0]]} of 100); the part with most room to grow is ${CATEGORY_NAME[ranked[ranked.length - 1]]} (${f.categories[ranked[ranked.length - 1]]} of 100).`;
 }
 
 /** Numbers stated as the final score in a verdict ("72 out of 100", "72/100"), for checking an AI verdict. */
-export const claimedFinal = (text: string) => [...text.matchAll(/(\d{1,3})\s*(?:out of|\/)\s*100/gi)].map((x) => Number(x[1]));
+export const claimedFinal = (text: string) => [...text.matchAll(/(?<![\d.])(\d{1,3}(?:\.\d)?)\s*(?:out of|\/)\s*100\b/gi)].map((x) => Number(x[1]));
+
+/** True when a verdict states the final score, and every other "N out of 100" is one of the category scores. */
+export const verdictMatches = (text: string, f: FinalScore) => {
+  const stated = claimedFinal(text);
+  return stated.includes(f.total) && stated.every((n) => n === f.total || Object.values(f.categories).includes(n));
+};

@@ -83,7 +83,7 @@ describe('AI final verdict', () => {
     vi.resetModules();
     vi.doMock('../lib/supabase', () => ({ literacyAiUrl: 'https://example.test/functions/v1/literacy-ai', supabaseKey: 'k' }));
     const { finalVerdict } = await import('./aiProviders');
-    const f = { total: 64, band: 'Developing', parts: { answers: 25, tests: 20, workload: 8, attempts: 11 }, skills: { scores: {}, total: 4 }, challenges: [] } as never;
+    const f = { total: 64, band: 'Developing', categories: { answers: 50, tests: 80, workload: 80, attempts: 70, independence: 67 }, parts: {}, skills: { scores: {}, total: 4 }, challenges: [], hintsUsed: 1 } as never;
     reply.next = [JSON.stringify({ verdict: 'You scored 64 out of 100, Developing. Your builds were strong.' })];
     expect(await finalVerdict(f, [])).toEqual({ text: 'You scored 64 out of 100, Developing. Your builds were strong.', ai: true });
     reply.next = [JSON.stringify({ verdict: 'You scored 90 out of 100!' })];

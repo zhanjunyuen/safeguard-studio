@@ -36,10 +36,10 @@ describe('teacher assessment settings', () => {
     const m = { ...newAssessment(), assigned: ['party' as const] };
     const mark = (criterion: Mark['criterion']): Mark => ({ criterion, level: 2, rubricVersion: 'x', marker: 'm', concepts: [], feedback: '', nextStep: '', reviewFlag: false });
     const marks = [mark('testing'), mark('anticipation'), mark('judgement')];
-    expect(finalScore(m, {}, marks).parts.answers).toBe(37.5);
+    expect(finalScore(m, {}, marks).categories.answers).toBe(75);
     const lenient = { ...m, settings: { ...DEFAULT_SETTINGS, questions: { ...DEFAULT_SETTINGS.questions, revision: 'optional' as const } } };
     expect(optionalSkills(lenient)).toEqual(['revision']);
-    expect(finalScore(lenient, {}, marks).parts.answers).toBe(50);
+    expect(finalScore(lenient, {}, marks).categories.answers).toBe(100);
   });
 
   it('guides the pupil to the next thing to do', () => {

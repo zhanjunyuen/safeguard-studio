@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getAttackHintProvider, hintAvailable, type AttackHintProvider } from '../engine/attackHints';
+import { getAttackHintProvider, hintAvailable, hintStage, type AttackHintProvider } from '../engine/attackHints';
+import { blockKey } from '../engine/scriptText';
+import type { BlockType } from '../types';
 import { useAssessmentSession } from './session';
 import { challengeIdFor, newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
 
@@ -27,15 +29,19 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
   requestHint: async (desk, signal, provider = getAttackHintProvider()) => {
     const before = get().mission;
     if (signal.aborted || !hintAvailable(before, desk)) return;
-    const blocks = before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type);
+    const stage = hintStage(before, desk)!;
+    // Attack: the frozen build. Build: the blocks currently in the editor.
+    const blocks = stage === 'attack'
+      ? before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type)
+      : (useAssessmentSession.getState().progress[desk]?.script.map(blockKey) ?? ['ask_ai']) as BlockType[];
     const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk).map(h => h.text);
-    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk) }, signal)).trim();
+    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk), stage }, signal)).trim();
     if (signal.aborted) return;
     if (!text) throw new Error('The hint provider returned an empty response.');
     set(state => {
       const m = state.mission;
       if (m.first !== before.first || m.attackHints !== before.attackHints || !hintAvailable(m, desk)) return state;
-      return { mission: { ...m, attackHints: [...(m.attackHints ?? []), { desk, text }] } };
+      return { mission: { ...m, attackHints: [...(m.attackHints ?? []), { desk, text, stage }] } };
     });
   },
   restart: () => {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ATTACK_HINT_LIMIT } from './attackHints';
+import { ATTACK_HINT_LIMIT, hintStage } from './attackHints';
 import { evidence, newMission } from './mission';
 import { useMission } from '../store/mission';
 
@@ -48,5 +48,15 @@ describe('companion attack hints', () => {
     const provider = vi.fn(async () => 'Already launched');
     await requestHint('history', signal, provider);
     expect(provider).not.toHaveBeenCalled();
+  });
+
+  it('offers hints while building in the six-challenge assessment, and records the stage', async () => {
+    const m = useMission.getState().mission;
+    useMission.setState({ mission: { ...m, form: 4, phase: 'build', focus: 'history', first: null, attackHints: [] } });
+    expect(hintStage(useMission.getState().mission, 'history')).toBe('build');
+    expect(hintStage(useMission.getState().mission, 'quiz')).toBeNull();
+    const provider = vi.fn(async (ctx: { stage?: string }) => `hint for ${ctx.stage}`);
+    await useMission.getState().requestHint('history', signal, provider);
+    expect(useMission.getState().mission.attackHints).toEqual([{ desk: 'history', text: 'hint for build', stage: 'build' }]);
   });
 });

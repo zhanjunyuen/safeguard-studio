@@ -9,7 +9,7 @@ import {
   type FollowUpProvider, type Mark, type MarkingProvider, type MarkRequest, type SkillsSummaryProvider,
 } from './marking';
 import { labelOf } from './scriptText';
-import { claimedFinal, offlineVerdict, type FinalScore } from './finalScore';
+import { offlineVerdict, verdictMatches, WEIGHTS, type FinalScore } from './finalScore';
 
 /**
  * The Adaption AI behind the four AI features: marking, follow-up answers, attack hints and the
@@ -111,7 +111,7 @@ export const aiAttackHint: AttackHintProvider = async (ctx, signal) => {
     task: 'hint',
     context: {
       challenge: c?.title, audience: c?.audience, story: c?.story, level: c?.id.endsWith('@2') ? 2 : 1,
-      build: ctx.blocks.map(labelOf).join(' → '), attackOptions: c?.tests.map((t) => t.attackLabel) ?? [], previousHints: ctx.previousHints,
+      stage: ctx.stage ?? 'attack', build: ctx.blocks.map(labelOf).join(' → '), attackOptions: c?.tests.map((t) => t.attackLabel) ?? [], previousHints: ctx.previousHints,
     },
   }, signal);
   const hint = raw ? jsonIn(raw)?.hint : undefined;
@@ -126,15 +126,14 @@ export async function finalVerdict(f: FinalScore, marks: Mark[], signal?: AbortS
   const raw = await askLiteracyAi({
     task: 'final',
     final: {
-      total: f.total, band: f.band, parts: f.parts, skills: f.skills.scores,
+      total: f.total, band: f.band, categories: f.categories, weights: WEIGHTS, hintsUsed: f.hintsUsed, skills: f.skills.scores,
       challenges: f.challenges.map((c) => ({ title: c.title, runs: c.runs, testsHandled: `${c.passed} of ${c.tested}` })),
       feedback: marks.map((m) => `${m.criterion}: ${m.feedback} Next: ${m.nextStep}`),
     },
   }, signal);
   const text = raw ? jsonIn(raw)?.verdict : undefined;
   if (typeof text !== 'string' || !text.trim() || text.length > 900) return { text: offlineVerdict(f), ai: false };
-  const stated = claimedFinal(text);
-  if (!stated.length || stated.some((n) => n !== f.total)) return { text: offlineVerdict(f), ai: false };
+  if (!verdictMatches(text, f)) return { text: offlineVerdict(f), ai: false };
   return { text: text.trim(), ai: true };
 }
 

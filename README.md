@@ -116,16 +116,21 @@ To extend the mission, add a scripted case to its existing school service. The a
 
 Four features use the Adaption model `stack:adaption-backend-for-literacy`: marking written answers, answering follow-up questions about feedback, attack hints and the skills summary on the results page. The browser calls the Supabase Edge Function `literacy-ai`, and only that function holds the Adaption key. The function builds each prompt from fixed instructions; for marking, follow-ups and the summary these are the same prompts the training rows used. The model reports concepts with quotes. The browser keeps only concepts it can quote from the pupil's answer and recomputes the level with `levelFor`. It rejects follow-ups or summaries that state a different level or score. If the AI is unreachable, slow or gives a bad reply, each feature falls back to its offline version, so the assessment keeps working. Calls are capped at 1,500 an hour across all users.
 
-**Final score.** When the assessment ends, the report opens with a final score out of 100. The weights are fixed in `src/engine/finalScore.ts`:
+**Final score.** When the assessment ends, the report opens with a final score out of 100. Each category gets its own score out of 100, and the final score is their weighted average. The weights are fixed in `src/engine/finalScore.ts`:
 
-| Part | Points | From |
+| Category | Weight | Score out of 100 |
 |---|---|---|
-| Written answers | 50 | The four skills marked from the pupil's latest answers (0–2 each, out of 8) |
-| Blocks: tests handled | 25 | The share of tests the latest builds handle safely and usefully |
-| Blocks: workload | 10 | Staying within the credit budget, scaled by how well the builds work, so an empty helper earns nothing here |
-| Attempts | 15 | Full marks for a working build in one or two runs; each extra run costs 10%, down to a floor of 40% |
+| Written answers | 40% | The four skills marked from the pupil's latest answers (0–2 each) |
+| Blocks: tests handled | 25% | Share of tests the latest builds handle safely and usefully |
+| Blocks: workload | 10% | Staying within the credit budget, scaled by how well the builds work, so an empty helper earns nothing here |
+| Attempts | 15% | Full marks for a working build in one or two runs; each extra run costs 10%, down to a floor of 40% |
+| Independence | 10% | AI hints used: 100 with none; each of the three hints costs a third |
 
-Bands: 85+ Outstanding, 65+ Strong, 40+ Developing, otherwise Getting started. The AI writes the verdict and the skills summary. A verdict that states a different score is replaced by an offline one. The result is saved with the attempt, shown on "My results" and included in the evidence export. Next to the score, a radar in the same style as the practice radar compares each challenge's first and latest builds.
+Bands: 85+ Outstanding, 65+ Strong, 40+ Developing, otherwise Getting started. If every written question is optional and skipped, answers don't count, and the weights of the other categories are scaled up to make 100%.
+
+The AI writes the verdict and the skills summary. A verdict is replaced by an offline one if it states a different final score, or quotes a category score that isn't real. The result is saved with the attempt, shown on "My results" and included in the evidence export. Next to the score, a radar in the same style as the practice radar compares each challenge's first and latest builds.
+
+**AI hints.** Pupils can ask for up to three hints in the whole assessment. They can ask while building a service or before launching its attacks. Each hint is a guiding question from the AI that never gives the answer away. The hint panel says plainly that each hint lowers the Independence score.
 
 Setup (once):
 

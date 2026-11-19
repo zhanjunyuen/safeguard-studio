@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getChallenge } from '../data/challenges';
 import { drawAssignment } from '../data/mission';
 import { freshProgress, type ChallengeProgress } from '../store/session';
-import { assessmentRadar, claimedFinal, finalScore, offlineVerdict, runFactor, WEIGHTS } from './finalScore';
+import { assessmentRadar, claimedFinal, finalScore, offlineVerdict, runFactor, verdictMatches, WEIGHTS } from './finalScore';
 import type { Criterion, Level, Mark } from './marking';
 import { newAssessment } from './mission';
 import { idealScript } from './targets';
@@ -24,13 +24,14 @@ describe('final score', () => {
     const f = finalScore(m, progressWith(1, ideal), ['testing', 'anticipation', 'judgement', 'revision'].map((c) => mark(c as Criterion, 2)));
     expect(f.total).toBe(100);
     expect(f.band).toBe('Outstanding');
-    expect(f.parts).toEqual({ answers: WEIGHTS.answers, tests: WEIGHTS.tests, workload: WEIGHTS.workload, attempts: WEIGHTS.attempts });
+    expect(f.parts).toEqual(WEIGHTS);
   });
 
   it('weighs attempts, blocks and answers separately', () => {
     const marks = [mark('testing', 1), mark('anticipation', 1)];
     const quick = finalScore(m, progressWith(1, ideal), marks);
     const slow = finalScore(m, progressWith(6, ideal), marks);
+    expect(quick.categories.answers).toBe(25);
     expect(quick.parts.answers).toBe(WEIGHTS.answers * 2 / 8);
     expect(slow.parts.attempts).toBeLessThan(quick.parts.attempts);
     expect(slow.parts.tests).toBe(quick.parts.tests);
@@ -38,7 +39,8 @@ describe('final score', () => {
     const bare = finalScore(m, progressWith(1, () => ['ask_ai']), marks);
     expect(bare.parts.tests).toBeLessThan(WEIGHTS.tests);
     expect(bare.parts.workload).toBeLessThan(WEIGHTS.workload);
-    expect(finalScore(m, {}, []).total).toBe(0);
+    // With nothing done, only independence (no hints used) scores.
+    expect(finalScore(m, {}, []).total).toBe(WEIGHTS.independence);
   });
 
   it('counts runs with a floor', () => {
@@ -58,5 +60,27 @@ describe('final score', () => {
     const f = finalScore(m, progressWith(2, ideal), [mark('testing', 2)]);
     expect(claimedFinal(offlineVerdict(f))).toEqual([f.total]);
     expect(claimedFinal('You scored 72/100, and 72 out of 100 is Strong.')).toEqual([72, 72]);
+  });
+
+  it('is the weighted average of the category scores, and each hint lowers independence', () => {
+    const all = ['testing', 'anticipation', 'judgement', 'revision'].map((c) => mark(c as Criterion, 2));
+    expect(WEIGHTS.answers).toBe(40);
+    expect(WEIGHTS.tests + WEIGHTS.workload).toBe(35);
+    expect(Object.values(WEIGHTS).reduce((a, b) => a + b, 0)).toBe(100);
+    const hints = (n: number) => ({ ...m, attackHints: Array.from({ length: n }, () => ({ desk: m.assigned![0], text: 'hint' })) });
+    const scores = [0, 1, 2, 3].map((n) => finalScore(hints(n), progressWith(1, ideal), all));
+    expect(scores.map((f) => f.categories.independence)).toEqual([100, 66.7, 33.3, 0]);
+    expect(scores.map((f) => f.total)).toEqual([100, 97, 93, 90]);
+    const f = scores[1];
+    const avg = Object.entries(f.categories).reduce((s, [k, v]) => s + (v ?? 0) * WEIGHTS[k as keyof typeof WEIGHTS], 0) / 100;
+    expect(f.total).toBe(Math.round(avg));
+  });
+
+  it('accepts a verdict that quotes category scores but not one with a different final score', () => {
+    const f = finalScore(m, progressWith(2, ideal), [mark('testing', 2)]);
+    expect(verdictMatches(`You scored ${f.total} out of 100. Tests: ${f.categories.tests} out of 100.`, f)).toBe(true);
+    expect(verdictMatches(`You scored ${f.total + 1} out of 100.`, f)).toBe(false);
+    expect(verdictMatches('Well done!', f)).toBe(false);
+    expect(claimedFinal('Independence 66.7 out of 100')).toEqual([66.7]);
   });
 });

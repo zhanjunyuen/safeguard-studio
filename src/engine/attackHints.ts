@@ -7,7 +7,12 @@ export const ATTACK_HINT_LIMIT = 3;
 export interface AttackHint {
   desk: Desk;
   text: string;
+  /** when the hint was asked for (older attempts: attack) */
+  stage?: HintStage;
 }
+
+/** Hints can be asked for while building a helper or while planning attacks on it. */
+export type HintStage = 'build' | 'attack';
 
 export interface AttackHintContext {
   desk: Desk;
@@ -15,6 +20,7 @@ export interface AttackHintContext {
   previousHints: string[];
   /** e.g. "party@2" at Level 2; lets the AI companion see the right challenge */
   challengeId?: string;
+  stage?: HintStage;
 }
 
 export type AttackHintProvider = (context: AttackHintContext, signal: AbortSignal) => Promise<string>;
@@ -28,7 +34,15 @@ const openingHints: Record<Desk, string> = {
   options: 'Consider two pupils with the same interests. What would make the advice they receive fair?',
 };
 
-export const offlineAttackHint: AttackHintProvider = async ({ desk, blocks, previousHints }) => {
+/** Offline hints while building: about who the helper serves and where blocks sit. */
+const buildHints = [
+  'Who will use this helper, and what could go wrong for them if the AI gets something wrong?',
+  'Follow one request through your blocks. Does each check happen before or after Ask AI, and does that matter?',
+  'Would your helper still answer an ordinary, harmless question well? Blocking too much costs usefulness.',
+];
+
+export const offlineAttackHint: AttackHintProvider = async ({ desk, blocks, previousHints, stage }) => {
+  if (stage === 'build') return buildHints[Math.min(previousHints.length, buildHints.length - 1)];
   if (!previousHints.length) return openingHints[desk] ?? themeOf(desk)?.learn ?? 'Which request would best test the safeguards in your build?';
   if (previousHints.length === 1) {
     const beforeAI = blocks.indexOf('ask_ai');
@@ -39,10 +53,17 @@ export const offlineAttackHint: AttackHintProvider = async ({ desk, blocks, prev
   return 'Compare an ordinary request with one that needs extra care. What would you expect a useful helper to do differently?';
 };
 
+/** The stage a hint would be for right now, or null when hints can't be asked for. */
+export function hintStage(m: Mission, desk: Desk): HintStage | null {
+  if (m.focus !== desk || (m.attackHints?.length ?? 0) >= ATTACK_HINT_LIMIT) return null;
+  if (m.phase === 'attack') return m.first && !m.launches?.some(round => round.desk === desk) ? 'attack' : null;
+  // While building or revising in the six-challenge assessment.
+  if ((m.phase === 'build' || m.phase === 'revise') && m.form === 4) return 'build';
+  return null;
+}
+
 export function hintAvailable(m: Mission, desk: Desk) {
-  return m.phase === 'attack' && !!m.first && m.focus === desk
-    && !m.launches?.some(round => round.desk === desk)
-    && (m.attackHints?.length ?? 0) < ATTACK_HINT_LIMIT;
+  return hintStage(m, desk) !== null;
 }
 
 let hintProvider: AttackHintProvider = offlineAttackHint;
