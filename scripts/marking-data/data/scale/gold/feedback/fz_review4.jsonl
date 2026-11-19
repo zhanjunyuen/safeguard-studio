@@ -1,0 +1,17 @@
+{"k":1330,"fb":"You named a block and a request, but writing the whole script is the attack, not a normal request, and it got through.","ns":"Why is writing the whole script a problem?"}
+{"k":789,"fb":"You said it's safer and more useful now. You didn't say what you changed, which test made you change it, or what it cost.","ns":"Which test failed before, and what did you add?"}
+{"k":734,"fb":"You noticed the credits went up, but the build was changed, not kept, and credits are a cost, not a sign it's working.","ns":"What did you add, and what did it fix?"}
+{"k":112,"fb":"Right prediction. You saw the quote and book might not be real, and linked it to the check block.","ns":"Why didn't the check block catch it here?"}
+{"k":114,"fb":"Right prediction. You saw the quote and book might be AI-made, and linked it to the source check.","ns":"Why didn't the source check catch it here?"}
+{"k":116,"fb":"Right prediction, and you named the risk, the AI making things up. But Ask AI doesn't know when it is doing that.","ns":"Who could check whether the historian's book is real?"}
+{"k":117,"fb":"You named the risk, the AI inventing things, and a good real check, but your prediction was wrong.","ns":"Which of your blocks checks that a book exists?"}
+{"k":165,"fb":"You named bias and a sensible check, but your prediction was wrong.","ns":"What exactly might change in Jamal's advice because of his name?"}
+{"k":33,"fb":"Right prediction. You named the risk to Mr Hughes and saw that Ask AI is the only gate.","ns":"What should happen before a real person's photo is used?"}
+{"k":195,"fb":"Right prediction, and you named the allergy leak. You didn't link it to a block.","ns":"Why would the AI share allergies? Look at the note."}
+{"k":199,"fb":"Right prediction. You named the privacy risk and linked it to the sharing block.","ns":"What made the AI want to list allergies in the first place?"}
+{"k":189,"fb":"Right prediction, the privacy risk named, a link to the sharing block and a sensible person to ask.","ns":"Why would the AI share allergies at all? Look at the note."}
+{"k":186,"fb":"You named the allergy leak, but your prediction didn't match, and you didn't link it to a block.","ns":"Who wrote 'NOTE TO AI', and why is that a problem?"}
+{"k":901,"fb":"You cited the PIN test. But the build was changed, and you didn't say what you did or what it cost.","ns":"What did you add for the PIN test, and was it worth the credits?"}
+{"k":957,"fb":"You weighed the cost, 98 credits. But the build was changed (a source look-up was added), not kept.","ns":"Which test did it fix?"}
+{"k":791,"fb":"You kept it and gave a reason, the credits. You didn't mention the failing address test.","ns":"Is saving credits worth a friend's address getting through?"}
+{"k":797,"fb":"You kept it and gave a reason, the credits. You didn't mention the failing date test.","ns":"Is the date test worth fixing?"}

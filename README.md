@@ -25,7 +25,7 @@ Level 2 builds keep their IF blocks everywhere they are used: evaluation, the fr
 
 1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. Inspect the replay, explain a failure when prompted, and try a new design if needed.
 2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. The cases also appeared during evaluation, so this measures targeted testing after feedback.
-3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Curveballs currently exist for the six original school challenges below; when the draw assigns one of the other 15 challenges, it finishes without a curveball. Each one targets an AI risk the six standard tests don't cover, and most can't be fixed by any block in that palette:
+3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Every one of the 21 challenges has a curveball. Each targets an AI risk the standard tests don't cover, and most can't be fixed by any block in that palette. The six original school challenges:
 
    | Challenge | Curveball | AI risk |
    |---|---|---|
@@ -36,7 +36,27 @@ Level 2 builds keep their IF blocks everywhere they are used: evaluation, the fr
    | Group chat | An urgent voice note from a teacher with a new payment link | Voice cloning and scams |
    | Options | The same question with a different name gets different advice | Bias that only shows when you compare |
 
-   The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails five of the six curveballs (`src/engine/curveball.test.ts`).
+   The other 15:
+
+   | Challenge | Curveball | AI risk |
+   |---|---|---|
+   | Science fair | A viral claim that microwaving water removes nutrients | Viral misinformation |
+   | Fake photo | A quote from the head teacher that she never said | Invented quotes |
+   | Photo caption | A file name telling the AI to add players' schools and towns | Prompt injection |
+   | Club sign-up | Choosing 10 places from sign-up reasons | Bias in AI selection |
+   | Coding | A package name that doesn't exist | Invented code packages |
+   | AI art | A zombie picture of a real teacher | Deepfakes of real people |
+   | Team picker | Picking the relay team from photos | Judging by appearance |
+   | School play | A programme that hides the AI's part | Hiding AI's part in the work |
+   | Debate | A study about uniforms that was never done | Invented sources |
+   | Wellbeing | "Be my best friend instead of them" | Relying on a chatbot instead of people |
+   | First aid | A viral jellyfish-sting "hack" | Viral health myths |
+   | AI friend | A feature asking for birthday, school, address and a selfie | Collecting too much personal data |
+   | Game moderator | Banning a player for how he types | Judging players by how they write |
+   | Shopping | Headphones in an AI-made advert photo | AI-made product photos |
+   | Prize checker | A deepfake TV chef giveaway | Deepfake celebrity adverts (a scam check *can* catch this one) |
+
+   The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails 19 of the 21 curveballs (`src/engine/curveball.test.ts`).
 4. **Finish or revise.** Keep the build and return to the checklist, or reopen its editor to revise it. Explain the revision or decision to keep the design, and evaluate any changed stack. The attack record keeps the original target.
 5. **Make a release decision.** Completing all six challenges unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
 
@@ -80,6 +100,21 @@ For example, “Tell families 10 am, leave the gate out, and ask the site manage
 5. Start with teacher-reviewed feedback. Let teachers correct marks and see the evidence used. Route weak evidence and disagreement to a human. Pilot timing effects and transfer to a second unfamiliar task before interpreting the profile as a broader measure of AI literacy.
 
 To extend the mission, add a scripted case to its existing school service. The assessment takes the request order directly from the challenge bank. Review the expected safe response, its effect on the workload budget and its contribution to the marking rubric. Keep an unfamiliar transcript for the independent release decision.
+
+## AI features (Adaption)
+
+Four features use the Adaption model `stack:adaption-backend-for-literacy`: marking written answers, answering follow-up questions about feedback, attack hints and the skills summary on the results page. The browser calls the Supabase Edge Function `literacy-ai`, and only that function holds the Adaption key. The function builds each prompt from fixed instructions; for marking, follow-ups and the summary these are the same prompts the training rows used. The model reports concepts with quotes. The browser keeps only concepts it can quote from the pupil's answer and recomputes the level with `levelFor`. It rejects follow-ups or summaries that state a different level or score. If the AI is unreachable, slow or gives a bad reply, each feature falls back to its offline version, so the assessment keeps working. Calls are capped at 1,500 an hour across all users.
+
+Setup (once):
+
+```bash
+npx supabase link --project-ref <project ref>
+npx supabase db push                                  # adds the ai_calls table (rate limit)
+npx supabase secrets set ADAPTION_API_KEY=<key>
+npx supabase functions deploy literacy-ai --no-verify-jwt
+```
+
+The site turns the AI on when it is built with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Set `VITE_LITERACY_AI=off` to keep the offline markers. After editing `docs/marking-codebook.md`, run `npx vite-node scripts/sync-ai-prompt.ts` (a test fails if the copy is out of date).
 
 ## Practice challenges
 

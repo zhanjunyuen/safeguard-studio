@@ -1,0 +1,11 @@
+{
+ "calls": "16/16 parsed",
+ "answers": 120,
+ "levelAgreement": 0.9,
+ "byCriterion": {
+  "anticipation": "41/45",
+  "testing": "28/30",
+  "revision": "39/45"
+ },
+ "disagreements": 12
+}

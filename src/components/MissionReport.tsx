@@ -8,6 +8,7 @@ import { ASSIGNMENT, DESKS, missionCase } from '../data/mission';
 import { usePresenter } from '../store/presenter';
 import { useMission } from '../store/mission';
 import MarkFeedback from './MarkFeedback';
+import SkillsSummary from './SkillsSummary';
 import { CRITERION_NAME, type Mark } from '../engine/marking';
 
 function PreviewMark({ mark }: { mark: Mark }) {
@@ -101,13 +102,14 @@ function ChallengeReport({ mission }: { mission: Mission }) {
       {c.curveball && <div className="my-2"><p><b>Curveball · {c.curveball.title}</b> ({c.curveball.risk}) · predicted {c.curveball.prediction === 'handles' ? 'handled' : 'gets through'},
         actual {c.curveball.handled ? 'handled' : c.curveball.outcome} · prediction {c.curveball.predictionCorrect ? 'correct' : 'incorrect'}</p>
         <p>{c.curveball.reason}</p><PreviewMark mark={c.curveball.previewMark} /></div>}
-      {c.revisionNote && <p>{c.revisionNote}</p>}
+      {c.revisionNote && <div><p><b>Revision note</b> · {c.revisionNote}</p>{c.previewMarks?.revision && <PreviewMark mark={c.previewMarks.revision} />}</div>}
     </details>)}
     <details><summary className="cursor-pointer">Companion hints used · {packet.attackHints.length}</summary>
       {packet.attackHints.map((h, i) => <p key={i}>{h.desk} · {h.text}</p>)}</details>
     <p><b>Release decision</b> · {packet.transfer.decision ? packet.transfer.decision + ' · ' + packet.transfer.rationale : 'Unsubmitted'}</p>
     {packet.transfer.previewMark && <MarkFeedback request={{ criterion: 'judgement', text: packet.transfer.rationale!, decision: packet.transfer.decision! }} />}
     <RisksMet risks={packet.challenges.flatMap(c => c.curveball ? [c.curveball] : [])} />
+    <SkillsSummary mission={mission} progress={work} />
     <button className="btn bg-paper" onClick={() => exportEvidence(packet)}>Download marking evidence</button>
   </div>;
 }

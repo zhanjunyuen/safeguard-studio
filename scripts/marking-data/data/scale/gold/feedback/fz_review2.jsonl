@@ -1,0 +1,5 @@
+{"k":1172,"fb":"You named the contacts block and correctly predicted the whole-article request. You also said normal questions should still be answered.","ns":"Which block would stop the AI writing the whole article?"}
+{"k":917,"fb":"You noticed it costs more credits. But the build was changed, not kept.","ns":"What did you add, and which test did it fix?"}
+{"k":882,"fb":"You noticed the new cost, 91 credits. But the build was changed (a location check was added), not kept.","ns":"Which test did the location check fix?"}
+{"k":979,"fb":"You cited the right test, but the build was kept, so no step was added and the credits stayed at 63.","ns":"Which block would catch fake five-star reviews?"}
+{"k":802,"fb":"You weighed safety against credits. But the build was kept, so nothing changed, and five tests still fail.","ns":"Which failing test would you fix first?"}

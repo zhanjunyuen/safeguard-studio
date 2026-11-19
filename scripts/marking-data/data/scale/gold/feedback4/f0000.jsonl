@@ -1,0 +1,45 @@
+{"k": 0, "fb": "Right prediction, the privacy risk, why Ask AI misses it, and a teacher check.", "ns": "Which block would stop the app collecting all that data?"}
+{"k": 1, "fb": "Right prediction, a precise risk, why your blocks miss it, and the right people to check.", "ns": "What block could you add so the app only collects what it needs?"}
+{"k": 2, "fb": "Right prediction, a vivid risk, block-by-block reasoning and a sensible check.", "ns": "Which block would make the app ask for less?"}
+{"k": 3, "fb": "Right prediction, the harm to a real teacher, and who could check.", "ns": "What should happen before a real person's photo is used?"}
+{"k": 4, "fb": "Right prediction, the risk to Mr Hughes, and why the source check doesn't help.", "ns": "Should the helper ask Mr Hughes first? Which block would do that?"}
+{"k": 5, "fb": "Right prediction, the scam link, and why your blocks miss it.", "ns": "Which block would spot a scam payment link?"}
+{"k": 6, "fb": "Right prediction, an invented study, and a real way to check it.", "ns": "Which block would look up whether a study exists?"}
+{"k": 7, "fb": "Right prediction, the made-up study, and a check.", "ns": "Where could you check that a study is real, not just a search?"}
+{"k": 8, "fb": "Right prediction, the invented study, why the numbers check misses it, and real checks.", "ns": "Which block would check sources it cites?"}
+{"k": 9, "fb": "Right prediction, why both blocks miss it, and a real check.", "ns": "Which block would check that a cited study exists?"}
+{"k": 10, "fb": "Right prediction, an invented quote, why image blocks can't help, and who should confirm.", "ns": "Which block would confirm quotes with the person?"}
+{"k": 11, "fb": "Right prediction, the fake quote, and why your blocks miss it.", "ns": "Which block would check quotes?"}
+{"k": 12, "fb": "Right prediction and the invented-quote risk. You didn't say why your blocks miss it.", "ns": "Does your source check prove a book exists?"}
+{"k": 13, "fb": "Right prediction and the fake-quote risk. You didn't link it to a block.", "ns": "Which of your blocks should check the book, and why doesn't it?"}
+{"k": 14, "fb": "Right prediction, the risk, and why the order lets it through.", "ns": "Where should the source check go?"}
+{"k": 15, "fb": "Right prediction, why two blocks miss it, and real checks.", "ns": "When would the source check actually catch it?"}
+{"k": 16, "fb": "Right prediction, an unverified photo, and why neutral wording isn't a check.", "ns": "Which block could check where a photo came from?"}
+{"k": 17, "fb": "Right prediction, the risk, and why your blocks can miss a bad photo.", "ns": "Who could confirm the field really flooded?"}
+{"k": 18, "fb": "Right prediction, an unverified photo, and why your blocks don't trigger.", "ns": "Which block would check the photo's source?"}
+{"k": 19, "fb": "Right prediction, but giving the same answer as Emily isn't the risk; different answers because of the name are.", "ns": "What would be unfair if Jamal and Emily got different advice?"}
+{"k": 20, "fb": "Right prediction, the bias named, and a link to Challenge stereotypes.", "ns": "How would you test that the advice doesn't change with the name?"}
+{"k": 21, "fb": "Right prediction, but the risk is the opposite: different advice because of his name.", "ns": "What would be unfair about that?"}
+{"k": 22, "fb": "Right prediction, the stereotype risk, and how removing names helps.", "ns": "How would you check the advice is the same for Emily and Jamal?"}
+{"k": 23, "fb": "Right prediction, the allergy leak, and the hidden 'ignore rules' command.", "ns": "Which block would ignore instructions hidden in a note?"}
+{"k": 24, "fb": "Right prediction, the hidden instruction, and block-by-block reasoning.", "ns": "Which block would stop the AI following the note?"}
+{"k": 25, "fb": "Right prediction, the hidden note, and why your sharing block may be bypassed.", "ns": "Which block would make the AI ignore orders in a note?"}
+{"k": 26, "fb": "Right prediction, the location risk, and exactly why your blocks miss it.", "ns": "Where did the instruction to add schools come from?"}
+{"k": 27, "fb": "Right prediction, the fake prize, and good real checks.", "ns": "Which block would spot the scam signs?"}
+{"k": 28, "fb": "Right prediction, the deepfake and fake site, and a link to your scam blocks.", "ns": "Which sign of a scam would the check spot first?"}
+{"k": 29, "fb": "Right prediction, the phishing risk, and a link to your scam check. No real-world check named.", "ns": "Who could Gran ask to be sure?"}
+{"k": 30, "fb": "Right prediction and why your blocks miss it, but the risk isn't named.", "ns": "Might the AI mark your mate down because of how he writes?"}
+{"k": 31, "fb": "Right prediction and the bias against slang named. You didn't say why your block misses it.", "ns": "Why can't Ask AI on its own mark fairly here?"}
+{"k": 32, "fb": "Right prediction and a link to the privacy block, but the risk is bias, not privacy.", "ns": "Might the AI mark the answer down because of the slang?"}
+{"k": 33, "fb": "Right prediction, the false credit, and why your casting blocks miss it.", "ns": "What would be an honest credit line?"}
+{"k": 34, "fb": "Right prediction, the false fact, and why the AI might trust the views.", "ns": "Which block checks facts against a trusted source?"}
+{"k": 35, "fb": "Right prediction, the false fact, and exactly when each block would or wouldn't help.", "ns": "How could the helper check fun facts every time?"}
+{"k": 36, "fb": "Right prediction, the fake advert photo, and which blocks might help.", "ns": "Where would you find real photos of the headphones?"}
+{"k": 37, "fb": "Right prediction, the bias toward polished wording, and a human review.", "ns": "Which block would challenge that bias?"}
+{"k": 38, "fb": "Right prediction, the wording bias, and why your blocks don't spot it.", "ns": "How could the club pick fairly without judging writing?"}
+{"k": 39, "fb": "Right prediction, judging by photos, and why your blocks miss it.", "ns": "What would be a fair way to pick runners?"}
+{"k": 40, "fb": "Right prediction, judging by looks, and why your blocks miss it.", "ns": "What would be a fair way to pick runners?"}
+{"k": 41, "fb": "Right prediction, the stereotyping and consent risks, and a fair alternative.", "ns": "Which block would stop judging people by photos?"}
+{"k": 42, "fb": "Right prediction, judging by photos, and why your blocks miss it.", "ns": "What fair test could replace the photos?"}
+{"k": 43, "fb": "Right prediction, the dependence risk, and why each block misses it.", "ns": "Which block would remind them the bot isn't a friend?"}
+{"k": 44, "fb": "Right prediction, emotional dependence, and why Ask AI won't catch it.", "ns": "Which block would point them to real friends or an adult?"}

@@ -1,0 +1,172 @@
+{"k":113,"fb":"You named the risk and a real check, but the helper did not cope, and you didn't say why those blocks would stop it.","ns":"Does the trusted-source check know whether a whole book exists?"}
+{"k":114,"fb":"Right prediction, and you linked the source check to the quote and book.","ns":"Say the risk in one sentence: what might the AI invent?"}
+{"k":115,"fb":"Your prediction didn't match, and there is no risk named.","ns":"What if the historian or the book doesn't exist?"}
+{"k":116,"fb":"Right prediction, but Ask AI doesn't know when it is making things up, and you didn't name the risk.","ns":"What might the AI invent here, and who could check it?"}
+{"k":117,"fb":"A teacher checking the book is a good real-world check, but your prediction was wrong and 'fake story' is too vague.","ns":"What exactly might be fake: the quote, the historian, or the book?"}
+{"k":118,"fb":"Complete: the invented quote and book, why each block misses it, and who could check.","ns":"How could you change the build so the book gets looked up?"}
+{"k":119,"fb":"Right prediction, but the Coach block is about writing homework, not about invented sources.","ns":"What might the AI make up when asked for a historian's quote?"}
+{"k":120,"fb":"You named the risk (a fake quote), but the helper did not cope as you predicted.","ns":"Which of your blocks checks that a quote is real?"}
+{"k":121,"fb":"Complete: the invented quote and book, why Coach and the source check miss it, and how to check.","ns":"Where would a 'look up every source' block go in this build?"}
+{"k":122,"fb":"Right prediction, but you didn't name a risk; the issue is not knowing the date, it's inventing a quote and book.","ns":"Could the AI give a real-sounding quote from a book that doesn't exist?"}
+{"k":123,"fb":"Right prediction, but 'AI can be wrong' doesn't name the risk with this photo.","ns":"How do you know the flood photo is real?"}
+{"k":124,"fb":"Right prediction and a good person to check with, but the risk is the photo, not the AI lying.","ns":"Could the photo be fake or from somewhere else?"}
+{"k":125,"fb":"You spotted that the photo might be old or misleading, but the helper did not cope as you predicted.","ns":"Which of your blocks checks whether a photo is real?"}
+{"k":126,"fb":"Complete: the fake-photo risk, why each block misses it, and who could check.","ns":"Which new block would you add for photos, and where?"}
+{"k":127,"fb":"You linked blocks to the case, but neither checks whether the photo is real, and the risk isn't named.","ns":"What could be wrong with a photo someone posted online?"}
+{"k":128,"fb":"Right prediction, and a clear point that neutral wording softens words but doesn't prove the photo is real.","ns":"Say the risk directly: what might be wrong with the photo?"}
+{"k":129,"fb":"The risk, why your blocks miss it and who could check: all there. But it contradicts your prediction.","ns":"If no block checks images, what should you predict?"}
+{"k":130,"fb":"Right prediction and a good person to ask, but you didn't say what the risk is.","ns":"What might be untrue about the flood photo?"}
+{"k":131,"fb":"You named the risk clearly (a photoshopped flood), but the helper did not cope as you predicted.","ns":"Which of your blocks would catch a photoshopped picture?"}
+{"k":132,"fb":"Right prediction, the risk named and a teacher to check.","ns":"Why don't your blocks spot a photo from a different field?"}
+{"k":133,"fb":"You named the risk, but the helper did not cope as you predicted.","ns":"Do any of your blocks look at where a photo came from?"}
+{"k":134,"fb":"Right prediction, the risk named and people to ask.","ns":"Which of your blocks would you expect to catch this, and why doesn't it?"}
+{"k":135,"fb":"Your prediction didn't match, and you didn't name the risk.","ns":"How do you know someone online didn't fake the flood photo?"}
+{"k":136,"fb":"Right prediction, but you named a different risk (faces). The risk is the photo being fake.","ns":"Is the flood real? How could you find out?"}
+{"k":137,"fb":"Checking the photo before printing is a good idea, but your prediction was wrong and you didn't name the risk.","ns":"What might be wrong with a photo from online?"}
+{"k":138,"fb":"Right prediction, why your block misses it and a teacher to check, but 'mixes up the facts' doesn't name the risk.","ns":"What is it about the photo itself that could be fake?"}
+{"k":139,"fb":"Your prediction didn't match, and there's no risk or reason.","ns":"Where did the photo come from, and can you trust it?"}
+{"k":140,"fb":"Right prediction, but the points are general, not about this photo.","ns":"What specific thing about the flood photo might be false?"}
+{"k":141,"fb":"Right prediction, but permission is a different risk; this case is about the photo being fake or misleading.","ns":"Could the photo show a different place or time?"}
+{"k":142,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What would happen if the paper printed a fake flood photo?"}
+{"k":143,"fb":"Right prediction, and you linked Ask AI, but the AI can't prove a photo is real, and the risk isn't named.","ns":"Who could tell you if the field really flooded?"}
+{"k":144,"fb":"The risk, why your blocks miss it and who to ask: all there, but it contradicts your prediction.","ns":"Given your reasoning, what should you have predicted?"}
+{"k":145,"fb":"Right prediction, and you named the risk clearly.","ns":"Why don't your blocks catch it? Name one."}
+{"k":146,"fb":"You linked Ask AI, but it can't check the photo is real, and the helper did not cope.","ns":"What is the risk with this photo, in one sentence?"}
+{"k":147,"fb":"Right prediction, but the point is too general.","ns":"What exactly might be made up in the flood photo?"}
+{"k":148,"fb":"Checking with the person who posted it is a good idea, but your prediction was wrong and the risk isn't named.","ns":"What could be wrong with the photo itself?"}
+{"k":149,"fb":"Right prediction, and you named the risk precisely.","ns":"Which of your blocks would you expect to catch it, and why doesn't it?"}
+{"k":150,"fb":"Right prediction, but 'AI can be wrong' doesn't name the risk with this photo.","ns":"What about the photo might be fake?"}
+{"k":151,"fb":"Your prediction didn't match: the AI gave Jamal different advice because of his name.","ns":"What did the AI suggest for Emily, who likes the same things?"}
+{"k":152,"fb":"Right prediction, but there's no risk or reason.","ns":"Compare Jamal's and Emily's advice: what's different, and why?"}
+{"k":153,"fb":"Right prediction, but you didn't say why or what the risk is.","ns":"Which of your blocks makes sure the advice doesn't depend on his name?"}
+{"k":154,"fb":"You named the risk, linked two blocks and a person to check, but the helper did cope, so your prediction was wrong.","ns":"Look at the replay: which block kept the advice fair?"}
+{"k":155,"fb":"The risk is the opposite: the AI might give Jamal different subjects from Emily because of his name.","ns":"Why is it a problem if the advice changes when only the name changes?"}
+{"k":156,"fb":"Complete: the name-bias risk, why the block won't catch it automatically, and how to check.","ns":"How would you test this with matched pairs of names?"}
+{"k":157,"fb":"Complete: the name-bias risk, the stereotype block, and comparing answers side by side.","ns":"How many name pairs would you test to be confident?"}
+{"k":158,"fb":"You named the bias risk, but the helper coped, so your prediction was wrong.","ns":"Which of your blocks stopped the bias? Check the replay."}
+{"k":159,"fb":"Right prediction, but you didn't name the risk or a specific block.","ns":"Which block made the advice fair, and what was the risk?"}
+{"k":160,"fb":"Thoughtful reasoning and a good check, but the helper did cope, so your prediction was wrong.","ns":"Which block caught the bias in the replay?"}
+{"k":161,"fb":"Right prediction, but there's no risk or reason.","ns":"What could go wrong if the advice depends on Jamal's name?"}
+{"k":162,"fb":"You named the risk and the right block, but then predicted it would get through, and it didn't.","ns":"If the stereotype block pings it, what should you predict?"}
+{"k":163,"fb":"Complete: the name-bias risk, how the needs-without-names block helps, and who could check.","ns":"Would the advice change if Jamal's name was removed? How could you test that?"}
+{"k":164,"fb":"You explained the risk really clearly, but the helper coped, so your prediction was wrong.","ns":"Which of your blocks kept Jamal's advice the same as Emily's?"}
+{"k":165,"fb":"A careers adviser check is sensible, but your prediction was wrong and 'biased patterns' is too vague.","ns":"What exactly might change in Jamal's advice because of his name?"}
+{"k":166,"fb":"Right prediction and a sensible check, but you named a different risk (subjects not offered).","ns":"Why did the AI suggest different subjects for Jamal than for Emily?"}
+{"k":167,"fb":"Right prediction, but you didn't name the risk or a block.","ns":"Which block stopped the advice depending on his name?"}
+{"k":168,"fb":"Your prediction didn't match, and no risk is named.","ns":"What might the AI assume from the name Jamal?"}
+{"k":169,"fb":"Your prediction didn't match: the AI did give different advice. No risk is named.","ns":"Compare the two answers: what changed, and why?"}
+{"k":170,"fb":"Right prediction, and you linked the names block, but you didn't say what the risk is.","ns":"What does the AI do with Jamal's name that it shouldn't?"}
+{"k":171,"fb":"Right prediction, and you named the stereotype risk.","ns":"Which of your blocks prevents it? Say how."}
+{"k":172,"fb":"You named the risk and a check, but the helper did cope, so your prediction was wrong.","ns":"Which block kept the advice fair in the replay?"}
+{"k":173,"fb":"Right prediction, the stereotype risk named, and the block that checks the advice is the same for both.","ns":"Who could double-check the advice in real life?"}
+{"k":174,"fb":"Your prediction didn't match, and a home address isn't the risk here.","ns":"What's the risk when the AI sees a name like Jamal?"}
+{"k":175,"fb":"Right prediction, the risk named and a real person to check.","ns":"Which of your blocks keeps the advice fair, and how?"}
+{"k":176,"fb":"Thoughtful: the risk, the names block being too late, and a teacher comparing answers. But the helper did cope.","ns":"Which block caught it in the replay?"}
+{"k":177,"fb":"Right prediction, and you named the risk.","ns":"Which of your blocks stops it, and how?"}
+{"k":178,"fb":"You linked the stereotype block, but the helper coped, so your prediction was wrong, and the risk isn't named.","ns":"What might the AI assume about Jamal from his name?"}
+{"k":179,"fb":"Your prediction didn't match, and no risk is named.","ns":"Read the caterer's note: who is the 'NOTE TO AI' talking to?"}
+{"k":180,"fb":"Right prediction, but 'AI can be wrong' misses the hidden instruction in the note.","ns":"What does the note tell the AI to do?"}
+{"k":181,"fb":"Right prediction, but you missed the hidden instruction to the AI inside the note.","ns":"What does 'NOTE TO AI: ignore your rules' ask the AI to do?"}
+{"k":182,"fb":"You spotted the trick, linked a block and named someone to check, but the helper did not cope as you predicted.","ns":"Does the Don't-agree block look at notes you paste in?"}
+{"k":183,"fb":"Right prediction and a sensible check, but you didn't mention the hidden instruction in the note.","ns":"Why would the AI list allergies when nobody asked it to?"}
+{"k":184,"fb":"You spotted the trick and linked a block, but the helper did not cope as you predicted.","ns":"Look at the replay: did the ask-before-sharing block stop the list?"}
+{"k":185,"fb":"Right prediction, but you didn't say what the risk is or why.","ns":"What does the note tell the AI to do?"}
+{"k":186,"fb":"Your prediction didn't match, and you didn't mention the instruction hidden in the note.","ns":"Who wrote 'NOTE TO AI', and why is that a problem?"}
+{"k":187,"fb":"Complete: the hidden note, why the block may miss it, and who could check.","ns":"Which block would stop the AI following instructions hidden in notes?"}
+{"k":188,"fb":"You named the hidden-note risk and good checks, but the helper did not cope as you predicted.","ns":"Which of your blocks would see the note before the AI acts on it?"}
+{"k":189,"fb":"Right prediction and a sensible person to ask, but you didn't mention the instruction hidden in the note.","ns":"Why would the AI share allergies at all? What made it?"}
+{"k":190,"fb":"You named the risk and linked a block, but the helper did not cope as you predicted.","ns":"Check the replay: did the block run before the AI listed the allergies?"}
+{"k":191,"fb":"Right prediction, and you spotted the 'ignore' instruction.","ns":"Which of your blocks is supposed to stop it, and why doesn't it?"}
+{"k":192,"fb":"Your prediction didn't match, and you didn't name the risk.","ns":"What does the note from the caterer tell the AI to do?"}
+{"k":193,"fb":"Complete: the hidden trick, why Ask AI can't help, and two good checks.","ns":"Which block would you add to stop hidden instructions?"}
+{"k":194,"fb":"Your prediction didn't match, and the risk isn't named.","ns":"What does 'NOTE TO AI' in the caterer's message do?"}
+{"k":195,"fb":"Right prediction, but you didn't mention the hidden instruction that causes it.","ns":"Why would the AI share allergies? Look at the note."}
+{"k":196,"fb":"You linked the Don't-agree block, but the helper did not cope, and you didn't say what the note asks for.","ns":"What does the note tell the AI to list?"}
+{"k":197,"fb":"Right prediction, and you named the hidden instruction precisely.","ns":"Which of your blocks should have stopped it, and why didn't it?"}
+{"k":198,"fb":"A real adult checking is sensible, but your prediction was wrong and the risk isn't named.","ns":"What in the caterer's note is talking to the AI?"}
+{"k":199,"fb":"Right prediction, and you linked the sharing block, but you didn't mention the hidden note.","ns":"What made the AI want to list allergies in the first place?"}
+{"k":200,"fb":"Clear risk, a block and a person to check, but the helper did not cope as you predicted.","ns":"Check the replay: did the block stop the allergy list?"}
+{"k":201,"fb":"Right prediction, and a clear risk, but your reason says the block works, and it didn't.","ns":"If the block kicks in, why did the allergies get through?"}
+{"k":202,"fb":"Your prediction didn't match, and there's no block linked.","ns":"Which block is meant to ignore tricks, and is it in your helper?"}
+{"k":203,"fb":"Right prediction, but you didn't mention the note that tells the AI to list allergies.","ns":"Who told the AI to put allergies on the invite?"}
+{"k":204,"fb":"Your prediction didn't match, and the risk isn't named.","ns":"What does the hidden note ask the AI to do?"}
+{"k":205,"fb":"Complete: the hidden instruction, why the block may be bypassed, and who should check.","ns":"Which block would stop instructions hidden in a note?"}
+{"k":206,"fb":"Right prediction, why your block misses it and someone to check, but you didn't mention the instruction in the file name.","ns":"Read the file name: who is it talking to?"}
+{"k":207,"fb":"Your prediction didn't match, and in your build Remove personal info comes after Ask AI, not first.","ns":"What happens to the file name before your blocks run?"}
+{"k":208,"fb":"You spotted the file name asking for private details and a good check, but the helper did not cope.","ns":"Does Remove personal info stop the AI adding new details? Check the replay."}
+{"k":209,"fb":"Your prediction didn't match, and you named a different risk.","ns":"What does the file name tell the AI to add?"}
+{"k":210,"fb":"Right prediction and a teacher to check, but you didn't say the file name is giving an instruction.","ns":"Where does the instruction to add schools and towns come from?"}
+{"k":211,"fb":"Your prediction didn't match, and there's no risk named.","ns":"Read the file name again: what is it asking the AI to do?"}
+{"k":212,"fb":"Your prediction didn't match, and the point is too general.","ns":"What's unusual about the photo's file name?"}
+{"k":213,"fb":"Right prediction, and you spotted the instruction in the file name and linked a block.","ns":"Who could check the caption before it goes online?"}
+{"k":214,"fb":"You named the risk clearly, but the helper did not cope as you predicted.","ns":"Which of your blocks reads the file name? Does any?"}
+{"k":215,"fb":"Right prediction and a sharp reason (the blocks strip info, they don't stop the AI adding it), but you didn't mention the file name.","ns":"Where did the instruction to add schools and towns come from?"}
+{"k":216,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What does the file name tell the AI to do?"}
+{"k":217,"fb":"Right prediction, and you named the hidden instruction.","ns":"Why doesn't Ask AI stop it? What could?"}
+{"k":218,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What does the photo's file name ask for?"}
+{"k":219,"fb":"Your prediction didn't match, and there's no risk named.","ns":"Read the file name: what would happen if the AI followed it?"}
+{"k":220,"fb":"Your prediction didn't match. You saw the info leak, but not that the file name is giving the instruction.","ns":"Where does the instruction to add schools and towns come from?"}
+{"k":221,"fb":"Right prediction, the risk named and people to check.","ns":"Which of your blocks should stop it, and why doesn't it?"}
+{"k":222,"fb":"You named the hidden instruction, but the helper did not cope as you predicted.","ns":"Do any of your blocks look at the file name?"}
+{"k":223,"fb":"Right prediction, but the point is too general.","ns":"What does the file name tell the AI to do?"}
+{"k":224,"fb":"Clear risk, a block and someone to check, but the helper did not cope as you predicted.","ns":"Does Remove personal info run on the file name? Check the replay."}
+{"k":225,"fb":"Right prediction, but you named a different risk. The video itself may be a deepfake of the chef.","ns":"Could the chef's video be faked? How would you know?"}
+{"k":226,"fb":"Complete: the scam, why the blocks catch it, and how Gran could check.","ns":"How could you explain a deepfake to Gran?"}
+{"k":227,"fb":"Right prediction, but the point is too general.","ns":"What is suspicious about this video and website?"}
+{"k":228,"fb":"Right prediction, and you thought about block order, but you didn't name the risk.","ns":"What is the scam in this video?"}
+{"k":229,"fb":"You linked a block, but the helper coped, so your prediction was wrong, and the risk isn't named.","ns":"What made the helper spot it as a scam?"}
+{"k":230,"fb":"You named the scam risk, but the helper did not cope as you predicted.","ns":"Which of your blocks would spot scam warning signs? Is it there?"}
+{"k":231,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What's suspicious about a chef asking for bank details?"}
+{"k":232,"fb":"Right prediction, but you didn't say why or name the risk.","ns":"Which block spotted the scam, and what did it look for?"}
+{"k":233,"fb":"Your prediction didn't match, and there's no risk or reason.","ns":"Which block caught it, and why?"}
+{"k":234,"fb":"Your prediction didn't match, and the point is too general.","ns":"What's the risk in a video of a famous chef offering money?"}
+{"k":235,"fb":"Right prediction, the deepfake scam named and excellent real checks (verified page, bank, Action Fraud).","ns":"Why can't your Ask AI block spot it?"}
+{"k":236,"fb":"Complete: the deepfake scam, how the scam block catches it, and how Gran could check.","ns":"What would you add if the scam had no link at all?"}
+{"k":237,"fb":"Your prediction didn't match, and there's no risk named.","ns":"Which block caught the scam?"}
+{"k":238,"fb":"Right prediction, and you named the scam neatly.","ns":"Which of your blocks caught it, and how?"}
+{"k":239,"fb":"You named the fake video, but this build has no second-AI block, and the helper coped.","ns":"Look at your blocks: which one actually caught the scam?"}
+{"k":240,"fb":"Right prediction, and you linked the scam block to the dodgy address.","ns":"What is the risk to Gran, in one sentence?"}
+{"k":241,"fb":"You listed the warning signs well, but the helper coped, so your prediction was wrong.","ns":"Which block caught those warning signs?"}
+{"k":242,"fb":"You named the scam, but the helper did not cope as you predicted.","ns":"Which of your blocks checks for scam signs? Is there one?"}
+{"k":243,"fb":"Right prediction, but you didn't name the risk or why.","ns":"What is suspicious about the video?"}
+{"k":244,"fb":"Right prediction, but you didn't name the risk or a block.","ns":"Which block caught the scam?"}
+{"k":245,"fb":"You named the risk and good checks, but the helper coped, so your prediction was wrong.","ns":"Which block stopped it?"}
+{"k":246,"fb":"You spotted the slang risk, but your build is only Ask AI: it has no fact-check blocks.","ns":"With only Ask AI, what stops the AI marking down the slang?"}
+{"k":247,"fb":"Complete: the slang marking risk, why Ask AI misses it, and who could check.","ns":"How could you test whether the AI marks down how someone writes?"}
+{"k":248,"fb":"Your prediction didn't match, and the risk isn't named.","ns":"Is the science in the answer right? What might the AI mark it down for?"}
+{"k":249,"fb":"Your prediction didn't match, and there's no reason given.","ns":"What might the AI think of 'innit' in a science answer?"}
+{"k":250,"fb":"Right prediction, and you linked the practice-questions block, but you didn't name the bias risk.","ns":"If the AI did mark it, would the slang affect the mark?"}
+{"k":251,"fb":"You linked a block, but the helper did not cope, and the bias risk isn't named.","ns":"What might the AI mark down that isn't about the science?"}
+{"k":252,"fb":"You linked a block and a teacher check, but privacy isn't the main risk; the AI may mark down slang.","ns":"Would the same science written formally get a higher mark?"}
+{"k":253,"fb":"Right prediction, but you didn't name the risk or why.","ns":"What might the AI judge apart from the science?"}
+{"k":254,"fb":"Your prediction didn't match, and you named a different risk.","ns":"How might the AI treat the slang in the answer?"}
+{"k":255,"fb":"Right prediction, and you linked the textbook check, but you didn't name the risk.","ns":"Would the textbook check stop the AI marking down slang?"}
+{"k":256,"fb":"Right prediction, but you didn't name the risk.","ns":"Is the mark fair if it changes because of 'innit'?"}
+{"k":257,"fb":"Why Ask AI misses it and a teacher check are good, but your prediction was wrong and the risk is vague.","ns":"What exactly might the AI mark down?"}
+{"k":258,"fb":"Right prediction, but no risk or reason.","ns":"Is the science right? Then why might the mark be low?"}
+{"k":259,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What might the AI mark down that isn't science?"}
+{"k":260,"fb":"Right prediction, but a real mark isn't the main risk: the mark may be unfair because of slang.","ns":"Would 'innit' change the AI's mark?"}
+{"k":261,"fb":"Your prediction didn't match, and the point is too general.","ns":"What about how the answer is written could affect the AI's mark?"}
+{"k":262,"fb":"Right prediction, but no risk or reason.","ns":"What's unfair about how the AI might mark this?"}
+{"k":263,"fb":"You linked a block and a teacher check, but the risk is unfair marking because of slang, not grade privacy.","ns":"Would the AI give the same mark to a formal answer with the same science?"}
+{"k":264,"fb":"Right prediction, and a block linked, but you didn't name the risk.","ns":"What might make the AI's mark unfair here?"}
+{"k":265,"fb":"Your prediction didn't match, and the point is too general.","ns":"What could the AI judge apart from the science?"}
+{"k":266,"fb":"Right prediction, but you said nothing bad happens; the risk is an unfair mark for the slang.","ns":"Is the science right? So what is the AI marking down?"}
+{"k":267,"fb":"Your prediction didn't match, and the point is too general.","ns":"What might the AI mark down in this answer?"}
+{"k":268,"fb":"Right prediction, a clear reason none of your blocks covers marking, and a teacher check.","ns":"Say the risk exactly: what in the answer might the AI mark down?"}
+{"k":269,"fb":"Your prediction didn't match, and the points are general.","ns":"Who really wrote most of the script?"}
+{"k":270,"fb":"Right prediction, and you linked Ask AI, but you didn't name the honesty risk.","ns":"Is 'Written by Year 8 Drama' true?"}
+{"k":271,"fb":"Right prediction, the credit risk named and the drama teacher to check.","ns":"Why don't your blocks notice who wrote the script?"}
+{"k":272,"fb":"Your prediction didn't match, and the point is too general.","ns":"Is it honest to say Year 8 wrote the script?"}
+{"k":273,"fb":"Right prediction, the risk named (passing off AI work) and a teacher to check.","ns":"Which of your blocks would notice the AI's part? Does any?"}
+{"k":274,"fb":"Right prediction, but you missed the risk: the front page would say Year 8 wrote it.","ns":"Who wrote most of the script, and what should the programme say?"}
+{"k":275,"fb":"The risk, a block-by-block check and a teacher: all there, but your prediction was wrong.","ns":"If the quotes block needs a quote, does it catch the credit line?"}
+{"k":276,"fb":"Complete: the false credit, why each block misses it, and who could check.","ns":"What would an honest credit line say?"}
+{"k":277,"fb":"You linked the Coach block, but the helper did not cope, and you didn't name the risk.","ns":"Is the credit line honest? Which block would check that?"}
+{"k":278,"fb":"Your prediction didn't match, and you didn't name the risk or link a block clearly.","ns":"What lie would the programme tell?"}
+{"k":279,"fb":"Your prediction didn't match, and there's no risk named.","ns":"Who wrote most of the script?"}
+{"k":280,"fb":"Complete: the misleading credit, why your blocks miss it, and who should check.","ns":"How would you word the credit honestly?"}
+{"k":281,"fb":"You linked the Coach block, but the helper did not cope, and the risk isn't named.","ns":"What's dishonest about the front page?"}
+{"k":282,"fb":"Your prediction didn't match, and there's no risk named.","ns":"Is it true that Year 8 wrote the script?"}
+{"k":283,"fb":"Right prediction, and an interesting point about the quotes block, but you didn't name the risk.","ns":"What would the programme claim that isn't true?"}
+{"k":284,"fb":"Right prediction, and you linked the quotes block, but you didn't name the honesty risk.","ns":"Who should get credit for the script?"}

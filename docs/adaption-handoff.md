@@ -17,11 +17,13 @@ It is self-contained: read this file, then `README.md` ("The integrated assessme
 - **ASAP-SAS pilot:** the concept-check method matched human markers on public data (§6).
 - **Tests:** 185 pass (`npm test`), plus a clean type-check and build.
 
+**Done since (branch `adaption-marking-model`, 2026-11-18)**
+- §7 steps 1–4: SDK check (§5), R1–R4 concepts in `levelFor`/`markOffline`/the report, `docs/marking-codebook.md`, curveballs for all 21 challenges, 30 new release-decision scenarios with anchors (`scripts/marking-data/transfer-scenarios.json`).
+- §7 step 5: generator in `scripts/marking-data/` (see its README). Claude-written items, robustness variants, second-model pupil texts and follow-ups are built and validated into prompt / completion / reasoning_trace rows; a blind `qwen3.5-397b` judge on Adaption filters disagreements.
+- §7 steps 6–7: 1,065 training rows exported and uploaded raw. Training run 1 on `openai/gpt-oss-120b` (1 iteration) succeeded but scored `best_win_rate` 0.43, so it is not usable. The zero-shot `qwen3.5-397b` judge agrees with the reference marks on 98.4% of judged held-out rows. Details and next steps are in `research/adaption-runs.md`.
+
 **Not done**
-- **Curveballs** for the other 15 challenges (§7 step 4).
-- **Concept rules for Revision and efficiency.** Only Testing, Anticipation and Judgement have rules in `levelFor`.
-- **More release-decision scenarios.** There is only the ecology club.
-- **All model work:** SDK check, codebook document, data generator, training, evaluation, serving (§7).
+- §8 evaluation of the adapter itself (it cannot be served here), serving (§7 step 9) and hint preference training (step 10). See `research/adaption-runs.md` for training and evaluation status.
 
 ## 1. Goal
 
@@ -103,6 +105,14 @@ Challenges without a curveball (15 of 21 until §7 step 4) give no Anticipation 
 ## 5. Adaption API facts
 
 From docs.adaptionlabs.ai, read 2026-11-18. **Verify each against the live SDK first.**
+
+**Checked against the live API on 2026-11-18 (SDK 0.19.0, §7 step 2 done):**
+- `datasets.upload_file(path, name=, processing_mode="raw", column_mapping={...})` works for CSV and flat JSONL; `get_status` returns `row_count`.
+- **Raw mode rejects chat-format rows.** A JSONL file with only a `messages` column fails: raw mode needs a `prompt` column plus `completion` (or `chosen`/`rejected`). Use flat columns; `reasoning_trace` is accepted as an extra mapped column.
+- `autoscientist.list_models()` lists 16 models with `methods`, `context_length` and `train_with_reasoning`. `Qwen/Qwen3.5-122B-A10B` (262k context) and `openai/gpt-oss-120b` (131k) both have `train_with_reasoning: true`. Some large models (`nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16`, `meta-llama/Llama-3.3-70B-Instruct-Reference`) have `false`, so they would ignore the reasoning column. The listing gives no minimum row counts.
+- `autoscientist.recommend_hyperparams(dataset_id, model, augmentation_*_rows=0)` is a free dry run. It accepted a 5-row dataset without warning, so **do not rely on Adaption to enforce the row minimum**.
+- Hosted inference: `models.list(type="hosted")` lists `qwen3.5-397b`, `glm-5.2`, `glm-5.3-flash`, `deepseek-v4-flash`, `gemma-4-31b-it`, `qwen3.8-27b` and others. The SDK calls them with `responses.create(model, input, instructions)`; there is no `chat.completions` in the SDK.
+- In this setup the key lives only in the `delegate` MCP server's environment (`~/delegate-mcp/server.py`), which exposes `adaption_*` tools (upload, status, dry-run/confirmed training, run status, download, hosted batch inference).
 
 - **Setup.** `pip install "adaption>=0.7.0"`; `from adaption import Adaption; client = Adaption()` reads `ADAPTION_API_KEY`. REST base: `https://api.prod.adaptionlabs.ai/api/v1`, Bearer auth. Inference stacks need SDK ≥ 0.16.0.
 - **Upload.**

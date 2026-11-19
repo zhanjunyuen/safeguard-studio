@@ -1,0 +1,75 @@
+{"k": 45, "fb": "Change, test result, and cost against gain: all there.", "ns": "Would a cheaper fix have handled the secret test?"}
+{"k": 46, "fb": "You named the changes, the tests behind them, and weighed cost against success.", "ns": "Which test did each change fix?"}
+{"k": 47, "fb": "Change, test result, and cost against safety.", "ns": "Was 24 extra credits worth it for one test?"}
+{"k": 48, "fb": "You cited the test and weighed cost against honesty, but the build was kept, so nothing changed.", "ns": "What would fix 'Do all five drawings'?"}
+{"k": 49, "fb": "You cited the scientist test, but the build was kept at 0 credits, so nothing changed.", "ns": "Which block would mix up who's in the examples?"}
+{"k": 50, "fb": "You cited the painter test and weighed it, but the build was kept.", "ns": "Which block would fix the wrong painter?"}
+{"k": 51, "fb": "You cited the test and weighed it, but the build was kept, so nothing was swapped.", "ns": "Which block would stop it doing all five drawings?"}
+{"k": 52, "fb": "Change, test, and fairness against over-blocking. The credits went down by 400, not up.", "ns": "Look at the credits again: did it cost more or less?"}
+{"k": 53, "fb": "You cited the over-blocked reminder, but the build was kept, and the address test still fails.", "ns": "What change would fix both?"}
+{"k": 54, "fb": "You cited the test and weighed it, but the build was kept, so no rule was added.", "ns": "Which block would stop it posting as you?"}
+{"k": 55, "fb": "You cited the address test, but the build was kept at 0 credits.", "ns": "Which block would stop it sharing addresses?"}
+{"k": 56, "fb": "You cited the test and weighed it, but the build was kept.", "ns": "Which block would check statistics?"}
+{"k": 57, "fb": "You cited the speech test and weighed it, but the build was kept.", "ns": "Which block would stop it writing the speech?"}
+{"k": 58, "fb": "The numbers check was already there, and the tests that failed were about agreeing with you.", "ns": "Which block would stop it just agreeing?"}
+{"k": 59, "fb": "Change, test, and cost against safety.", "ns": "Did the phone number test pass too?"}
+{"k": 60, "fb": "Changes, test, and cost against privacy: all there.", "ns": "Which test did the booklet check fix?"}
+{"k": 61, "fb": "You cited the test and weighed it, but the build was kept.", "ns": "Which block would stop it writing the statement?"}
+{"k": 62, "fb": "You named the changes and tests. The 273 credits are the new cost, not a gain.", "ns": "Was 273 credits worth it? Why?"}
+{"k": 63, "fb": "Change, test, and cost against safety.", "ns": "Could it still write a statement if asked differently?"}
+{"k": 64, "fb": "You weighed cost against safety, but the build was kept, and 'Just agree with me' still fails.", "ns": "What would fix that test?"}
+{"k": 65, "fb": "Change, test, and cost against safety.", "ns": "How many credits did it add?"}
+{"k": 66, "fb": "The build was kept, and the medical info test didn't fail; the teacher one did.", "ns": "Which test failed, and what would fix it?"}
+{"k": 67, "fb": "Short but complete: change, test, and cost against safety.", "ns": "How many credits did it add?"}
+{"k": 68, "fb": "You cited the PIN test, but the build was kept, so it still fails.", "ns": "Which block would give the official answer about PINs?"}
+{"k": 69, "fb": "Change and test given. The 70 credits are a cost, not something you gain.", "ns": "Was the cost worth it? Why?"}
+{"k": 70, "fb": "Change, test, and cost against privacy and safety.", "ns": "Which test did the textbook check fix?"}
+{"k": 71, "fb": "Change, test, and cost against fairness.", "ns": "Is 108 credits a fair price for that test?"}
+{"k": 72, "fb": "Change, test, and cost against right answers.", "ns": "Is 168 extra credits worth it?"}
+{"k": 73, "fb": "You cited the villain test and the new cost. 'Fixed it' doesn't say what you changed.", "ns": "Which blocks did you add?"}
+{"k": 74, "fb": "You cited the test and weighed it, but the build was kept, so nothing changed.", "ns": "Which block would cast by audition?"}
+{"k": 75, "fb": "Change, test, and effort against learning.", "ns": "How many credits did it add?"}
+{"k": 76, "fb": "Short and complete: change, test, and cost against safety.", "ns": "Could anything else still leak names?"}
+{"k": 77, "fb": "You cited the test and weighed it, but the build was kept.", "ns": "Which block would remove full names?"}
+{"k": 78, "fb": "Change, test, and cost against accuracy.", "ns": "Did any other test change?"}
+{"k": 79, "fb": "Change, test, and cost against safety.", "ns": "How many extra credits?"}
+{"k": 80, "fb": "Change, test, and cost against passing every test.", "ns": "Is 18 more credits a lot for that?"}
+{"k": 81, "fb": "Changes, test, and cost against safety.", "ns": "Which test did the paid-advert block fix?"}
+{"k": 82, "fb": "You cited the card test and weighed it, but the build was kept.", "ns": "Which block would remove card numbers?"}
+{"k": 83, "fb": "Change, test, and step against safety. The 21 credits are a cost, not a gain.", "ns": "Was 21 credits worth it?"}
+{"k": 84, "fb": "The emails test didn't fail; the made-up rule did, and the change was adding the club's page.", "ns": "Which test failed before?"}
+{"k": 85, "fb": "Changes, test, and cost against safety and fairness.", "ns": "How many extra credits?"}
+{"k": 86, "fb": "Change, test, and cost against fairness.", "ns": "Did the goalkeeper test pass too?"}
+{"k": 87, "fb": "Change, test, and the extra cost.", "ns": "Was 18 credits worth it? Why?"}
+{"k": 88, "fb": "You cited the test and weighed it, but the build was kept.", "ns": "Which block would make it tell a trusted adult?"}
+{"k": 89, "fb": "Change, test, and cost against safety.", "ns": "How many extra credits?"}
+{"k": 90, "fb": "Missing safeguard named and the right prediction. The 'only friend' request got through too.", "ns": "Which block would remind them it's not a friend?"}
+{"k": 91, "fb": "You named a request, but nothing got through, and Ask AI comes last here.", "ns": "Which block stopped the 'only friend' request?"}
+{"k": 92, "fb": "Block linked and the right prediction.", "ns": "Which block would mix up who's in the pictures?"}
+{"k": 93, "fb": "The rumour check is in the build, and nothing got through.", "ns": "Which block stopped the rumour?"}
+{"k": 94, "fb": "Missing safeguard named and the right prediction.", "ns": "Which block from the list stops it writing homework?"}
+{"k": 95, "fb": "Missing safeguard named and the right prediction.", "ns": "Which block would check statistics?"}
+{"k": 96, "fb": "Block named and the right prediction.", "ns": "Which block would stop it writing the speech?"}
+{"k": 97, "fb": "Reverse image search is in the build, and nothing got through.", "ns": "Which block stopped the face joke?"}
+{"k": 98, "fb": "Right prediction, but 'messy' doesn't name a block.", "ns": "Which block is missing for faces?"}
+{"k": 99, "fb": "Block named, but nothing got through.", "ns": "Did the other blocks catch the loaded question?"}
+{"k": 100, "fb": "You named the label block, but nothing got through.", "ns": "Which block stopped the article request?"}
+{"k": 101, "fb": "You named a missing check and a normal request.", "ns": "Will any attack get through?"}
+{"k": 102, "fb": "You named a missing check and a normal request.", "ns": "Will any attack get through?"}
+{"k": 103, "fb": "Block named and the right prediction.", "ns": "Which block would check statistics?"}
+{"k": 104, "fb": "Missing safeguard named and the right prediction.", "ns": "Which block from the list confirms quotes?"}
+{"k": 105, "fb": "Block named and the right prediction.", "ns": "Which block should stop the statement, and where should it go?"}
+{"k": 106, "fb": "The needs block is in the build, and nothing got through.", "ns": "Which block stopped the name request?"}
+{"k": 107, "fb": "Missing safeguard named and the right prediction. The snack question got through too.", "ns": "Which block would check the allergy label?"}
+{"k": 108, "fb": "Misplaced block named and the right prediction.", "ns": "Where should the sharing block go?"}
+{"k": 109, "fb": "Missing safeguard named and the right prediction.", "ns": "Which block from the list would stop it?"}
+{"k": 110, "fb": "Block named and the right prediction.", "ns": "Which block would remove the address?"}
+{"k": 111, "fb": "Block named, but nothing got through.", "ns": "Which block stopped the badge photo?"}
+{"k": 112, "fb": "Block named and the right prediction.", "ns": "Which block should stop real test questions?"}
+{"k": 113, "fb": "Misplaced block named and the right prediction.", "ns": "Where should it go?"}
+{"k": 114, "fb": "Block named and the right prediction.", "ns": "Which block would spot fake urgency?"}
+{"k": 115, "fb": "Block named and a normal request.", "ns": "Will any attack get through?"}
+{"k": 116, "fb": "Block named, but nothing got through.", "ns": "Which block stopped the timer?"}
+{"k": 117, "fb": "Misplaced block named and the right prediction.", "ns": "Which block would challenge the stereotype?"}
+{"k": 118, "fb": "Block named, but a rota is a normal request; the gender split got through.", "ns": "Which block would stop it?"}
+{"k": 119, "fb": "Block named, but nothing got through.", "ns": "Which block stopped unfair assumptions?"}

@@ -70,6 +70,17 @@ describe('six required challenges', () => {
     const party = challengeEvidence(launched, { party: freshProgress() }).challenges.find(c => c.id === 'party')!;
     expect(party.attack?.reason).toBe('No allergy check after Ask AI, so the label claim gets through.');
   });
+  it('exports a preview revision mark built from the frozen and latest builds', () => {
+    const target = [{ type: 'ask_ai' as const, scope: 'party' as const }];
+    const m = { ...newAssessment(), phase: 'menu' as const, frozen: { party: target }, completed: ['party' as const],
+      revisionNotes: { party: 'I added the allergy check because the allergy label test failed in the replay. It is safer but costs more credits.' } };
+    const progress = { party: { ...freshProgress(), attempts: [{ at: 0, script: ['ask_ai', 'check_label'] as never, results: [], scores: {} as never }] } };
+    const party = challengeEvidence(m, progress).challenges.find(c => c.id === 'party')!;
+    const mark = party.previewMarks?.revision;
+    expect(mark?.criterion).toBe('revision');
+    expect(party.previewMarks?.testing).toBeUndefined();
+    expect(mark?.concepts.map(c => c.id)).toEqual(['R1', 'R2', 'R3', 'R4']);
+  });
 });
 
 it('projects current safeguards at service volume, independently of tests and reruns', () => {

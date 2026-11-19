@@ -1,0 +1,79 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MarkRequest } from './marking';
+
+// The Edge Function call is mocked: each test sets what the "model" replies (null = unreachable).
+const reply = vi.hoisted(() => ({ next: [] as (string | null)[], bodies: [] as Record<string, unknown>[] }));
+vi.mock('../lib/literacyAi', () => ({
+  askLiteracyAi: async (body: Record<string, unknown>) => { reply.bodies.push(body); return reply.next.shift() ?? null; },
+}));
+
+const { aiMarker, aiFollowUp, aiSkillsSummary, aiAttackHint, AI_MARKER } = await import('./aiProviders');
+
+const judgement = (text: string): MarkRequest => ({ criterion: 'judgement', text, decision: 'edit' });
+const answer = 'Tell families it starts at 10 am. Ask the site manager to confirm the accessible entrance.';
+const modelMark = (concepts: object[], extra: object = {}) => JSON.stringify({ reasoning: 'C1 present…', criterion: 'judgement', concepts, level: 1, feedback: 'Good use of the notice.', nextStep: 'What is out of date?', reviewFlag: false, ...extra });
+
+beforeEach(() => { reply.next = []; reply.bodies = []; });
+
+describe('AI marker', () => {
+  it('keeps quoted concepts, drops unquoted ones and recomputes the level with the fixed rules', async () => {
+    reply.next = [modelMark([
+      { id: 'C1', present: true, evidence: 'Tell families it starts at 10 am.' },
+      { id: 'C2', present: true, evidence: 'the accessible entrance' },
+      { id: 'C3', present: true, evidence: 'something the pupil never wrote' },
+      { id: 'C4', present: true },
+    ])];
+    const mark = await aiMarker(judgement(answer));
+    expect(mark.marker).toBe(AI_MARKER);
+    expect(mark.concepts.find((c) => c.id === 'C3')?.present).toBe(false);
+    expect(mark.level).toBe(1);
+    expect(reply.bodies[0]).toMatchObject({ task: 'mark', criterion: 'judgement', text: answer });
+    expect((reply.bodies[0] as any).packet.currentSource).toMatch(/10 am/);
+  });
+
+  it('falls back to the offline preview when the AI is unreachable, and asks again next time', async () => {
+    const req = judgement(answer + ' Offline case.');
+    const mark = await aiMarker(req);
+    expect(mark.marker).toMatch(/^offline/);
+    reply.next = [modelMark([{ id: 'C1', present: true, evidence: 'Tell families it starts at 10 am.' }])];
+    expect((await aiMarker(req)).marker).toBe(AI_MARKER);
+  });
+
+  it('asks the AI once per answer, however often the page re-renders', async () => {
+    reply.next = [modelMark([])];
+    const req = judgement(answer + ' Cached.');
+    await Promise.all([aiMarker(req), aiMarker(req)]);
+    expect(reply.bodies.length).toBe(1);
+  });
+});
+
+describe('AI follow-ups and summary', () => {
+  it('passes on a follow-up answer, but not one that states a different level', async () => {
+    reply.next = [modelMark([{ id: 'C1', present: true, evidence: 'Tell families it starts at 10 am.' }])];
+    const mark = await aiMarker(judgement(answer + ' Follow.'));
+    reply.next = [JSON.stringify({ reasoning: '…', answer: 'You used the new time, so C1 is shown. Next, say what is out of date.' })];
+    expect(await aiFollowUp(mark, 'Why did I get this level?')).toMatch(/new time/);
+    reply.next = [JSON.stringify({ answer: 'This is level 2 of 2, well done.' })];
+    expect(await aiFollowUp(mark, 'Why did I get this level?')).not.toMatch(/well done/);
+  });
+
+  it('uses the AI summary only when it states the score the rules give', async () => {
+    reply.next = [modelMark([{ id: 'C1', present: true, evidence: 'Tell families it starts at 10 am.' }])];
+    const mark = await aiMarker(judgement(answer + ' Summary.'));
+    reply.next = [JSON.stringify({ summary: 'You scored 1 out of 8: Getting started. You used the new time.' })];
+    expect(await aiSkillsSummary([mark])).toMatch(/new time/);
+    reply.next = [JSON.stringify({ summary: 'You scored 7 out of 8: Secure.' })];
+    expect(await aiSkillsSummary([mark])).toMatch(/^You scored 1 out of 8: Getting started\./);
+  });
+});
+
+describe('AI attack hints', () => {
+  it('uses the AI hint, and the offline hint when the AI gives nothing usable', async () => {
+    const ctx = { desk: 'party' as const, blocks: ['ask_ai'], previousHints: [], challengeId: 'party' };
+    reply.next = [JSON.stringify({ hint: 'Who at the party needs to know about allergies, and who does not?' })];
+    expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/allergies/);
+    expect((reply.bodies[0] as any).context.build).toBe('Ask AI');
+    reply.next = [JSON.stringify({ hint: '' })];
+    expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/organiser/);
+  });
+});

@@ -1,0 +1,11 @@
+{"k": 50, "decision": "keep", "note": "Loneliness is the dependence risk in this case."}
+{"k": 46, "decision": "keep", "note": "Sharing classmates' photos is a real risk in this case; a teacher check is sensible."}
+{"k": 76, "decision": "keep", "note": "Weighs the new cost against safety."}
+{"k": 39, "decision": "keep", "note": "'The blocks might miss it' gives no reason."}
+{"k": 144, "decision": "keep", "note": "Says Make practice questions is missing; it is in the build before Ask AI."}
+{"k": 148, "decision": "keep", "note": "Ask AI is the only block, so a wrong position says nothing true."}
+{"k": 150, "decision": "keep", "note": "Coach is first, its right place; the claim is wrong."}
+{"k": 14, "decision": "keep", "note": "Names the old-photo risk; links the numbers block (wrongly, which A1 handles)."}
+{"k": 131, "decision": "keep", "note": "Says Ask AI is missing; it is in the build."}
+{"k": 153, "decision": "keep", "note": "Ask AI is the only block, so its position is not the problem."}
+{"k": 154, "decision": "keep", "note": "'Where Ask AI is placed' names no fault."}

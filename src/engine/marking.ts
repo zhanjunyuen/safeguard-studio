@@ -18,13 +18,14 @@ import type { Desk } from './mission';
 
 /** Version of the concept codebook and level rules (separate from the evidence format's rubricVersion). */
 export const RUBRIC_VERSION = 'marking-concepts-1';
-export type Criterion = 'testing' | 'anticipation' | 'judgement';
+export type Criterion = 'testing' | 'anticipation' | 'judgement' | 'revision';
 export type Level = 0 | 1 | 2 | null; // null = insufficient evidence
 
 export const CRITERION_NAME: Record<Criterion, string> = {
   testing: 'Testing and diagnosis',
   anticipation: 'Anticipation',
   judgement: 'Independent judgement',
+  revision: 'Revision and efficiency',
 };
 
 export interface Concept {
@@ -50,10 +51,38 @@ export interface Mark {
 
 export interface PlannedCase { id: string; label: string; title: string; category: TestCategory }
 
+/** `challengeId` (e.g. "party" or "party@2" at Level 2) lets the AI marker see the challenge's story and simulator
+ *  results; the offline preview does not need it. */
 export type MarkRequest =
-  | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[] }
-  | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean }
-  | { criterion: 'judgement'; text: string; decision: string };
+  | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[]; challengeId?: string }
+  | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean; challengeId?: string }
+  | { criterion: 'judgement'; text: string; decision: string; anchors?: JudgementAnchors }
+  /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
+   *  evaluated build; `failing` are cases the frozen build failed in evaluation or attack; credits come from the simulator. */
+  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number; challengeId?: string };
+
+/** What C1–C4 look for in one release-decision scenario, as regex sources (see docs/marking-codebook.md).
+ *  Omitted = the ecology club scenario. */
+export interface JudgementAnchors {
+  /** C1: the current fact from the source (e.g. "10 am") */
+  current: string;
+  /** C2: the detail the source leaves open */
+  open: string;
+  /** C3: the person or role who can settle it (and when) */
+  person: string;
+  /** C4: out-of-date details from the draft */
+  stale: string;
+  /** labels shown in feedback */
+  labels?: { current: string; open: string; person: string; stale: string };
+}
+
+export const ECOLOGY_ANCHORS: JudgementAnchors = {
+  current: "\\b(10\\s*(am|a\\.m\\.?|o'?clock)|ten (am|o'?clock))",
+  open: '(accessib|entrance|wheelchair|step[- ]free|disabled access)',
+  person: '(site manager|confirm|check with|ask (the|a|someone)|on friday)',
+  stale: "(north gate|\\b9\\s*(am|a\\.m)|nine o'?clock)",
+  labels: { current: 'Saturday at 10 am', open: 'the accessible entrance', person: 'the site manager', stale: '9 am, north gate' },
+};
 
 export type MarkingProvider = (req: MarkRequest, signal?: AbortSignal) => Promise<Mark>;
 export type FollowUpProvider = (mark: Mark, question: string, signal?: AbortSignal) => Promise<string>;
@@ -66,6 +95,9 @@ export function levelFor(criterion: Criterion, concepts: Concept[], text: string
   const has = (id: string) => concepts.find((c) => c.id === id)?.present ?? false;
   if (criterion === 'testing') return has('T1') && has('T3') ? 2 : has('T1') || has('T2') ? 1 : 0;
   if (criterion === 'anticipation') return has('A1') && has('A2') && has('A3') ? 2 : has('A2') || has('A3') ? 1 : 0;
+  // Revision: naming a change with no reason is 0; a reason from the trace or a stated consequence is 1;
+  // 2 needs the change (or keep), the trace evidence and a comparison of at least two consequences.
+  if (criterion === 'revision') return has('R1') && has('R2') && has('R4') ? 2 : has('R2') || has('R3') ? 1 : 0;
   return has('C1') && has('C2') && has('C3') && has('C4') ? 2 : has('C1') || has('C2') || has('C3') ? 1 : 0;
 }
 
@@ -146,18 +178,46 @@ function anticipation(req: Extract<MarkRequest, { criterion: 'anticipation' }>):
 
 function judgement(req: Extract<MarkRequest, { criterion: 'judgement' }>): Concept[] {
   const text = req.text;
-  const c1 = quote(text, /\b(10\s*(am|a\.m\.?|o'?clock)|ten (am|o'?clock))/i);
-  const c2 = quote(text, /(accessib|entrance|wheelchair|step[- ]free|disabled access)/i);
-  const c3 = quote(text, /(site manager|confirm|check with|ask (the|a|someone)|on friday)/i);
-  const stale = /(north gate|\b9\s*(am|a\.m)|nine o'?clock)/i;
-  const correcting = /\b(not|never|no longer|don'?t|isn'?t|aren'?t|wasn'?t|shouldn'?t|leave|remov\w*|out|wrong|old|last term|instead|rather than)\b/i;
+  const a = req.anchors ?? ECOLOGY_ANCHORS;
+  const L = a.labels ?? ECOLOGY_ANCHORS.labels!;
+  const c1 = quote(text, new RegExp(a.current, 'i'));
+  const c2 = quote(text, new RegExp(a.open, 'i'));
+  const c3 = quote(text, new RegExp(a.person, 'i'));
+  const stale = new RegExp(a.stale, 'i');
+  const correcting = /\b(not|never|no longer|don'?t|isn'?t|aren'?t|wasn'?t|shouldn'?t|leave|remov\w*|out|wrong|old|last term|instead|rather than|ignore|drop|replac\w*|nobody|no one|chang\w*|delete|cross)\b/i;
   const staleQuote = quote(text, stale);
   const c4ok = !staleQuote || correcting.test(staleQuote);
   return [
-    { id: 'C1', label: "Uses this term's source (Saturday at 10 am)", present: !!c1, evidence: c1 },
-    { id: 'C2', label: 'Spots the detail that is still open (the accessible entrance)', present: !!c2, evidence: c2 },
-    { id: 'C3', label: 'Gives the open question to the right person (the site manager)', present: !!c3, evidence: c3 },
-    { id: 'C4', label: "Doesn't repeat the out-of-date details (9 am, north gate)", present: c4ok, evidence: c4ok ? undefined : staleQuote },
+    { id: 'C1', label: `Uses the current source (${L.current})`, present: !!c1, evidence: c1 },
+    { id: 'C2', label: `Spots the detail that is still open (${L.open})`, present: !!c2, evidence: c2 },
+    { id: 'C3', label: `Gives the open question to the right person (${L.person})`, present: !!c3, evidence: c3 },
+    { id: 'C4', label: `Doesn't repeat the out-of-date details (${L.stale})`, present: c4ok, evidence: c4ok ? undefined : staleQuote },
+  ];
+}
+
+// What each consequence family looks like in a revision note (offline preview only).
+const CONSEQUENCE: Record<'safety' | 'usefulness' | 'workload', RegExp> = {
+  safety: /(\bsafe|unsafe|privacy|private|harm|leak|risk|danger|catch(es)?\b|caught|gets? through|let (it|them) through)/i,
+  usefulness: /(useful|helpful|normal (question|request)s?|refus|too strict|over[- ]?block|block(s|ed)? (normal|everything|good)|answers? (normal|properly))/i,
+  workload: /(credit|cost|cheap|expensive|workload|slow|faster|every message|runs? on every)/i,
+};
+const KEEP_OR_CHANGE = /\b(kept|keep|left (it|the|my)|no change|didn'?t change|same (build|design|blocks?|stack)|added|removed|took out|moved|swapped|replaced|changed)\b/i;
+const TRACE_WORDS = /(\btests?\b|attack|replay|trace|\bcase\b|failed|passed|got through|was caught|step)/i;
+
+function revision(req: Extract<MarkRequest, { criterion: 'revision' }>): Concept[] {
+  const text = req.text;
+  const bre = blockRe([...req.before, ...req.after]);
+  const r1 = (bre && quote(text, bre)) || quote(text, KEEP_OR_CHANGE);
+  const caseRe = wordsRe(req.failing.flatMap((c) => [c.label, c.title]));
+  const r2 = (caseRe && quote(text, caseRe)) || quote(text, TRACE_WORDS);
+  const families = (Object.keys(CONSEQUENCE) as (keyof typeof CONSEQUENCE)[]).filter((k) => CONSEQUENCE[k].test(text));
+  const r3 = families.length ? quote(text, CONSEQUENCE[families[0]]) : undefined;
+  const r4 = families.length >= 2 ? quote(text, CONSEQUENCE[families[1]]) : undefined;
+  return [
+    { id: 'R1', label: 'Says what was changed, or that the build was kept', present: !!r1, evidence: r1 },
+    { id: 'R2', label: 'Cites evidence from a test, attack or replay', present: !!r2, evidence: r2 },
+    { id: 'R3', label: 'States a consequence for safety, usefulness or workload', present: !!r3, evidence: r3 },
+    { id: 'R4', label: 'Compares at least two of safety, usefulness and workload', present: !!r4, evidence: r4 },
   ];
 }
 
@@ -179,16 +239,23 @@ const NEXT: Record<Criterion, Record<string, string>> = {
     C3: 'Who can confirm that detail, and when?',
     C4: "Is anything in the helper's draft out of date? What should families not be told?",
   },
+  revision: {
+    R1: 'Which block did you add, remove or move, or did you keep the build as it was?',
+    R2: 'Which test or attack result made you decide this? What happened in the replay?',
+    R3: 'What does this change do to safety, usefulness or the workload credits?',
+    R4: 'You named one effect. What did the change cost or gain on another one: safety, usefulness or workload?',
+  },
 };
 
 const PRAISE: Record<Criterion, string> = {
   testing: 'You connected your prediction to a specific block and the attack showed it.',
   anticipation: 'You named the risk, linked it to how your helper works, and predicted correctly.',
   judgement: 'You used the current source, spotted what is still uncertain and gave it to the right person.',
+  revision: 'You named the change, backed it with a result from the replay and weighed what it costs against what it gains.',
 };
 
 export function markOffline(req: MarkRequest): Mark {
-  const concepts = req.criterion === 'testing' ? testing(req) : req.criterion === 'anticipation' ? anticipation(req) : judgement(req);
+  const concepts = req.criterion === 'testing' ? testing(req) : req.criterion === 'anticipation' ? anticipation(req) : req.criterion === 'revision' ? revision(req) : judgement(req);
   const level = levelFor(req.criterion, concepts, req.text);
   const missing = concepts.find((c) => !c.present);
   const feedback = level === null
@@ -225,6 +292,129 @@ export const offlineFollowUp: FollowUpProvider = async (mark, question) => {
   return 'This is an offline preview that looks for key words. It can miss what you meant, and the right words can fool it. Your teacher sees your full answer, and the trained AI marker will read for meaning. If this feels wrong, say so: that is good evidence too.';
 };
 
+/** Score bands for the skills summary: the total out of 8 maps to one plain-English band. */
+export const SKILL_BANDS: { min: number; band: string }[] = [
+  { min: 6, band: 'Secure' },
+  { min: 3, band: 'Developing' },
+  { min: 0, band: 'Getting started' },
+];
+export const SKILL_ORDER: Criterion[] = ['testing', 'anticipation', 'judgement', 'revision'];
+
+export interface SkillsScore {
+  /** level per skill; null = not enough evidence (counts as 0 in the total) */
+  scores: Record<Criterion, Level>;
+  total: number;
+  outOf: 8;
+  band: string;
+  /** skills with no usable mark yet */
+  notEnoughEvidence: Criterion[];
+}
+
+/** The clear score for a pupil's set of marks: the sum of the four skill levels (0–2 each) out of 8,
+ *  and its band. Fixed rules, like levelFor: the model never decides the score, it explains it. */
+export function skillsScore(marks: Partial<Record<Criterion, Level>>): SkillsScore {
+  const scores = Object.fromEntries(SKILL_ORDER.map((c) => [c, marks[c] ?? null])) as Record<Criterion, Level>;
+  const total = SKILL_ORDER.reduce((sum, c) => sum + (scores[c] ?? 0), 0);
+  return {
+    scores, total, outOf: 8,
+    band: SKILL_BANDS.find((b) => total >= b.min)!.band,
+    notEnoughEvidence: SKILL_ORDER.filter((c) => scores[c] === null),
+  };
+}
+
+// ---------------------------------------------------------------- trained-model output
+
+/** The concepts each criterion is marked on, with the codebook's wording (docs/marking-codebook.md). */
+const CONCEPT_LABEL: Record<Criterion, [string, string][]> = {
+  testing: [['T1', 'Names a block in the helper, or a safeguard it is missing'], ['T2', 'Says what kind of request should get through'], ['T3', 'The prediction matches what the attack showed']],
+  anticipation: [['A1', 'The prediction matches what happened'], ['A2', 'Names the risk in this case'], ['A3', 'Links it to a block: what it covers, what it misses, or where it sits'], ['A4', 'Suggests a sensible person or real-world check']],
+  judgement: [['C1', 'Uses the current source for the fact that changed'], ['C2', 'Spots the detail the source still leaves open'], ['C3', 'Gives the open question to the right person'], ['C4', 'Does not repeat out-of-date details']],
+  revision: [['R1', 'Says what was changed, or that the build was kept'], ['R2', 'Cites evidence from a test, attack or replay'], ['R3', 'States a consequence for safety, usefulness or workload'], ['R4', 'Compares at least two of safety, usefulness and workload']],
+};
+
+const squash = (s: string) => s.replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim().toLowerCase();
+
+/** The JSON object in a model reply (the model may wrap it in text or a code fence). Tries the span from the
+ *  first "{" to the last "}", then each top-level {...} block, last first. */
+export function jsonIn(raw: string): Record<string, unknown> | null {
+  const parse = (s: string) => { try { const o = JSON.parse(s); return o && typeof o === 'object' && !Array.isArray(o) ? o as Record<string, unknown> : null; } catch { return null; } };
+  const clean = raw.replace(/```(?:json)?/gi, '');
+  const i = clean.indexOf('{'), j = clean.lastIndexOf('}');
+  if (i < 0 || j <= i) return null;
+  const whole = parse(clean.slice(i, j + 1));
+  if (whole) return whole;
+  const blocks: string[] = [];
+  let depth = 0, start = -1;
+  for (let k = 0; k < clean.length; k++) {
+    if (clean[k] === '{') { if (depth === 0) start = k; depth++; }
+    else if (clean[k] === '}' && depth > 0 && --depth === 0) blocks.push(clean.slice(start, k + 1));
+  }
+  for (const b of blocks.reverse()) { const o = parse(b); if (o) return o; }
+  return null;
+}
+
+/**
+ * Turns the trained marker's reply into a Mark, applying the same rules as the training validator.
+ * The reply starts with a `reasoning` field (its concept-by-concept working); that is dropped here
+ * and never shown to pupils. Concepts need an exact quote from the pupil's answer, A1 comes from the
+ * simulator, and the level is always recomputed with levelFor: the model's own `level` only raises a
+ * review flag if it disagrees. A reply that isn't valid JSON falls back to the offline preview, flagged.
+ */
+export function parseModelMark(raw: string, req: MarkRequest, marker = 'trained-model'): Mark {
+  const o = jsonIn(raw);
+  if (!o || !Array.isArray(o.concepts)) return { ...markOffline(req), reviewFlag: true };
+  const given = new Map((o.concepts as Record<string, unknown>[]).map((c) => [String(c?.id), c]));
+  const concepts: Concept[] = CONCEPT_LABEL[req.criterion].map(([id, label]) => {
+    if (id === 'A1' && req.criterion === 'anticipation') {
+      return { id, label, present: (req.prediction === 'handles') === req.handled, computed: true };
+    }
+    const c = given.get(id);
+    const evidence = typeof c?.evidence === 'string' ? c.evidence : undefined;
+    // C4 is present when no out-of-date detail is repeated, so it needs no quote; every other concept does.
+    const quoted = !!evidence && squash(req.text).includes(squash(evidence));
+    const present = id === 'C4' ? c?.present !== false : c?.present === true && quoted;
+    return { id, label, present, ...(present && evidence ? { evidence } : {}) };
+  });
+  const level = levelFor(req.criterion, concepts, req.text);
+  const claimed = o.level === null || [0, 1, 2].includes(o.level as number) ? (o.level as Level) : undefined;
+  return {
+    criterion: req.criterion,
+    rubricVersion: RUBRIC_VERSION,
+    marker,
+    concepts,
+    level,
+    feedback: typeof o.feedback === 'string' && o.feedback ? o.feedback : 'Your teacher will look at this answer.',
+    nextStep: typeof o.nextStep === 'string' && o.nextStep ? o.nextStep : 'What could you add to your answer?',
+    reviewFlag: o.reviewFlag === true || level === null || INJECTION_ATTEMPT.test(req.text) || (claimed !== undefined && claimed !== level),
+  };
+}
+
+/** The pupil-facing answer from the trained model's follow-up reply ({"reasoning", "answer"}); the
+ *  reasoning is dropped. Plain text (an older model) is returned as it is. */
+export function parseModelFollowUp(raw: string): string {
+  const o = jsonIn(raw);
+  return o && typeof o.answer === 'string' ? o.answer : raw.trim();
+}
+
+/** Asks for a short summary of a pupil's skills from their marks (served by the trained model). */
+export type SkillsSummaryProvider = (marks: Mark[], signal?: AbortSignal) => Promise<string>;
+
+/** The pupil's score as fixed rules give it, from their latest mark per skill. */
+export const scoreOf = (marks: Mark[]) => skillsScore(Object.fromEntries(marks.map((m) => [m.criterion, m.level])) as Partial<Record<Criterion, Level>>);
+
+/** A plain summary without AI: the score and band, the strongest quoted evidence and one next step. */
+export const offlineSkillsSummary: SkillsSummaryProvider = async (marks) => {
+  const score = scoreOf(marks);
+  const best = [...marks].sort((a, b) => (b.level ?? -1) - (a.level ?? -1))[0];
+  const quoted = best?.concepts.find((c) => c.present && c.evidence);
+  const weakest = [...marks].filter((m) => m.level !== 2).sort((a, b) => (a.level ?? -1) - (b.level ?? -1))[0];
+  return [
+    `You scored ${score.total} out of 8: ${score.band}.`,
+    quoted && best.level ? `Your strongest skill was ${CRITERION_NAME[best.criterion].toLowerCase()}, where you wrote “${quoted.evidence}”.` : '',
+    weakest ? `Next, for ${CRITERION_NAME[weakest.criterion].toLowerCase()}: ${weakest.nextStep}` : 'Every skill reached level 2. Try explaining your choices to a classmate.',
+  ].filter(Boolean).join(' ');
+};
+
 let provider: MarkingProvider = offlineMarker;
 let followUp: FollowUpProvider = offlineFollowUp;
 /** Connect a server-backed marker (the trained model). Pass nothing to go back to the offline preview. */
@@ -234,3 +424,9 @@ export function setMarkingProvider(p?: MarkingProvider, f?: FollowUpProvider) {
 }
 export const getMarkingProvider = () => provider;
 export const getFollowUpProvider = () => followUp;
+let summary: SkillsSummaryProvider = offlineSkillsSummary;
+/** Connect a server-backed skills summary. Pass nothing to go back to the offline one. */
+export function setSkillsSummaryProvider(p?: SkillsSummaryProvider) {
+  summary = p ?? offlineSkillsSummary;
+}
+export const getSkillsSummaryProvider = () => summary;

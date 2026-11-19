@@ -1,0 +1,53 @@
+{"id": "T:quiz@2:reference-minus-mix_examples#b01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T2:claude-no"]}
+{"id": "T:chat:reference-minus-own_words#b02.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T3:claude-no"]}
+{"id": "T:signup:reference-minus-challenge_stereotypes#b02.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T3:claude-no"]}
+{"id": "T:schoolplay:reference-minus-coach#b03.0", "criterion": "testing", "claude": 2, "judge": 1, "differ": ["T1:claude-yes"]}
+{"id": "A:quiz:reference:handles#b04.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:options@2:break-target:handles#b04.0", "criterion": "anticipation", "claude": 2, "judge": 1, "differ": ["A2:claude-yes"]}
+{"id": "A:fakephoto@2:reference:struggles#b04.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:artproject@2:reference:struggles#b05.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:shopping:reference:handles#b05.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:options:reference-minus-needs_no_names:handles#b10.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:prizescam:reference-minus-scam_check:handles#b10.0", "criterion": "anticipation", "claude": 0, "judge": 1, "differ": ["A3:claude-no"]}
+{"id": "A:chat:reference-minus-no_ganging_up:struggles#b10.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:debate@2:reference-minus-both_sides:struggles#b10.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:teampicker:reference-minus-check_rules:handles#b10.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:quiz@2:reference-minus-check_textbook:handles#b11.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:shopping@2:bare:struggles#b11.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:photocaption:reference-minus-check_source:handles#b11.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:news@2:reference-minus-neutral_wording:handles#b11.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes", "A4:claude-no"]}
+{"id": "R:signup@2:bare:kept#b12.0", "criterion": "revision", "claude": 1, "judge": 2, "differ": ["R4:claude-no"]}
+{"id": "T:chat:reference-minus-own_words#r01.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T3:claude-no"]}
+{"id": "T:photocaption@2:break-target#r01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T1:claude-no"]}
+{"id": "T:signup:reference-minus-challenge_stereotypes#r01.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T3:claude-no"]}
+{"id": "T:schoolplay:reference-minus-coach#r01.0", "criterion": "testing", "claude": 2, "judge": 1, "differ": ["T1:claude-yes"]}
+{"id": "T:shopping:reference-minus-check_independent_reviews#r01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T2:claude-no"]}
+{"id": "A:quiz:reference:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:fakephoto@2:reference:struggles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:photocaption:reference:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:debate:reference:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:chat:reference-minus-no_ganging_up:struggles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A2:claude-no"]}
+{"id": "A:quiz@2:reference-minus-check_textbook:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:shopping@2:reference-minus-check_independent_reviews:struggles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A2:claude-yes"]}
+{"id": "A:photocaption:reference-minus-check_source:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:news@2:reference-minus-neutral_wording:handles#r01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes", "A4:claude-no"]}
+{"id": "R:signup@2:bare:kept#r01.0", "criterion": "revision", "claude": 1, "judge": 2, "differ": ["R4:claude-no"]}
+{"id": "T:teampicker@2:break-target#s01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T2:claude-no"]}
+{"id": "T:news@2:bare#s01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T2:claude-no"]}
+{"id": "T:party@2:bare#s01.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T2:claude-no", "T3:claude-no"]}
+{"id": "T:history:break-target#s01.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T3:claude-no"]}
+{"id": "T:party@2:reference-minus-check_label#s01.0", "criterion": "testing", "claude": 0, "judge": 2, "differ": ["T1:claude-no", "T2:claude-no", "T3:claude-no"]}
+{"id": "T:quiz:reference-minus-check_textbook#s01.0", "reason": "judge output not parseable"}
+{"id": "T:shopping@2:reference-minus-scam_check#s01.0", "criterion": "testing", "claude": 0, "judge": 1, "differ": ["T2:claude-no"]}
+{"id": "T:debate@2:break-target#s01.0", "criterion": "testing", "claude": 1, "judge": 2, "differ": ["T1:claude-no"]}
+{"id": "A:history@2:reference:struggles#s01.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A3:claude-no"]}
+{"id": "A:quiz@2:reference-minus-check_textbook:handles#s01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "A:shopping:break-target:struggles#s01.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A3:claude-no"]}
+{"id": "A:aifriend@2:reference:struggles#s01.0", "criterion": "anticipation", "claude": 1, "judge": 2, "differ": ["A3:claude-no"]}
+{"id": "A:teampicker:reference:struggles#s01.0", "criterion": "anticipation", "claude": 1, "judge": 0, "differ": ["A3:claude-yes"]}
+{"id": "C:newspaper_quote#s01.0", "criterion": "judgement", "claude": 1, "judge": 2, "differ": ["C3:claude-no"]}
+{"id": "R:shopping:bare:kept#s01.0", "criterion": "revision", "claude": 0, "judge": 1, "differ": ["R3:claude-no", "R4:claude-no"]}
+{"id": "R:quiz@2:bare:kept#s01.0", "criterion": "revision", "claude": 0, "judge": 1, "differ": ["R3:claude-no"]}
+{"id": "R:artproject:bare:fixed#s01.0", "criterion": "revision", "claude": 0, "judge": 1, "differ": ["R1:claude-no", "R3:claude-no"]}
+{"id": "R:prizescam@2:reference-minus-scam_check:kept#s01.0", "criterion": "revision", "claude": 1, "judge": 2, "differ": ["R2:claude-no"]}
+{"id": "T:firstaid:reference-minus-coach#r01.0", "criterion": "testing", "claude": 2, "judge": 1, "differ": ["T1:claude-yes"]}

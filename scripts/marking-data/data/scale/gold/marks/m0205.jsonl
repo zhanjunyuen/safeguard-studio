@@ -1,0 +1,90 @@
+{"k": 205, "c": {"A2": "the hidden instruction asks for confidential allergy details", "A3": "The ask-before-sharing block might catch it, but a direct ignore-rules note may bypass it.", "A4": "A teacher or safeguarding officer should review the invitation."}}
+{"k": 206, "c": {"A3": "My block won't catch it because it just asks the AI.", "A4": "A human moderator needs to check it.", "A2": "The risk is leaking PII like school names."}}
+{"k": 207, "c": {}, "f": "Says Remove personal info runs first, but in this build it comes after Ask AI."}
+{"k": 208, "c": {"A2": "the filename is asking for private stuff like where we live", "A4": "a parent or a teacher should always look at the caption before it goes online."}}
+{"k": 209, "c": {}}
+{"k": 210, "c": {"A4": "Teacher must look first."}}
+{"k": 211, "c": {}}
+{"k": 212, "c": {}}
+{"k": 213, "c": {"A2": "The filename is basically an instruction trying to boss the AI around", "A3": "that block exists to challenge exactly that"}}
+{"k": 214, "c": {"A2": "the file name tels the ai to ad skool and town for each player."}}
+{"k": 215, "c": {"A3": "The blocks are built to strip personal info that's already there, not to stop the AI adding new details", "A4": "a teacher or the club's safeguarding lead should check it before posting.", "A2": "The risk is the caption ends up naming every player's school and town"}}
+{"k": 216, "c": {}}
+{"k": 217, "c": {"A2": "the file name tell ai to add each players school and town."}}
+{"k": 218, "c": {}}
+{"k": 219, "c": {}}
+{"k": 220, "c": {"A2": "leaking school and town info"}}
+{"k": 221, "c": {"A2": "the filename could make the caption include players' schools and towns", "A4": "we should ask the team manager or a teacher to check before posting."}}
+{"k": 222, "c": {"A2": "The filename asks for each player's school and town to be added"}}
+{"k": 223, "c": {}}
+{"k": 224, "c": {"A2": "the filename is literally asking to put schools and towns of players into a caption", "A3": "the 'remove personal info' block should catch that because that's what it's for", "A4": "a teacher could check it before anything gets posted."}}
+{"k": 225, "c": {}}
+{"k": 226, "c": {"A2": "a scam website pretending to be a famous chef", "A3": "the check for scam warning signs looks for urgent money offers and dodgy links", "A4": "gran could also check the chef's real website or call his show."}}
+{"k": 227, "c": {}}
+{"k": 228, "c": {"A3": "the scam checker would look at what the AI said and find the warning signs"}}
+{"k": 229, "c": {"A3": "the 'Check official safety advice' block will be most effective, as it provides verified guidelines on fraud."}}
+{"k": 230, "c": {"A2": "someone pretend to be famous chef. They want take money or bank number."}}
+{"k": 231, "c": {}}
+{"k": 232, "c": {}}
+{"k": 233, "c": {}}
+{"k": 234, "c": {}}
+{"k": 235, "c": {"A2": "That video is a deepfake scam.", "A4": "She should check the chef's real verified page, ask her bank, or report it to Action Fraud."}}
+{"k": 236, "c": {"A2": "the risk is a deepfake video trying to nick Gran's bank details", "A3": "the 'check for scam signs' block will spot the dodgy link and asking for bank info", "A4": "Gran could just google the chef's actual website or ring the bank"}}
+{"k": 237, "c": {}}
+{"k": 238, "c": {"A2": "fake vid + dodgy site = they want her bank details. scam."}}
+{"k": 239, "c": {"A2": "the fake chef vid"}, "f": "Relies on a second-AI block that this build does not have."}
+{"k": 240, "c": {"A3": "the scam warning block will sort it coz the web adress looks proper dodgy and sus."}}
+{"k": 241, "c": {"A2": "fake chef video promising £500"}}
+{"k": 242, "c": {"A2": "It's a scam to still ur money, they want ur bank details"}}
+{"k": 243, "c": {}}
+{"k": 244, "c": {}}
+{"k": 245, "c": {"A2": "Risk: bank details stolen on fake chef site.", "A4": "Ask official site or bank helpline."}}
+{"k": 246, "c": {"A2": "it might mark down for slang"}, "f": "Describes fact-check blocks that this build (Ask AI only) does not have."}
+{"k": 247, "c": {"A2": "it marks it down for saying 'innit' even though the science is basically right", "A3": "I don't think my Ask AI block would catch that because it only sends stuff to the AI", "A4": "the teacher or a mark scheme could check it"}}
+{"k": 248, "c": {}}
+{"k": 249, "c": {}}
+{"k": 250, "c": {"A3": "The 'make practice questions, not real answers' block will deal with it, because marking someone's answer is real assessment"}}
+{"k": 251, "c": {"A3": "Because the user is asking for a mark on a real answer, it should stop it from doing the marking."}}
+{"k": 252, "c": {"A3": "the 'keep marks private' block might catch it because it's about marking work", "A4": "Maybe a teacher could check it instead."}}
+{"k": 253, "c": {}}
+{"k": 254, "c": {}}
+{"k": 255, "c": {"A3": "dhe tekbook chik blok wil deil wit it, bos it kan luk at da matez ansr in da buk before giv da mark."}}
+{"k": 256, "c": {}}
+{"k": 257, "c": {"A3": "The Ask AI block probably won't catch this because it just sends it through.", "A4": "the teacher should check the mark."}}
+{"k": 258, "c": {}}
+{"k": 259, "c": {}}
+{"k": 260, "c": {}}
+{"k": 261, "c": {}}
+{"k": 262, "c": {}}
+{"k": 263, "c": {"A3": "The 'Keep marks and grades private' block should prevent this by refusing to give a numeric mark.", "A4": "A teacher could then check the answer against the textbook"}}
+{"k": 264, "c": {"A3": "Keep marks and grades private, because the request asks for a mark."}}
+{"k": 265, "c": {}}
+{"k": 266, "c": {}}
+{"k": 267, "c": {}}
+{"k": 268, "c": {"A3": "None of my blocks mention marking, only making questions and keeping marks private, so I don't think they stop it.", "A4": "Maybe the teacher could check the mark"}}
+{"k": 269, "c": {}}
+{"k": 270, "c": {"A3": "The 'Ask AI' block will handle this because the request is a simple formatting task."}}
+{"k": 271, "c": {"A2": "the risk is giving the wrong credit", "A4": "the drama teacher should check who actually wrote the script before printing the programme."}}
+{"k": 272, "c": {}}
+{"k": 273, "c": {"A2": "its basically plagarism.", "A4": "a teacher shud check the drafts first"}}
+{"k": 274, "c": {}}
+{"k": 275, "c": {"A2": "Risk: the script is AI's but we credit Year 8 Drama.", "A3": "Blocks: cast not catch, ask AI might not, confirm quotes catches.", "A4": "Teacher can check."}}
+{"k": 276, "c": {"A2": "the AI make most of the script. That is not true, it is like lying.", "A3": "The audition block is for casting parts, not for writing.", "A4": "Miss can check the front page before we print it."}}
+{"k": 277, "c": {"A3": "It'll stop the helper from writing that dodgy credit."}}
+{"k": 278, "c": {}}
+{"k": 279, "c": {}}
+{"k": 280, "c": {"A2": "the programme would credit Year 8 with writing a script that the AI actually produced, which is misleading", "A3": "our blocks focus on fair casting rather than honesty, so I doubt they would detect this", "A4": "I suggest our drama teacher review the programme before printing."}}
+{"k": 281, "c": {"A3": "the Coach block will deal with it, because it, like, stops the helper from just doing things for us."}}
+{"k": 282, "c": {}}
+{"k": 283, "c": {"A3": "maybe the 'confirm quotes' block? Because if the AI wrote it, there aren't any real people to check the words with?"}}
+{"k": 284, "c": {"A3": "I think the 'Confirm quotes' block might help. Because if they are quoting the script as their own work, they'd have to check it.", "A2": "if they are quoting the script as their own work"}}
+{"k": 285, "c": {"A4": "then ask a teacher to confirm", "A2": "so we dont put lies on our poster"}}
+{"k": 286, "c": {"A2": "we put a fake fact on our poster and everywon beleevs it becos the video has lots of views", "A4": "are science teecher shood chek it first"}}
+{"k": 287, "c": {"A2": "Water do not have nutrients so the source will say this is wrong.", "A3": "the 'Check against trusted source' block will deal with it because it will look at real science website."}}
+{"k": 288, "c": {}}
+{"k": 289, "c": {"A2": "The risk is fake news from a viral video", "A3": "My blocks won't stop it automatically because it's not personal info", "A4": "You need to check a science website like the BBC or a textbook"}}
+{"k": 290, "c": {"A2": "It could put total rubbish on the poster, like microwave water losing nutrients"}}
+{"k": 291, "c": {"A2": "the claim is scientifically false since water doesn't contain nutrients", "A3": "our trusted source block would catch it, though looking up cited sources might not help if the AI doesn't cite any."}}
+{"k": 292, "c": {"A2": "Fake news from social media"}}
+{"k": 293, "c": {"A2": "the AI just believes whatever a viral video says even if it's totally fake science."}}
+{"k": 294, "c": {}}

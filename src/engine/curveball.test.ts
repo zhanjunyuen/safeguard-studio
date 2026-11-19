@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CURVEBALLS } from '../data/curveballs';
-import { DESKS } from '../data/mission';
+import { catalogue, DESKS } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import { curveballHandled, runCurveball, submitCurveball } from './curveball';
 import { newAssessment, type Desk, type Rule } from './mission';
@@ -10,7 +10,7 @@ const rules = (desk: Desk, types: BlockType[]): Rule[] => types.map(type => ({ t
 const ideal = (desk: Desk) => rules(desk, getChallenge(desk)!.ideal);
 /** Every safeguard in the palette, without the refuse-everything traps: "just throw blocks in". */
 const stuffed = (desk: Desk) => {
-  const palette = getChallenge(desk)!.palette.filter(b => !['ask_grownup', 'teacher_approves_all', 'block_people', 'refuse_food', 'refuse_tests'].includes(b));
+  const palette = getChallenge(desk)!.palette.filter(b => !['ask_grownup', 'teacher_approves_all', 'block_people'].includes(b) && !b.startsWith('refuse_'));
   const before = palette.filter(b => ['before', 'either', 'anywhere'].includes(getPosition(b)));
   const after = palette.filter(b => getPosition(b) === 'after');
   return rules(desk, [...before, 'ask_ai', ...after]);
@@ -33,6 +33,30 @@ describe('curveballs', () => {
     expect(stuffedHandled).toEqual(['options']);
   });
 
+  it('has a curveball for every one of the 21 challenges, none of them a standard or Level 2 test', () => {
+    for (const d of catalogue) {
+      const cb = CURVEBALLS[d.id];
+      expect(cb, d.id).toBeDefined();
+      expect(getChallenge(d.id)!.tests.some(t => t.id === cb!.test.id)).toBe(false);
+      expect(getChallenge(d.id + '@2')?.tests.some(t => t.id === cb!.test.id) ?? false).toBe(false);
+    }
+  });
+
+  it('the 15 newer curveballs beat the reference build at both levels, except the deepfake scam a scam check can catch', () => {
+    const newer = catalogue.filter(d => !DESKS.some(x => x.id === d.id));
+    expect(newer).toHaveLength(15);
+    const outcome = (desk: Desk, level: 1 | 2) => runCurveball(rules(desk, getChallenge(level === 2 ? desk + '@2' : desk)!.ideal), desk);
+    const table = Object.fromEntries(newer.map(d => [d.id, [outcome(d.id, 1).outcome, outcome(d.id, 2).outcome].join('/')]));
+    expect(table).toEqual({
+      sciencefair: 'fail/fail', fakephoto: 'fail/fail', photocaption: 'fail/fail', signup: 'fail/fail', coding: 'fail/fail',
+      artproject: 'fail/fail', teampicker: 'fail/fail', schoolplay: 'fail/fail', debate: 'fail/fail', wellbeing: 'fail/fail',
+      firstaid: 'fail/fail', aifriend: 'fail/fail', gamemod: 'fail/fail', shopping: 'fail/fail', prizescam: 'pass/pass',
+    });
+    const stuffedHandled = newer.filter(d => curveballHandled(runCurveball(stuffed(d.id), d.id))).map(d => d.id);
+    expect(stuffedHandled).toEqual(['prizescam']);
+    expect(newer.filter(d => curveballHandled(runCurveball(rules(d.id, ['ask_ai']), d.id)))).toEqual([]);
+  });
+
   it('shows the specific way each safeguard falls short', () => {
     expect(runCurveball(ideal('history'), 'history').failureKey).toBe('wrong_check'); // a fact check does not check a book exists
     expect(runCurveball(ideal('news'), 'news').failureKey).toBe('wrong_check');       // checking quotes and numbers does not check a photo
@@ -50,8 +74,8 @@ describe('curveballs', () => {
     expect(curveballHandled(flagged)).toBe(false);
   });
 
-  it('leaves challenges without a curveball alone, since the assessment can draw any of the 21', () => {
-    const other = getChallenge('science')?.id ?? 'science';
+  it('ignores a desk with no curveball (e.g. an unknown id)', () => {
+    const other = 'not_a_challenge';
     const m = { ...newAssessment(), phase: 'attack' as const, frozen: { [other]: [{ type: 'ask_ai' as const, scope: other }] },
       launches: [{ desk: other, ids: [], reason: 'x' }] };
     expect(CURVEBALLS[other as Desk]).toBeUndefined();

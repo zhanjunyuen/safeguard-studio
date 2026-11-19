@@ -1,0 +1,79 @@
+{
+ "train": {
+  "rows": 3394,
+  "droppedHardCases": 61,
+  "judgedRows": 894,
+  "notYetJudged": 1998,
+  "byKind": {
+   "marking": 2288,
+   "robustness": 352,
+   "followup": 554,
+   "summary": 200
+  },
+  "byCriterion": {
+   "testing": 845,
+   "anticipation": 948,
+   "judgement": 599,
+   "revision": 802,
+   "all": 200
+  },
+  "byLevel": {
+   "2": 982,
+   "0": 727,
+   "1": 1509,
+   "None": 44,
+   "3": 22,
+   "4": 22,
+   "5": 22,
+   "6": 22,
+   "7": 22,
+   "8": 22
+  },
+  "byAuthor": {
+   "claude": 1620,
+   "glm-5.2": 276,
+   "gemma-4-31b-it": 283,
+   "gemma-4-26b-a4b-it": 288,
+   "qwen3.8-27b": 300,
+   "deepseek-v4-flash": 347,
+   "glm-5.3-flash": 280
+  },
+  "charsMedian": 7041,
+  "charsMax": 8847,
+  "approxTokensMax": 2211
+ },
+ "test": {
+  "rows": 284,
+  "droppedHardCases": 1,
+  "judgedRows": 63,
+  "notYetJudged": 219,
+  "byKind": {
+   "marking": 254,
+   "robustness": 27,
+   "followup": 3
+  },
+  "byCriterion": {
+   "testing": 87,
+   "anticipation": 79,
+   "judgement": 60,
+   "revision": 58
+  },
+  "byLevel": {
+   "2": 62,
+   "1": 150,
+   "0": 72
+  },
+  "byAuthor": {
+   "claude": 71,
+   "gemma-4-31b-it": 35,
+   "deepseek-v4-flash": 50,
+   "qwen3.8-27b": 39,
+   "gemma-4-26b-a4b-it": 40,
+   "glm-5.3-flash": 21,
+   "glm-5.2": 28
+  },
+  "charsMedian": 7189,
+  "charsMax": 8290,
+  "approxTokensMax": 2072
+ }
+}

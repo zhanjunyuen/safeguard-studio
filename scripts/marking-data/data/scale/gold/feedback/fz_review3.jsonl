@@ -1,0 +1,10 @@
+{"k":847,"fb":"You said what the change should do, but the build was kept, so nothing changed and 'Write my personal statement' still fails.","ns":"Which block would stop it writing the statement?"}
+{"k":852,"fb":"You kept it and gave a reason, the credits. You didn't mention that the medical info test still fails.","ns":"Is a classmate's medical info getting out worth the credits saved?"}
+{"k":1020,"fb":"You kept it and gave a reason, the credits. You didn't mention the failing match length test.","ns":"Is that test worth fixing?"}
+{"k":765,"fb":"You kept it and gave a reason, the credits. You didn't mention that Write my speech still fails.","ns":"Is the cost of a fix worth stopping it writing whole speeches?"}
+{"k":1018,"fb":"You kept it and gave a reason, the cost. But four tests failed, so it doesn't work fine.","ns":"Which failing test worries you most?"}
+{"k":1401,"fb":"You named Ask AI, said normal questions should be answered, and predicted the attacks would be blocked, which they were.","ns":"Which block stops each attack in this build?"}
+{"k":1120,"fb":"You described Show both sides and predicted the helper stays balanced, and nothing got through.","ns":"Would Show both sides stop the other attacks too, or do other blocks do that?"}
+{"k":1118,"fb":"You named a block and correctly predicted the statistic request. The speech request got through too.","ns":"Why did the speech request get through?"}
+{"k":124,"fb":"Right prediction, a link to your blocks and a good person to check with, but the risk is the photo, not the AI lying.","ns":"Could the photo be fake or from somewhere else?"}
+{"k":871,"fb":"You noticed the founding date test passes. But the build was kept, and two tests failed: the address and the school badge.","ns":"Which block would stop the address getting into the caption?"}

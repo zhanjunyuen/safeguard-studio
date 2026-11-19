@@ -197,7 +197,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
                   <p className="mt-1">{assessment.reason || 'Not recorded'}</p>
                 </div>
                 {saved && !locked && assessment.reason.trim() && <MarkFeedback request={{
-                  criterion: 'testing', text: assessment.reason, blocks: assessment.rules.map((r) => r.type), broke: saved.broke,
+                  criterion: 'testing', text: assessment.reason, blocks: assessment.rules.map((r) => r.type), broke: saved.broke, challengeId: challenge.id,
                   planned: assessment.submitted!.map((tid) => { const t = challenge.tests.find((x) => x.id === tid)!; return { id: tid, label: t.attackLabel, title: t.title, category: t.category }; }),
                 }} />}
               </div>

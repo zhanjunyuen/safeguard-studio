@@ -14,8 +14,10 @@ const OUTCOME: Record<string, string> = {
 };
 
 /** The unseen curveball for one challenge: predict, explain, then see what really happens. */
-export default function CurveballCard({ desk, rules, answer, onSubmit }: {
+export default function CurveballCard({ desk, rules, answer, onSubmit, challengeId }: {
   desk: Desk;
+  /** e.g. "party@2" at Level 2, for the AI marker */
+  challengeId?: string;
   rules: Rule[];
   answer?: CurveballAnswer;
   onSubmit: (answer: CurveballAnswer) => void;
@@ -75,7 +77,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit }: {
               <div className="space-y-2">
                 <p className="label text-ink-3">Your explanation</p>
                 <p className="rounded border border-line p-3">{answer.reason}</p>
-                <MarkFeedback request={{ criterion: 'anticipation', text: answer.reason, blocks: rules.map((r) => r.type), desk, prediction: answer.prediction, handled: ok }} />
+                <MarkFeedback request={{ criterion: 'anticipation', text: answer.reason, blocks: rules.map((r) => r.type), desk, prediction: answer.prediction, handled: ok, challengeId }} />
               </div>
             </div>
           </div>

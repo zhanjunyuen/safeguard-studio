@@ -1,0 +1,75 @@
+{"k": 45, "c": {}}
+{"k": 46, "c": {}}
+{"k": 47, "c": {"A2": "fake mr ahmed scam making ppl pay a dodgy site.", "A3": "ask ai only writes stuff, so it won't catch a fake voicemail.", "A4": "teacher or school website should check the link."}}
+{"k": 48, "c": {"A2": "The website may steal our information. They can take our names, home, and maybe money."}}
+{"k": 49, "c": {"A2": "someone can copy a teacher's voice", "A3": "the helper won't treat a teacher's 'urgent order' as a rumour to check on the school website", "A4": "Mr Ahmed himself, or the school office, could check if it's real."}}
+{"k": 50, "c": {}}
+{"k": 51, "c": {"A2": "Risk: phishing link stealing money", "A3": "Blocks: wouldn't catch it because it's just a message", "A4": "Check: Mr Ahmed or the school office"}}
+{"k": 52, "c": {"A2": "This is a phishing attack designed to steal money via a fake URL."}}
+{"k": 53, "c": {"A2": "the real site won't be pay-trip-deposit.co", "A3": "a voice note telling everyone to pay is basically a rumour till it's confirmed", "A4": "the school website would show if trip deposits are real"}}
+{"k": 54, "c": {"A2": "the risk is that it's a phishing link to steal our money.", "A4": "someone should just go to the school office and ask them if it's real."}}
+{"k": 55, "c": {}}
+{"k": 56, "c": {"A2": "It has no way to spot a scam", "A3": "Its whole job is turning requests into messages, so it will happily write the 'pay today' message exactly as asked."}}
+{"k": 57, "c": {"A2": "we are telling everyone to go to a random website and put their card details in"}}
+{"k": 58, "c": {}}
+{"k": 59, "c": {}}
+{"k": 60, "c": {"A2": "If the voice note is not really Mr Ahmed"}}
+{"k": 61, "c": {"A2": "identifies the fake URL"}, "f": "Says the website check runs before Ask AI, but in this build it comes after."}
+{"k": 62, "c": {"A2": "The risk is a fake payment link trying to take money.", "A4": "We could ask the trip leader or the school office to confirm it."}}
+{"k": 63, "c": {}}
+{"k": 64, "c": {}}
+{"k": 65, "c": {"A3": "It is important that the block to check the school website runs first to verify the link's legitimacy."}}
+{"k": 66, "c": {"A2": "it's a scam link trying to get us to pay quickly before we think."}}
+{"k": 67, "c": {}}
+{"k": 68, "c": {"A3": "ask ai block will handle it, it just passes our q to the ai"}}
+{"k": 69, "c": {"A2": "the AI might hallucinate a fake study and university"}}
+{"k": 70, "c": {}}
+{"k": 71, "c": {}}
+{"k": 72, "c": {"A2": "the AI will invent a study and a university name to sound convincing"}}
+{"k": 73, "c": {"A2": "the ai mite make up a study that aint reel", "A4": "i wood ask the librarian or my teecher to chek it on google scholer"}}
+{"k": 74, "c": {"A2": "if it is made up, the check should fail", "A3": "I think Check numbers against official data will deal with it, because: - it forces the answer to match trusted records"}}
+{"k": 75, "c": {}}
+{"k": 76, "c": {}}
+{"k": 77, "c": {}}
+{"k": 78, "c": {"A2": "the risk is the AI making up a fake study to sound smart", "A3": "since 'Ask AI' just lets it talk, it won't catch it", "A4": "You'd have to check Google or a real library to see if the uni actually exists."}}
+{"k": 79, "c": {"A2": "the AI might just invent a university or a study that doesn't even exist", "A4": "You'd have to check a proper library or a real website to be sure."}}
+{"k": 80, "c": {}}
+{"k": 81, "c": {}}
+{"k": 82, "c": {"A2": "making wun up", "A3": "the ask ai blok wil deal with it cos its a fackt queschun and the ai can serch"}}
+{"k": 83, "c": {}}
+{"k": 84, "c": {"A3": "id say the check numbers block, cos if it gives a study it probs has stats in it", "A4": "we can look them up against ofsted or gov data"}}
+{"k": 85, "c": {"A2": "the helper could make up a quote and pretend the head teacher said it", "A4": "They should just ask the head teacher or someone in the school office to check it first."}}
+{"k": 86, "c": {"A2": "The risk is the AI making up a quote the head teacher never actually said", "A4": "showing it to the head teacher so she can approve it before it goes up"}}
+{"k": 87, "c": {"A2": "the risk is a fake quote innit"}}
+{"k": 88, "c": {"A3": "That block is the one because you have to check if the AI is actually telling the truth about the quote.", "A2": "you have to check if the AI is actually telling the truth about the quote"}}
+{"k": 89, "c": {"A2": "the risk is the head teacher didnt say that.", "A4": "u shud ask her if its true."}}
+{"k": 90, "c": {"A2": "A made-up quote from the head teacher."}}
+{"k": 91, "c": {"A3": "the first block is about asking before using someone's face, and there's no photo in this request so it just gets skipped"}}
+{"k": 92, "c": {}}
+{"k": 93, "c": {"A2": "The risk is that the quote is fabricated.", "A4": "You must verify the statement with the head teacher directly"}}
+{"k": 94, "c": {"A2": "the risk is like we make a quote up and say the head teacher said it."}}
+{"k": 95, "c": {}}
+{"k": 96, "c": {"A3": "Maybe the 'Ask AI' block will work because it might know if the quote is dodgy?"}}
+{"k": 97, "c": {}}
+{"k": 98, "c": {"A2": "the head teacher's quote could be invented by the AI", "A3": "reverse image search won't help with text", "A4": "asking the head teacher or the school office if she really said it"}}
+{"k": 99, "c": {"A2": "it might admit it invented the head teacher's quote", "A3": "it's the only one about words, the other two are for photos and tone"}}
+{"k": 100, "c": {"A3": "I think maybe the 'Ask AI' block would deal with it?"}}
+{"k": 101, "c": {"A2": "AI make lie about teacher.", "A3": "My blocks no stop because no face.", "A4": "Teacher must check."}}
+{"k": 102, "c": {"A2": "the risk is adding a made-up quote from the head teacher", "A3": "the face block would not catch it because there is no face", "A4": "the head teacher or school office could check"}}
+{"k": 103, "c": {"A2": "The risk is making up a quote that the head teacher never said"}}
+{"k": 104, "c": {}}
+{"k": 105, "c": {"A3": "the Ask AI block will deal with it because it will ask the AI to provide the quote and then it will make sure the book is real."}}
+{"k": 106, "c": {}}
+{"k": 107, "c": {"A2": "it mite make up a fake book or a fake quote"}}
+{"k": 108, "c": {}}
+{"k": 109, "c": {}}
+{"k": 110, "c": {}}
+{"k": 111, "c": {}}
+{"k": 112, "c": {"A3": "Check block will deal, cus it can check if William quote and book is reel.", "A2": "it can check if William quote and book is reel"}}
+{"k": 113, "c": {"A2": "Risk is it making up a fake quote or book", "A4": "The teacher or a history book can check if it's real"}}
+{"k": 114, "c": {"A3": "the check against a trusted source block will sort it, innit. It makes the quote and book have to be proper real", "A2": "It makes the quote and book have to be proper real, not just AI rubbish."}}
+{"k": 115, "c": {}}
+{"k": 116, "c": {"A3": "ask ai block will catch it cuz it knows if it is making stuff up", "A2": "it knows if it is making stuff up"}}
+{"k": 117, "c": {"A4": "A teacher can check the book is real.", "A2": "The AI can make fake story."}}
+{"k": 118, "c": {"A2": "risk is AI make up quote and book.", "A3": "remove personal info block not catch it because no info.", "A4": "teacher or library can check."}}
+{"k": 119, "c": {}}

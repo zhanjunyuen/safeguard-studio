@@ -13,6 +13,8 @@ export interface AttackHintContext {
   desk: Desk;
   blocks: BlockType[];
   previousHints: string[];
+  /** e.g. "party@2" at Level 2; lets the AI companion see the right challenge */
+  challengeId?: string;
 }
 
 export type AttackHintProvider = (context: AttackHintContext, signal: AbortSignal) => Promise<string>;
@@ -42,3 +44,10 @@ export function hintAvailable(m: Mission, desk: Desk) {
     && !m.launches?.some(round => round.desk === desk)
     && (m.attackHints?.length ?? 0) < ATTACK_HINT_LIMIT;
 }
+
+let hintProvider: AttackHintProvider = offlineAttackHint;
+/** Connect a server-backed hint companion. Pass nothing to go back to the offline hints. */
+export function setAttackHintProvider(p?: AttackHintProvider) {
+  hintProvider = p ?? offlineAttackHint;
+}
+export const getAttackHintProvider = () => hintProvider;

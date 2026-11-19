@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { levelFor, markOffline, offlineFollowUp, FOLLOW_UPS } from './marking';
+import { skillsScore, parseModelMark, parseModelFollowUp } from './marking';
+import type { BlockType } from '../types';
 
 const judge = (text: string) => markOffline({ criterion: 'judgement', text, decision: 'Edit before publishing' });
 
@@ -43,15 +45,95 @@ describe('marking rules', () => {
     expect(held.level).toBe(2);
   });
 
+  it('marks revision notes: a change with no reason is 0, a reason is 1, change + trace + trade-off is 2', () => {
+    const base = { criterion: 'revision' as const, before: ['ask_ai'] as BlockType[], after: ['ask_ai', 'remove_pii'] as BlockType[], creditsBefore: 0, creditsAfter: 16,
+      failing: [{ id: 'p_address', label: 'Ask where a friend lives', title: 'The home address', category: 'privacy' as const }] };
+    const lvl = (text: string) => markOffline({ ...base, text }).level;
+    expect(lvl('I added the remove personal details block.')).toBe(0);
+    expect(lvl('The home address test failed in the replay, so it needed fixing.')).toBe(1);
+    expect(lvl('I added remove personal details because the home address got through in the attack. It is safer now but costs 16 more credits.')).toBe(2);
+    expect(lvl('I kept my build. The attack on the home address was caught, and adding more blocks would cost credits without making it any safer.')).toBe(2);
+    expect(lvl('ok')).toBeNull();
+  });
+
   it('computes levels from concepts alone, so a model marker gets the same rules', () => {
     const c = (id: string, present: boolean) => ({ id, label: id, present });
     expect(levelFor('anticipation', [c('A1', true), c('A2', true), c('A3', true), c('A4', false)], 'four words at least')).toBe(2);
     expect(levelFor('testing', [c('T1', true), c('T2', false), c('T3', false)], 'four words at least')).toBe(1);
+    expect(levelFor('revision', [c('R1', true), c('R2', false), c('R3', false), c('R4', false)], 'four words at least')).toBe(0);
+    expect(levelFor('revision', [c('R1', true), c('R2', true), c('R3', true), c('R4', true)], 'four words at least')).toBe(2);
   });
 
   it('answers follow-up questions from the same evidence', async () => {
     const m = judge('Change it to 10 am instead of 9 am because that is what the new notice says.');
     expect(await offlineFollowUp(m, FOLLOW_UPS[0])).toContain('Level 1 of 2');
     expect(await offlineFollowUp(m, FOLLOW_UPS[1])).toContain('Which detail');
+  });
+});
+
+
+describe('skillsScore', () => {
+  it('adds the four levels out of 8 and picks the band', () => {
+    const s = skillsScore({ testing: 2, anticipation: 1, judgement: 2, revision: 1 });
+    expect(s.total).toBe(6); expect(s.outOf).toBe(8); expect(s.band).toBe('Secure'); expect(s.notEnoughEvidence).toEqual([]);
+  });
+  it('counts missing or null levels as 0 and lists them', () => {
+    const s = skillsScore({ testing: 1, judgement: null });
+    expect(s.total).toBe(1); expect(s.band).toBe('Getting started');
+    expect(s.notEnoughEvidence).toEqual(['anticipation', 'judgement', 'revision']);
+  });
+  it('band edges: 3 is Developing, 5 is Developing, 6 is Secure', () => {
+    expect(skillsScore({ testing: 2, anticipation: 1 }).band).toBe('Developing');
+    expect(skillsScore({ testing: 2, anticipation: 2, judgement: 1 }).band).toBe('Developing');
+    expect(skillsScore({ testing: 2, anticipation: 2, judgement: 2 }).band).toBe('Secure');
+  });
+});
+
+describe('parseModelMark (trained-model replies with a reasoning trace)', () => {
+  const req = { criterion: 'testing' as const, text: 'Cast by audition is missing. The hero has to be a boy will get through.',
+    blocks: ['ask_ai'] as BlockType[], planned: [], broke: ['sp_cast'] };
+  const reply = (over: Record<string, unknown> = {}) => JSON.stringify({
+    reasoning: 'T1 PRESENT: names the missing block. T2 PRESENT. T3 PRESENT. Rule → level 2.',
+    criterion: 'testing', rubricVersion: 'marking-concepts-1',
+    concepts: [
+      { id: 'T1', present: true, evidence: 'Cast by audition is missing.' },
+      { id: 'T2', present: true, evidence: 'The hero has to be a boy will get through' },
+      { id: 'T3', present: true, evidence: 'The hero has to be a boy will get through' },
+    ],
+    level: 2, feedback: 'Block and prediction both there.', nextStep: 'Where should it go?', reviewFlag: false, ...over,
+  });
+
+  it('drops the reasoning and keeps the mark', () => {
+    const m = parseModelMark(reply(), req);
+    expect(m.level).toBe(2);
+    expect(m.reviewFlag).toBe(false);
+    expect(JSON.stringify(m)).not.toContain('reasoning');
+  });
+  it('recomputes the level and flags a model that claims a different one', () => {
+    const m = parseModelMark(reply({ level: 1 }), req);
+    expect(m.level).toBe(2);
+    expect(m.reviewFlag).toBe(true);
+  });
+  it('rejects a concept whose quote is not in the answer', () => {
+    const m = parseModelMark(reply({ concepts: [{ id: 'T1', present: true, evidence: 'I named every block' }], level: 0 }), req);
+    expect(m.concepts.find((c) => c.id === 'T1')!.present).toBe(false);
+    expect(m.level).toBe(0);
+  });
+  it('takes A1 from the simulator, not the model', () => {
+    const areq = { criterion: 'anticipation' as const, text: 'The risk is a fake study and my blocks miss it.', blocks: ['ask_ai'] as BlockType[],
+      desk: 'debate' as never, prediction: 'struggles' as const, handled: true };
+    const m = parseModelMark(JSON.stringify({ reasoning: '…', concepts: [{ id: 'A1', present: true }, { id: 'A2', present: true, evidence: 'The risk is a fake study' },
+      { id: 'A3', present: true, evidence: 'my blocks miss it' }], level: 2 }), areq);
+    expect(m.concepts.find((c) => c.id === 'A1')!.present).toBe(false);
+    expect(m.level).toBe(1);
+  });
+  it('falls back to the offline preview, flagged, when the reply is not JSON', () => {
+    const m = parseModelMark('Sorry, I cannot mark this.', req);
+    expect(m.marker).toBe('offline-keywords-0');
+    expect(m.reviewFlag).toBe(true);
+  });
+  it('returns only the answer from a follow-up reply', () => {
+    expect(parseModelFollowUp(JSON.stringify({ reasoning: 'The mark stays at 1.', answer: 'Name a block too.' }))).toBe('Name a block too.');
+    expect(parseModelFollowUp('Plain text answer.')).toBe('Plain text answer.');
   });
 });

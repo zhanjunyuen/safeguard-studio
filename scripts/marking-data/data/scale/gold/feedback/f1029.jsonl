@@ -1,0 +1,99 @@
+{"k":1029,"fb":"The build was changed (Remove personal info added), not kept.","ns":"Which test did the change fix?"}
+{"k":1030,"fb":"You cited the right test and weighed it, but the build was kept, so nothing changed.","ns":"Which block would actually fix the panic attacks test?"}
+{"k":1031,"fb":"You named the change, but not which tests made you add it or what it cost.","ns":"Which two tests failed before?"}
+{"k":1032,"fb":"Complete: the failing test, the blocks you added and a clear trade-off between credits and safety.","ns":"Which of the three blocks fixed the 'feeling low' test?"}
+{"k":1033,"fb":"You kept it, but 0 credits means it costs nothing, and five serious tests still fail.","ns":"Which failing test could hurt a pupil most?"}
+{"k":1034,"fb":"You named the change and the test behind it, but the new build saves 35 credits rather than costing more.","ns":"Look again: did the credits go up or down?"}
+{"k":1035,"fb":"The build was kept, so no flag was added, and four tests still fail.","ns":"Which block would catch 'Nobody would notice'?"}
+{"k":1036,"fb":"Clear change, the test behind it, and an honest trade-off between credits and safety.","ns":"Did the trusted source check slow down normal check-ins?"}
+{"k":1037,"fb":"The wrong sleep advice test failed, so not everything passed.","ns":"What advice did the helper give?"}
+{"k":1038,"fb":"Not yet shown: what changed, which test made you change it, or the cost.","ns":"Which block did you add, and what did it fix?"}
+{"k":1039,"fb":"You cited the failing test, but not what you decided or why.","ns":"Did you change or keep the build, and what would a fix cost?"}
+{"k":1040,"fb":"The build was changed (a trusted-adult step was added), not kept.","ns":"Which tests did the new step fix?"}
+{"k":1041,"fb":"True, the panic attacks test was handled, but three other tests still fail.","ns":"Which tests still fail, and what would fix them?"}
+{"k":1042,"fb":"You described your Ask AI block, but didn't predict which attack gets through.","ns":"With only Ask AI, which of your attacks will get through?"}
+{"k":1043,"fb":"Right prediction: keeping secrets from parents got through. You didn't say which block is involved.","ns":"Why does Ask AI let it through? What's missing?"}
+{"k":1044,"fb":"You described the Don't-agree block, but didn't predict what gets through.","ns":"Which attack, if any, would you expect to get through?"}
+{"k":1045,"fb":"You named a block, but nothing got through here, so the joke request was handled.","ns":"Why did all your attacks fail against this build?"}
+{"k":1046,"fb":"The Remind block is in this build, and nothing got through.","ns":"Look at the build again: which blocks does it have?"}
+{"k":1047,"fb":"You described Ask AI, but didn't predict which attack gets through.","ns":"Which attack do you think breaks this build, and why?"}
+{"k":1048,"fb":"Not yet shown: a named block, or which attack gets through.","ns":"Pick one attack and say which block should stop it."}
+{"k":1049,"fb":"No block named and no specific prediction.","ns":"Which attack would get past these three blocks?"}
+{"k":1050,"fb":"No block named and no prediction.","ns":"Which block is missing from this helper?"}
+{"k":1051,"fb":"You described the Remind block, but didn't predict which attack gets through.","ns":"Which request would still get past it?"}
+{"k":1052,"fb":"Right prediction: the partner request got through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1053,"fb":"You named a block and correctly predicted the 'only friend' request gets through.","ns":"Which block would you add to stop it?"}
+{"k":1054,"fb":"Nothing got through this build, so the partner request was stopped. No block named.","ns":"Which of your blocks stopped it?"}
+{"k":1055,"fb":"You described the Remind block, but didn't predict anything.","ns":"Would any of your attacks get through? Which?"}
+{"k":1056,"fb":"Nothing got through here, and no block is named.","ns":"Which block stopped the 'only friend' request?"}
+{"k":1057,"fb":"Your prediction was wrong: the secrets request got through. No block named.","ns":"Which block is missing for secrets?"}
+{"k":1058,"fb":"You named a block, but the hurt request got through, not the partner one.","ns":"Why didn't the Remind block stop the hurt request?"}
+{"k":1059,"fb":"You described Ask AI clearly, but didn't predict which attack gets through.","ns":"Which of your attacks would break this build?"}
+{"k":1060,"fb":"You named Ask AI and said normal requests should still be answered: good.","ns":"Which of your attacks would get through?"}
+{"k":1061,"fb":"Your prediction was wrong: the jobs request got through, and no block is named.","ns":"Why did the jobs request get through?"}
+{"k":1062,"fb":"You named a block and correctly predicted the jobs request gets through.","ns":"Which block would actually stop stereotyped job pictures?"}
+{"k":1063,"fb":"You named a block, but nothing got through, so the pass-off request was stopped.","ns":"Which block stopped it?"}
+{"k":1064,"fb":"Nothing got through, and no block is named.","ns":"Which block stops passing off AI pictures?"}
+{"k":1065,"fb":"Your prediction was wrong: one request got through, and no block is named.","ns":"Which attack got through, and why?"}
+{"k":1066,"fb":"Right prediction: nothing got through. Name a block that helped.","ns":"Which block stopped the AI art request?"}
+{"k":1067,"fb":"You named the label block, but nothing got through.","ns":"Which block stopped the fake drawings?"}
+{"k":1068,"fb":"You named Ask AI and said normal sketches should be answered: good.","ns":"Which attack got through this build?"}
+{"k":1069,"fb":"You described the Give ideas block, but didn't predict which attack gets through.","ns":"Which attack would get past it?"}
+{"k":1070,"fb":"You named the label block and correctly predicted the jobs request gets through.","ns":"Why doesn't the label stop stereotyped pictures?"}
+{"k":1071,"fb":"You named Ask AI and correctly predicted the jobs request gets through.","ns":"Which block would stop it?"}
+{"k":1072,"fb":"You named a missing safeguard and correctly predicted the competition request gets through.","ns":"Which real block would you add for that?"}
+{"k":1073,"fb":"You named a block, but nothing got through, and an art history fact is a normal question.","ns":"Should a normal fact question be answered?"}
+{"k":1074,"fb":"You named Ask AI and saw a normal fact question should be answered.","ns":"Which attack would you expect to get through?"}
+{"k":1075,"fb":"You named a block and said normal questions should be answered: good.","ns":"Would any of your attacks get through?"}
+{"k":1076,"fb":"Good that a normal fact question should be answered, but you didn't name a block or predict an attack.","ns":"Which attack got through this build?"}
+{"k":1077,"fb":"Right prediction: the homework request got through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1078,"fb":"You described the Mix up block, but didn't predict which attack gets through.","ns":"Which attack would get past these blocks?"}
+{"k":1079,"fb":"Right prediction: passing off an AI picture got through. You didn't name a block.","ns":"Which block is missing for this?"}
+{"k":1080,"fb":"Nothing got through, so the homework request was stopped. No block named.","ns":"Which block stopped it?"}
+{"k":1081,"fb":"Good that a normal question should work, but you didn't name a block or an attack.","ns":"Which of your attacks would get through?"}
+{"k":1082,"fb":"Right prediction: the rumour got through. You didn't name a block.","ns":"Which block is missing for rumours?"}
+{"k":1083,"fb":"Right: both the mean request and the rumour got through. You didn't name a block.","ns":"Which blocks would stop them?"}
+{"k":1084,"fb":"Your prediction was wrong: the mean request got through. No block named.","ns":"Which block is missing for mean messages?"}
+{"k":1085,"fb":"You named Ask AI and said normal questions should be answered: good.","ns":"Which attack got through this build?"}
+{"k":1086,"fb":"You named a block, but nothing got through, and a poll is a normal request.","ns":"Which block stopped your attacks?"}
+{"k":1087,"fb":"You described Ask AI, but didn't predict anything.","ns":"Would any attack get through? Which?"}
+{"k":1088,"fb":"No block named, and the rumour got through, not a mean message.","ns":"Which block is missing for rumours?"}
+{"k":1089,"fb":"You named a block and said normal questions should be answered.","ns":"Which attack got through this build?"}
+{"k":1090,"fb":"Right prediction: the address request got through. You didn't name a block.","ns":"Which block is missing that would stop it?"}
+{"k":1091,"fb":"Right prediction, but the reason is wrong: the Never-share block is missing, not misplaced.","ns":"Look at the build: which block is missing?"}
+{"k":1092,"fb":"You named a block, but the mean request got through, not the address one.","ns":"Which block is missing for mean messages?"}
+{"k":1093,"fb":"Right prediction: the mean request got through. You didn't name a block.","ns":"Which block is missing?"}
+{"k":1094,"fb":"Right prediction: the homework request got through. You didn't name a block.","ns":"Which block would stop it?"}
+{"k":1095,"fb":"You described Ask AI, but didn't predict anything.","ns":"Which attack would get through with only Ask AI?"}
+{"k":1096,"fb":"You named Ask AI, but didn't predict which attack gets through.","ns":"Which attack breaks this build?"}
+{"k":1097,"fb":"No block named and no specific prediction.","ns":"Which attack gets past these blocks?"}
+{"k":1098,"fb":"You described the Never-share block well, but didn't predict anything.","ns":"Would any attack get through this full build?"}
+{"k":1099,"fb":"You named Ask AI and said homework help should be answered: good.","ns":"Which attack got through?"}
+{"k":1100,"fb":"You named a block, but the rumour got through, not the address request.","ns":"Which block is missing for rumours?"}
+{"k":1101,"fb":"You named a block and said normal requests should be answered.","ns":"Which attack got through this build?"}
+{"k":1102,"fb":"You named a block order issue, but the address request got through, not the rumour.","ns":"Which block is missing for addresses?"}
+{"k":1103,"fb":"You named the missing safeguard and correctly predicted the mean request gets through.","ns":"What is the real block called?"}
+{"k":1104,"fb":"You named a block, but the mean request got through, not the rumour.","ns":"Which block is missing for mean messages?"}
+{"k":1105,"fb":"No block named, and a poll is a normal request; nothing got through here.","ns":"Which block stopped your attacks?"}
+{"k":1106,"fb":"Right prediction: the one-side request got through. You didn't name a block.","ns":"Which block is missing for it?"}
+{"k":1107,"fb":"Right prediction: the statistic request got through. You didn't name a block.","ns":"Which block would stop it?"}
+{"k":1108,"fb":"You described the Coach block well, but didn't predict anything.","ns":"Would any of your attacks get through?"}
+{"k":1109,"fb":"No block named and no clear prediction.","ns":"Which block stops each attack?"}
+{"k":1110,"fb":"Right prediction: nothing got through. Name a block that helped.","ns":"Which block stopped the statistic request?"}
+{"k":1111,"fb":"No block named and no clear prediction.","ns":"Which attack got through this build?"}
+{"k":1112,"fb":"You named Ask AI, but the speech request didn't get through: a games request did.","ns":"Which attack got through, and why?"}
+{"k":1113,"fb":"You named the Coach block and said normal questions should be answered.","ns":"Which attack got through this build?"}
+{"k":1114,"fb":"You named the missing block and correctly predicted the statistic request gets through.","ns":"Where exactly would you put the number check?"}
+{"k":1115,"fb":"No block named and no clear prediction.","ns":"Which block is missing from this build?"}
+{"k":1116,"fb":"Your prediction was wrong: the speech request got through. No block named.","ns":"Which block is missing for speeches?"}
+{"k":1117,"fb":"You named a block, but the hidden one-sided claim got through, not the opening opinion.","ns":"What was hidden in the request that got through?"}
+{"k":1118,"fb":"You named a block, but the speech request got through, not the statistic.","ns":"Why did the speech request get through?"}
+{"k":1119,"fb":"You named a block, but the speech request got through, not the one-side request.","ns":"Which attack got through?"}
+{"k":1120,"fb":"You described Show both sides well, but didn't predict anything.","ns":"Would any attack get through this full build?"}
+{"k":1121,"fb":"You named Ask AI, but nothing got through here.","ns":"Which blocks stopped your attacks?"}
+{"k":1122,"fb":"You named Ask AI and correctly predicted the one-side request gets through.","ns":"Which block would stop it?"}
+{"k":1123,"fb":"You described the number check, but didn't predict anything.","ns":"Which attack gets through this build?"}
+{"k":1124,"fb":"You named a block, but nothing got through.","ns":"Which block stopped the opening statement request?"}
+{"k":1125,"fb":"You described the number check well, but didn't predict anything.","ns":"Which attack gets past it?"}
+{"k":1126,"fb":"No block named and no prediction.","ns":"Which attack got through this build?"}
+{"k":1127,"fb":"You named the missing image check and correctly predicted the AI-made photo gets through.","ns":"Where would you put an image check?"}

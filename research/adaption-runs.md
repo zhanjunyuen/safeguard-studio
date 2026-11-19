@@ -1,0 +1,112 @@
+# Adaption training runs
+
+Training log for the marking model (handoff §7 step 7). The set is built by `scripts/marking-data/` (see its README).
+
+## Run 1 · 18 Nov 2026
+
+| | |
+|---|---|
+| Run ID | `209047c0-dd6b-42e1-a5d5-050813eaa245` |
+| Dataset | `309cc67c-b31c-4d37-b385-75a2a304b18d` (`safeguard-marker-train-v1`, 1,065 rows, raw mode) |
+| Base model | `openai/gpt-oss-120b` |
+| Method | `instruction` (confirmed in the response), `max_iterations` 1, `target_win_rate` 0.8 (default) |
+| Augmentation | 0 domain rows, 0 general rows |
+| Columns | prompt `original_prompt`, completion `original_completion`, no reasoning trace |
+| Hyperparameters | Adaption's recommendation: LoRA r 4, alpha 8, q/v projections, 1 epoch, lr 5e-5 cosine, `train_on_inputs` false |
+| Status | succeeded: started 17:45, finished 18:31 UTC (1 iteration, 27 steps) |
+| `best_win_rate` | **0.4293** (target 0.8; Adaption only accepts targets of 0.5 or more) |
+| Adapter | LoRA for `togethercomputer/gpt-oss-120b-bf16`, 6 MB of weights. Kept outside the repo at `~/adaption-adapters/safeguard-marker-run1/` (zstd-compressed tar, even though the extension is `.tgz`) |
+
+**Why this model:** the set is about 1,000 rows, below the 10,000-row minimum for `Qwen/Qwen3.5-122B-A10B` (handoff §3). This first run is kept to one iteration because the credit cost was unknown.
+
+### Training set
+
+- **Rows:** train 1,065 (marking 521, robustness 349, follow-up 195); test 84 (held out, never uploaded).
+- **By criterion (train):** testing 272, anticipation 348, judgement 186, revision 259.
+- **By level (train):** 0: 138, 1: 368, 2: 545; 14 rows have no level (follow-ups).
+- **Validator:** 0 rejects in the final build. Earlier builds rejected a follow-up phrasing ("for level 2…") and one mistyped item key; both were fixed before this build.
+- **Blind judge** (`qwen3.5-397b`, a different model family): 957 rows judged.
+  - Level agreement 94.6%, concept agreement 95.8%. Anticipation is the weakest (A2–A4 about 93–94%).
+  - The 53 rows where the judge gave a different level are left out of training, along with their follow-ups: 60 training rows in all.
+  - 48 rows timed out repeatedly at the gateway (504) and were not judged: 28 training rows and 19 test rows, plus one row that ran outside the build. They are kept as unchecked.
+- **Mark fixes found during review:** three revision items in batch b12 credited R2 for a test result that contradicts the simulator. The codebook says such a claim does not count, so they were corrected before upload.
+
+### Things learnt about the API
+
+- A raw upload stores the columns as `original_prompt` / `original_completion` (plus empty `enhanced_*` columns). Training must name those columns; `prompt` / `completion` are rejected with a 400 error.
+- The column mapping for raw uploads has no `reasoning_trace` key, so a reasoning-trace column is dropped silently. That's why this run trains on the JSON completion alone. To train with reasoning, the dataset would need a different route, for example asking Adaption whether raw ingestion can keep extra columns.
+- The stored rows were downloaded and checked: all 1,065 prompts and completions match the export byte for byte, and the `enhanced_*` columns are empty. Nothing was rewritten.
+
+### Results
+
+**Training loss** (from `trainer_state.json`):
+
+| | Start | End |
+|---|---|---|
+| Training loss | 2.42 | 1.13 |
+| Eval loss | 1.88 (step 7) | 1.31 (step 27) |
+
+Eval loss was still falling at the last step, so the run looks under-trained. That's not surprising: it ran 1 epoch at LoRA rank 4, only on the q/v projections.
+
+**Adaption win rate: 0.43.** This is below 0.5, so by Adaption's own comparison the tuned model did not come out ahead more often than not. Do not treat run 1 as a usable marker.
+
+**Held-out evaluation (handoff §8): not possible from here.**
+- Adaption serves only its general hosted models through the API (`models.list` accepts only `type="hosted"`), so the adapter cannot be called.
+- A 120B base model cannot run on this machine.
+- What we do have is the bar a served adapter must clear. The blind zero-shot judge (`qwen3.5-397b`) agrees with the reference level on **62 of 63** judged held-out test rows (98.4%), and on 94.6% of all judged rows. A strong general model with the codebook in its prompt is already a good marker.
+
+### Next steps (proposed)
+
+1. **Ship the zero-shot marker first.** The app's AI marking path could use a hosted model, such as `qwen3.5-397b`, with the codebook prompt from `build.ts`. `levelFor` computes the level and the quotes are checked against the pupil's text, as now. That works today; an adapter needs separate hosting.
+2. **If we train again:** use 2–3 epochs or `max_iterations` 3, find a way to keep the reasoning traces, and add more Claude-written items, especially anticipation, where agreement is lowest. Ask for the credit budget first.
+3. To use any adapter, it has to be served somewhere that can host LoRA on gpt-oss-120b (handoff §7 step 9).
+
+## Run 2 · 18 Nov 2026
+
+| | |
+|---|---|
+| Run ID | `891462b0-57e2-45f7-be99-b82db18be4e6` |
+| Dataset | `f0bb48dd-8d97-4d8b-83eb-ec65785fbaaf` (`safeguard-marker-train-v2`, 2,508 rows, raw mode) |
+| Base model | `openai/gpt-oss-120b` |
+| Method | `instruction`, `max_iterations` 3, `target_win_rate` 0.8 |
+| Augmentation | 0 |
+| Columns | inferred by Adaption (raw upload: `original_prompt` / `original_completion`) |
+| Hyperparameters (starting) | Adaption's recommendation: LoRA r 4, alpha 8, q/v, 1 epoch, lr 1e-4 (doubled from run 1 for the larger set); later iterations may change them |
+| Status | running (started 21:04 UTC) |
+
+**What changed from run 1:**
+- **Gold batch g01:** 1,443 more Claude-marked items. The pupil answers were written by six Adaption-hosted models (`deepseek-v4-flash`, `glm-5.3-flash`, `glm-5.2`, `gemma-4-26b-a4b-it`, `gemma-4-31b-it`, `qwen3.8-27b`), one answer from each batched generation call, with content targets that spread the levels and varied pupil voices. Every concept verdict and quote is Claude's; `build.ts` validated all 1,443 with 0 rejects, and 181 are flagged for wrong claims.
+- **Rows:** train 2,508 (marking 1,964, robustness 349, follow-up 195); test unchanged at 84.
+- **By level (train):** 0: 668, 1: 1,099, 2: 727.
+- **Not yet blind-judged:** the g01 rows have not been through the qwen judge (the account limit of 25 requests a minute made judging slow), so they are in training unchecked.
+- **Iterations:** 3 rather than 1, so AutoScientist can adjust the hyperparameters, since run 1 was under-trained.
+
+## Run 3 (18 Nov, 23:04): v3 data, gpt-oss-120b, 3 iterations
+
+- Run `ab57b863-068e-434c-9444-32b167725883`, dataset `bf0ff5c1-4c3d-48e8-9df2-220d0137c6be` (3,227 rows), columns mapped explicitly (`original_prompt` / `original_completion`). Same model and iterations as run 2, so the two compare directly.
+- Rows: 2,124 marking, 349 robustness, 554 follow-up Q&A about feedback (17%), 200 skills summaries (score /8, band, strengths, next steps). 61 blind-judge hard cases left out.
+- What changed since run 2:
+  - g01 T2 follows the codebook (71 items 0→1).
+  - g02 adds 160 marked generated answers (more non-Claude Level 2).
+  - Every blind-judge disagreement on g01/g02 was re-reviewed (63 corrections logged in `data/scale/gold/review*.jsonl`); level agreement with qwen3.5-397b is 0.91 (g01) and 0.93 (g02).
+  - Keys are file-scoped, which fixed 11 follow-ups that pointed at the wrong answer.
+- Run 2 at the time: 2 of 3 iterations done, best win rate 0.39 (run 1: 0.43).
+
+## Run 4 (19 Nov, 00:17): v3.1, reasoning trace inside the completion
+
+- Run `3fedd7b8-e13b-4f0a-8e50-baed27d5acd8`, dataset `b02cb57b-6e47-4652-9e4e-4724bbcc3fb0` (3,227 rows), gpt-oss-120b, 3 iterations.
+- Same rows as run 3; the only difference is that each completion starts with `"reasoning"` (concept-by-concept, from the simulator facts), so run 3 vs run 4 measures what the trace adds.
+- Why: a test upload (19 Nov) showed raw ingestion keeps only `original_prompt` / `original_completion`; a mapped `reasoning_trace` column is dropped, so runs 1–3 never saw a trace. gpt-oss-120b does report `train_with_reasoning: true`, but only a dataset column can feed it, and raw mode can't store one.
+
+### Run 2 result (19 Nov, 00:35)
+
+Succeeded: 3 of 3 iterations, best win rate **0.394** (run 1: 0.43), LoRA r 4, lr 1e-4, 1 epoch. The bigger v2 set did not beat run 1. v2 still had the problems found afterwards: the g01 T2 drift, 11 follow-ups on the wrong answers, generic gold reasons, and no reasoning trace. Runs 3 (v3) and 4 (v3.1, trace in completion) test those fixes.
+
+## Run 5 (19 Nov, 00:43): v3.2, gpt-oss-120b, 3 iterations
+
+- Run `c475b32c-6582-4025-83b6-3f70ead32d77`, dataset `99d8eafd-0914-4808-9813-afb155b3cd8a` (3,394 rows), reasoning first in every completion (as run 4).
+- Adds to run 4's data:
+  - g04: 120 marked generated answers aimed at Level 2. Generated answers are now 21% Level 2 (was 17%).
+  - b13: 47 short, off-topic, marker-instruction and wellbeing-concern answers. Not-enough-evidence rows go from 9 to 39.
+- New held-out evaluation set g03: 200 Claude-marked generated answers on the held-out challenges and scenarios (test split only). The test split is now 254 marking rows (213 generated, 41 Claude), so accuracy can be reported by author.
+- Blind-judge level agreement: g03 0.83 (2 of 34 disagreements corrected), g04 0.90 (1 of 12 corrected).

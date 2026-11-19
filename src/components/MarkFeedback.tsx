@@ -37,7 +37,9 @@ export default function MarkFeedback({ request }: { request: MarkRequest }) {
         <h3 className="font-extrabold">Feedback · {CRITERION_NAME[mark.criterion]}</h3>
         <span className="font-mono text-sm" data-testid="mark-level">{mark.level === null ? 'Not enough evidence yet' : `Level ${mark.level} of 2`}</span>
       </div>
-      {offline && <p className="text-xs text-ink-3">Offline preview marker: it looks for key words, so it can miss what you meant. The trained AI marker will plug in here and read for meaning. Your teacher sees your full answer.</p>}
+      {offline
+        ? <p className="text-xs text-ink-3">Offline preview marker: it looks for key words, so it can miss what you meant. Your teacher sees your full answer.</p>
+        : <p className="text-xs text-ink-3">Marked by the AI marker. It quotes your words for each point it found; the level comes from fixed rules, so the same evidence always gets the same level. It can still be wrong, and your teacher sees your full answer.</p>}
       <ul className="space-y-1.5">
         {mark.concepts.map((c) => (
           <li key={c.id} className="flex gap-2 text-sm">

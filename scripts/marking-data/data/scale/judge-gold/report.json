@@ -1,0 +1,12 @@
+{
+ "calls": "183/183 parsed",
+ "answers": 1443,
+ "levelAgreement": 0.91,
+ "byCriterion": {
+  "anticipation": "373/402",
+  "judgement": "289/293",
+  "revision": "290/347",
+  "testing": "361/401"
+ },
+ "disagreements": 130
+}

@@ -1,0 +1,87 @@
+{"k":761,"fb":"Three tests failed, so not every test passed, though learning more from coaching is a fair point.","ns":"What happened in the 'I'm right, aren't I?' test?"}
+{"k":762,"fb":"The build was changed (a number check was added), not kept.","ns":"Which test did the number check fix?"}
+{"k":763,"fb":"You kept it, but didn't say which test still fails or weigh it up.","ns":"The made-up statistic test still fails. Is saving credits worth that?"}
+{"k":764,"fb":"Clear change, the test behind it, and a fair trade-off between credits and safety.","ns":"Would you put the Coach block anywhere else? Why?"}
+{"k":765,"fb":"You kept it, but didn't mention that Write my speech still fails.","ns":"Is the cost of a fix worth stopping it writing whole speeches?"}
+{"k":766,"fb":"You cited the failing classmate test and weighed the cost, but the build was kept, so nothing changed.","ns":"Which block would actually fix the classmate photo test?"}
+{"k":767,"fb":"The build was changed (blocks reordered and neutral wording added), not kept.","ns":"Which tests did the change fix?"}
+{"k":768,"fb":"You cited the right failing test, but the build was kept, so no block was added.","ns":"What would you add to fix the classmate photo test?"}
+{"k":769,"fb":"The build was kept, so nothing was added.","ns":"What does the classmate photo test still show?"}
+{"k":770,"fb":"You named the change and said it's safer, but not which test made you add it.","ns":"Which test failed before you added neutral wording?"}
+{"k":771,"fb":"You cited the failing test and weighed cost against safety, but the build was kept, so the order didn't change.","ns":"What would fix the one-sided caption test?"}
+{"k":772,"fb":"You named the change and the two failing tests, and noted the extra complexity, but didn't compare it with the gain.","ns":"Was the extra cost worth catching the fake photos?"}
+{"k":773,"fb":"You cited a failing test, but credits are a cost, not a reward, and you didn't say what changed.","ns":"Which blocks did you add, and what did they cost?"}
+{"k":774,"fb":"The build was kept, so nothing changed, and five tests still fail.","ns":"Which failing test would you fix first?"}
+{"k":775,"fb":"You named both changes, but not which tests made you do it or what it cost.","ns":"Which three tests failed before?"}
+{"k":776,"fb":"A good weighing of safety against cost, but the build was kept, so nothing changed.","ns":"What would you actually add to fix the classmate test?"}
+{"k":777,"fb":"You cited a failing test, but not what you changed or what it cost.","ns":"Which block did you add, and did it fix the test?"}
+{"k":778,"fb":"You named the change and the test behind it, but didn't say what it cost or gained.","ns":"How many credits did it add, and was it worth it?"}
+{"k":779,"fb":"The build was kept, so the caption didn't change.","ns":"Which test still fails?"}
+{"k":780,"fb":"You kept it and cited the results, but didn't weigh the two failing tests against the cost.","ns":"Are the two failing fake-photo tests worth fixing? Why?"}
+{"k":781,"fb":"The build was changed, and credits are a cost, not a score.","ns":"What did you add, and which tests did it fix?"}
+{"k":782,"fb":"You cited the right test and weighed it well, but the build was kept, so nothing changed.","ns":"Which block would actually stop it writing the essay?"}
+{"k":783,"fb":"You cited the test that's now fixed, but not what you changed or what it cost.","ns":"Which blocks did you add or move?"}
+{"k":784,"fb":"You kept it, but didn't say why, given two tests still fail.","ns":"Are the address and essay failures worth fixing?"}
+{"k":785,"fb":"Clear change, the test behind it, and a fair trade-off between credits and safety.","ns":"Was the extra cost worth it for one test?"}
+{"k":786,"fb":"The build was kept, so it isn't safer, and the loaded question still fails.","ns":"What would fix the loaded question test?"}
+{"k":787,"fb":"You cited the test that's now handled, but not what changed.","ns":"Which block fixed it, and what did it cost?"}
+{"k":788,"fb":"The build was kept, so no rule was added, and the date test still fails.","ns":"Which block would catch confident wrong dates?"}
+{"k":789,"fb":"Not yet shown: what you changed, which test made you change it, or what it cost.","ns":"Which test failed before, and what did you add?"}
+{"k":790,"fb":"Not yet shown: what changed, the test behind it, or the cost.","ns":"Which block did you add, and what did it fix?"}
+{"k":791,"fb":"You kept it, but didn't mention the failing address test.","ns":"Is saving credits worth a friend's address getting through?"}
+{"k":792,"fb":"The build was changed, and five tests failed before the change.","ns":"Which tests did the change fix?"}
+{"k":793,"fb":"A reasoned decision: you kept it, cited the failing address test and weighed cost against safety.","ns":"Would you decide differently if the address belonged to someone you know?"}
+{"k":794,"fb":"The build was kept, so the address test still fails.","ns":"What would stop addresses being shared?"}
+{"k":795,"fb":"You named the change, but not which test made you add it or what it cost.","ns":"Which test failed, and was the cost worth it?"}
+{"k":796,"fb":"The build was kept, so it isn't better, and the loaded question still fails.","ns":"What would fix it?"}
+{"k":797,"fb":"You kept it, but didn't mention the failing date test.","ns":"Is the date test worth fixing?"}
+{"k":798,"fb":"You named the change and its effect, but not which test made you do it.","ns":"Which test failed before you added coaching?"}
+{"k":799,"fb":"You cited the test that's now handled, but not what you changed or the cost.","ns":"Which block fixed it?"}
+{"k":800,"fb":"You cited the right test and weighed the cost, but the build was kept, so nothing was added.","ns":"Which block would actually stop addresses?"}
+{"k":801,"fb":"You cited the test that's now fixed, but not what changed or what it cost.","ns":"Which block fixed the headline?"}
+{"k":802,"fb":"The build was kept, so nothing changed, and five tests still fail.","ns":"Which failing test would you fix first?"}
+{"k":803,"fb":"Not yet shown: what you changed, the test behind it, or the cost.","ns":"Which tests failed before, and what did you add?"}
+{"k":804,"fb":"These are edits to the article, not changes to the helper's blocks, which were kept.","ns":"Which blocks would stop these problems next time?"}
+{"k":805,"fb":"You cited the right test, but not what you did about it.","ns":"Which block did you add, and did it fix the test?"}
+{"k":806,"fb":"True, the statistics test was handled, but the invented quote test still fails.","ns":"What should you do about the invented quote test?"}
+{"k":807,"fb":"Clear change, the test behind it, and a fair trade-off between credits and accurate facts.","ns":"Would you still do it if it cost 50 more credits?"}
+{"k":808,"fb":"The build was kept, so the statistic check didn't change.","ns":"Which test still fails?"}
+{"k":809,"fb":"The build was changed, and higher credits mean higher cost, not more checks.","ns":"What did you add, and what did it fix?"}
+{"k":810,"fb":"These are edits to your article; the helper's blocks were kept.","ns":"Which test still fails, and what would fix it?"}
+{"k":811,"fb":"You kept it and gave a credit reason, but didn't mention the failing headline test.","ns":"Is a one-sided headline worth leaving to save credits?"}
+{"k":812,"fb":"You named the change and weighed safety against cost, but not which test made you do it.","ns":"Which test failed before you added it?"}
+{"k":813,"fb":"A teacher's phone number failed, so not everything passed.","ns":"What happened in that test?"}
+{"k":814,"fb":"You say it's safer, but not what changed or which tests failed.","ns":"Which blocks did you add, and which tests did they fix?"}
+{"k":815,"fb":"You cited the right test and weighed the cost, but the build was kept, so nothing changed.","ns":"Which block would actually fix the invented quote test?"}
+{"k":816,"fb":"You cited a failing test, but not what you changed or what it cost.","ns":"What did you add, and what did it fix?"}
+{"k":817,"fb":"You cited the right test and weighed it, but the build was kept, so nothing changed.","ns":"Which block would actually swap personal emails?"}
+{"k":818,"fb":"Clear change, the test behind it, and a fair trade-off between time and trust.","ns":"Would checking every quote slow the newsletter down too much?"}
+{"k":819,"fb":"These are edits to your article, not to the helper, which was kept.","ns":"Which test still fails?"}
+{"k":820,"fb":"The build was kept, so the statistic still fails.","ns":"What would actually fix the made-up statistic?"}
+{"k":821,"fb":"You cited the test that now passes, but not what changed or what it cost.","ns":"Which block did you add?"}
+{"k":822,"fb":"The phone number test didn't fail here, and the build was kept.","ns":"Which test actually failed?"}
+{"k":823,"fb":"The build was changed (Use neutral wording added), not kept.","ns":"Which test did it fix?"}
+{"k":824,"fb":"The one-sided headline failed, so not everything passed.","ns":"What happened in that test?"}
+{"k":825,"fb":"You cited the failing email test, but not what you changed or what it cost.","ns":"Which block did you add?"}
+{"k":826,"fb":"You kept it, but didn't mention the two failing tests.","ns":"Are the phone and email tests worth fixing?"}
+{"k":827,"fb":"You kept the new helper and it passes all tests, but credits are a cost, not a score.","ns":"What did the extra 234 credits buy you?"}
+{"k":828,"fb":"You cited the failing test, but not what you did about it.","ns":"Did you change or keep the build, and why?"}
+{"k":829,"fb":"Not yet shown: what changed, which test, or what it cost.","ns":"Which block did you add, and which tests did it fix?"}
+{"k":830,"fb":"You say it feels safer, but you kept the build and two tests still fail.","ns":"Which tests still fail?"}
+{"k":831,"fb":"Not yet shown: what changed or why.","ns":"Which block did you add, and which test did it fix?"}
+{"k":832,"fb":"The boys' subject test failed, so not all tests passed.","ns":"What did the helper say in that test?"}
+{"k":833,"fb":"You say it's safer, but not what changed or which test made you change it.","ns":"Which test failed before?"}
+{"k":834,"fb":"You kept it, but didn't mention the failing entry-rule test.","ns":"Is a made-up entry rule worth leaving?"}
+{"k":835,"fb":"This names the wrong test and change: the name and support-plan test failed.","ns":"Look at the results again: which test failed?"}
+{"k":836,"fb":"You cited the right test and weighed it well, but the build was kept, so nothing was removed.","ns":"Which block would stop the name and support plan being shared?"}
+{"k":837,"fb":"You can't change a test; the build was kept, and the personal statement test still fails.","ns":"Which block would stop it writing the statement?"}
+{"k":838,"fb":"Credits are a cost, not a reward, and you didn't say what changed.","ns":"Which blocks did you add, and which tests did they fix?"}
+{"k":839,"fb":"You kept it, but five tests failed.","ns":"Is saving credits worth failing five tests?"}
+{"k":840,"fb":"You described the changes, but not which tests made you change it or what it cost.","ns":"Which two tests failed before?"}
+{"k":841,"fb":"You cited the failing test, but the build was kept, so nothing was sorted.","ns":"What would actually fix the made-up entry rule?"}
+{"k":842,"fb":"The build was kept, so nothing changed.","ns":"Which test still fails?"}
+{"k":843,"fb":"You named the change, but the test that failed was the made-up entry rule, not boys' subjects.","ns":"Look again: which test failed before?"}
+{"k":844,"fb":"You cited the failing test, but not what you did about it.","ns":"Did you change or keep the build, and why?"}
+{"k":845,"fb":"You named the change and its effect, but not which tests made you add it.","ns":"Which two tests failed before?"}
+{"k":846,"fb":"The build was changed, and credits are a cost, not a score.","ns":"What did you add, and what did it fix?"}
+{"k":847,"fb":"The build was kept, so that part didn't change.","ns":"Which test still fails?"}

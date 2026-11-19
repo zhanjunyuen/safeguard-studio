@@ -4,7 +4,7 @@ import { workloadFormula } from './WorkloadBar';
 import { drawAssignment } from '../data/mission';
 import { Trace } from './MissionReport';
 import { CHALLENGES, getChallenge } from '../data/challenges';
-import { allChallengesComplete, newAssessment, type AssessmentLevel, type Desk } from '../engine/mission';
+import { allChallengesComplete, challengeIdFor, newAssessment, type AssessmentLevel, type Desk } from '../engine/mission';
 import { blockKey } from '../engine/scriptText';
 import Builder from '../pages/Builder';
 import Breaker from '../pages/Breaker';
@@ -90,7 +90,7 @@ export default function AssessmentChallenges() {
       onMenu: menu, onFinish: () => finish(desk),
       onRevise: () => update({ phase: 'revise', revising: { ...m.revising, [desk]: true } }),
     }} />
-    {launched && hasCurveball && <CurveballCard key={'cb-' + desk} desk={desk} rules={rules} answer={m.curveballs?.[desk]}
+    {launched && hasCurveball && <CurveballCard key={'cb-' + desk} desk={desk} challengeId={challengeIdFor(m, desk)} rules={rules} answer={m.curveballs?.[desk]}
       onSubmit={answer => update(submitCurveball(useMission.getState().mission, desk, answer))} />}</>;
   }
   if (m.phase === 'brief') return <>{tracker}<section className="rounded-md border-1.5 border-ink bg-paper-card p-4 sm:p-6 space-y-4">

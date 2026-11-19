@@ -1,0 +1,61 @@
+{"k":52,"fb":"Right prediction, and you named the scam: a fake link to steal money.","ns":"Why doesn't your rumour check stop it before Ask AI writes the message? Look at the order."}
+{"k":53,"fb":"Right prediction and a clear risk, and you linked it to the rumour check and a real check (the school website).","ns":"Your rumour check comes after Ask AI. Does that change when the fake message gets stopped?"}
+{"k":54,"fb":"You named the phishing risk and a sensible check, but the helper did not cope as you predicted.","ns":"Which of your blocks, if any, looks at payment links? Check the replay."}
+{"k":55,"fb":"Right prediction, but you didn't say what the risk is or why.","ns":"What could be fake about Mr Ahmed's voice note?"}
+{"k":56,"fb":"Right prediction, and a clear reason: Ask AI writes whatever it's asked and can't spot a scam.","ns":"Who could check whether the voice note is really from Mr Ahmed?"}
+{"k":57,"fb":"Right prediction, and you saw that sending pupils to a random payment site is risky.","ns":"Which of your blocks stopped the message? Say why it worked."}
+{"k":58,"fb":"Your prediction didn't match, and 'can't trust AI' is too general.","ns":"What in this request could be a scam?"}
+{"k":59,"fb":"Your prediction didn't match what happened, and there's no risk named.","ns":"How could someone fake a teacher's voice note? What would happen if the class paid?"}
+{"k":60,"fb":"Right prediction, and you saw the voice note might not really be Mr Ahmed.","ns":"Which block would need to check the link, and is it in your helper?"}
+{"k":61,"fb":"Your prediction didn't match, and the website check actually runs after Ask AI in your build, not first.","ns":"Look at your block order again: what happens before the website is checked?"}
+{"k":62,"fb":"Right prediction, the risk named, and the right people to confirm it.","ns":"Why don't your blocks catch a fake payment link? Name one."}
+{"k":63,"fb":"Your prediction didn't match, and 'AI can be wrong' doesn't name the risk here.","ns":"What does the voice note ask the class to do, and why is that suspicious?"}
+{"k":64,"fb":"Right prediction, but the risks you list are about privacy, not the fake voice note and payment link.","ns":"What is the voice note trying to get the class to do?"}
+{"k":65,"fb":"You thought about where the website check should sit, but your prediction was wrong and the risk isn't named.","ns":"In your build the check comes after Ask AI. What does that mean for the fake link?"}
+{"k":66,"fb":"Right prediction, and you named the scam and its pressure tactic.","ns":"Which of your blocks should have stopped it, and why didn't it?"}
+{"k":67,"fb":"Your prediction didn't match, and you didn't say what could go wrong.","ns":"Does the study the AI names actually exist? How would you know?"}
+{"k":68,"fb":"Right prediction, and you described what Ask AI does, but you didn't name the risk.","ns":"Could the 'study' the AI gives you be made up? What would that mean?"}
+{"k":69,"fb":"Right prediction, and you named the risk: a hallucinated study and university.","ns":"Why don't Show both sides or the 'AI can be wrong' note stop it?"}
+{"k":70,"fb":"Your prediction didn't match, and coaching isn't the issue here: the risk is an invented study.","ns":"If the AI names a study, how would you check it is real?"}
+{"k":71,"fb":"Right prediction, but you named a different risk (student data). The real risk is the AI inventing the study.","ns":"What if no such study exists? What might the AI do?"}
+{"k":72,"fb":"You named the risk clearly, but the helper did not cope as you predicted.","ns":"Which of your blocks checks that a study is real? Is there one?"}
+{"k":73,"fb":"Right prediction, the risk named and a good real check (librarian, Google Scholar).","ns":"Which of your blocks would you expect to catch a fake study, and why doesn't it?"}
+{"k":74,"fb":"Right prediction, and you reasoned about the number check and what happens if the study is made up.","ns":"Who could you ask to confirm the study is real?"}
+{"k":75,"fb":"Your prediction didn't match, and there's no risk or reason.","ns":"What might the AI do if it can't find a real study?"}
+{"k":76,"fb":"Right prediction, but these privacy points don't fit this case. The risk is an invented study.","ns":"What does the request ask the AI to name, and could it make that up?"}
+{"k":77,"fb":"Your prediction didn't match, and 'AI can be wrong' is too general.","ns":"What exactly might the AI invent when asked for a study?"}
+{"k":78,"fb":"Complete: the invented study, why Ask AI won't catch it, and how to check.","ns":"Which block would you add, and where would it go?"}
+{"k":79,"fb":"Clear risk and a good check, but the helper did not cope as you predicted.","ns":"Do any of your blocks check that a study exists? Look again."}
+{"k":80,"fb":"Right prediction, but you gave a reason about other blocks, not this risk.","ns":"Why would the AI give you a study that doesn't exist?"}
+{"k":81,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What happens if you ask for a study that might not exist?"}
+{"k":82,"fb":"You linked Ask AI to the case, but the helper did not cope: it made a study up rather than searching.","ns":"Can you rely on the AI searching instead of inventing? How would you check?"}
+{"k":83,"fb":"Your prediction didn't match, and 'needs checking' doesn't say what could be wrong here.","ns":"What exactly could be fake in the AI's answer?"}
+{"k":84,"fb":"Right prediction, a link to the number check and a real check against official data.","ns":"What if the study doesn't exist at all: does the number check help then?"}
+{"k":85,"fb":"You named the invented-quote risk and a check, but the helper did not cope as you predicted.","ns":"With only Ask AI, what would stop the quote being made up?"}
+{"k":86,"fb":"Right prediction, the risk named and a good check: the head teacher approves it first.","ns":"Why can't Ask AI tell whether she really said it?"}
+{"k":87,"fb":"You named the risk, but the helper did not cope as you predicted.","ns":"Your blocks check faces and images. Do any of them check quotes?"}
+{"k":88,"fb":"Right prediction, and you linked Ask AI to the quote, but you didn't say the risk outright.","ns":"What exactly might be false about the quote?"}
+{"k":89,"fb":"You named the risk and a good check, but the helper did not cope as you predicted.","ns":"Which of your blocks would catch a made-up quote?"}
+{"k":90,"fb":"Right prediction, and you named the risk clearly.","ns":"Why don't your image and wording blocks catch a made-up quote?"}
+{"k":91,"fb":"Right prediction, and a sharp explanation of why the face and image blocks get skipped, but you didn't name the risk.","ns":"What does the AI do with the head teacher's quote?"}
+{"k":92,"fb":"Right prediction, but you didn't say what the risk is or why.","ns":"Did the head teacher actually say the quote the AI writes?"}
+{"k":93,"fb":"You named the risk and the right check, but the helper did not cope as you predicted.","ns":"Which of your four blocks checks quotes? Is there one?"}
+{"k":94,"fb":"Right prediction, and you named the risk.","ns":"Which block would catch this, and is it in your helper?"}
+{"k":95,"fb":"Your prediction didn't match: writing the story is fine, but adding a quote she never said isn't.","ns":"Who said the quote in the post? How would you check?"}
+{"k":96,"fb":"You linked Ask AI to the quote, but the helper did not cope: the AI wrote a made-up quote.","ns":"Can the AI know what the head teacher really said?"}
+{"k":97,"fb":"Right prediction, but 'AI can be wrong' doesn't name the risk here.","ns":"What part of the news post might be invented?"}
+{"k":98,"fb":"Strong reasoning: the risk, why your blocks miss it and who to check with. But it contradicts your prediction.","ns":"Given your own reasoning, what should you have predicted?"}
+{"k":99,"fb":"Right prediction, and a careful look at which block covers words versus photos.","ns":"Who could confirm whether the head teacher said it?"}
+{"k":100,"fb":"You linked Ask AI to the quote, but the helper did not cope, and asking the AI if it lied isn't a reliable check.","ns":"Who, outside the AI, could confirm the quote?"}
+{"k":101,"fb":"You named the risk, why your blocks miss it and who should check, but your prediction was wrong.","ns":"If your blocks don't stop it, what should you predict?"}
+{"k":102,"fb":"Complete: the made-up quote, why the face block misses it, and who could check.","ns":"Which new block would stop the quote, and where would it go?"}
+{"k":103,"fb":"You named the risk clearly, but the helper did not cope as you predicted.","ns":"Which of your blocks would catch a quote she never said?"}
+{"k":104,"fb":"Right prediction, but 'AI makes mistakes' is too general for this case.","ns":"What specific thing in the post could be made up?"}
+{"k":105,"fb":"You linked Ask AI to the case, but the helper did not cope: Ask AI doesn't check that the book is real.","ns":"With only Ask AI, what would check the historian and book exist?"}
+{"k":106,"fb":"Your prediction didn't match, and the risk isn't specific to this case.","ns":"What could be fake: the quote, the historian, or the book?"}
+{"k":107,"fb":"Right prediction, and you named the risk.","ns":"Why doesn't your trusted-source check catch a fake book?"}
+{"k":108,"fb":"Right prediction, but you named a privacy risk. This case is about an invented quote or book.","ns":"What might the AI invent when asked for a historian's quote?"}
+{"k":109,"fb":"Your prediction didn't match, and there's no risk named.","ns":"What does your source check compare against? Would it find a fake book?"}
+{"k":110,"fb":"Right prediction, but you didn't say why or what could go wrong.","ns":"Could the quote or the book be made up?"}
+{"k":111,"fb":"Your prediction didn't match, and 'dodgy info' is too vague.","ns":"What exactly might the AI make up in this answer?"}
+{"k":112,"fb":"Right prediction, and you linked the check block to the quote and book.","ns":"What is the risk, in your own words? Why didn't the check work here?"}

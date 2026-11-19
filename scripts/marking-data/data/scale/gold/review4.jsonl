@@ -1,0 +1,12 @@
+{"k": 100, "decision": "correct", "add": {"T3": "so that ones getting thru"}, "note": "Predicts the whole-article request, which broke; T3 was missed."}
+{"k": 31, "decision": "keep", "note": "'Block won't stop it' gives no reason."}
+{"k": 19, "decision": "keep", "note": "Copying Emily's answer is not the name bias."}
+{"k": 21, "decision": "keep", "note": "As 19."}
+{"k": 98, "decision": "keep", "note": "'Messy order' names no fault."}
+{"k": 69, "decision": "keep", "note": "'You get 70 credits' reads the cost as a gain."}
+{"k": 32, "decision": "keep", "note": "Links the privacy block (wrong risk, A2 absent)."}
+{"k": 53, "decision": "keep", "note": "Claims a change, but the build was kept; the reminder test did fail."}
+{"k": 54, "decision": "keep", "note": "Claims a rule was added, but the build was kept."}
+{"k": 55, "decision": "keep", "note": "As 54; credits stayed at 0."}
+{"k": 56, "decision": "keep", "note": "As 54."}
+{"k": 57, "decision": "keep", "note": "As 54."}
