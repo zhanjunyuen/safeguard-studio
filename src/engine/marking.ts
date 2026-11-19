@@ -320,6 +320,68 @@ export function skillsScore(marks: Partial<Record<Criterion, Level>>): SkillsSco
   };
 }
 
+// ---------------------------------------------------------------- trained-model output
+
+/** The concepts each criterion is marked on, with the codebook's wording (docs/marking-codebook.md). */
+const CONCEPT_LABEL: Record<Criterion, [string, string][]> = {
+  testing: [['T1', 'Names a block in the helper, or a safeguard it is missing'], ['T2', 'Says what kind of request should get through'], ['T3', 'The prediction matches what the attack showed']],
+  anticipation: [['A1', 'The prediction matches what happened'], ['A2', 'Names the risk in this case'], ['A3', 'Links it to a block: what it covers, what it misses, or where it sits'], ['A4', 'Suggests a sensible person or real-world check']],
+  judgement: [['C1', 'Uses the current source for the fact that changed'], ['C2', 'Spots the detail the source still leaves open'], ['C3', 'Gives the open question to the right person'], ['C4', 'Does not repeat out-of-date details']],
+  revision: [['R1', 'Says what was changed, or that the build was kept'], ['R2', 'Cites evidence from a test, attack or replay'], ['R3', 'States a consequence for safety, usefulness or workload'], ['R4', 'Compares at least two of safety, usefulness and workload']],
+};
+
+const squash = (s: string) => s.replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim().toLowerCase();
+
+/** The first JSON object in a model reply (the model may wrap it in text or a code fence). */
+function jsonIn(raw: string): Record<string, unknown> | null {
+  const i = raw.indexOf('{'), j = raw.lastIndexOf('}');
+  if (i < 0 || j <= i) return null;
+  try { const o = JSON.parse(raw.slice(i, j + 1)); return o && typeof o === 'object' ? o as Record<string, unknown> : null; } catch { return null; }
+}
+
+/**
+ * Turns the trained marker's reply into a Mark, applying the same rules as the training validator.
+ * The reply starts with a `reasoning` field (its concept-by-concept working); that is dropped here
+ * and never shown to pupils. Concepts need an exact quote from the pupil's answer, A1 comes from the
+ * simulator, and the level is always recomputed with levelFor: the model's own `level` only raises a
+ * review flag if it disagrees. A reply that isn't valid JSON falls back to the offline preview, flagged.
+ */
+export function parseModelMark(raw: string, req: MarkRequest, marker = 'trained-model'): Mark {
+  const o = jsonIn(raw);
+  if (!o || !Array.isArray(o.concepts)) return { ...markOffline(req), reviewFlag: true };
+  const given = new Map((o.concepts as Record<string, unknown>[]).map((c) => [String(c?.id), c]));
+  const concepts: Concept[] = CONCEPT_LABEL[req.criterion].map(([id, label]) => {
+    if (id === 'A1' && req.criterion === 'anticipation') {
+      return { id, label, present: (req.prediction === 'handles') === req.handled, computed: true };
+    }
+    const c = given.get(id);
+    const evidence = typeof c?.evidence === 'string' ? c.evidence : undefined;
+    // C4 is present when no out-of-date detail is repeated, so it needs no quote; every other concept does.
+    const quoted = !!evidence && squash(req.text).includes(squash(evidence));
+    const present = id === 'C4' ? c?.present !== false : c?.present === true && quoted;
+    return { id, label, present, ...(present && evidence ? { evidence } : {}) };
+  });
+  const level = levelFor(req.criterion, concepts, req.text);
+  const claimed = o.level === null || [0, 1, 2].includes(o.level as number) ? (o.level as Level) : undefined;
+  return {
+    criterion: req.criterion,
+    rubricVersion: RUBRIC_VERSION,
+    marker,
+    concepts,
+    level,
+    feedback: typeof o.feedback === 'string' && o.feedback ? o.feedback : 'Your teacher will look at this answer.',
+    nextStep: typeof o.nextStep === 'string' && o.nextStep ? o.nextStep : 'What could you add to your answer?',
+    reviewFlag: o.reviewFlag === true || level === null || INJECTION_ATTEMPT.test(req.text) || (claimed !== undefined && claimed !== level),
+  };
+}
+
+/** The pupil-facing answer from the trained model's follow-up reply ({"reasoning", "answer"}); the
+ *  reasoning is dropped. Plain text (an older model) is returned as it is. */
+export function parseModelFollowUp(raw: string): string {
+  const o = jsonIn(raw);
+  return o && typeof o.answer === 'string' ? o.answer : raw.trim();
+}
+
 /** Asks for a short summary of a pupil's skills from their marks (served by the trained model). */
 export type SkillsSummaryProvider = (marks: Mark[], signal?: AbortSignal) => Promise<string>;
 
