@@ -19,6 +19,8 @@ import Block from '../components/Block';
 import PracticeCurveball from '../components/PracticeCurveball';
 import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
+import { attackCases } from '../data/attackCases';
+import { CUSTOM_ID, CUSTOM_LIMIT, judgeCustomAttack, type CustomAttack } from '../engine/customAttack';
 import { getChallenge } from '../data/challenges';
 import { ATTACK_BUDGET, breakSummary, launch, targetScript, weakSpots, type LaunchReport } from '../engine/breaker';
 import TrainingCompanion from '../components/TrainingCompanion';
@@ -55,7 +57,10 @@ interface AssessmentAttack {
   /** true until the pupil has answered this challenge's curveball */
   curveballPending?: boolean;
   curveball?: ReactNode;
-  submit: () => void;
+  customDraft: string;
+  changeCustom: (text: string) => void;
+  customResult?: CustomAttack;
+  submit: (custom?: CustomAttack) => void;
   onMenu: () => void;
   onFinish: () => void;
   onRevise: () => void;
@@ -65,13 +70,22 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
   const route = useParams();
   const id = assessment?.id ?? route.id ?? '';
   const original = getChallenge(assessment?.level2 ? `${id}@2` : id);
-  const challenge = useMemo(() => original && assessment
-    ? { ...original, breakTarget: assessment.rules.map(r => r.type) } : original, [original, assessment?.rules]);
+  const challenge = useMemo(() => original && { ...original, tests: attackCases(original),
+    breakTarget: assessment ? assessment.rules.map(r => r.type) : original.breakTarget }, [original, assessment?.rules]);
   const saved = useMemo(() => challenge && assessment?.submitted ? launch(challenge, assessment.submitted) : null, [challenge, assessment?.submitted]);
   const practiceAttempts = useSession(s => s.breakProgress[id]);
   const attempts = assessment ? (saved ? [{ attacks: assessment.submitted!, broke: saved.broke }] : []) : practiceAttempts ?? [];
   const recordBreak = useSession((s) => s.recordBreak);
 
+  const [practiceDraft, setPracticeDraft] = useState('');
+  const [practiceResult, setPracticeResult] = useState<CustomAttack>();
+  const [judgeError, setJudgeError] = useState('');
+  const [judging, setJudging] = useState(false);
+  const pendingJudge = useRef<AbortController | null>(null);
+  useEffect(() => () => pendingJudge.current?.abort(), []);
+  const customText = assessment?.customDraft ?? practiceDraft;
+  const changeCustom = assessment?.changeCustom ?? setPracticeDraft;
+  const customResult = assessment ? assessment.customResult : practiceResult;
   const [practicePlan, setPracticePlan] = useState<string[]>([]);
   const plan = assessment?.plan ?? practicePlan;
   const setPlan = (value: string[]) => assessment ? assessment.changePlan(value) : setPracticePlan(value);
@@ -107,7 +121,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     if (pending !== 'fill-attacks' || assessment) return;
     usePresenter.getState().command(null);
     if (challenge) {
-      const weak = weakSpots(challenge);
+      const weak = weakSpots(original!);
       const decoy = challenge.tests.find((t) => !weak.includes(t.id));
       setPlan([...weak, ...(decoy ? [decoy.id] : [])].slice(0, ATTACK_BUDGET));
     }
@@ -126,18 +140,21 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
   if (!challenge) return <Navigate to="/" />;
   const script = targetScript(challenge);
   const labels = Object.fromEntries(challenge.tests.map((t) => [t.id, t.attackLabel]));
-  const summary = breakSummary(challenge, attempts);
+  const summary = breakSummary(assessment ? challenge : original!, attempts);
   const weakTotal = summary?.total ?? report?.weak.length ?? null;
-  const locked = !!replay;
+  const locked = !!replay || judging;
+  const count = plan.length + Number(!!customText.trim());
+  const displayedPlan = customText.trim() ? [...plan, CUSTOM_ID] : plan;
+  labels[CUSTOM_ID] = 'Your written request';
 
   function finish() {
     window.clearTimeout(timer.current);
     setReplay(null);
-    if (report) setSelected(report.broke[0] ?? report.results[0].testId);
+    if (report?.results.length) setSelected(report.broke[0] ?? report.results[0].testId);
   }
 
   const add = (tid: string) => {
-    if (!locked && !assessment?.submitted && !plan.includes(tid) && plan.length < ATTACK_BUDGET) setPlan([...plan, tid]);
+    if (!locked && !assessment?.submitted && !plan.includes(tid) && count < ATTACK_BUDGET) setPlan([...plan, tid]);
   };
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     setDragging(null);
@@ -146,21 +163,44 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
   };
 
   const needsReason = !!assessment && assessment.reasonRequired !== false && !assessment.reason.trim();
-  const go = () => {
-    if (!plan.length || locked || assessment?.submitted || needsReason) return;
+  const go = async () => {
+    if (!count || count > ATTACK_BUDGET || locked || pendingJudge.current || assessment?.submitted || needsReason) return;
+    let custom: CustomAttack | undefined;
+    if (customText.trim()) {
+      const ctrl = new AbortController();
+      pendingJudge.current = ctrl;
+      setJudging(true);
+      setJudgeError('');
+      try {
+        custom = await judgeCustomAttack(challenge, customText.trim(), ctrl.signal) ?? undefined;
+      } finally {
+        pendingJudge.current = null;
+        if (!ctrl.signal.aborted) setJudging(false);
+      }
+      if (ctrl.signal.aborted) return;
+      if (!custom) {
+        setJudgeError('The AI could not judge this request. Retry, or clear it and launch a preset attack.');
+        setPanel('palette');
+        return;
+      }
+    }
     const rep = launch(challenge, plan);
-    if (assessment) assessment.submit();
-    else recordBreak(id, plan, rep.broke);
+    if (assessment) assessment.submit(custom);
+    else {
+      if (plan.length) recordBreak(id, plan, rep.broke);
+      setPracticeResult(custom);
+      setPracticeDraft('');
+      setPlan([]);
+    }
     setReport(rep);
     setSelected(null);
     setPanel('results');
-    setReplay({ testIdx: 0, stepIdx: 0 });
-    if (!assessment) setPlan([]);
+    if (rep.results.length) setReplay({ testIdx: 0, stepIdx: 0 });
   };
 
-  const launchButton = <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
-              <Zap size={18} fill="currentColor" aria-hidden /> {locked ? 'Attacking…' : `Launch ${plan.length || ''} attack${plan.length === 1 ? '' : 's'}`}
-            </button>;
+  const launchButton = <button onClick={go} disabled={!count || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">
+    <Zap size={18} fill="currentColor" aria-hidden /> {judging ? 'Judging your request…' : locked ? 'Attacking…' : `Launch ${count || ''} attack${count === 1 ? '' : 's'}`}
+  </button>;
   return (
     <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
       {assessment ? <div className="assessment-taskbar">
@@ -191,16 +231,22 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
       )}
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e) => setDragging((e.active.data.current as { testId?: string })?.testId ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
-        <WorkbenchNavigation mode="break" selected={assessment ? panel : undefined} onSelect={assessment ? setPanel : undefined} />
+        <WorkbenchNavigation mode="break" resultsLabel={assessment && !assessment.submitted ? 'Reasoning' : 'Results'} selected={assessment ? panel : undefined} onSelect={assessment ? setPanel : undefined} />
         <div className="workbench-grid" data-panel={panel}>
           <aside id="workbench-palette" tabIndex={-1} className="rounded-md border-1.5 border-ink bg-paper-card p-4" aria-label="Attacks">
             <h2 className="text-lg font-extrabold">Attacks</h2>
             <p className="text-sm text-ink-2 mb-4">Each one is a kind of question. Drag it into your plan, or click it.</p>
             <div className="flex flex-col gap-2.5">
               {challenge.tests.map((t) => (
-                <AttackItem key={t.id} id={t.id} label={t.attackLabel} used={plan.includes(t.id)} full={locked || !!assessment?.submitted || plan.length >= ATTACK_BUDGET} onAdd={() => add(t.id)} />
+                <AttackItem key={t.id} id={t.id} label={t.attackLabel} used={plan.includes(t.id)} full={locked || !!assessment?.submitted || count >= ATTACK_BUDGET} onAdd={() => add(t.id)} />
               ))}
             </div>
+            <label className="block font-bold mt-4" htmlFor="custom-attack">Write your own attack</label>
+            <p className="text-sm text-ink-2">Write a fictional request for this helper. It uses one attack slot. AI will judge how the blocks would handle it.</p>
+            <textarea id="custom-attack" maxLength={CUSTOM_LIMIT} rows={3} className="mt-2 w-full rounded border border-line p-2"
+              disabled={locked || !!assessment?.submitted || plan.length >= ATTACK_BUDGET} value={customText}
+              onChange={e => { changeCustom(e.target.value); setJudgeError(''); }} />
+            {judgeError && <p role="alert" className="text-fail font-bold">{judgeError}</p>}
           </aside>
 
           <section id="workbench-helper" tabIndex={-1} className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center gap-6 min-h-[560px]">
@@ -211,24 +257,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
               </div>
             </div>
             <ScriptStack script={script} highlights={highlights} onRemove={() => {}} locked />
-            <Plan plan={plan} labels={labels} onRemove={(tid) => setPlan(plan.filter((x) => x !== tid))} locked={locked || !!assessment?.submitted} />
-            {assessment && (assessment.submitted ? (
-              <div className="w-full space-y-3" style={{ maxWidth: STACK_W + 40 }}>
-                <div className="rounded border-1.5 border-line bg-paper-card p-3" data-testid="attack-reason-saved">
-                  <div className="label text-ink-3">Your prediction</div>
-                  <p className="mt-1">{assessment.reason || 'Not recorded'}</p>
-                </div>
-                {saved && !locked && assessment.reason.trim() && <MarkFeedback request={{
-                  criterion: 'testing', text: assessment.reason, blocks: assessment.rules.map((r) => r.type), broke: saved.broke, challengeId: challenge.id,
-                  planned: assessment.submitted!.map((tid) => { const t = challenge.tests.find((x) => x.id === tid)!; return { id: tid, label: t.attackLabel, title: t.title, category: t.category }; }),
-                }} />}
-              </div>
-            ) : (
-              <div className="w-full" style={{ maxWidth: STACK_W + 40 }}>
-                <ReasoningField id="attack-reason" required={assessment.reasonRequired !== false} disabled={locked} value={assessment.reason} change={assessment.changeReason}
-                  label={`Why these attacks? Say which block you expect to fail, and why. (${assessment.reasonRequired !== false ? 'required' : 'optional'})`} />
-              </div>
-            ))}
+            <Plan plan={displayedPlan} labels={labels} onRemove={(tid) => tid === CUSTOM_ID ? changeCustom('') : setPlan(plan.filter((x) => x !== tid))} locked={locked || !!assessment?.submitted} />
             {!assessment && launchButton}
             <TrainingCompanion id={id} script={script} hintCount={assessment?.hintCount} />
             {assessment && <>
@@ -237,39 +266,47 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
           </section>
 
           <div id="workbench-results" tabIndex={-1} className="flex flex-col gap-4">
+            {!assessment && summary && !replay && <p className="text-sm">Across practice attempts: {summary.found} of {summary.total} core weak spots found.</p>}
+            {report && !replay && <section className="rounded-md border-1.5 border-ink bg-paper-card p-4 space-y-2" data-testid="found">
+              <h2 className="text-xl font-extrabold">Attack results</h2>
+              {report.results.length > 0 && <p>Of your {report.total} preset {report.total === 1 ? 'attack' : 'attacks'}, {report.broke.length} exposed a weakness and {report.held.length} were handled.</p>}
+              {customResult && <div className="rounded border border-line p-3">
+                <b>Your request · AI judgement</b><blockquote className="my-1">{customResult.question}</blockquote>
+                <strong>{customResult.outcome === 'held' ? 'Helper likely held' : customResult.outcome === 'exposed' ? 'Likely weakness' : 'Inconclusive'}</strong>
+                <p>{customResult.explanation}</p></div>}
+              {assessment?.reason && <p data-testid="attack-reason-saved"><b>Your prediction</b> · {assessment.reason}</p>}
+              {assessment?.submitted && assessment.reason.trim() && <MarkFeedback request={{
+                criterion: 'testing', text: assessment.reason, blocks: assessment.rules.map(r => r.type), broke: report.broke, challengeId: challenge.id,
+                planned: report.results.map(result => {
+                  const test = challenge.tests.find(t => t.id === result.testId)!;
+                  return { id: test.id, label: test.attackLabel, title: test.title, category: test.category };
+                }),
+                custom: assessment.customResult,
+              }} />}
+              {assessment && <p>{assessment.curveballPending ? 'Next, predict what will happen on the unseen curveball.' : 'Next, finish this task or revise your build.'}</p>}
+            </section>}
+            {report ? (
+              report.results.length > 0 && <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={[]} onSkip={finish} mode="break" />
+            ) : (
+              <section className="rounded-md border-1.5 border-ink bg-paper-card p-4">
+                <h2 className="text-lg font-extrabold">How to find a weak spot</h2>
+                <ul className="mt-2 space-y-1 text-sm text-ink-2 list-disc pl-5">
+                  <li>What kind of request does the helper leave unchecked?</li>
+                  <li>Does each safeguard run in time to help?</li>
+                  <li>Could it turn away a question it should answer?</li>
+                </ul>
+              </section>
+            )}
+            {assessment && !assessment.submitted && (
+              <section className="order-first lg:order-none rounded-md border-1.5 border-ink bg-paper-card p-4">
+                <ReasoningField id="attack-reason" required={assessment.reasonRequired !== false} disabled={locked}
+                  value={assessment.reason} change={assessment.changeReason}
+                  label={`Why these attacks? (${assessment.reasonRequired !== false ? 'required' : 'optional'})`}
+                  hint="Name the request you chose and the block or gap it tests. Predict what the helper will do and explain why." />
+              </section>
+            )}
             {!locked && assessment?.curveball}
             {!assessment && !locked && <PracticeCurveball challenge={challenge} script={script} />}
-            <div className="rounded-md border-1.5 border-ink bg-ink text-paper p-5" data-testid="found">
-              <div className="label text-paper/70">Weak spots found</div>
-              <div className="flex items-center gap-3 mt-2">
-                <span className="font-mono text-4xl font-bold">{summary?.found ?? 0}<span className="text-paper/60">/{weakTotal ?? '?'}</span></span>
-                <div className="flex gap-1.5" aria-hidden>
-                  {Array.from({ length: weakTotal ?? 3 }).map((_, i) => (
-                    <span key={i} className={`w-4 h-4 rounded-sm border-1.5 border-paper ${i < (summary?.found ?? 0) ? 'bg-signal' : ''}`} />
-                  ))}
-                </div>
-              </div>
-              {summary && (
-                <p className="text-paper/85 text-sm mt-2">
-                  {summary.attempts} attempt{summary.attempts === 1 ? '' : 's'} · {summary.precision}% of your attacks broke it
-                  {summary.total > 0 && summary.found === summary.total && '. You found them all.'}
-                </p>
-              )}
-            </div>
-            {report ? (
-              <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={[]} onSkip={finish} mode="break" />
-            ) : (
-              <div className="rounded-md border-1.5 border-ink bg-paper-card p-5">
-                <h2 className="text-lg font-extrabold">How to find a weak spot</h2>
-                <ul className="mt-2 space-y-2 text-ink-2 list-disc pl-5">
-                  <li>Is a safeguard missing for one kind of question?</li>
-                  <li>Is a block in the wrong place, like removing private details after the AI has already seen them?</li>
-                  <li>Does a check only cover some kinds of claim?</li>
-                  <li>Does it refuse normal questions it should answer?</li>
-                </ul>
-                <p className="text-sm text-ink-3 mt-3">Attacks the helper handles are wasted, so plan carefully.</p>
-              </div>
-            )}
           </div>
         </div>
         <DragOverlay dropAnimation={null}>
@@ -281,7 +318,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
         </DragOverlay>
       </DndContext>
       {!assessment && attempts.length > 0 && !locked && (
-        <button onClick={() => { useSession.setState((s) => ({ breakProgress: { ...s.breakProgress, [id]: [] } })); setReport(null); }} className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-ink-2 underline underline-offset-2">
+        <button onClick={() => { useSession.setState((s) => ({ breakProgress: { ...s.breakProgress, [id]: [] } })); setReport(null); setPracticeResult(undefined); }} className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-ink-2 underline underline-offset-2">
           <RotateCcw size={14} aria-hidden /> Reset my attempts
         </button>
       )}

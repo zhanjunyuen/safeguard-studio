@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { DIM_ICON } from '../components/icons';
 import { COMPETENCY_META } from '../data/blocks';
 import { challengesIn, THEMES } from '../data/themes';
-import { cleanSettings, MAX_CHALLENGES, QUESTIONS, TIME_OPTIONS, type AssessmentSettings, type Requirement } from '../engine/assessmentSettings';
+import { cleanSettings, MAX_CHALLENGES, QUESTIONS, type AssessmentSettings, type Requirement } from '../engine/assessmentSettings';
 import { CRITERION_NAME } from '../engine/marking';
 import type { AssessmentLevel, Desk } from '../engine/mission';
 import { supabase } from '../lib/supabase';
@@ -48,8 +48,8 @@ export default function TeacherSetup() {
     const next = chosen.includes(id) ? chosen.filter((x) => x !== id) : chosen.length < MAX_CHALLENGES ? [...chosen, id] : chosen;
     setS({ ...s, challenges: next });
   };
-  const ready = random || chosen.length > 0;
-  const final = (): AssessmentSettings => ({ ...s, challenges: random ? null : chosen });
+  const ready = (random || chosen.length > 0) && (s.minutes === null || (Number.isInteger(s.minutes) && s.minutes >= 0 && Number.isSafeInteger(s.minutes * 60)));
+  const final = (): AssessmentSettings => cleanSettings({ ...s, challenges: random ? null : chosen });
 
   async function saveTo(where: 'device' | 'class' | 'new') {
     if (!ready) return;
@@ -92,7 +92,10 @@ export default function TeacherSetup() {
 
       <Step n={1} title="Challenges" hint={`Pupils work on each one: build, test, attack, then a curveball. Choose up to ${MAX_CHALLENGES}.`}>
         <Choice label="How challenges are chosen" value={random ? 'random' : 'chosen'} change={(v) => setS({ ...s, challenges: v === 'random' ? null : chosen })}
-          options={[['random', 'Random: one from each theme'], ['chosen', 'I choose']]} />
+          options={[['random', 'Random across themes'], ['chosen', 'I choose']]} />
+        {random && <label className="block font-bold">Number of tasks <select className={field} value={s.taskCount} onChange={e => setS({ ...s, taskCount: Number(e.target.value) })}>
+          {Array.from({ length: MAX_CHALLENGES }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
+        </select></label>}
         {!random && <>
           <p className="font-bold" aria-live="polite">{chosen.length} of {MAX_CHALLENGES} chosen{chosen.length === 0 && ': choose at least one'}</p>
           <div className="space-y-5">{THEMES.map((t) => {
@@ -128,8 +131,10 @@ export default function TeacherSetup() {
             <Choice<AssessmentLevel | null> label="Level" value={s.level} change={(level) => setS({ ...s, level })}
               options={[[null, 'Pupils choose'], [1, 'Level 1'], [2, 'Level 2 · IF blocks']]} /></div>
           <div><p className="font-bold mb-2">Time allowance</p>
-            <Choice<number | null> label="Time allowance" value={s.minutes} change={(minutes) => setS({ ...s, minutes })}
-              options={[[null, 'Pupils choose'], ...TIME_OPTIONS.map((n) => [n, n ? `${n} min` : 'Untimed'] as [number, string])]} /></div>
+            <Choice label="Time allowance" value={s.minutes === null ? 'choose' : s.minutes === 0 ? 'untimed' : 'fixed'}
+              change={mode => setS({ ...s, minutes: mode === 'choose' ? null : mode === 'untimed' ? 0 : s.minutes || 30 })}
+              options={[['choose', 'Pupils choose'], ['untimed', 'Untimed'], ['fixed', 'Set minutes']]} />
+            {s.minutes !== null && s.minutes !== 0 && <label className="block mt-2">Active minutes <input className={field + ' w-24'} type="number" min={1} step={1} value={Number.isFinite(s.minutes) ? s.minutes : ''} onChange={e => setS({ ...s, minutes: e.target.valueAsNumber || NaN })} /></label>}</div>
         </div>
       </Step>
 

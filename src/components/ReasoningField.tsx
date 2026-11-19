@@ -23,6 +23,7 @@ function speechService() {
 
 interface Props {
   label: ReactNode;
+  hint?: string;
   value: string;
   change: (text: string) => void;
   id?: string;
@@ -31,7 +32,7 @@ interface Props {
   rows?: number;
 }
 
-export default function ReasoningField({ label, value, change, id, required, disabled, rows = 3 }: Props) {
+export default function ReasoningField({ label, hint, value, change, id, required, disabled, rows = 3 }: Props) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const active = useRef<Recognition | null>(null);
@@ -99,7 +100,8 @@ export default function ReasoningField({ label, value, change, id, required, dis
 
   return <div className="w-full space-y-1">
     <label htmlFor={fieldId} className="block font-bold">{label}</label>
-    <textarea id={fieldId} data-testid={id} required={required} disabled={disabled} rows={rows} value={value}
+    {hint && <p id={fieldId + '-hint'} className="text-sm text-ink-2">{hint}</p>}
+    <textarea aria-describedby={hint ? fieldId + '-hint' : undefined} id={fieldId} data-testid={id} required={required} disabled={disabled} rows={rows} value={value}
       onChange={e => change(e.target.value)} className="block w-full rounded border-1.5 border-line bg-paper-card p-2 font-normal focus:border-ink" />
     {Service ? <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
       <button type="button" onClick={dictate} disabled={disabled} aria-pressed={listening}

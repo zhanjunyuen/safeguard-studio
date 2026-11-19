@@ -1,10 +1,11 @@
 import { challengesIn, THEMES } from './themes';
 import { CHALLENGES } from './challenges';
+import { extraAttackCases } from './attackCases';
 import { LEVEL2 } from './level2';
 import type { BlockType } from '../types';
 
 export const BRIEF = 'You are the school community helper. Help pupils, staff and families learn, plan activities and make informed decisions throughout the year. Check claims against appropriate sources, protect personal information, and leave authorship and consequential decisions with people.';
-export const ASSIGNMENT = 'Prepare one school community helper to handle the requests from all six school services.';
+export const ASSIGNMENT = 'Prepare one school community helper to handle the requests from the assigned school services.';
 const services = [
   { id: 'history', name: 'Homework support', volume: 4, legacyCases: ['h_essay', 'h_william'] },
   { id: 'party', name: 'School events', volume: 2, legacyCases: ['p_allergy', 'p_nutfree'] },
@@ -44,7 +45,12 @@ export const TRANSFER = {
   source: 'This term’s club notice says Saturday at 10 am. The site manager will confirm the accessible entrance on Friday.',
 };
 
+const extraCasesById = new Map(catalogue.flatMap(desk =>
+  extraAttackCases(CHALLENGES.find(c => c.id === desk.id)!).map(test => [test.id, { desk, test }] as const)));
+
 export function missionCase(id: string) {
+  const extra = extraCasesById.get(id);
+  if (extra) return extra;
   for (const desk of catalogue) {
     const test = CHALLENGES.find(ch => ch.id === desk.id)?.tests.find(t => t.id === id) ?? (LEVEL2[desk.id]?.edge.id === id ? LEVEL2[desk.id].edge : undefined);
     if (test) return { desk, test };

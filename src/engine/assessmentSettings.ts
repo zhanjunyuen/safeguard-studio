@@ -1,4 +1,5 @@
 import { CHALLENGES } from '../data/challenges';
+import { THEMES } from '../data/themes';
 import { drawAssignment } from '../data/mission';
 import type { Criterion } from './marking';
 import type { AssessmentLevel, Desk, Mission } from './mission';
@@ -22,12 +23,13 @@ export const QUESTIONS: { key: QuestionKey; label: string; when: string; skill?:
 ];
 
 /** Most and fewest challenges a teacher can set. */
-export const MAX_CHALLENGES = 6;
+export const MAX_CHALLENGES = CHALLENGES.length;
 export const MIN_CHALLENGES = 1;
 
 export interface AssessmentSettings {
   /** chosen challenge ids, or null for a random draw of one per theme */
   challenges: Desk[] | null;
+  taskCount: number;
   questions: Record<QuestionKey, Requirement>;
   /** fixed level, or null to let pupils choose */
   level: AssessmentLevel | null;
@@ -36,7 +38,7 @@ export interface AssessmentSettings {
 }
 
 export const DEFAULT_SETTINGS: AssessmentSettings = {
-  challenges: null,
+  challenges: null, taskCount: THEMES.length,
   questions: { design: 'optional', attack: 'required', curveball: 'required', revision: 'required', release: 'required' },
   level: null,
   minutes: null,
@@ -58,15 +60,25 @@ export function cleanSettings(raw: unknown): AssessmentSettings {
   }
   return {
     challenges: chosen.length >= MIN_CHALLENGES ? chosen : null,
+    taskCount: chosen.length || (Number.isInteger(r.taskCount) && r.taskCount! >= 1 && r.taskCount! <= MAX_CHALLENGES ? r.taskCount! : THEMES.length),
     questions,
     level: r.level === 1 || r.level === 2 ? r.level : null,
-    minutes: typeof r.minutes === 'number' && TIME_OPTIONS.includes(r.minutes) ? r.minutes : null,
+    minutes: typeof r.minutes === 'number' && Number.isSafeInteger(r.minutes) && r.minutes >= 0 && Number.isSafeInteger(r.minutes * 60) ? r.minutes : null,
   };
 }
 
 /** The challenges for a new attempt: the teacher's choice, else one per theme at random. */
-export const assignmentFor = (s: AssessmentSettings, random = Math.random): Desk[] =>
-  s.challenges?.length ? [...s.challenges] : drawAssignment(random) as Desk[];
+export function assignmentFor(s: AssessmentSettings, random = Math.random): Desk[] {
+  if (s.challenges?.length) return [...s.challenges];
+  const tasks = drawAssignment(random);
+  const count = s.taskCount ?? THEMES.length;
+  if (count > tasks.length) {
+    const remaining = CHALLENGES.map(c => c.id).filter(id => !tasks.includes(id));
+    while (tasks.length < count && remaining.length) tasks.push(...remaining.splice(Math.floor(random() * remaining.length), 1));
+  }
+  while (tasks.length > Math.max(MIN_CHALLENGES, count)) tasks.splice(Math.floor(random() * tasks.length), 1);
+  return tasks;
+}
 
 /** Whether a question must be answered in this attempt. Attempts from before settings existed use the defaults. */
 export const isRequired = (m: Pick<Mission, 'settings'>, q: QuestionKey) =>

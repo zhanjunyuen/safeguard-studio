@@ -85,7 +85,10 @@ interface Props {
   weakTotal?: number;
 }
 
-const BREAK_STAMP = (o: Outcome) => (o === 'pass' ? { label: 'Held', text: 'text-neutral' } : { label: 'Broke it', text: 'text-pass' });
+const BREAK_STAMP = (o: Outcome) => ({
+  label: { pass: 'Helper held', fail: 'Weakness exposed', partial: 'Partly protected', 'over-blocked': 'Refused harmless request' }[o],
+  text: o === 'pass' ? 'text-neutral' : 'text-pass',
+});
 
 const panel = 'rounded-md border-1.5 border-ink bg-paper-card p-5';
 
@@ -144,7 +147,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
       <div className="flex items-baseline justify-between">
         <h2 className="text-xl font-extrabold">
           {mode === 'break'
-            ? `Broke it ${report.total - report.passed} of ${report.total} times`
+            ? 'Preset attack replays'
             : `${report.passed} of ${report.total} passed`}
         </h2>
         <Link to="/profile" className="text-sm font-bold underline underline-offset-2 hover:no-underline">My results</Link>
@@ -204,6 +207,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
           </table>
         </details>
       )}
+      {mode === 'break' && <p className="mt-2 text-sm">Select a request to see the reply and what each block did.</p>}
       <ol className="mt-3 divide-y-1.5 divide-dashed divide-line border-y-1.5 border-dashed border-line">
         {report.results.map((r, i) => {
           const t = challenge.tests.find((x) => x.id === r.testId)!;

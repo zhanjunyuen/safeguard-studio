@@ -52,7 +52,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
                 </label>
               ))}
             </fieldset>
-            <ReasoningField id="cb-reason" required={reasonRequired} label={`Why? Say which of your blocks would catch it or miss it, and what a person should do.${reasonRequired ? '' : ' (optional)'}`}
+            <ReasoningField hint="Give your prediction, link it to a block, and say what you would check afterwards." id="cb-reason" required={reasonRequired} label={`Why do you expect that outcome?${reasonRequired ? '' : ' (optional)'}`}
               value={reason} change={setReason} />
             <button type="submit" className="btn bg-signal" disabled={!prediction || (reasonRequired && !reason.trim())} data-testid="cb-submit">Lock in my prediction</button>
           </form>

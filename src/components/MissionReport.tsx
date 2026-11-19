@@ -115,7 +115,8 @@ function ChallengeReport({ mission }: { mission: Mission }) {
     <WorkloadBar used={packet.workloadCredits} budget={packet.budget} />
     {packet.completionOrder.length === packet.challenges.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
     {packet.challenges.map(c => { const req = challengeMarkRequests(mission, work, c.id as Desk); return <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
-      <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {workloadFormula(c.creditsPerRequest, c.volume, c.workloadCredits)} · {c.attack?.ids.length ?? 0} attack cases tested</p>
+      <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {workloadFormula(c.creditsPerRequest, c.volume, c.workloadCredits)} · {(c.attack?.ids.length ?? 0) + Number(!!c.attack?.custom)} attack cases tested</p>
+      {c.attack?.custom && <p><b>Pupil-written attack</b> · {c.attack.custom.question}<br /><b>AI judgement · {c.attack.custom.outcome}</b> · {c.attack.custom.explanation}</p>}
       {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
       {c.attack && <div><p><b>Attack prediction</b> · {c.attack.reason ?? 'Not recorded (earlier format)'}</p>
         <AnswerMark request={req.testing} preview={c.previewMarks?.testing} />

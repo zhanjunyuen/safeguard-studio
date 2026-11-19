@@ -8,6 +8,7 @@ import AssessmentTracker from './AssessmentTracker';
 import { Trace } from './MissionReport';
 import { getChallenge } from '../data/challenges';
 import { allChallengesComplete, challengeIdFor, newAssessment, type AssessmentLevel, type Desk } from '../engine/mission';
+import { coreTestsPassed, ATTACK_PASS_MIN } from '../engine/breaker';
 import { blockKey } from '../engine/scriptText';
 import Builder from '../pages/Builder';
 import Breaker from '../pages/Breaker';
@@ -78,7 +79,7 @@ export default function AssessmentChallenges() {
     if (!m.launches?.some(l => l.desk === id) || !m.curveballs?.[id] || m.completed?.includes(id)) return;
     update({ completed: [...(m.completed ?? []), id], revising: { ...m.revising, [id]: false }, phase: 'menu', focus: undefined, first: null });
   }
-  const tracker = <AssessmentTracker key={m.phase === 'brief' ? 'setup' : 'assigned'} serviceCount={m.phase === 'brief' ? (m.settings ?? deviceSettings).challenges?.length ?? THEMES.length : workloads.length} phase={m.phase} focus={desk} levelName={levelName}
+  const tracker = <AssessmentTracker key={m.phase === 'brief' ? 'setup' : 'assigned'} serviceCount={m.phase === 'brief' ? (m.settings ?? deviceSettings).challenges?.length ?? (m.settings ?? deviceSettings).taskCount ?? THEMES.length : workloads.length} phase={m.phase} focus={desk} levelName={levelName}
     workloadModel={workloadModel} workloads={workloads} used={used} budget={budget} completed={m.completed ?? []}
     effectiveness={effectiveness} current={current} finished={finished} onService={open}
     onOverview={menu} onRelease={() => update({ phase: 'release', focus: undefined, first: null })} />;
@@ -109,6 +110,7 @@ export default function AssessmentChallenges() {
         const last = progress?.attempts.slice(-1)[0];
         if (!last || progress.pendingReflection || last.script.join() !== progress.script.map(blockKey).join()) return;
         if (revising) { finish(desk); return; }
+        if (coreTestsPassed(desk, last.results) < ATTACK_PASS_MIN) return;
         const rules = last.script.map(type => ({ type, scope: desk }));
         update({ phase: 'attack', first: rules, frozen: { ...m.frozen, [desk]: rules } });
       },
@@ -120,6 +122,8 @@ export default function AssessmentChallenges() {
     return <>{tracker}<Breaker key={desk} assessment={{ id: desk, level2, rules, hintCount: m.attackHints?.length ?? 0, curveballPending: !m.curveballs?.[desk],
       curveball: launched && <CurveballCard key={'cb-' + desk} desk={desk} challengeId={challengeIdFor(m, desk)} reasonRequired={isRequired(m, 'curveball')} rules={rules} answer={m.curveballs?.[desk]}
         onSubmit={answer => update(submitCurveball(useMission.getState().mission, desk, answer))} />,
+      customDraft: m.customDrafts?.[desk] ?? '', customResult: m.launches?.find(l => l.desk === desk)?.custom,
+      changeCustom: text => update({ customDrafts: { ...m.customDrafts, [desk]: text } }),
       plan: m.attackPlans?.[desk] ?? [], submitted: m.launches?.find(l => l.desk === desk)?.ids,
       changePlan: ids => update({ attackPlans: { ...m.attackPlans, [desk]: ids } }), submit: launch,
       reason: m.launches?.find(l => l.desk === desk)?.reason ?? m.attackReasons?.[desk] ?? '',
@@ -133,7 +137,7 @@ export default function AssessmentChallenges() {
   if (m.phase === 'brief') {
     if (needsName) return <JoinName code={m.classCode!} />;
     const settings = m.settings ?? deviceSettings;
-    const count = settings.challenges?.length ?? THEMES.length;
+    const count = settings.challenges?.length ?? settings.taskCount ?? THEMES.length;
     const levelFixed = settings.level !== null, timeFixed = settings.minutes !== null;
     const chosenLevel = settings.level ?? m.level ?? 1;
     const required = QUESTIONS.filter(q => settings.questions[q.key] === 'required');

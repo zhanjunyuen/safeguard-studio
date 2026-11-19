@@ -1,3 +1,4 @@
+import { attackCases } from '../data/attackCases';
 import { BRIEF, SOURCE_PACK, TRANSFER } from '../data/mission';
 import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
@@ -66,7 +67,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote,
       effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], creditsPerRequest: d.perRequest, workloadCredits: d.credits,
-      attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id, m.workloadModel)) } : null,
+      attack: target && plan ? { rules: target, custom: plan.custom, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id, m.workloadModel)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && (plan?.reason || revisionNote) ? {
         testing: requests.testing ? markOffline(requests.testing) : undefined,
@@ -98,12 +99,12 @@ export function challengeMarkRequests(m: Mission, progress: Record<string, Chall
   const plan = m.launches?.find(l => l.desk === desk);
   const revisionNote = m.completed?.includes(desk) ? m.revisionNotes?.[desk] : undefined;
   const answer = m.curveballs?.[desk];
-  const planned = (id: string) => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
+  const planned = (id: string) => { const t = attackCases(challenge).find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
   const blocks = target.map(r => r.type);
   // The frozen (attacked) build run on every test: the "before" side of a revision.
   const frozenCases = evaluateDesk(desk, blocks, m.level, m.workloadModel);
   const out: Partial<Record<Criterion, MarkRequest>> = {};
-  if (plan?.reason) out.testing = { criterion: 'testing', text: plan.reason, blocks, broke: plan.ids.filter(id => !handled(evaluate(target, id, m.workloadModel))), planned: plan.ids.map(planned), challengeId: challenge.id };
+  if (plan?.reason) out.testing = { criterion: 'testing', text: plan.reason, blocks, broke: plan.ids.filter(id => !handled(evaluate(target, id, m.workloadModel))), planned: plan.ids.map(planned), custom: plan.custom, challengeId: challenge.id };
   if (revisionNote && evaluated) {
     const after = evaluateDesk(desk, evaluated.script, m.level, m.workloadModel);
     out.revision = { criterion: 'revision', text: revisionNote, before: blocks, after: evaluated.script, failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),

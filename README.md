@@ -6,24 +6,26 @@
 
 Safeguard Studio aims to assess how pupils aged 11–14 use judgement when working with AI. The intended teacher claim is “This pupil can design a helper for a real audience, anticipate its limitations, test their predictions, use evidence to improve it, and decide when a person should take responsibility.” The project also aims to teach efficiency by making the cost of each safeguard visible as a school service scales.
 
-The overarching commission is to run **a year-round AI helper for the school community**. Each pupil receives six challenges drawn from the catalogue, one per theme, and chooses the order in which to complete them. The common brief gives the agent a coherent role across activities. The assessment should accommodate new teacher-authored cases and more than one defensible answer. The longer-term aim is to train a model with **Adaption AI** to mark open responses against evidence and provide actionable feedback.
+The overarching commission is to run **a year-round AI helper for the school community**. By default each pupil receives six challenges drawn from the catalogue, one per theme, and chooses the order in which to complete them. The common brief gives the agent a coherent role across activities. The assessment should accommodate new teacher-authored cases and more than one defensible answer. The longer-term aim is to train a model with **Adaption AI** to mark open responses against evidence and provide actionable feedback.
 
 ## How pupils and teachers start
 
 - **Start page.** Pupils enter the class code from their teacher and press **Start assessment**. They can leave the code blank to start on their own. Smaller links open the demo, all practice challenges (`/challenges`) and teacher setup.
 - **Guided assessment.** A step bar (Join class → Brief → Challenges → Release decision → Results) and a "Now" line always say what to do next. Pupils who used a class code type their first name once.
 - **Teacher setup (`/setup`, linked from Teacher view).** Teachers choose:
-  - the challenges (a random one per theme, or up to six of their choice);
+  - the task count (1–21, six by default) for a random assignment, or the exact challenges;
   - whether each written answer is required or optional (design note, attack prediction, curveball explanation, revision note, release explanation);
-  - optionally a fixed level and time.
+  - optionally a fixed level and time allowance in active minutes, including untimed.
 
   Settings save on the device, or to a class with its **teacher code**: a new class gets a code, and the demo class `DEMO8B` uses `TEACH8B`. Each attempt keeps the settings it started with. An optional answer left blank doesn't lower the final score.
+
+To unlock Attack, the latest run of the current build must pass four of the six core tests. The Level 2 edge case is scored separately for this gate. Each task has 12 preset attacks at Level 1 and 13 at Level 2. Pupils can spend one of their three slots on a fictional request they write themselves. Adaption estimates how the ordered build would handle it. Preset attacks run in the simulator. If AI judging is unavailable, the pupil can retry or use preset attacks.
 
 ## The integrated assessment
 
 Choose **Start the assessment**, select the time allowance, then choose a challenge from the checklist. Starting an assessment draws one challenge per theme from the 21-challenge practice catalogue. The six are saved with the attempt. Earlier attempts keep their original six. Pupils can work in any order and pause a challenge to work on another. A task menu stays visible during Build, Attack and revision. It tracks completed challenges and the number of tests passed on the latest evaluated build for each attempted task. Front-page practice has its own progress.
 
-**Two levels.** Pupils choose a level before the six challenges are drawn, and it applies to the whole assessment:
+**Two levels.** Pupils choose a level before the challenges are drawn, and it applies to the whole assessment:
 
 | | Level 1 | Level 2 · IF blocks |
 |---|---|---|
@@ -35,7 +37,7 @@ Choose **Start the assessment**, select the time allowance, then choose a challe
 Level 2 builds keep their IF blocks everywhere they are used: evaluation, the frozen attack target, curveballs, workload credits (an IF only charges for the branch that runs) and the evidence export (`level`, `challengeId`). Attacks at Level 2 can target the edge case, and the budget uses the Level 2 reference helpers. `src/engine/assessmentLevel.test.ts` checks that the always-on Level 1 answer misses every Level 2 target.
 
 1. **Build and evaluate each helper.** The assessed challenge opens the same story, audience, block palette and editor as its front-page counterpart. Order the blocks and run the six hidden tests. For a failed request, compare the reply with the steps your submitted helper took and explain the outcome. Later runs prioritise changed failures and then cases you have discussed least recently.
-2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. The cases also appeared during evaluation, so this measures targeted testing after feedback.
+2. **Attack the evaluated build.** The Break workspace locks the pupil’s latest evaluated stack for that challenge. Select up to three attack blocks, then write which block you expect to fail and why. The prediction is required before launch and is saved with the attack, so it can be compared with what the simulator shows. Inspect the results. A helper that withstands the plan still counts as tested. Core cases can be retested alongside additional preset requests or a pupil-written request.
 3. **Face a curveball.** After the attack, the frozen helper meets one request it has never seen. Every one of the 21 challenges has a curveball. Each targets an AI risk the standard tests don't cover, and most can't be fixed by any block in that palette. The six original school challenges:
 
    | Challenge | Curveball | AI risk |
@@ -69,7 +71,7 @@ Level 2 builds keep their IF blocks everywhere they are used: evaluation, the fr
 
    The pupil predicts whether the helper will cope and must explain why (required), then sees the reply, the trace and what the case shows about AI. Pupils are marked on their prediction and reasoning, not on whether the helper survives. Adding every block in a palette still fails 17 of the 21 curveballs (`src/engine/curveball.test.ts`).
 4. **Finish or revise.** Keep the build and return to the checklist, or reopen its editor to revise it. Explain the revision or decision to keep the design, and evaluate any changed stack. The attack record keeps the original target.
-5. **Make a release decision.** Completing all six challenges unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
+5. **Make a release decision.** Completing every assigned challenge unlocks the ecology club transcript. Review it against the current source, decide whether to publish, edit or consult someone, and explain what the club should tell families.
 
 **Speak your reasoning.** Pupils can dictate into any reasoning field in browsers with speech recognition. Start and stop with the microphone button, then edit the transcript. Browser permissions and speech services determine availability. Typing and device keyboard dictation are also supported. The app stores the submitted text.
 

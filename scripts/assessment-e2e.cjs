@@ -31,17 +31,34 @@ async function test() {
     async function run() {
       await page.getByTestId('run').click();
       await button('Skip to results').click();
-      await page.getByTestId('reflect-modal').locator('fieldset button').first().click();
-      await page.getByTestId('reflect-submit').click();
-      await page.getByTestId('reflect-continue').click();
+      if (await page.getByTestId('reflect-modal').isVisible()) {
+        await page.getByTestId('reflect-modal').locator('fieldset button').first().click();
+        await page.getByTestId('reflect-submit').click();
+        await page.getByTestId('reflect-continue').click();
+      }
     }
 
+    // Start from previously saved, passing builds to test eligibility, freezing and revision.
+    const { createServer } = await import('vite');
+    const loader = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' });
+    let scripts;
+    try {
+      const { idealScript } = await loader.ssrLoadModule('/src/engine/targets.ts');
+      scripts = Object.fromEntries(ids.map(key => { const id = key.slice(7); return [id, idealScript(id)]; }));
+    } finally { await loader.close(); }
+    await page.evaluate(scripts => {
+      const key = 'school-community-challenge-work-v1';
+      const saved = JSON.parse(localStorage.getItem(key));
+      for (const [id, script] of Object.entries(scripts)) saved.state.progress[id] = {
+        script, attempts: [], reflections: [], events: [], pendingReflection: null, seen: [],
+      };
+      localStorage.setItem(key, JSON.stringify(saved));
+    }, scripts);
+    await page.reload();
     for (const id of ids) {
       await page.getByTestId(id).click();
       await page.getByTestId('palette-ifelse').click();
-      const safeguards = page.getByLabel('Safeguard blocks').locator('[data-testid^="palette-"]').filter({ hasNotText: 'IF …' });
-      await safeguards.first().click();
-      await safeguards.nth(1).click();
+      assert.equal(await button('Continue to Attack with this build').isEnabled(), false);
       await run();
       await button('Continue to Attack with this build').click();
       assert.equal(await page.locator('[data-testid^="slot:"]').count(), 2);
@@ -69,7 +86,7 @@ async function test() {
     await run();
     await button('Finish challenge').click();
     await button('Continue to release decision').click();
-    await page.getByLabel('Your decision').selectOption('Edit before publishing');
+    await page.getByRole('combobox', { name: /Your decision/ }).selectOption('Edit before publishing');
     await page.getByRole('textbox').fill('Publish the time and check the gate with the site manager.');
     await button('Submit assessment').click();
 
@@ -89,7 +106,7 @@ async function test() {
     assert.equal(revised.attempts.length, 2);
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
     assert.equal(packet.creditModel, 'compute');
-    assert.equal(revised.workloadCredits, 12 * revised.volume);
+    assert.ok(revised.attempts.at(-1).script.every(key => !key.startsWith('ifelse:')));
     assert.match(await tracker.getAttribute('aria-valuetext'), new RegExp('^' + packet.workloadCredits + ' of ' + packet.budget + ' credits'));
     assert.equal(packet.workloadCredits, packet.challenges.reduce((sum, c) => sum + Math.ceil(c.creditsPerRequest * c.volume), 0));
     assert.deepEqual(errors, []);

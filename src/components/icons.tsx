@@ -75,6 +75,7 @@ import type { BlockType } from '../types';
 import type { Dim } from '../engine/profile';
 
 export const BLOCK_ICON: Record<string, LucideIcon> = {
+  news_transcript: BookCheck, news_quotes: TextQuote, quiz_key: BookMarked, quiz_number: ListMinus,
   history_timeline: Landmark,
   history_roman: BookMarked,
   party_booking: ClipboardList,

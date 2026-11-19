@@ -115,7 +115,7 @@ export function AttackWorkbench({ companion }: { companion: ReactNode }) {
       <div className="grid lg:grid-cols-2 gap-4"><div className="space-y-2"><h4 className="font-bold">Attack blocks</h4>
         {cases.map(t => <AttackItem key={t.id} id={t.id} label={t.attackLabel} used={plan.includes(t.id)} full={plan.length >= ATTACK_BUDGET} onAdd={() => add(t.id)} />)}</div>
         <div className="space-y-3 overflow-x-auto"><Plan plan={plan} labels={labels} locked={false} onRemove={id => setPlan(plan.filter(t => t !== id))} />
-          <button className="btn bg-signal" disabled={!plan.length} onClick={launch}>Launch attack plan</button></div>
+          <button className="btn bg-signal" disabled={!plan.length} onClick={() => launch()}>Launch attack plan</button></div>
       </div></DndContext>}
   </>;
 }

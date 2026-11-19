@@ -185,7 +185,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '📰',
     audience: 'For The Weekly Owl, your school paper',
     accent: '#4C97FF',
-    palette: ['official_contacts', 'mask_reply_email', 'mask_input_email', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'cite_correction', 'neutral_wording'],
+    palette: ['news_transcript', 'news_quotes', 'official_contacts', 'mask_reply_email', 'mask_input_email', 'ask_the_source', 'check_stats', 'feedback_only', 'disclose_ai', 'cite_correction', 'neutral_wording'],
     story:
       "You're the new editor of The Weekly Owl. Build an AI helper for the reporters, and make sure nothing false, private or unfair ends up in print.",
     tests: [
@@ -268,7 +268,7 @@ export const CHALLENGES: Challenge[] = [
     emoji: '🧪',
     audience: 'For your Year 9 science study group',
     accent: '#3DAA5C',
-    palette: ['private_marks', 'reference_year', 'cite_correction', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'disclose_ai', 'mix_examples'],
+    palette: ['quiz_key', 'quiz_number', 'private_marks', 'reference_year', 'cite_correction', 'refuse_tests', 'check_textbook', 'ask_confidence', 'practice_not_answers', 'disclose_ai', 'mix_examples'],
     story:
       "Your study group wants an AI helper that makes revision quizzes. Build one that writes good questions, gets the answers right and doesn't help anyone cheat.",
     tests: [

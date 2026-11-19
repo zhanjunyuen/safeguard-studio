@@ -25,6 +25,7 @@ import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
 import { runChallenge, runProgram } from '../engine/run';
+import { ATTACK_PASS_MIN, coreTestsPassed } from '../engine/breaker';
 import { buildStatus } from '../engine/progress';
 import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
 import { usefulnessTarget } from '../engine/targets';
@@ -271,6 +272,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
 
   const last = progress.attempts.slice(-1)[0];
   const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1, assessment.workloadModel);
+  const corePassed = assessment ? coreTestsPassed(assessment.id, last?.results) : 0;
   const evaluated = last && last.script.join() === script.map(blockKey).join();
 
   const attemptNo = progress.attempts.length;
@@ -285,10 +287,10 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   return (
     <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
       {assessment ? <div className="assessment-taskbar">
-        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p></div>
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p>{!assessment.revising && <p className="text-sm">Pass 4 of the 6 core tests to attack · {evaluated ? corePassed + '/6 passed' : 'Run this build'}</p>}</div>
         <div className="flex flex-wrap gap-2">
           {mustReflect && !locked ? <button className="btn bg-paper-card" onClick={() => setReflectFor(progress.pendingReflection)}>Explain last failure</button> : runButton}
-          <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>
+          <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect || (!assessment.revising && corePassed < ATTACK_PASS_MIN)} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>
         </div>
       </div> : (
       <div className="flex flex-wrap items-start gap-4 mb-5">
@@ -364,7 +366,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
               <p>{challenge.audience}. {challenge.story}</p><p>Pass {challenge.tests.length} tests and aim for usefulness of {target}.</p>
               <p>{workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}. {assessment.workloadModel === 'compute' && `Ask AI uses ${safeguardRate('ask_ai', 'compute')} credits per answer. A filter that stops a request first saves those credits.`} Test runs are free. {assessment.workloadModel ? 'The estimate averages the cost of the blocks that run across the cases.' : isL2 && 'Each IF budgets for its more expensive branch.'}</p>
               <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${noteRequired ? 'required' : 'optional'})`}
-                value={assessment.note} change={assessment.onNote} required={noteRequired} rows={2} />
+                hint={assessment.revising ? 'Mention one observation, your decision, and the effect you expect.' : 'Name the risk, your design choice, and why the order matters.'} value={assessment.note} change={assessment.onNote} required={noteRequired} rows={2} />
               {costs && !locked && <details><summary>Latest test costs</summary>{costs.map(row => <Trace key={row.id} run={row} />)}</details>}
             </details>}
             {assessment && !locked && <AttackHintPanel desk={assessment.id} />}

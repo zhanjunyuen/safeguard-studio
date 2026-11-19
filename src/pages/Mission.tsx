@@ -129,7 +129,7 @@ export default function Mission() {
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>
         <option disabled value="">Choose a decision</option>{['Publish', 'Edit before publishing', 'Ask a person first'].map(d => <option key={d}>{d}</option>)}</select></label>
-      <Writing label={`What should the club tell families? Use the source and explain who should settle any uncertainty.${isRequired(m, 'release') ? '' : ' (optional)'}`} value={m.rationale} change={rationale => update({ rationale })} />
+      <Writing label={`What should the club tell families?${isRequired(m, 'release') ? '' : ' (optional)'}`} hint="State your decision, point to the evidence, and identify who should check any uncertainty." value={m.rationale} change={rationale => update({ rationale })} />
       <button className={primary} disabled={!m.decision || (isRequired(m, 'release') && !m.rationale.trim())} onClick={() => update({ phase: 'complete' })}>Submit assessment</button>
     </Panel>}
     {ended && <Panel title={m.phase === 'expired' ? 'Time ended' : 'Your assessment evidence'}><MissionReport mission={m} />

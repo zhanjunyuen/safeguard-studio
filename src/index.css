@@ -124,6 +124,7 @@ dialog.assessment-intro { position: fixed; inset: 0; width: 100%; height: 100%; 
   .assessment-bench .workbench-grid > [id] { display: none; }
   .assessment-bench [data-panel="palette"] > #workbench-palette,
   .assessment-bench [data-panel="results"] > #workbench-results { display: block; }
+  .assessment-bench [data-panel="results"] > #workbench-results.flex,
   .assessment-bench [data-panel="helper"] > #workbench-helper { display: flex; }
 }
 @media (max-width: 639px) {

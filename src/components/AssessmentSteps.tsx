@@ -15,11 +15,11 @@ export function assessmentStep(m: Mission, needsName: boolean): { step: StepId; 
   if (m.phase === 'brief') return needsName
     ? { step: 'join', next: 'Type your first name to join your class.' }
     : { step: 'brief', next: 'Read the brief, check your level and time, then start.' };
-  if (m.phase === 'build') return { step: 'challenges', next: `${title}: add safeguard blocks, run the hidden tests, then continue to Attack.` };
+  if (m.phase === 'build') return { step: 'challenges', next: `${title}: add safeguard blocks, pass at least four of the six core tests on this build to unlock Attack.` };
   if (m.phase === 'revise') return { step: 'challenges', next: `${title}: change or keep your blocks, run the tests again, explain your choice and finish.` };
   if (m.phase === 'attack' && m.focus) {
     const launched = m.launches?.some((l) => l.desk === m.focus);
-    if (!launched) return { step: 'challenges', next: `${title}: pick up to three attacks, predict which block will fail, then launch.` };
+    if (!launched) return { step: 'challenges', next: `${title}: choose or write up to three requests in total, predict the outcome, then launch.` };
     if (CURVEBALLS[m.focus] && !m.curveballs?.[m.focus]) return { step: 'challenges', next: `${title}: predict whether your helper can handle the curveball.` };
     return { step: 'challenges', next: `${title}: finish the challenge, or revise your build first.` };
   }

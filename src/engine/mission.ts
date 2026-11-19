@@ -1,5 +1,7 @@
 import { ASSIGNMENT, ASSIGNED_CASES, BRIEF, catalogue, DESKS, missionCase, SOURCE_PACK, TRANSFER } from '../data/mission';
 import type { AttackHint } from './attackHints';
+import { attackCases } from '../data/attackCases';
+import type { CustomAttack } from './customAttack';
 import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
@@ -43,7 +45,8 @@ export interface Mission {
   attackPlans?: Partial<Record<Desk, string[]>>;
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;
-  launches?: { desk: Desk; ids: string[]; reason?: string }[];
+  customDrafts?: Partial<Record<Desk, string>>;
+  launches?: { desk: Desk; ids: string[]; reason?: string; custom?: CustomAttack }[];
   /** Form 4: the pupil's prediction for each challenge's unseen curveball case. */
   curveballs?: Partial<Record<Desk, CurveballAnswer>>;
   project?: string; // Earlier, pupil-authored briefs in saved reports.
@@ -70,7 +73,7 @@ export const newAssessment = (): Mission => ({
 
 /** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
 export const challengeIdFor = (m: Pick<Mission, 'level'>, desk: Desk) => (m.level === 2 ? `${desk}@2` : desk);
-export const casesFor = (m: Pick<Mission, 'level'>, desk: Desk) => getChallenge(challengeIdFor(m, desk))!.tests.map(t => t.id);
+export const casesFor = (m: Pick<Mission, 'level'>, desk: Desk) => attackCases(getChallenge(challengeIdFor(m, desk))!).map(t => t.id);
 
 /** The runnable script for one desk from scoped rules, keeping IF blocks. */
 export const ruleScript = (rules: Rule[], desk: Desk) =>
@@ -153,15 +156,17 @@ export function evaluate(rules: Rule[], id: string, model?: Mission['workloadMod
   return { id, desk: desk.name, volume: desk.volume, charges, credits, result };
 }
 
-export function submitAttack(m: Mission): Mission {
+export function submitAttack(m: Mission, custom?: CustomAttack): Mission {
   const desk = assignedDesks(m).find(d => d.id === m.focus);
   if (m.phase !== 'attack' || !m.first || !desk || m.launches?.some(l => l.desk === desk.id)) return m;
   const ids = m.attackPlans?.[desk.id] ?? [];
   const cases = m.form === 4 ? casesFor(m, desk.id) : desk.cases;
-  if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => cases.includes(id))) return m;
+  if (custom && (m.form !== 4 || !custom.question || custom.question !== m.customDrafts?.[desk.id]?.trim())) return m;
+  const count = ids.length + (custom ? 1 : 0);
+  if (!count || count > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => cases.includes(id))) return m;
   const reason = m.attackReasons?.[desk.id]?.trim() ?? '';
   if (m.form === 4 && !reason && (m.settings?.questions.attack ?? 'required') === 'required') return m;
-  const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason } : { desk: desk.id, ids: [...ids] };
+  const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason, ...(custom && { custom }) } : { desk: desk.id, ids: [...ids] };
   return { ...m, launches: [...(m.launches ?? []), round] };
 }
 

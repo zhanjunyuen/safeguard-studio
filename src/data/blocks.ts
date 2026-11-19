@@ -24,6 +24,10 @@ function replyScan(label: string, pattern: RegExp, hint: string): Def {
 }
 
 const defs: Record<BlockType, Def> = {
+  news_transcript: sourceCheck('Read the interview transcript', 'quote', 'Compare quoted words with the interview transcript.'),
+  news_quotes: replyScan('Look for quotation marks', /[“”"]/, 'Checks the punctuation around a quote.'),
+  quiz_key: sourceCheck('Compare the practice answer key', 'fact', 'Check factual answers against the official practice key.'),
+  quiz_number: replyScan('Look for numbered answers', /\b1[.)]/, 'Checks whether the answer uses a numbered list.'),
   history_timeline: sourceCheck('Compare the museum timeline', 'chronology', 'Checks the dates of historical events against the museum timeline.'),
   history_roman: replyScan('Check for a Roman numeral', /\b[IVX]+\b/, 'A numeral identifies a ruler in the caption. It gives no date for the event.'),
   party_booking: sourceCheck('Read the hall booking', 'booking', 'Checks the party date and time against the confirmed hall reservation.'),

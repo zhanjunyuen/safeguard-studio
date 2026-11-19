@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getAttackHintProvider, hintAvailable, hintStage, type AttackHintProvider } from '../engine/attackHints';
 import { blockKey } from '../engine/scriptText';
+import type { CustomAttack } from '../engine/customAttack';
 import { getChallenge } from '../data/challenges';
 import type { BlockType } from '../types';
 import { useAssessmentSession } from './session';
@@ -11,7 +12,7 @@ interface MissionState {
   mission: Mission;
   update: (patch: Partial<Mission>) => void;
   tick: (seconds: number) => void;
-  launch: () => void;
+  launch: (custom?: CustomAttack) => void;
   requestHint: (desk: Desk, signal: AbortSignal, provider?: AttackHintProvider) => Promise<void>;
   restart: () => void;
 }
@@ -26,7 +27,7 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
     const expired = m.minutes > 0 && elapsed >= m.minutes * 60;
     return { mission: { ...m, elapsed: expired ? m.minutes * 60 : elapsed, phase: expired ? 'expired' : m.phase } };
   }),
-  launch: () => set(s => ({ mission: submitAttack(s.mission) })),
+  launch: custom => set(s => ({ mission: submitAttack(s.mission, custom) })),
   requestHint: async (desk, signal, provider = getAttackHintProvider()) => {
     const before = get().mission;
     if (signal.aborted || !hintAvailable(before, desk)) return;

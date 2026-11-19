@@ -54,7 +54,7 @@ export interface PlannedCase { id: string; label: string; title: string; categor
 /** `challengeId` (e.g. "party" or "party@2" at Level 2) lets the AI marker see the challenge's story and simulator
  *  results; the offline preview does not need it. */
 export type MarkRequest =
-  | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[]; challengeId?: string }
+  | { criterion: 'testing'; text: string; blocks: BlockType[]; custom?: import('./customAttack').CustomAttack; planned: PlannedCase[]; broke: string[]; challengeId?: string }
   | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean; challengeId?: string }
   | { criterion: 'judgement'; text: string; decision: string; anchors?: JudgementAnchors }
   /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
@@ -149,10 +149,11 @@ function testing(req: Extract<MarkRequest, { criterion: 'testing' }>): Concept[]
     const own = wordsRe([c.label, c.title]);
     return own ? new RegExp(`${own.source}|${CATEGORY_WORDS[c.category].source}`, 'i') : CATEGORY_WORDS[c.category];
   };
-  const kindQuote = req.planned.map((c) => quote(text, caseRe(c))).find(Boolean);
-  const broken = req.planned.filter((c) => req.broke.includes(c.id));
+  const planned = req.custom ? [...req.planned, { id: 'pupil-written', label: req.custom.question, title: 'Pupil request', category: req.custom.category }] : req.planned;
+  const kindQuote = planned.map((c) => quote(text, caseRe(c))).find(Boolean);
+  const broken = planned.filter(c => req.broke.includes(c.id) || (c.id === 'pupil-written' && req.custom?.outcome === 'exposed'));
   const matchQuote = broken.map((c) => quote(text, caseRe(c))).find(Boolean)
-    ?? (!broken.length ? quote(text, /(\bhold|handle|\bsafe|\bfine\b|\bok(ay)?\b|\bpass(es)?\b|won'?t (fail|break|get through)|will (work|cope))/i) : undefined);
+    ?? (!broken.length && (!req.custom || req.custom.outcome === 'held' || req.planned.length) ? quote(text, /(\bhold|handle|\bsafe|\bfine\b|\bok(ay)?\b|\bpass(es)?\b|won'?t (fail|break|get through)|will (work|cope))/i) : undefined);
   return [
     { id: 'T1', label: 'Names a block in the helper, or a safeguard it is missing', present: !!blockQuote, evidence: blockQuote },
     { id: 'T2', label: 'Says what kind of request should get through', present: !!kindQuote, evidence: kindQuote },

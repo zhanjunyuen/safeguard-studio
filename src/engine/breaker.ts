@@ -1,6 +1,12 @@
+import { baseId, getChallenge } from '../data/challenges';
 import type { Challenge, RunReport, ScriptBlock } from '../types';
 import { runProgram, scoreResults } from './run';
 import { keyToBlock } from './scriptText';
+
+export const ATTACK_PASS_MIN = 4;
+export function coreTestsPassed(desk: string, results: { testId: string; outcome: string }[] = []) {
+  return getChallenge(baseId(desk))!.tests.filter(t => results.some(r => r.testId === t.id && r.outcome === 'pass')).length;
+}
 
 export const ATTACK_BUDGET = 3;
 
@@ -39,7 +45,7 @@ export function launch(c: Challenge, attackIds: string[]): LaunchReport {
 export function breakSummary(c: Challenge, attempts: { attacks: string[]; broke: string[] }[]) {
   if (!attempts.length) return null;
   const weak = weakSpots(c);
-  const found = new Set(attempts.flatMap((a) => a.broke));
+  const found = new Set(attempts.flatMap(a => a.broke).filter(id => weak.includes(id)));
   const used = attempts.reduce((n, a) => n + a.attacks.length, 0);
   const hits = attempts.reduce((n, a) => n + a.broke.length, 0);
   return {
@@ -48,7 +54,7 @@ export function breakSummary(c: Challenge, attempts: { attacks: string[]; broke:
     foundPct: weak.length ? Math.round((found.size / weak.length) * 100) : 0,
     precision: used ? Math.round((hits / used) * 100) : 0,
     attempts: attempts.length,
-    firstTryPct: weak.length ? Math.round((new Set(attempts[0].broke).size / weak.length) * 100) : 0,
+    firstTryPct: weak.length ? Math.round((new Set(attempts[0].broke.filter(id => weak.includes(id))).size / weak.length) * 100) : 0,
   };
 }
 
@@ -59,8 +65,8 @@ export function breakSummaryAll(entries: { challenge: Challenge; attempts: { att
   let found = 0, total = 0, attacks = 0, hits = 0, attempts = 0, firstFound = 0;
   for (const { challenge, attempts: a } of used) {
     const weak = weakSpots(challenge);
-    found += new Set(a.flatMap((x) => x.broke)).size;
-    firstFound += new Set(a[0].broke).size;
+    found += new Set(a.flatMap(x => x.broke).filter(id => weak.includes(id))).size;
+    firstFound += new Set(a[0].broke.filter(id => weak.includes(id))).size;
     total += weak.length;
     attacks += a.reduce((n, x) => n + x.attacks.length, 0);
     hits += a.reduce((n, x) => n + x.broke.length, 0);

@@ -34,7 +34,7 @@ export function markPacket(req: MarkRequest): unknown {
     const rules = rulesOf(desk, req.blocks);
     const results = found ? req.planned.map((p) => evaluate(rules, p.id)) : [];
     return {
-      ...found?.base, frozenBuild: flow(req.blocks), attackCases: req.planned,
+      ...found?.base, frozenBuild: flow(req.blocks), attackCases: req.planned, ...(req.custom && { pupilWrittenRequestAndAiJudgement: req.custom }),
       simulator: found
         ? results.map((x, i) => ({ case: req.planned[i].id, outcome: handled(x) ? 'held' : x.result.blocked ? 'refused (safe but not useful)' : x.result.outcome === 'partial' ? 'partly got through' : 'got through', why: x.result.explanation }))
         : req.planned.map((p) => ({ case: p.id, outcome: req.broke.includes(p.id) ? 'got through' : 'held' })),
