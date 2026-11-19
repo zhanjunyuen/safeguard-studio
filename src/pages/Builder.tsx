@@ -267,7 +267,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
 
   return (
     <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
-      <div className="workspace-intro flex flex-wrap items-start gap-4 mb-5">
+      <div className="flex flex-wrap items-start gap-4 mb-5">
         <div className="flex-1 min-w-[min(100%,260px)]">
           {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges

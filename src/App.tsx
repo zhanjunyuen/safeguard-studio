@@ -1,4 +1,3 @@
-import { BookOpen, ChartNoAxesColumn, ClipboardCheck, Presentation } from 'lucide-react';
 import { useEffect } from 'react';
 import { Navigate, NavLink, Route, Routes, useParams } from 'react-router-dom';
 import PresenterBar from './components/PresenterBar';
@@ -11,7 +10,7 @@ import Profile from './pages/Profile';
 import Teacher from './pages/Teacher';
 
 const link = ({ isActive }: { isActive: boolean }) =>
-  `studio-nav-link ${isActive ? 'is-active' : ''}`;
+  `px-3 py-2 text-[15px] font-bold border-b-[3px] transition-colors ${isActive ? 'border-ink text-ink' : 'border-transparent text-ink-2 hover:text-ink'}`;
 
 function Logo() {
   // a single Scratch-style block as the mark
@@ -44,18 +43,18 @@ export default function App() {
   const presenting = usePresenter((s) => s.active);
   return (
     <div className="min-h-screen flex flex-col">
-      <button className="skip-to-content" onClick={() => document.getElementById('main-content')?.focus()}>Skip to content</button>
-      <header className="studio-header">
-        <div className="studio-header-inner">
-          <NavLink to="/" className="studio-brand">
+      <button className="skip-to-content btn bg-paper-card" onClick={() => document.getElementById('main-content')?.focus()}>Skip to content</button>
+      <header className="border-b-1.5 border-ink bg-paper">
+        <div className="max-w-[1400px] mx-auto px-4 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 sm:h-16 sm:flex-nowrap sm:py-0">
+          <NavLink to="/" className="flex items-center gap-2.5 mr-auto">
             <Logo />
             <span className="font-display text-xl font-extrabold">Safeguard Studio</span>
           </NavLink>
-          <nav className="studio-nav" aria-label="Main">
-            <NavLink to="/" end className={link}><BookOpen size={16} aria-hidden />Challenges</NavLink>
-            {!presenting && <NavLink to="/mission" className={link}><ClipboardCheck size={16} aria-hidden />Assessment</NavLink>}
-            <NavLink to="/profile" className={link}><ChartNoAxesColumn size={16} aria-hidden />My results</NavLink>
-            <NavLink to="/teacher" className={link}><Presentation size={16} aria-hidden />Teacher view</NavLink>
+          <nav className="main-nav flex gap-x-1 self-stretch items-stretch" aria-label="Main">
+            <NavLink to="/" end className={link}><span className="flex items-center h-full">Challenges</span></NavLink>
+            {!presenting && <NavLink to="/mission" className={link}><span className="flex items-center h-full">Assessment</span></NavLink>}
+            <NavLink to="/profile" className={link}><span className="flex items-center h-full">My results</span></NavLink>
+            <NavLink to="/teacher" className={link}><span className="flex items-center h-full">Teacher view</span></NavLink>
           </nav>
         </div>
       </header>

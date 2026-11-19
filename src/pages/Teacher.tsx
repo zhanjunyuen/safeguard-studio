@@ -128,10 +128,10 @@ export default function Teacher() {
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 py-10" data-testid="teacher">
-      <div className="page-heading flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label text-ink-2">{source === 'live' && liveClass ? `${liveClass.name} · live` : '8B Computing · sample class'}</p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold mt-1">Class results</h1>
+          <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
           {supabase && !usePresenter.getState().active && (
             <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="class-source">
@@ -157,7 +157,7 @@ export default function Teacher() {
           <select
             value={cid}
             onChange={(e) => setCid(e.target.value)}
-            className="studio-select max-w-full sm:w-72"
+            className="max-w-full sm:min-w-[300px] rounded border-1.5 border-ink bg-paper-card px-3 py-2.5 font-bold shadow-hard"
             data-testid="scope"
           >
             <option value={ALL}>All challenges</option>
@@ -174,7 +174,7 @@ export default function Teacher() {
       </div>
 
       <MissionResultLink />
-      <dl className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 teacher-stats">
+      <dl className="grid md:grid-cols-4 mt-8 border-1.5 border-ink rounded-md bg-paper-card divide-y-1.5 md:divide-y-0 md:divide-x-1.5 divide-ink">
         <Stat
           title="Most missed on the first run"
           value={hasData ? COMPETENCY_META[mostMissed].label : '–'}
@@ -193,8 +193,8 @@ export default function Teacher() {
         <Stat title="Explained failures correctly" value={reflAvg !== null ? `${reflAvg}%` : '–'} sub="Class average" />
       </dl>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] gap-6 mt-6">
-        <div className="studio-panel min-w-0 overflow-x-auto">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_400px] gap-6 mt-6">
+        <div className="rounded-md border-1.5 border-ink bg-paper-card overflow-x-auto">
           <table className="class-table w-full text-sm">
             <caption className="sr-only">Scores per student for {isAll ? 'all challenges combined' : challengeTitle}</caption>
             <thead>

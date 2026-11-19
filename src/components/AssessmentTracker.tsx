@@ -43,25 +43,23 @@ export default function AssessmentTracker({
     onKeyDown={e => { if (expanded && e.key === 'Escape') close(); }}>
     <div className="mx-auto max-w-5xl px-3 sm:px-4">
       <button ref={toggle} type="button" aria-expanded={expanded} aria-controls="assessment-tracker-details"
-        className="group flex min-h-12 w-full items-center gap-3 py-1 text-left"
+        className="grid min-h-[var(--tracker-height)] w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-2 text-left"
         onClick={() => setExpanded(!expanded)}>
-        <span className="min-w-0 flex-1">
-          <strong className="block truncate text-sm leading-5" title={task}>
+        <span className="min-w-0">
+          <strong className="block truncate text-base leading-tight sm:text-xl" title={task}>
             {service && !ended && <span className="font-normal text-ink-2">{stage} · </span>}{task}
           </strong>
-          <span className="flex items-center gap-2 text-xs leading-4 text-ink-2">
-            <span aria-hidden="true" className="h-1.5 w-9 shrink-0 overflow-hidden rounded-full bg-line sm:w-20">
-              <span className={`block h-full ${used > budget ? 'bg-fail' : 'bg-pass'}`}
-                style={{ width: `${setup || !budget ? 0 : Math.min(100, used / budget * 100)}%` }} />
-            </span>
-            <span aria-live="polite" aria-atomic="true">
-              <b className={used > budget ? 'text-fail' : 'text-ink'}>{setup ? '0' : `${used} / ${budget}`} credits</b> · 6 services
-            </span>
+          <span className="mt-1 block text-sm leading-tight text-ink-2" aria-live="polite" aria-atomic="true">
+            <b className={used > budget ? 'text-fail' : 'text-ink'}>{setup ? '0' : `${used} / ${budget}`} credits</b> · 6 services
           </span>
         </span>
-        <span className="flex shrink-0 items-center gap-1 rounded border border-ink bg-signal px-2 py-1 text-sm font-bold shadow-[1px_1px_0_0_currentColor] group-hover:bg-signal-soft">
-          <ChevronUp aria-hidden="true" size={16} className={`transition-transform motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`} />
+        <span className="btn bg-signal">
+          <ChevronUp aria-hidden="true" size={20} className={`transition-transform motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`} />
           {expanded ? 'Collapse' : 'Expand'}<span className="hidden sm:inline"> tracker</span>
+        </span>
+        <span aria-hidden="true" className="col-span-2 block h-2.5 overflow-hidden rounded-sm border border-line bg-paper-deep">
+          <span className={`block h-full ${used > budget ? 'bg-fail' : 'bg-pass'}`}
+            style={{ width: `${setup || !budget ? 0 : Math.min(100, used / budget * 100)}%` }} />
         </span>
       </button>
       <div id="assessment-tracker-details" aria-hidden={!expanded}

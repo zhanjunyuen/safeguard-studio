@@ -122,7 +122,7 @@ async function verifyMobile(browser, url) {
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 375);
   const bounds = await nav.boundingBox();
-  assert.ok(bounds.height >= 44 && bounds.height <= 56, 'Compact tracker fits a single touch target');
+  assert.ok(bounds.height >= 84 && bounds.height <= 100, 'Collapsed tracker has room for the task, total and workload bar');
   await nav.getByRole('button', { name: /Expand/ }).waitFor();
   assert.ok(Math.abs(bounds.y + bounds.height - 667) <= 1);
   await toggle.tap();
