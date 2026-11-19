@@ -70,6 +70,7 @@ export default function AssessmentTracker({
           <div className={`max-h-[60dvh] overflow-y-auto overscroll-contain border-t border-line py-3 space-y-3 transition-[visibility] motion-reduce:transition-none ${expanded ? 'visible' : 'invisible delay-200'}`}>
             {setup ? <p className="text-sm">Start the assessment to see the budget for your assigned services and switch between them here.</p> : <>
               <WorkloadBar used={used} budget={budget} />
+              {workloadModel === 'compute' && <p className="text-sm">The budget covers a working reference build for each assigned service at your level. Each service starts with Ask AI. Generating an answer takes 12 credits. A simple refusal takes 1 and saves the AI call if it stops the request first.</p>}
               <p className="text-sm">{workloadModel ? 'Each case counts equally. We average the cost of the blocks that run, multiply by service volume and round up once per service.' : 'Each projection multiplies safeguard credits per request by service volume.'} Test runs are free.</p>
               <ul aria-label={ended ? 'Service costs' : 'Switch service'} className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {workloads.map(row => {

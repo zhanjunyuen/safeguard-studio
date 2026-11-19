@@ -26,7 +26,17 @@ describe('school community assessment', () => {
     expect(packet.budget).toBeLessThan(BUDGET);
   });
 
-  it('runs Ask AI for free and charges added safeguards at the task workload', () => {
+  it('charges only the compute used before and after a refusal', () => {
+    const run = (...blocks: string[]) => evaluate(blocks.map(type => ({ type, scope: 'all' })), 'c_pe', 'compute');
+    expect(run('block_people', 'ask_ai', 'check_source').charges).toEqual([{ block: 'block_people', unit: 1 }]);
+    expect(run('ask_ai', 'block_people').credits).toBe((12 + 1) * 8);
+    expect(run('second_ai', 'check_source', 'ask_ai').charges).toEqual([{ block: 'ask_ai', unit: 12 }]);
+    expect(run('ask_ai', 'second_ai').credits).toBe(24 * 8);
+    expect(run('ask_ai', 'check_source').credits).toBe(16 * 8);
+    expect(run('ask_ai', 'teacher_confirm').credits).toBe(13 * 8);
+  });
+
+  it('preserves the legacy tariff that runs Ask AI for free and charges added safeguards at the task workload', () => {
     const base: Rule[] = [{ type: 'ask_ai', scope: 'all' }];
     expect(estimateCost(base)).toBe(0);
     expect(totalCost(evaluateBuild(base))).toBe(0);

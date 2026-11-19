@@ -38,8 +38,10 @@ export function assessmentBudget(m: WorkloadSettings) {
 }
 
 export function serviceWorkloads(m: WorkloadSettings, progress: Record<string, ChallengeProgress>) {
+  // Every service starts with Ask AI, including services the pupil has yet to open.
+  const starter: ScriptBlock[] = m.workloadModel === 'compute' ? [{ type: 'ask_ai', uid: 'starter' }] : [];
   return assignedDesks(m).map(({ id, title, volume }) => ({
-    id, title, ...projectedCost(m, id, progress[id]?.script ?? [], volume),
+    id, title, ...projectedCost(m, id, progress[id]?.script ?? starter, volume),
   }));
 }
 

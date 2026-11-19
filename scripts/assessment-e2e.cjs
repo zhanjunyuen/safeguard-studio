@@ -81,7 +81,8 @@ async function test() {
     const revised = packet.challenges.find(c => 'assess-' + c.id === ids[0]);
     assert.equal(revised.attempts.length, 2);
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
-    assert.equal(revised.workloadCredits, 0);
+    assert.equal(packet.creditModel, 'compute');
+    assert.equal(revised.workloadCredits, 12 * revised.volume);
     assert.match(await tracker.getAttribute('aria-valuetext'), new RegExp('^' + packet.workloadCredits + ' of ' + packet.budget + ' credits'));
     assert.equal(packet.workloadCredits, packet.challenges.reduce((sum, c) => sum + Math.ceil(c.creditsPerRequest * c.volume), 0));
     assert.deepEqual(errors, []);
@@ -126,12 +127,16 @@ async function verifyMobile(browser, url) {
     const key = 'school-community-assessment-v1';
     const saved = JSON.parse(localStorage.getItem(key));
     delete saved.state.mission.assigned;
+    // Resume an in-progress attempt saved before compute pricing.
+    saved.version = 2;
+    saved.state.mission.workloadModel = 'case-average';
     localStorage.setItem(key, JSON.stringify(saved));
   });
   await page.reload();
   const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
   const toggle = nav.locator('button[aria-expanded]');
   const services = nav.getByRole('list', { name: 'Switch service' }).getByRole('button');
+  assert.match(await toggle.innerText(), /288 \/ \d+ credits/);
   await page.getByTestId('assess-chat').tap();
   await page.getByTestId('palette-hide_location').tap();
   const sections = page.getByRole('navigation', { name: 'Workbench sections' });
@@ -139,14 +144,14 @@ async function verifyMobile(browser, url) {
   await page.getByTestId('stack-hide_location').waitFor();
   assert.equal(await page.getByTestId('palette-hide_location').isVisible(), false);
   assert.equal(await page.evaluate(() => document.documentElement.scrollHeight), 667);
-  assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  assert.match(await toggle.innerText(), /304 \/ \d+ credits/);
   for (let i = 0; i < 2; i++) {
     await page.getByTestId('run').tap();
     await page.getByRole('button', { name: 'Skip to results' }).tap();
     await page.getByTestId('reflect-modal').locator('fieldset button').first().tap();
     await page.getByTestId('reflect-submit').tap();
     await page.getByTestId('reflect-continue').tap();
-    assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+    assert.match(await toggle.innerText(), /304 \/ \d+ credits/);
   }
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 375);
@@ -157,7 +162,7 @@ async function verifyMobile(browser, url) {
   await toggle.tap();
   await services.first().waitFor();
   assert.equal(await services.count(), 6);
-  assert.match(await services.filter({ hasText: 'Class Group-Chat Helper' }).innerText(), /3 credits\/request × 8 requests = 24 credits/);
+  assert.match(await services.filter({ hasText: 'Class Group-Chat Helper' }).innerText(), /14 credits\/request × 8 requests = 112 credits/);
   await services.last().tap();
   await nav.locator('button[aria-expanded="false"]').waitFor();
   assert.match(await toggle.innerText(), /GCSE Options Adviser/);
@@ -165,10 +170,10 @@ async function verifyMobile(browser, url) {
   await services.filter({ hasText: 'Class Group-Chat Helper' }).tap();
   await page.reload();
   assert.match(await toggle.innerText(), /Class Group-Chat Helper/);
-  assert.match(await toggle.innerText(), /24 \/ \d+ credits/);
+  assert.match(await toggle.innerText(), /304 \/ \d+ credits/);
   await verifyRestart(page);
   assert.equal(await page.evaluate(() => localStorage.getItem('safeguard-studio-v1')), practiceSave);
-  console.log('Mobile task switching, fixed tracker, 3 × 8 projection and two free runs passed.');
+  console.log('Mobile task switching, fixed tracker, compute pricing and two free runs passed.');
 }
 
 test().catch(error => { console.error(error); process.exitCode = 1; });

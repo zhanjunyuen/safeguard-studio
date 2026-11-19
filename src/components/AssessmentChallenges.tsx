@@ -139,7 +139,7 @@ export default function AssessmentChallenges() {
         <p className="label text-ink-3">{className ? `${className} · ` : ''}Your brief</p>
         <h2 className="text-3xl font-extrabold mt-1">One helper for {count === 1 ? 'one school service' : `${count} school services`}</h2>
       </div>
-      <p>Build each service on a shared credit budget. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
+      <p>Your services share a compute budget. Credits estimate the work your blocks do on incoming requests. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
       {settings.challenges && <p><b>Your teacher chose:</b> {settings.challenges.map(id => getChallenge(id)?.title).join(', ')}.</p>}
       <p className="text-sm text-ink-2"><b className="text-ink">Written answers you must give:</b> {required.length ? required.map(q => q.label.toLowerCase()).join(', ') : 'none (all are optional)'}. The AI marker gives feedback on each one.</p>
       {levelFixed ? <p><b>Level:</b> {chosenLevel === 2 ? 'Level 2 · IF blocks' : 'Level 1'} (set by your teacher)</p> : <fieldset className="grid gap-3 md:grid-cols-2">

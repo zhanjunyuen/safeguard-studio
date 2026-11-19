@@ -60,10 +60,13 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
   },
 }), {
   name: 'school-community-assessment-v1',
-  version: 2,
-  migrate: stored => {
+  version: 3,
+  migrate: (stored, version) => {
     const { mission } = stored as Pick<MissionState, 'mission'>;
     if (mission.phase === 'complete' || mission.phase === 'expired') return { mission };
+    if (version === 2) {
+      return { mission: mission.form === 4 ? { ...mission, workloadModel: 'compute' } : mission };
+    }
     return { mission: {
       ...mission, form: 3, attackPlans: {}, launches: [], focus: 'history',
       phase: mission.first ? 'evaluation' : mission.phase,

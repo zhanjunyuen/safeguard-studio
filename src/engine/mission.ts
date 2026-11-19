@@ -24,7 +24,7 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3 | 4;
   assigned?: Desk[];
-  workloadModel?: 'case-average';
+  workloadModel?: 'case-average' | 'compute';
   /** Form 4: Level 2 uses each challenge's IF-block version (an extra edge case and a higher usefulness target). */
   level?: AssessmentLevel;
   frozen?: Partial<Record<Desk, Rule[]>>;
@@ -65,7 +65,7 @@ export const newMission = (): Mission => ({
 });
 
 export const newAssessment = (): Mission => ({
-  ...newMission(), form: 4, workloadModel: 'case-average', frozen: {}, completed: [],
+  ...newMission(), form: 4, workloadModel: 'compute', frozen: {}, completed: [],
 });
 
 /** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
@@ -96,8 +96,7 @@ export function blockCredits(type: BlockType): number {
   return BLOCKS[type].cost;
 }
 
-// Teaching units per execution. Input rules and labels are cheap, external checks
-// take more work, and a person reading a request is the most expensive operation.
+// Original case-average rates, retained for saved results.
 const executionRates: Record<Effect, number> = {
   ai: 0, control: 0,
   block_people: 1, block_topic: 1, warn: 1, disclose: 1, mask_input_email: 1,
@@ -106,7 +105,25 @@ const executionRates: Record<Effect, number> = {
   strip_pii: 3, verify: 4, second_opinion: 5, block_all: 8,
 };
 
+// Relative compute per operation on short classroom messages. Human waiting time
+// affects usefulness separately. Rates are teaching estimates, not provider prices.
+const computeRates: Record<Effect, number> = {
+  ai: 12, second_opinion: 12, hedge: 12,
+  verify: 4, strip_pii: 2,
+  control: 0, block_people: 1, block_topic: 1, block_all: 1,
+  warn: 1, disclose: 1, mask_input_email: 1, mask_reply_email: 1, link_scheme: 1,
+  scan_reply: 1, reference_year: 1, cite_correction: 1, coach: 1, balance: 1,
+  consent: 1, flag: 1, mitigate: 1,
+};
+const computeByBlock: Partial<Record<BlockType, number>> = {
+  // These blocks send a message to a person.
+  teacher_confirm: 1, ask_the_source: 1, forward_check: 1,
+  // Running code and searching by image involve more work than a text lookup.
+  run_the_code: 8, reverse_image: 8,
+};
+
 export function safeguardRate(type: BlockType, model: Mission['workloadModel']) {
+  if (model === 'compute') return computeByBlock[type] ?? computeRates[BLOCKS[type].effect];
   if (!model) return blockCredits(type);
   if (type === 'teacher_confirm') return 8;
   return executionRates[BLOCKS[type].effect];
@@ -123,8 +140,12 @@ export function estimateCost(rules: Rule[]) {
 export function evaluate(rules: Rule[], id: string, model?: Mission['workloadModel']) {
   const { desk, test } = missionCase(id);
   const result = runProgram(ruleScript(rules, desk.id), test);
+  let hasAnswer = false;
   const charges = result.steps.flatMap(step => {
     if (step.blockType === 'trigger' || step.blockType === 'reply' || step.status === 'skip') return [];
+    const block = BLOCKS[step.blockType];
+    if (model === 'compute' && block.position === 'after' && !hasAnswer) return [];
+    if (block.effect === 'ai') hasAnswer = true;
     const unit = safeguardRate(step.blockType, model);
     return unit === 0 ? [] : [{ block: step.blockType, unit }];
   });

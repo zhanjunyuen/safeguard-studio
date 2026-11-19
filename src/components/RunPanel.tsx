@@ -170,14 +170,14 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
       {mode === 'build' && target !== undefined && report.scores.usefulness < target && script.length > 0 && (
         <details className="mt-2 rounded border-1.5 border-line p-2.5 text-sm" open data-testid="usefulness-breakdown">
           <summary className="font-bold cursor-pointer">Where your usefulness points go</summary>
-          <p className="text-xs text-ink-2 mt-1">Each block costs points on every message it runs on. Blocks inside an IF only cost points when the IF is true.</p>
+          <p className="text-xs text-ink-2 mt-1">These points measure how much a safeguard gets in the user’s way. A cheap refusal can still make a helper much less useful.</p>
           <table className="w-full mt-2">
             <thead>
               <tr className="text-left label text-ink-3">
                 <th scope="col" className="py-1 font-bold">Block</th>
                 <th scope="col" className="py-1 px-1.5 text-center font-bold whitespace-nowrap">Ran on</th>
                 <th scope="col" className="py-1 px-1.5 text-center font-bold">Helped</th>
-                <th scope="col" className="py-1 pl-1.5 text-right font-bold">Cost</th>
+                <th scope="col" className="py-1 pl-1.5 text-right font-bold">Usefulness points lost</th>
               </tr>
             </thead>
             <tbody>

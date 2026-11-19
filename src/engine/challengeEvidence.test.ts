@@ -97,23 +97,24 @@ it('projects current safeguards at service volume, independently of tests and re
   const history = freshProgress();
   history.script.push({ uid: 'note', type: 'warn_note' });
   const progress = { chat, history };
+  const baseline = 24 * 12; // 24 requests across the six default services.
   const workloads = serviceWorkloads(m, progress);
   expect(workloads).toHaveLength(6);
-  expect(workloads.find(d => d.id === 'chat')).toMatchObject({ perRequest: 3, volume: 8, credits: 24 });
-  expect(workloads.filter(d => d.credits === 0)).toHaveLength(4);
-  expect(challengeEvidence(m, progress).workloadCredits).toBe(28);
+  expect(workloads.find(d => d.id === 'chat')).toMatchObject({ perRequest: 14, volume: 8, credits: 112 });
+  expect(workloads.filter(d => d.perRequest === 12)).toHaveLength(4);
+  expect(challengeEvidence(m, progress).workloadCredits).toBe(baseline + 16 + 4);
 
   const scores = { privacy: null, verification: null, integrity: null, bias: null, usefulness: 100 };
   const attempt = { at: 1, script: ['ask_ai', 'hide_location'], scores, results: [] };
   chat.attempts.push(attempt, attempt);
   expect(serviceWorkloads(m, progress)).toEqual(workloads);
-  expect(challengeEvidence({ ...m, level: 2 }, progress).workloadCredits).toBe(28);
+  expect(challengeEvidence({ ...m, level: 2 }, progress).workloadCredits).toBe(baseline + 16 + 4);
   chat.script.pop();
-  expect(challengeEvidence(m, progress).workloadCredits).toBe(4);
+  expect(challengeEvidence(m, progress).workloadCredits).toBe(baseline + 4);
 });
 
 it('charges for the actual case mix and keeps the earlier tariff for saved assessments', () => {
-  const m = { ...newAssessment(), level: 2 as const };
+  const m = { ...newAssessment(), level: 2 as const, workloadModel: 'case-average' as const };
   const p = freshProgress();
   const conditional = { uid: 'if', type: 'if', cond: 'ai_unsure' as const, then: { uid: 'teacher', type: 'teacher_confirm' } };
   p.script.push(conditional);
