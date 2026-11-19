@@ -54,7 +54,7 @@ export default function Mission() {
   const remaining = m.minutes * 60 - m.elapsed;
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase, m.focus]);
-  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 pt-8 ${sequence && !ended && m.phase !== 'brief' ? 'assessment-workspace overflow-x-clip pb-[calc(8rem+env(safe-area-inset-bottom))]' : 'pb-8'} space-y-5`}>
+  return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 pt-8 ${sequence ? 'assessment-workspace overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))]' : 'pb-8'} space-y-5`}>
     <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
@@ -64,7 +64,7 @@ export default function Mission() {
       <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
-    {sequence && !ended && <AssessmentChallenges />}
+    {sequence && <AssessmentChallenges />}
     {!sequence && !ended && <details><summary className="cursor-pointer font-bold">Switch to the six-challenge assessment</summary>
       <p>This replaces your unfinished earlier attempt.</p><button className="btn bg-paper" onClick={restart}>Start a fresh assessment</button></details>}
     {!sequence && (m.phase === 'build' || m.phase === 'revise') && <>

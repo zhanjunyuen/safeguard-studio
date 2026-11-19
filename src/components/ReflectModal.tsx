@@ -49,7 +49,7 @@ export default function ReflectModal({
   }, [result, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-ink/50 grid place-items-center p-4" data-testid="reflect-modal">
+    <div className="reflection-overlay fixed inset-0 z-50 bg-ink/50 grid place-items-center p-4" data-testid="reflect-modal">
       <motion.div
         role="dialog"
         aria-modal="true"

@@ -44,11 +44,11 @@ export default function AssessmentChallenges() {
     if (!m.launches?.some(l => l.desk === id) || (CURVEBALLS[id] && !m.curveballs?.[id]) || m.completed?.includes(id)) return;
     update({ completed: [...(m.completed ?? []), id], revising: { ...m.revising, [id]: false }, phase: 'menu', focus: undefined, first: null });
   }
-  const tracker = <AssessmentTracker phase={m.phase} focus={desk} levelName={levelName}
+  const tracker = <AssessmentTracker key={m.phase === 'brief' ? 'setup' : 'assigned'} phase={m.phase} focus={desk} levelName={levelName}
     workloads={workloads} used={used} budget={budget} completed={m.completed ?? []}
     effectiveness={effectiveness} current={current} finished={finished} onService={open}
     onOverview={menu} onRelease={() => update({ phase: 'release', focus: undefined, first: null })} />;
-  if (m.phase === 'release') return tracker;
+  if (m.phase === 'release' || m.phase === 'complete' || m.phase === 'expired') return tracker;
   if (desk && service && m.completed?.includes(desk)) {
     const last = work[desk]?.attempts.slice(-1)[0];
     return <>{tracker}<section className="rounded-md border border-line p-5 space-y-3">
@@ -93,7 +93,7 @@ export default function AssessmentChallenges() {
     {launched && hasCurveball && <CurveballCard key={'cb-' + desk} desk={desk} rules={rules} answer={m.curveballs?.[desk]}
       onSubmit={answer => update(submitCurveball(useMission.getState().mission, desk, answer))} />}</>;
   }
-  if (m.phase === 'brief') return <section className="rounded-md border-1.5 border-ink bg-paper-card p-6 space-y-4">
+  if (m.phase === 'brief') return <>{tracker}<section className="rounded-md border-1.5 border-ink bg-paper-card p-6 space-y-4">
     <h2 className="text-2xl font-extrabold">One helper for six school services</h2>
     <p>Your school needs one community helper. You design its safeguards for six services, drawn from {CHALLENGES.length} challenges. Each service has its own audience and set of blocks. All six share one workload budget. Work in any order, compare what each service costs, and revise your choices before releasing the helper.</p>
     <p>For each service, run its hidden tests, predict how your build will respond to an attack, and inspect the replay. Some services also get an unseen request. Your predictions and explanations go into one assessment report.</p>
@@ -115,7 +115,7 @@ export default function AssessmentChallenges() {
       useAssessmentSession.getState().resetAll();
       update({ ...newAssessment(), assigned: drawAssignment(), minutes: m.minutes, level: m.level ?? 1, phase: 'menu' });
     }}>Start {levelName}</button>
-  </section>;
+  </section></>;
   return <>{tracker}<section className="space-y-4">
     <h2 className="text-2xl font-extrabold">Your community helper</h2>
     <p>Choose a service to work on. The tracker shows the projected operating cost of your six current designs. Test runs are free.

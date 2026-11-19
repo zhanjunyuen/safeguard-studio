@@ -10,12 +10,15 @@ async function test() {
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.goto((process.argv[2] || 'http://localhost:4173') + '/#/mission');
+    const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
+    const toggle = nav.locator('button[aria-expanded]');
+    await nav.getByRole('button', { name: /Assessment setup.*Expand/ }).click();
+    assert.equal(await nav.getByRole('list', { name: 'Switch service' }).count(), 0);
+    await toggle.press('Escape');
     await page.getByTestId('choose-level-2').check();
     await page.getByTestId('start-assessment').click();
     const ids = await page.locator('[data-testid^="assess-"]').evaluateAll(items => items.map(item => item.dataset.testid));
     assert.equal(ids.length, 6);
-    const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
-    const toggle = nav.locator('button[aria-expanded]');
     const tracker = page.getByRole('progressbar', { name: 'Shared workload budget' });
     const button = name => page.getByRole('button', { name, exact: true });
     async function run() {
@@ -64,6 +67,12 @@ async function test() {
     await page.getByRole('textbox').fill('Publish the time and check the gate with the site manager.');
     await button('Submit assessment').click();
 
+    await nav.getByRole('button', { name: /Assessment evidence.*Expand/ }).click();
+    const finalCosts = nav.getByRole('list', { name: 'Service costs' });
+    await finalCosts.waitFor();
+    assert.equal(await finalCosts.getByRole('listitem').count(), 6);
+    assert.equal(await finalCosts.getByRole('button').count(), 0);
+    await toggle.click();
     const download = page.waitForEvent('download');
     await button('Download marking evidence').click();
     const packet = JSON.parse(await fs.readFile(await (await download).path(), 'utf8'));
@@ -113,6 +122,8 @@ async function verifyMobile(browser, url) {
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 375);
   const bounds = await nav.boundingBox();
+  assert.ok(bounds.height >= 44 && bounds.height <= 56, 'Compact tracker fits a single touch target');
+  await nav.getByRole('button', { name: /Expand/ }).waitFor();
   assert.ok(Math.abs(bounds.y + bounds.height - 667) <= 1);
   await toggle.tap();
   await services.first().waitFor();

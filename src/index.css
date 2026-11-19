@@ -45,3 +45,11 @@ h1, h2, h3, .font-display { font-family: "Bricolage Grotesque", system-ui, sans-
 html:has(.assessment-workspace) {
   scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
 }
+
+/* Keep the compact tracker visible behind the reflection overlay. */
+.assessment-workspace .reflection-overlay {
+  padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
+}
+.assessment-workspace .reflection-overlay [role="dialog"] {
+  max-height: calc(100dvh - 5.25rem - env(safe-area-inset-bottom));
+}
