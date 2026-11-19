@@ -97,3 +97,7 @@ Eval loss was still falling at the last step, so the run looks under-trained. Th
 - Run `3fedd7b8-e13b-4f0a-8e50-baed27d5acd8`, dataset `b02cb57b-6e47-4652-9e4e-4724bbcc3fb0` (3,227 rows), gpt-oss-120b, 3 iterations.
 - Same rows as run 3; the only difference is that each completion starts with `"reasoning"` (concept-by-concept, from the simulator facts), so run 3 vs run 4 measures what the trace adds.
 - Why: a test upload (19 Nov) showed raw ingestion keeps only `original_prompt` / `original_completion`; a mapped `reasoning_trace` column is dropped, so runs 1–3 never saw a trace. gpt-oss-120b does report `train_with_reasoning: true`, but only a dataset column can feed it, and raw mode can't store one.
+
+### Run 2 result (19 Nov, 00:35)
+
+Succeeded: 3 of 3 iterations, best win rate **0.394** (run 1: 0.43), LoRA r 4, lr 1e-4, 1 epoch. The bigger v2 set did not beat run 1. v2 still had the problems found afterwards: the g01 T2 drift, 11 follow-ups on the wrong answers, generic gold reasons, and no reasoning trace. Runs 3 (v3) and 4 (v3.1, trace in completion) test those fixes.
