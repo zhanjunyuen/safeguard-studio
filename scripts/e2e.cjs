@@ -30,7 +30,7 @@ const BASE = process.argv[3] || 'http://localhost:4173';
   await p.waitForTimeout(2600);
   await p.screenshot({ path: SP + '/shots/3-replay.png' });
   // skip to end
-  await p.click('text=Skip');
+  await p.getByRole('button', { name: 'Skip to results', exact: true }).click();
   await p.waitForSelector('[data-testid=reflect-modal]');
   await p.screenshot({ path: SP + '/shots/4-reflect.png' });
   const o1 = await p.getAttribute('[data-testid=result-h_date]', 'data-outcome');
@@ -51,7 +51,7 @@ const BASE = process.argv[3] || 'http://localhost:4173';
   assert.deepEqual(order, ['stack-ask_ai', 'stack-check_source']);
   await p.screenshot({ path: SP + '/shots/5-added.png' });
   await p.click('[data-testid=run]');
-  await p.click('text=Skip');
+  await p.getByRole('button', { name: 'Skip to results', exact: true }).click();
   await p.waitForTimeout(400);
   assert.equal(await p.getAttribute('[data-testid=result-h_date]', 'data-outcome'), 'pass');
   if (await p.$('[data-testid=reflect-modal]')) { await p.locator('[role=dialog] fieldset button').first().click(); await p.click('[data-testid=reflect-submit]'); await p.screenshot({ path: SP + '/shots/6-reflect2.png' }); await p.click('[data-testid=reflect-continue]'); }

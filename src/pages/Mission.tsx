@@ -55,13 +55,13 @@ export default function Mission() {
   const focus = m.focus ?? DESKS[0].id;
   useEffect(() => { window.scrollTo(0, 0); }, [m.phase, m.focus]);
   return <div className={`${sequence && ['build', 'revise', 'attack'].includes(m.phase) ? 'max-w-[1450px]' : 'max-w-5xl'} mx-auto px-4 pt-8 ${sequence ? 'assessment-workspace overflow-x-clip pb-[calc(5rem+env(safe-area-inset-bottom))]' : 'pb-8'} space-y-5`}>
-    <header className="mission-header"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
+    <header className="mission-header page-heading"><p className="label">AI literacy assessment</p><h1 className="text-4xl font-extrabold mt-1">School community helper</h1>
       <div className="flex justify-between items-baseline gap-4 mt-3"><p className="font-bold">{phases[m.phase]}</p>
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
       {(sequence ? m.phase === 'brief' : m.phase !== 'attack') && companion}
     </header>
-    {!ended && <details open={m.phase === 'brief'} className="rounded-md border border-line p-4">
-      <summary className="cursor-pointer font-bold">Your agent’s brief and source pack</summary><p className="my-3">{BRIEF}</p>
+    {!ended && <details className="source-pack studio-panel p-4">
+      <summary className="cursor-pointer font-bold">Read the brief and source pack</summary><p className="my-3">{BRIEF}</p>
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
     {sequence && <AssessmentChallenges />}

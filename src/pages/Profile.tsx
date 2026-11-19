@@ -33,7 +33,7 @@ export default function Profile() {
 
   if (!profiles.length && !breaks.length) {
     return (
-      <div className="max-w-xl mx-auto py-24 px-4">
+      <div className="studio-panel result-empty max-w-xl mx-auto px-5 py-8 sm:p-10">
         <h1 className="text-4xl font-extrabold">{missionPhase === 'brief' ? 'No results yet' : 'My results'}</h1>
         <MissionResultLink />
         <p className="text-ink-2 mt-3 text-lg">Practice results appear here after you run a helper against the hidden tests.</p>
@@ -49,18 +49,18 @@ export default function Profile() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-10" data-testid="profile">
-      <h1 className="text-5xl font-extrabold">My results</h1>
-      <MissionResultLink />
+      <header className="page-heading"><h1 className="text-4xl sm:text-5xl font-extrabold">My results</h1>
       <p className="text-ink-2 mt-2 text-lg max-w-3xl">
         From {attempts} run{attempts === 1 ? '' : 's'} across {summary.done.length} challenge{summary.done.length === 1 ? '' : 's'}. The dashed line is your first run,
         before you had seen any tests. The yellow shape is your latest run.
-      </p>
+      </p></header>
+      <MissionResultLink />
 
       <div className="grid lg:grid-cols-[1fr_1.15fr] gap-6 mt-8">
-        <div className="rounded-md border-1.5 border-ink bg-paper-card p-4">
+        <div className="studio-panel p-4">
           <CompetencyRadar first={first} now={now} height={360} />
         </div>
-        <div className="rounded-md border-1.5 border-ink bg-paper-card divide-y-1.5 divide-line">
+        <div className="studio-panel divide-y-1.5 divide-line">
           {DIMS.map((d) => {
             const m = COMPETENCY_META[d];
             const Icon = DIM_ICON[d];
@@ -88,7 +88,7 @@ export default function Profile() {
           <div className="font-mono text-4xl font-bold mt-2">{reflAcc ?? '–'}{reflAcc !== null && '%'}</div>
           <p className="text-paper/85 mt-1">of your explanations for why a test failed were right.</p>
         </div>
-        <div className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+        <div className="studio-panel p-5">
           <div className="label text-ink-2">Mistakes to watch for</div>
           {misconceptions.length ? (
             <ul className="mt-2 space-y-1.5 list-disc pl-5">{misconceptions.map((m) => <li key={m}>{m}</li>)}</ul>
@@ -135,7 +135,7 @@ export default function Profile() {
       {breaks.length ? (
         <div className="grid md:grid-cols-3 gap-4">
           {breaks.map(({ c, s }) => (
-            <div key={c.id} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+            <div key={c.id} className="studio-panel p-5">
               <h3 className="font-extrabold">{c.title}</h3>
               <div className="font-mono text-3xl font-bold mt-2">{s!.found}/{s!.total}</div>
               <p className="text-ink-2 text-sm mt-1">weak spots found in {s!.attempts} attempt{s!.attempts === 1 ? '' : 's'}. {s!.precision}% of your attacks broke the helper.</p>
@@ -149,7 +149,7 @@ export default function Profile() {
       <h2 className="text-3xl font-extrabold mt-12 mb-4">Run by run</h2>
       <div className="grid md:grid-cols-2 gap-6">
         {profiles.map(p => (
-          <div key={p.challengeId} className="rounded-md border-1.5 border-ink bg-paper-card p-5">
+          <div key={p.challengeId} className="studio-panel p-5">
             <h3 className="text-xl font-extrabold">{practiceTitle(p.challengeId)}</h3>
             <Timeline profile={p} />
           </div>

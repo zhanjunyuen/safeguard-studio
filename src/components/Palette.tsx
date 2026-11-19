@@ -34,7 +34,7 @@ export default function Palette({ blocks, used, onAdd, credits, control = [] }: 
   const [hover, setHover] = useState<BlockType | null>(null);
   const info = hover ? BLOCKS[hover] : null;
   return (
-    <aside ref={setNodeRef} className={`rounded-md border-1.5 p-4 transition-colors ${isOver ? 'border-fail bg-fail-soft' : 'border-ink bg-paper-card'}`} aria-label="Safeguard blocks">
+    <aside id="workbench-palette" tabIndex={-1} ref={setNodeRef} className={`rounded-md border-1.5 p-4 transition-colors ${isOver ? 'border-fail bg-fail-soft' : 'border-ink bg-paper-card'}`} aria-label="Safeguard blocks">
       <h2 className="text-lg font-extrabold">Blocks</h2>
       <p className="text-sm text-ink-2 mb-4">Drag a block into your helper, or click it. Drag it back here to take it out.</p>
       {control.length > 0 && (

@@ -5,9 +5,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: { DEFAULT: '#F4F1EA', deep: '#EAE5D8', card: '#FFFDF8' },
-        ink: { DEFAULT: '#16161A', 2: '#3F3F46', 3: '#5E5E66' },
-        line: { DEFAULT: '#D6CFBF', strong: '#16161A' },
+        paper: { DEFAULT: '#F7F8F4', deep: '#E4EAE1', card: '#FFFFFF' },
+        ink: { DEFAULT: '#192E2A', 2: '#425752', 3: '#536762' },
+        line: { DEFAULT: '#CBD6CD', strong: '#293F39' },
         signal: { DEFAULT: '#FFC629', soft: '#FFF0C2' },
         pass: { DEFAULT: '#1F7A3E', soft: '#E3F1E4' },
         fail: { DEFAULT: '#C2362B', soft: '#F9E3DF' },
@@ -19,7 +19,7 @@ export default {
         sans: ['"Atkinson Hyperlegible"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
-      borderRadius: { sm: '4px', DEFAULT: '6px', md: '10px' },
+      borderRadius: { sm: '4px', DEFAULT: '6px', md: '14px' },
       boxShadow: {
         hard: '3px 3px 0 0 #16161A',
         'hard-lg': '5px 5px 0 0 #16161A',

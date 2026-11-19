@@ -1,3 +1,4 @@
+import WorkbenchNavigation from '../components/WorkbenchNavigation';
 import ReasoningField from '../components/ReasoningField';
 import { stackCollision } from '../components/stackCollision';
 import {
@@ -266,8 +267,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
 
   return (
     <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
-      <div className="flex flex-wrap items-start gap-4 mb-6">
-        <div className="flex-1 min-w-[280px]">
+      <div className="workspace-intro flex flex-wrap items-start gap-4 mb-5">
+        <div className="flex-1 min-w-[min(100%,260px)]">
           {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
           </Link>}
@@ -320,10 +321,11 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         </div>
       ) : (
       <DndContext sensors={sensors} collisionDetection={stackCollision} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setActiveDrag(null)}>
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
+        <WorkbenchNavigation mode="build" />
+        <div className="workbench-grid">
           <Palette credits={assessment ? blockCredits : undefined} blocks={challenge.palette} control={isL2 ? ['if', 'ifelse'] : []} used={used} onAdd={clickAdd} />
 
-          <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
+          <section id="workbench-helper" tabIndex={-1} className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center min-h-[560px]" aria-label="Your helper">
             <div className="w-full flex items-center justify-between mb-6" style={{ maxWidth: STACK_W + 40 }}>
               <div>
                 <h2 className="text-lg font-extrabold leading-none">Your helper</h2>
@@ -348,7 +350,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
             <TrainingCompanion key={cid} id={baseCid} script={script} />
           </section>
 
-          <RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} />
+          <div id="workbench-results" tabIndex={-1}><RunPanel challenge={challenge} report={report} replay={replay} selected={selected} onSelect={setSelected} seen={progress.seen} onSkip={skip} target={target} script={ranScript ?? script} level2={isL2} /></div>
         </div>
 
         <DragOverlay dropAnimation={null}>

@@ -1,5 +1,5 @@
-import { ArrowRight, Check, Circle, CircleDot, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, Check, Circle, CircleDot, Play, Zap } from 'lucide-react';
+import helperPortrait from '../assets/companions/community.webp';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMission } from '../store/mission';
@@ -42,71 +42,64 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-12">
-      <section className="grid md:grid-cols-[1.15fr_1fr] gap-12 items-center">
-        <div>
-          <p className="label text-ink-2 mb-4">AI literacy assessment · Ages 11 to 14</p>
-          <h1 className="text-5xl md:text-[64px] font-extrabold leading-[0.98]">
-            Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
-          </h1>
-          <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Design six services for one community helper. Give each service safeguards, test it for its audience, and balance the workload across the school before deciding what to release.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+    <div className="studio-home mx-auto max-w-[1280px] px-4 py-5 sm:px-8 sm:py-8">
+      <section className="home-hero">
+        <div className="hero-copy">
+          <p className="label text-ink-2">AI literacy assessment · Ages 11 to 14</p>
+          <h1>Build your school’s <span>AI helper.</span></h1>
+          <p className="max-w-lg text-ink-2 leading-relaxed">Design safeguards for six school services. Test your helper, see where it goes wrong, and decide what’s ready to release.</p>
+          <div className="mt-6 flex flex-wrap gap-2.5">
             {!presenting && <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">
-              {phase === 'brief' ? 'Start the assessment' : phase === 'complete' || phase === 'expired' ? 'View assessment evidence' : 'Resume assessment'} <ArrowRight size={18} aria-hidden />
+              {phase === 'brief' ? 'Start the assessment' : phase === 'complete' || phase === 'expired' ? 'View assessment evidence' : 'Resume assessment'} <ArrowRight size={17} aria-hidden />
             </button>}
             <button onClick={() => document.getElementById('challenges')?.scrollIntoView({ behavior: 'smooth' })} className="btn bg-paper-card">See all challenges</button>
-            <button onClick={quickDemo} className="btn bg-paper-card" data-testid="quick-demo">Try the history demo</button>
           </div>
           {!presenting && <JoinClass />}
         </div>
-
-        <div className="relative">
-          <div className="graph border-1.5 border-ink rounded-md p-8 pb-10 flex justify-center">
-            <div>
-              {[
-                <Block key="t" kind="trigger" shape="hat" label="When someone asks…" color={TRIGGER_COLOR} textColor="#16161A" width={270} />,
-                <Block key="a" kind="ask_ai" label="Ask AI" color={BLOCKS.ask_ai.color} width={270} />,
-                <Block key="r" kind="reply" shape="cap" label="Reply to them" color={REPLY_COLOR} width={270} highlight="stop" />,
-              ].map((b, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.1 }}>
-                  {b}
-                </motion.div>
-              ))}
+        <div className="hero-example">
+          <div className="hero-graph">
+            <div className="example-stack">
+              <Block kind="trigger" shape="hat" label="When someone asks…" color={TRIGGER_COLOR} textColor="#16161A" width={202} />
+              <Block kind="ask_ai" label="Ask AI" color={BLOCKS.ask_ai.color} width={202} />
+              <Block kind="reply" shape="cap" label="Reply to them" color={REPLY_COLOR} width={202} />
             </div>
+            <img src={helperPortrait} alt="" width="360" height="360" className="hero-helper" />
           </div>
-          <motion.div
-            initial={{ opacity: 0, rotate: 0, y: 10 }}
-            animate={{ opacity: 1, rotate: 2, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="absolute -bottom-10 right-4 w-[290px] bg-paper-card border-1.5 border-ink rounded shadow-hard p-4"
-          >
-            <div className="flex items-center justify-between">
-              <span className="label text-ink-3">Test 1 of 6</span>
-              <span className="stamp text-fail text-xs">Fail</span>
-            </div>
-            <p className="mt-2 text-sm text-ink-2">"When was the Battle of Hastings?"</p>
-            <p className="mt-1 text-[15px] font-bold">"It took place in 1067, when William of Normandy defeated King Harold II."</p>
-          </motion.div>
+          <div className="demo-footer">
+            <details><summary className="text-sm font-bold cursor-pointer">Example test result</summary>
+              <div className="pt-2 text-sm"><b className="text-fail">Test 1 of 6 · Fail</b>
+                <p>“When was the Battle of Hastings?”</p><p>Helper reply · “It took place in 1067, when William of Normandy defeated King Harold II.”</p></div>
+            </details>
+            <button onClick={quickDemo} className="demo-link" data-testid="quick-demo"><Play size={15} aria-hidden />Try the history demo</button>
+          </div>
         </div>
       </section>
 
-      <section id="challenges" className="mt-28">
-        <div className="flex items-end justify-between flex-wrap gap-2 border-b-1.5 border-ink pb-3 mb-6">
-          <h2 className="text-3xl font-extrabold">Practice challenges</h2>
-          <p className="text-ink-2">{CHALLENGES.length} challenges in {THEMES.length} themes. Each has six hidden tests you only see after your first run.</p>
+      <section id="challenges" className="mt-12 scroll-mt-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div><h2 className="text-3xl font-extrabold">Practice challenges</h2>
+            <p className="text-ink-2 mt-1">{CHALLENGES.length} challenges in {THEMES.length} themes. Each has six hidden tests to try.</p></div>
+          <label className="flex items-center gap-2 text-sm font-bold">Jump to theme
+            <select defaultValue="" className="studio-select" onChange={e => {
+              const heading = document.getElementById('theme-' + e.target.value);
+              heading?.focus({ preventScroll: true });
+              heading?.scrollIntoView({ block: 'start' });
+              e.target.value = '';
+            }}>
+              <option value="" disabled>Choose a theme</option>
+              {THEMES.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
+            </select>
+          </label>
         </div>
-        {THEMES.map((t, ti) => {
+        {THEMES.map(t => {
           const list = challengesIn(t.id);
           const done = list.filter((c) => statusOf(c).allDone).length;
           const Icon = DIM_ICON[t.competency];
           return (
-        <section key={t.id} className="mt-10 first:mt-0" aria-labelledby={`theme-${t.id}`} data-testid={`theme-${t.id}`}>
+        <section key={t.id} className="mt-8 border-t border-line pt-6" aria-labelledby={`theme-${t.id}`} data-testid={`theme-${t.id}`}>
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div className="max-w-2xl">
-              <p className="label text-ink-3">Theme {ti + 1}</p>
-              <h3 id={`theme-${t.id}`} className="text-2xl font-extrabold flex items-center gap-2 mt-0.5">
+              <h3 tabIndex={-1} id={`theme-${t.id}`} className="text-2xl font-extrabold flex items-center gap-2 mt-0.5">
                 <Icon size={22} aria-hidden style={{ color: COMPETENCY_META[t.competency].color }} /> {t.title}
               </h3>
               <p className="text-ink-2 mt-1">{t.learn}</p>
@@ -124,28 +117,25 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
               </div>
             </div>
           </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {list.map((c) => {
-            const i = CHALLENGES.indexOf(c);
             const { best, build, brk, buildState, breakState, allDone, level2, level2State } = statusOf(c);
             return (
               <div
                 key={c.id}
-                className={`flex flex-col border-1.5 border-ink rounded-md p-5 shadow-hard ${allDone ? 'bg-pass-soft' : 'bg-paper-card'}`}
+                className={`challenge-card flex flex-col rounded-md p-5 ${allDone ? 'bg-pass-soft' : 'bg-paper-card'}`}
                 data-testid={`card-${c.id}`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className="label text-ink-3">Challenge {String(i + 1).padStart(2, '0')}</span>
+                  <span className="challenge-icon" style={{ backgroundColor: c.accent + '22' }} aria-hidden>{c.emoji}</span>
                   {allDone ? (
                     <span className="stamp text-pass text-[11px]">Complete</span>
-                  ) : (
-                    <span className="w-3 h-3 rounded-full border-1.5 border-ink" style={{ background: c.accent }} aria-hidden />
-                  )}
+                  ) : null}
                 </div>
                 <h3 className="text-2xl font-extrabold leading-tight mt-3">{c.title}</h3>
                 <p className="text-sm font-bold text-ink-2 mt-1">{c.audience}</p>
                 <p className="mt-3 text-ink-2 leading-relaxed">{c.story}</p>
-                <dl className="mt-auto pt-5 space-y-1.5 text-sm" aria-label="Your progress">
+                <dl className="mt-auto pt-4 pb-3 border-b border-line space-y-1.5 text-sm" aria-label="Your progress">
                   <StatusLine
                     label="Build"
                     state={buildState}
@@ -203,9 +193,8 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
           <p className="text-ink-2 mt-2">The score comes from what students build and fix, rather than what they say they would do.</p>
         </div>
         <ol className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
-          {STEPS.map(([t, d], i) => (
+          {STEPS.map(([t, d]) => (
             <li key={t} className="border-t-1.5 border-ink pt-3">
-              <span className="label text-ink-3">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="text-lg font-extrabold mt-1">{t}</h3>
               <p className="text-ink-2 mt-1 leading-relaxed">{d}</p>
             </li>

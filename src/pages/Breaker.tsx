@@ -1,3 +1,4 @@
+import WorkbenchNavigation from '../components/WorkbenchNavigation';
 import ReasoningField from '../components/ReasoningField';
 import {
   DndContext,
@@ -153,8 +154,8 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
 
   return (
     <div className={`max-w-[1400px] mx-auto py-6 ${assessment ? 'sm:px-4' : 'px-4'}`}>
-      <div className="flex flex-wrap items-start gap-4 mb-6">
-        <div className="flex-1 min-w-[280px]">
+      <div className="workspace-intro flex flex-wrap items-start gap-4 mb-5">
+        <div className="flex-1 min-w-[min(100%,260px)]">
           {assessment ? <button onClick={assessment.onMenu} className="flex items-center gap-1 text-sm font-bold mb-2"><ArrowLeft size={16} /> Whole-helper overview</button> : <Link to="/" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink mb-2">
             <ArrowLeft size={16} aria-hidden /> All challenges
           </Link>}
@@ -168,8 +169,9 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
       </div>
 
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={(e) => setDragging((e.active.data.current as { testId?: string })?.testId ?? null)} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[282px_minmax(360px,1fr)_420px]">
-          <aside className="rounded-md border-1.5 border-ink bg-paper-card p-4" aria-label="Attacks">
+        <WorkbenchNavigation mode="break" />
+        <div className="workbench-grid">
+          <aside id="workbench-palette" tabIndex={-1} className="rounded-md border-1.5 border-ink bg-paper-card p-4" aria-label="Attacks">
             <h2 className="text-lg font-extrabold">Attacks</h2>
             <p className="text-sm text-ink-2 mb-4">Each one is a kind of question. Drag it into your plan, or click it.</p>
             <div className="flex flex-col gap-2.5">
@@ -179,7 +181,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             </div>
           </aside>
 
-          <section className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center gap-6 min-h-[560px]">
+          <section id="workbench-helper" tabIndex={-1} className="graph rounded-md border-1.5 border-ink p-2 sm:p-6 flex flex-col items-center gap-6 min-h-[560px]">
             <div className="w-full flex items-center justify-between" style={{ maxWidth: STACK_W + 40 }}>
               <div>
                 <h2 className="text-lg font-extrabold leading-none flex items-center gap-1.5"><Lock size={16} aria-hidden /> {assessment ? 'Your evaluated helper' : 'Their helper'}</h2>
@@ -220,7 +222,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
             </>}
           </section>
 
-          <div className="flex flex-col gap-4">
+          <div id="workbench-results" tabIndex={-1} className="flex flex-col gap-4">
             <div className="rounded-md border-1.5 border-ink bg-ink text-paper p-5" data-testid="found">
               <div className="label text-paper/70">Weak spots found</div>
               <div className="flex items-center gap-3 mt-2">
