@@ -16,6 +16,7 @@ export interface Attempt {
   scores: Scores;
 }
 export interface Reflection {
+  owner?: string | null;
   attempt: number;
   testId: string;
   expected: FailureKey;
@@ -143,7 +144,7 @@ const createSession = (name: string) => create<SessionState>()(
               reflections: [
                 ...p.reflections,
                 {
-                  attempt: p.attempts.length,
+                  attempt: p.attempts.length, owner: st.studentId,
                   testId: p.pendingReflection!.testId,
                   expected: p.pendingReflection!.expected,
                   chosen,

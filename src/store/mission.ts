@@ -5,6 +5,7 @@ import { blockKey } from '../engine/scriptText';
 import type { CustomAttack } from '../engine/customAttack';
 import { getChallenge } from '../data/challenges';
 import type { BlockType } from '../types';
+import { usePresenter } from './presenter';
 import { useAssessmentSession, useSession } from './session';
 import { challengeIdFor, newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
 
@@ -77,9 +78,17 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
 
 // Bind pre-existing local assessment evidence once, before a different class pupil can sign in.
 const savedMission = useMission.getState().mission;
-if (savedMission.form === 4 && savedMission.phase !== 'brief' && savedMission.owner === undefined) {
+if (savedMission.phase !== 'brief' && savedMission.owner === undefined) {
   const session = useSession.getState();
   if (!savedMission.classCode || savedMission.classCode === session.classCode) {
     useMission.getState().update({ owner: session.studentId });
   }
+}
+
+export function usePupilMission() {
+  const mission = useMission(s => s.mission);
+  const owner = useSession(s => s.studentId);
+  const joined = useSession(s => s.classCode);
+  const presenting = usePresenter(s => s.active);
+  return !presenting && mission.owner === owner && (!mission.classCode || mission.classCode === joined) ? mission : undefined;
 }

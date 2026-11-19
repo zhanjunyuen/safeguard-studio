@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { getChallenge } from '../data/challenges';
 import { freshProgress, type Attempt } from '../store/session';
 import { newAssessment, evaluate } from './mission';
-import { pupilRuns, runFacts, parsePupilAnswer, practiceSuggestion } from './pupilResults';
+import { personalPractice, pupilRuns, runFacts, parsePupilAnswer, practiceSuggestion } from './pupilResults';
 // @ts-expect-error shared with the Supabase Edge Function
 import { buildTask, MAX_JSON } from '../../supabase/functions/literacy-ai/prompts.js';
 
@@ -43,6 +43,19 @@ describe('pupil results questions', () => {
     expect(practiceSuggestion(runs)?.skill).toBe('privacy');
     expect(practiceSuggestion(pupilRuns(work, {}, {}))?.skill).toBeUndefined();
     expect(runFacts(runs[0]).projectedWorkloadCredits).toBeUndefined();
+  });
+  it('separates interleaved pupil histories and keeps reflections with their own runs', () => {
+    const r = { attempt: 2, testId: 'h_address', expected: 'pii_sent' as const, chosen: 'pii_sent' as const, correct: true, text: 'Mine' };
+    const history = { history: { ...work.history, attempts: [attempt(1), { ...attempt(2), owner: 'B' }, attempt(3)],
+      reflections: [r, { ...r, attempt: 1, text: 'Guest' }, { ...r, owner: 'A', text: 'Different author' }] } };
+    const attacks = { history: [{ owner: 'B', at: 1, attacks: ['h_address'], broke: [] }], quiz: [{ owner: 'A', at: 2, attacks: [], broke: [] }] };
+    const mine = personalPractice(history, attacks, 'B');
+    expect(mine.progress.history.attempts.map(a => a.at)).toEqual([2]);
+    expect(mine.progress.history.reflections).toEqual([{ ...r, attempt: 1 }]);
+    expect(Object.keys(mine.breakProgress)).toEqual(['history']);
+    expect(personalPractice(history, attacks, null).progress.history.reflections.map(f => f.text)).toEqual(['Guest']);
+    expect(pupilRuns(history, {}, {}, undefined, 'B')[0]).toMatchObject({ id: 'practice-history-run-2', label: 'Run 1' });
+    expect(history.history.reflections[0].attempt).toBe(2);
   });
   it('rejects nonexistent sources and unsupported replies', () => {
     const ids = ['practice-history-run-1'];

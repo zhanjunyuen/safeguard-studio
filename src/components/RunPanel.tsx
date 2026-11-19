@@ -234,7 +234,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
         })}
       </ol>
       <div className="mt-5">
-        <div className="label text-ink-3 mb-2">Replay · {selTest.title}</div>
+        <h3 id="selected-test-replay" tabIndex={-1} className="label text-ink-3 mb-2">Replay · {selTest.title}</h3>
         <Exchange key={sel.testId} test={selTest} result={sel} upto={sel.steps.length} challenge={challenge} />
       </div>
     </div>

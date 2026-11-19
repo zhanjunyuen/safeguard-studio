@@ -275,6 +275,11 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const corePassed = assessment ? coreTestsPassed(assessment.id, last?.results) : 0;
   const evaluated = last && last.script.join() === script.map(blockKey).join();
 
+  const missingPasses = ATTACK_PASS_MIN - corePassed;
+  const coreCases = assessment && getChallenge(baseCid)!.tests;
+  const retryCase = coreCases && evaluated && !locked && !assessment?.revising && missingPasses > 0 &&
+    coreCases.find(t => last.results.some(r => r.testId === t.id && r.outcome !== 'pass') && report?.results.some(r => r.testId === t.id));
+
   const attemptNo = progress.attempts.length;
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
@@ -287,7 +292,13 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   return (
     <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
       {assessment ? <div className="assessment-taskbar">
-        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p>{!assessment.revising && <p className="text-sm">Pass 4 of the 6 core tests to attack · {evaluated ? corePassed + '/6 passed' : 'Run this build'}</p>}</div>
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p>{!assessment.revising && <p className="text-sm">{evaluated ? `${corePassed}/6 core tests passed` : 'Pass 4 of the 6 core tests to unlock Attack.'}
+          {retryCase && <> · {missingPasses} more {missingPasses === 1 ? 'pass' : 'passes'} to unlock Attack.{' '}
+            <button className="font-bold underline" onClick={() => {
+              setSelected(retryCase.id);
+              setPanel('results');
+              requestAnimationFrame(() => document.getElementById('selected-test-replay')?.focus());
+            }}>Review a missed test</button></>}</p>}</div>
         <div className="flex flex-wrap gap-2">
           {mustReflect && !locked ? <button className="btn bg-paper-card" onClick={() => setReflectFor(progress.pendingReflection)}>Explain last failure</button> : runButton}
           <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect || (!assessment.revising && corePassed < ATTACK_PASS_MIN)} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>

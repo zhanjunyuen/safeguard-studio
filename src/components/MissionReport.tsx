@@ -5,8 +5,7 @@ import { Link } from 'react-router-dom';
 import { COMPETENCY_META, BLOCKS } from '../data/blocks';
 import { BUDGET, LEGACY_BUDGET, evaluate, evaluateBuild, evidence, handled, totalCost, type Desk, type Mission } from '../engine/mission';
 import { ASSIGNMENT, DESKS, missionCase } from '../data/mission';
-import { usePresenter } from '../store/presenter';
-import { useMission } from '../store/mission';
+import { usePupilMission } from '../store/mission';
 import MarkFeedback from './MarkFeedback';
 import FinalResult from './FinalResult';
 import AiBadge from './AiBadge';
@@ -136,9 +135,8 @@ function ChallengeReport({ mission }: { mission: Mission }) {
 }
 
 export function MissionResultLink() {
-  const m = useMission(s => s.mission);
-  const presenting = usePresenter(s => s.active);
-  if (presenting || m.phase === 'brief') return null;
+  const m = usePupilMission();
+  if (!m || m.phase === 'brief') return null;
   const ended = ['complete', 'expired'].includes(m.phase);
   return <section className="rounded-md border-1.5 border-ink p-5 bg-paper-card my-4">
     <h2 className="font-bold text-xl">School community assessment</h2>

@@ -26,15 +26,44 @@ export interface PupilRun {
   assessment?: { model: Mission['workloadModel'] };
 }
 
+// Reflections refer to the one-based index in the original, shared device history.
+export function personalPractice(history: Record<string, ChallengeProgress>, attacks: Record<string, BreakAttempt[]>, owner: string | null) {
+  const progress: Record<string, ChallengeProgress> = {};
+  const breakProgress: Record<string, BreakAttempt[]> = {};
+  for (const [task, p] of Object.entries(history)) {
+    const numbers = new Map<number, number>();
+    const attempts = p.attempts.filter((attempt, i) => {
+      if ((attempt.owner ?? null) !== owner) return false;
+      numbers.set(i + 1, numbers.size + 1);
+      return true;
+    });
+    if (!attempts.length) continue;
+    const reflections = p.reflections.flatMap(r => {
+      const number = numbers.get(r.attempt);
+      return number && (r.owner === undefined || r.owner === owner) ? [{ ...r, attempt: number }] : [];
+    });
+    progress[task] = { attempts, reflections, script: [], events: [], pendingReflection: null,
+      seen: [...new Set(attempts.flatMap(a => a.results.map(r => r.testId)))] };
+  }
+  for (const [task, rows] of Object.entries(attacks)) {
+    const own = rows.filter(r => (r.owner ?? null) === owner);
+    if (own.length) breakProgress[task] = own;
+  }
+  return { progress, breakProgress };
+}
+
 export function pupilRuns(practice: Record<string, ChallengeProgress>, breaks: Record<string, BreakAttempt[]>,
   work: Record<string, ChallengeProgress>, mission?: Mission, owner: string | null = null): PupilRun[] {
   const runs: PupilRun[] = [];
   function builds(task: Challenge, progress?: ChallengeProgress, assessment?: PupilRun['assessment']) {
     const group = (assessment ? 'Assessment' : 'Practice') + ' · ' + practiceTitle(task.id);
     const prefix = (assessment ? 'assessment-' : 'practice-') + task.id;
+    let number = 0;
     progress?.attempts.forEach((a, i) => {
       if (!assessment && (a.owner ?? null) !== owner) return;
-      if (a.results.length) runs.push({ id: prefix + '-run-' + (i + 1), group, label: 'Run ' + (i + 1), kind: 'build',
+      if (!a.results.length) return;
+      number++;
+      runs.push({ id: prefix + '-run-' + (i + 1), group, label: 'Run ' + number, kind: 'build',
         challenge: task, script: a.script, cases: a.results, scores: a.scores, at: a.at, assessment });
     });
     return { group, prefix };
@@ -43,9 +72,11 @@ export function pupilRuns(practice: Record<string, ChallengeProgress>, breaks: R
     const task = getChallenge(id);
     if (!task) continue;
     const { group, prefix } = builds(task, practice[id]);
+    let attackNumber = 0;
     breaks[id]?.forEach((a, i) => {
       if ((a.owner ?? null) !== owner) return;
-      runs.push({ id: prefix + '-attack-' + (i + 1), group, label: 'Attack ' + (i + 1), kind: 'attack', challenge: task,
+      attackNumber++;
+      runs.push({ id: prefix + '-attack-' + (i + 1), group, label: 'Attack ' + attackNumber, kind: 'attack', challenge: task,
         script: task.breakTarget, cases: a.attacks.map(testId => ({ testId, exposed: a.broke.includes(testId) })), at: a.at, custom: a.custom });
     });
   }
@@ -85,7 +116,7 @@ export function runFacts(run: PupilRun) {
       : run.script.reduce((n, key) => n + blockCredits(key), 0) * cases[0].replay.volume;
   }
   return { id: run.id, task: run.group, run: run.label, blocks: run.script.map(labelOf).join(' → ').slice(0, 680),
-    cases: cases.map(c => ({ title: c.title, skill: c.skill, outcome: c.outcome, why: c.matches ? c.replay.result.explanation.slice(0, 165) : undefined })),
+    cases: cases.map(c => ({ id: c.replay.id, title: c.title, skill: c.skill, outcome: c.outcome, why: c.matches ? c.replay.result.explanation.slice(0, 165) : undefined })),
     skillScoresOutOf100: run.scores, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
     aiJudgement: run.custom && { request: run.custom.question.slice(0, 500), outcome: run.custom.outcome, explanation: run.custom.explanation.slice(0, 500) } };
 }
@@ -116,7 +147,7 @@ export function parsePupilAnswer(raw: string | null, ids: string[]) {
 }
 
 export function offlinePupilFeedback(question: string, facts: ReturnType<typeof runFacts>[], suggestion?: ReturnType<typeof practiceSuggestion>) {
-  let text = 'You can review the saved runs below or ask again.';
+  let text = 'Open a replay below to see the recorded outcome and the steps your helper took.';
   if (question === resultQuestions[1]) {
     const [before, after] = facts;
     const changes = after.cases.flatMap(c => {

@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import BuildComparison, { type BuildPair } from './BuildComparison';
 import { Link, useSearchParams } from 'react-router-dom';
 import { askLiteracyAi } from '../lib/literacyAi';
 import { offlinePupilFeedback, parsePupilAnswer, practiceSuggestion, pupilRuns, replayCases, resultQuestions, runFacts, type PupilRun } from '../engine/pupilResults';
 import type { FinalScore } from '../engine/finalScore';
 import { usePracticeStore, useAssessmentSession } from '../store/session';
-import { useMission } from '../store/mission';
+import { usePupilMission } from '../store/mission';
 import { usePresenter } from '../store/presenter';
 
-type Reply = { text: string; sources: string[]; practice?: { id: string; title: string }; unavailable?: boolean };
+type Reply = { text: string; sources: string[]; practice?: { id: string; title: string }; source?: 'ai' | 'local' | 'unavailable' };
 
 function Replay({ run }: { run: PupilRun }) {
   const title = useRef<HTMLHeadingElement>(null);
@@ -40,23 +41,27 @@ function Questions({ runs, score }: { runs: PupilRun[]; score?: FinalScore }) {
   const latest = builds[0];
   const earlier = builds.slice(1).find(r => r.script.join() !== latest.script.join()) ?? builds[1];
   const attack = selected.find(r => r.kind === 'attack');
+  const [localOnly, setLocalOnly] = useState(() => {
+    try { return localStorage.getItem('pupil-results-local-only') === 'true'; } catch { return false; }
+  });
   const [question, setQuestion] = useState('');
   const [asked, setAsked] = useState('');
   const [reply, setReply] = useState<Reply>();
+  const [comparison, setComparison] = useState<BuildPair>();
   const [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
   function setGroup(value: string) {
     pending.current?.abort();
     pending.current = null;
-    setBusy(false); setChoice(value); setReply(undefined); setAsked(''); setQuestion('');
+    setBusy(false); setChoice(value); setReply(undefined); setComparison(undefined); setAsked(''); setQuestion('');
     setParams({}, { replace: true, preventScrollReset: true });
   }
 
   async function ask(text: string) {
     const q = text.trim();
     if (!q || !selected.length || pending.current) return;
-    setAsked(q); setReply(undefined);
+    setAsked(q); setReply(undefined); setComparison(undefined);
     const compare = q === resultQuestions[1], predict = q === resultQuestions[2], next = q === resultQuestions[3];
     if ((compare && !earlier) || (predict && !attack?.prediction?.trim())) {
       setReply({ text: compare ? 'This task needs two saved build runs for a comparison. Run it again or choose another task.'
@@ -71,22 +76,29 @@ function Questions({ runs, score }: { runs: PupilRun[]; score?: FinalScore }) {
       : q === resultQuestions[0] ? [selected[0]] : [...new Set([...mentioned, latest, attack, earlier])];
     const sources = chosen.filter((r): r is PupilRun => !!r).slice(0, 3);
     const facts = sources.map(runFacts);
+    if (compare) setComparison({ before: facts[0], after: facts[1], runs: [earlier, latest] });
     const final = score && isAssessment && !next ? { total: score.total, band: score.band, categories: score.categories, contributionToTotal: score.parts } : undefined;
     const evidence = { runs: facts, finalAssessmentScore: final, practiceSuggestion: suggestion && {
       title: suggestion.task.title, skill: suggestion.skill, latestBuildsWithThisDifficulty: suggestion.skill ? suggestion.sources.length : undefined } };
+    const ids = sources.map(r => r.id);
+    const savedReply = (source: 'local' | 'unavailable') => ({
+      text: offlinePupilFeedback(q, facts, suggestion), sources: ids, practice: suggestion?.task, source,
+    });
+    if (localOnly) {
+      setReply(savedReply('local'));
+      return;
+    }
     const ctrl = new AbortController();
     pending.current = ctrl;
     setBusy(true);
     try {
       const raw = await askLiteracyAi({ task: 'pupilResults', question: q, evidence }, ctrl.signal);
       if (ctrl.signal.aborted) return;
-      const ids = sources.map(r => r.id);
       const answer = parsePupilAnswer(raw, ids);
       if (answer && (!compare || ids.every(id => answer.sources.includes(id)))) {
-        setReply({ ...answer, practice: suggestion?.task });
+        setReply({ ...answer, practice: suggestion?.task, source: 'ai' });
       } else {
-        const text = offlinePupilFeedback(q, facts, suggestion);
-        setReply({ text, sources: ids, practice: suggestion?.task, unavailable: true });
+        setReply(savedReply('unavailable'));
       }
     } finally {
       if (pending.current === ctrl) { pending.current = null; setBusy(false); }
@@ -100,6 +112,17 @@ function Questions({ runs, score }: { runs: PupilRun[]; score?: FinalScore }) {
       <select id="results-task" className="mt-1 max-w-full rounded border border-line bg-paper px-2 py-2" value={group} onChange={e => setGroup(e.target.value)}>
         {groups.map(g => <option key={g}>{g}</option>)}
       </select>
+      <label className="flex items-center gap-2 mt-3 text-sm font-bold">
+        <input type="checkbox" checked={localOnly} onChange={e => {
+          const enabled = e.target.checked;
+          pending.current?.abort(); pending.current = null;
+          setBusy(false); setReply(undefined); setAsked(''); setLocalOnly(enabled);
+          try { localStorage.setItem('pupil-results-local-only', String(enabled)); } catch { /* The choice still applies on this page. */ }
+        }} />
+        Use saved results only
+      </label>
+      <p className="mt-1 text-sm text-ink-2">{localOnly ? 'This panel reads your runs on this device.' :
+        'Adaption receives your question and selected run evidence, which can include your written prediction. Your score comes from the saved assessment.'}</p>
       <div className="my-4 flex flex-wrap gap-2">{resultQuestions.map(q =>
         <button key={q} className="btn bg-paper text-sm" disabled={busy} onClick={() => { setQuestion(q); void ask(q); }}>{q}</button>)}</div>
       <form onSubmit={e => { e.preventDefault(); void ask(question); }}>
@@ -107,20 +130,21 @@ function Questions({ runs, score }: { runs: PupilRun[]; score?: FinalScore }) {
         <div className="mt-1 flex flex-wrap items-end gap-2">
           <textarea id="result-question" rows={2} maxLength={300} className="min-w-0 w-full sm:flex-1 rounded border border-line p-2"
             value={question} onChange={e => setQuestion(e.target.value)} />
-          <button className="btn bg-signal" disabled={busy || !question.trim()}>Ask AI</button>
+          <button className="btn bg-signal" disabled={busy || !question.trim()}>{localOnly ? 'View evidence' : 'Ask AI'}</button>
         </div>
       </form>
+      {comparison && <BuildComparison key={comparison.before.id + comparison.after.id} {...comparison} />}
       <div aria-live="polite" aria-busy={busy}>
         {busy && <p className="mt-3">Reading your saved results…</p>}
         {reply && <div className="mt-4 rounded border border-line bg-paper p-3">
           <h3 className="font-bold">{asked}</h3>
-          {reply.unavailable && <p className="mt-1 text-sm text-ink-2">AI unavailable · Saved results</p>}
+          {reply.source && <p className="mt-1 text-sm text-ink-2">{reply.source === 'ai' ? 'AI explanation' : reply.source === 'local' ? 'Saved results · On this device' : 'AI unavailable · Saved results'}</p>}
           <p className="mt-1 whitespace-pre-line">{reply.text}</p>
           {reply.sources.map(id => { const r = runs.find(item => item.id === id);
             return r && <Link key={id} className="mt-2 block text-sm font-bold underline" to={'?replay=' + encodeURIComponent(id)} preventScrollReset>
               Show replay · {r.group} · {r.label}</Link>; })}
           {reply.practice && <Link className="btn bg-paper-card mt-3" to={'/build/' + reply.practice.id}>Practise {reply.practice.title}</Link>}
-          {score && isAssessment && !reply.unavailable && <Link className="block mt-2 text-sm underline" to="/mission">View assessment score</Link>}
+          {score && isAssessment && reply.source && <Link className="block mt-2 text-sm underline" to="/mission">View assessment score</Link>}
         </div>}
       </div>
       {replay && <Replay run={replay} />}
@@ -132,12 +156,10 @@ export default function PupilResultsQuestions() {
   const store = usePracticeStore();
   const practice = store(s => s.progress);
   const attacks = store(s => s.breakProgress);
-  const joined = store(s => s.classCode);
   const owner = store(s => s.studentId);
   const presenting = usePresenter(s => s.active);
   const work = useAssessmentSession(s => s.progress);
-  const mission = useMission(s => s.mission);
-  const ownMission = !presenting && mission.owner === owner && (!mission.classCode || mission.classCode === joined) ? mission : undefined;
+  const ownMission = usePupilMission();
   const runs = useMemo(() => pupilRuns(practice, attacks, work, ownMission, owner), [practice, attacks, work, ownMission, owner]);
   return <Questions key={String(presenting) + (owner ?? '')} runs={runs} score={ownMission?.finalResult?.score} />;
 }

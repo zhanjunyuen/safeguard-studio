@@ -1,6 +1,8 @@
 import PupilResultsQuestions from '../components/PupilResultsQuestions';
 import { MissionResultLink } from '../components/MissionReport';
-import { useMission } from '../store/mission';
+import { useMemo } from 'react';
+import { personalPractice } from '../engine/pupilResults';
+import { usePupilMission } from '../store/mission';
 import { Link } from 'react-router-dom';
 import { DIM_ICON } from '../components/icons';
 import CompetencyRadar from '../components/Radar';
@@ -25,9 +27,11 @@ const NEXT_QUESTION: Record<Dim, string> = {
 
 export default function Profile() {
   const useSession = usePracticeStore();
-  const missionPhase = useMission(s => s.mission.phase);
-  const progress = useSession((s) => s.progress);
-  const breakProgress = useSession((s) => s.breakProgress);
+  const missionPhase = usePupilMission()?.phase ?? 'brief';
+  const owner = useSession(s => s.studentId);
+  const history = useSession((s) => s.progress);
+  const attacks = useSession(s => s.breakProgress);
+  const { progress, breakProgress } = useMemo(() => personalPractice(history, attacks, owner), [history, attacks, owner]);
   const breaks = practiceLevels(CHALLENGES).map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
   const summary = overallProfile(progress);
   const profiles = summary.parts;

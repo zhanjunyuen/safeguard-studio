@@ -90,6 +90,18 @@ export default function TeacherSetup() {
         <p className="mt-4 text-lg text-ink-2 max-w-2xl">Choose the challenges and which written answers pupils must give. Each attempt keeps the settings it started with.</p>
       </header>
 
+      <details className="rounded-md border border-line bg-paper-card p-4">
+        <summary className="font-bold cursor-pointer">Try a five-minute predict–observe–explain activity</summary>
+        <p className="mt-2">Use the History Homework Helper to explore block order with a partner.</p>
+        <ol className="my-2 list-decimal ml-5 space-y-1">
+          <li><b>Predict.</b> Place the personal-details safeguard after Ask AI. Ask each pupil to predict who will see a fictional address.</li>
+          <li><b>Observe.</b> Run the tests, read the address replay, then move that safeguard before Ask AI and run again.</li>
+          <li><b>Explain.</b> Open My results and choose Compare my builds. Ask which step changed who saw the address, and which test provides evidence.</li>
+        </ol>
+        <p className="text-sm text-ink-2">Check transfer by asking where pupils would protect a phone number in a different helper, and why.</p>
+        <Link to="/build/history" className="mt-2 inline-block font-bold underline">Open History Homework Helper</Link>
+      </details>
+
       <Step n={1} title="Challenges" hint={`Pupils work on each one: build, test, attack, then a curveball. Choose up to ${MAX_CHALLENGES}.`}>
         <Choice label="How challenges are chosen" value={random ? 'random' : 'chosen'} change={(v) => setS({ ...s, challenges: v === 'random' ? null : chosen })}
           options={[['random', 'Random across themes'], ['chosen', 'I choose']]} />
