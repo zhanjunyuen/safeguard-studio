@@ -122,6 +122,7 @@ function ChallengeReport({ mission }: { mission: Mission }) {
         <b>Attack results</b>{c.attack.cases.map(r => <Trace key={r.id} run={r} />)}</div>}
       {c.curveball && <div className="my-2"><p><b>Curveball · {c.curveball.title}</b> ({c.curveball.risk}) · predicted {c.curveball.prediction === 'handles' ? 'handled' : 'gets through'},
         actual {c.curveball.handled ? 'handled' : c.curveball.outcome} · prediction {c.curveball.predictionCorrect ? 'correct' : 'incorrect'}</p>
+        {c.curveball.confidence && <p>Confidence before the reveal · {c.curveball.confidence} (ungraded)</p>}
         <p>{c.curveball.reason}</p><AnswerMark request={req.anticipation} preview={c.curveball.previewMark} /></div>}
       {c.revisionNote && <div><p><b>Revision note</b> · {c.revisionNote}</p><AnswerMark request={req.revision} preview={c.previewMarks?.revision} /></div>}
     </details>; })}

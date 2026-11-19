@@ -4,6 +4,18 @@ import type { TestResult } from '../types';
 import { runProgram } from './run';
 import { ruleScript, type CurveballAnswer, type Desk, type Mission, type Rule } from './mission';
 
+export const CONFIDENCE_LEVELS = ['Guessing', 'Fairly sure', 'Very sure'] as const;
+export type CurveballConfidenceLevel = typeof CONFIDENCE_LEVELS[number];
+
+export interface PracticePrediction {
+  owner: string | null;
+  prediction: CurveballAnswer['prediction'];
+  confidence?: CurveballConfidenceLevel;
+  handled: boolean;
+  explanation: string;
+  reply: string;
+}
+
 /** Runs a challenge's unseen curveball against the pupil's frozen build. */
 export function runCurveball(rules: Rule[], desk: Desk): TestResult {
   const cb = CURVEBALLS[desk];
@@ -19,5 +31,6 @@ export function submitCurveball(m: Mission, desk: Desk, answer: CurveballAnswer)
   const reason = answer.reason.trim();
   if (m.form !== 4 || !CURVEBALLS[desk] || !m.frozen?.[desk] || !m.launches?.some(l => l.desk === desk) || m.curveballs?.[desk]) return m;
   if ((!reason && isRequired(m, 'curveball')) || (answer.prediction !== 'handles' && answer.prediction !== 'struggles')) return m;
-  return { ...m, curveballs: { ...m.curveballs, [desk]: { prediction: answer.prediction, reason } } };
+  if (answer.confidence !== undefined && !CONFIDENCE_LEVELS.includes(answer.confidence)) return m;
+  return { ...m, curveballs: { ...m.curveballs, [desk]: { prediction: answer.prediction, reason, ...(answer.confidence && { confidence: answer.confidence }) } } };
 }

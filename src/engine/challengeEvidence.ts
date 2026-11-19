@@ -135,7 +135,7 @@ function curveballEvidence(m: Mission, desk: Desk) {
   const ok = curveballHandled(result);
   return {
     id: cb.test.id, title: cb.test.title, risk: cb.risk, request: cb.test.question, context: cb.context ?? null,
-    prediction: answer.prediction, reason: answer.reason, outcome: result.outcome, handled: ok,
+    prediction: answer.prediction, confidence: answer.confidence, reason: answer.reason, outcome: result.outcome, handled: ok,
     predictionCorrect: (answer.prediction === 'handles') === ok, reply: result.reply, steps: result.steps,
     previewMark: markOffline({ criterion: 'anticipation', text: answer.reason, blocks: target.map(r => r.type), desk, prediction: answer.prediction, handled: ok }),
   };

@@ -1,3 +1,4 @@
+import CurveballReview, { recordedPredictions } from '../components/CurveballReview';
 import PupilResultsQuestions from '../components/PupilResultsQuestions';
 import { MissionResultLink } from '../components/MissionReport';
 import { useMemo } from 'react';
@@ -27,11 +28,12 @@ const NEXT_QUESTION: Record<Dim, string> = {
 
 export default function Profile() {
   const useSession = usePracticeStore();
-  const missionPhase = usePupilMission()?.phase ?? 'brief';
+  const mission = usePupilMission();
   const owner = useSession(s => s.studentId);
   const history = useSession((s) => s.progress);
   const attacks = useSession(s => s.breakProgress);
   const { progress, breakProgress } = useMemo(() => personalPractice(history, attacks, owner), [history, attacks, owner]);
+  const predictions = useMemo(() => recordedPredictions(history, owner, mission), [history, owner, mission]);
   const breaks = practiceLevels(CHALLENGES).map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
   const summary = overallProfile(progress);
   const profiles = summary.parts;
@@ -39,8 +41,9 @@ export default function Profile() {
   if (!profiles.length && !breaks.length) {
     return (
       <div className="max-w-xl mx-auto py-24 px-4">
-        <h1 className="text-4xl font-extrabold">{missionPhase === 'brief' ? 'No results yet' : 'My results'}</h1>
+        <h1 className="text-4xl font-extrabold">{!predictions.length && (!mission || mission.phase === 'brief') ? 'No results yet' : 'My results'}</h1>
         <MissionResultLink />
+        <CurveballReview key={owner} rows={predictions} />
         <PupilResultsQuestions />
         <p className="text-ink-2 mt-3 text-lg">Practice results appear here after you run a helper against the hidden tests.</p>
         <Link to="/" className="btn bg-signal mt-6">Choose a challenge</Link>
@@ -86,6 +89,7 @@ export default function Profile() {
         </div>
       </div>
 
+      <CurveballReview key={owner} rows={predictions} />
       <PupilResultsQuestions />
 
       <div className="grid lg:grid-cols-[1fr_1.15fr] gap-6 mt-8">

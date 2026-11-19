@@ -1,3 +1,4 @@
+import CurveballConfidence from './CurveballConfidence';
 import ReasoningField from './ReasoningField';
 import { useState } from 'react';
 import { BLOCKS } from '../data/blocks';
@@ -26,6 +27,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
 }) {
   const cb = CURVEBALLS[desk]!;
   const [prediction, setPrediction] = useState<CurveballAnswer['prediction'] | ''>('');
+  const [confidence, setConfidence] = useState<CurveballAnswer['confidence']>();
   const [reason, setReason] = useState('');
   const result = answer ? runCurveball(rules, desk) : null;
   const ok = result ? curveballHandled(result) : false;
@@ -42,7 +44,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
         {cb.context && <p className="text-ink-2">{cb.context}</p>}
 
         {!answer ? (
-          <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (prediction && (reason.trim() || !reasonRequired)) onSubmit({ prediction, reason }); }}>
+          <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (prediction && (reason.trim() || !reasonRequired)) onSubmit({ prediction, reason, confidence }); }}>
             <p>You can't change your blocks for this one. No helper catches everything, so you are marked on how well you predict and explain, not on whether your helper survives.</p>
             <fieldset className="flex flex-wrap gap-3">
               <legend className="font-bold mb-1">Your prediction</legend>
@@ -52,6 +54,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
                 </label>
               ))}
             </fieldset>
+            <CurveballConfidence value={confidence} onChange={setConfidence} />
             <ReasoningField hint="Give your prediction, link it to a block, and say what you would check afterwards." id="cb-reason" required={reasonRequired} label={`Why do you expect that outcome?${reasonRequired ? '' : ' (optional)'}`}
               value={reason} change={setReason} />
             <button type="submit" className="btn bg-signal" disabled={!prediction || (reasonRequired && !reason.trim())} data-testid="cb-submit">Lock in my prediction</button>
@@ -61,6 +64,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="space-y-2">
                 <p><b>You predicted:</b> {answer.prediction === 'handles' ? 'it would handle it safely' : 'it would struggle to help'}. {(answer.prediction === 'handles') === ok ? 'That was right.' : 'That was not what happened.'}</p>
+                {answer.confidence && <p><b>Your confidence</b> · {answer.confidence} (ungraded)</p>}
                 <p className={`rounded p-3 font-bold ${ok ? 'bg-pass-soft' : result.outcome === 'partial' ? 'bg-partial-soft' : 'bg-fail-soft'}`} data-testid="cb-outcome">
                   {refused ? 'Refused: safe, but nobody got the help they asked for' : OUTCOME[result.outcome]}
                 </p>

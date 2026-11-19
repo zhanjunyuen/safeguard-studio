@@ -2,6 +2,7 @@ import { usePresenter } from './presenter';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
+import type { PracticePrediction } from '../engine/curveball';
 import type { CustomAttack } from '../engine/customAttack';
 import { reflectionCase } from '../engine/reflection';
 import { blockKey } from '../engine/scriptText';
@@ -30,6 +31,7 @@ export interface LogEvent {
   text: string;
 }
 export interface ChallengeProgress {
+  curveballAttempts?: PracticePrediction[];
   script: ScriptBlock[];
   attempts: Attempt[];
   reflections: Reflection[];
@@ -64,6 +66,7 @@ interface SessionState {
   studentName: string;
   progress: Record<string, ChallengeProgress>;
   breakProgress: Record<string, BreakAttempt[]>;
+  recordCurveball: (cid: string, prediction: Omit<PracticePrediction, 'owner'>) => void;
   recordBreak: (cid: string, attacks: string[], broke: string[], custom?: CustomAttack) => void;
   get: (cid: string) => ChallengeProgress;
   setScript: (cid: string, script: ScriptBlock[], event?: Omit<LogEvent, 't'>) => void;
@@ -86,6 +89,11 @@ const createSession = (name: string) => create<SessionState>()(
       studentName: 'You',
       progress: {},
       breakProgress: {},
+      recordCurveball: (cid, prediction) => set(st => {
+        const p = st.progress[cid] ?? freshProgress();
+        return { progress: { ...st.progress, [cid]: { ...p,
+          curveballAttempts: [...(p.curveballAttempts ?? []), { ...prediction, owner: st.studentId }] } } };
+      }),
       recordBreak: (cid, attacks, broke, custom) =>
         set((st) => ({
           breakProgress: { ...st.breakProgress, [cid]: [...(st.breakProgress[cid] ?? []), { at: Date.now(), owner: st.studentId, attacks, broke, ...(custom && { custom }) }] },

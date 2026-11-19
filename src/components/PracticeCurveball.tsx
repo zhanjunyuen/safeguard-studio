@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { baseId } from '../data/challenges';
 import { practiceCurveball } from '../data/practiceCurveballs';
-import { curveballHandled } from '../engine/curveball';
+import CurveballConfidence from './CurveballConfidence';
+import { usePracticeStore } from '../store/session';
+import { curveballHandled, type CurveballConfidenceLevel } from '../engine/curveball';
 import { runProgram } from '../engine/run';
 import { blockKey } from '../engine/scriptText';
-import type { Challenge, ScriptBlock } from '../types';
+import type { Challenge, ScriptBlock, TestResult } from '../types';
 import { Exchange } from './RunPanel';
 
 export default function PracticeCurveball({ challenge, script }: { challenge: Challenge; script: ScriptBlock[] }) {
@@ -19,21 +21,37 @@ export default function PracticeCurveball({ challenge, script }: { challenge: Ch
 
 function Prediction({ challenge, script, test }: { challenge: Challenge; script: ScriptBlock[]; test: ReturnType<typeof practiceCurveball> }) {
   const [prediction, predict] = useState<boolean | null>(null);
-  if (prediction === null) return <div className="space-y-3">
+  const [confidence, setConfidence] = useState<CurveballConfidenceLevel>();
+  const [result, reveal] = useState<TestResult | null>(null);
+  const store = usePracticeStore();
+  const record = store(s => s.recordCurveball);
+  const name = useId();
+  if (!result) return <form className="space-y-3" onSubmit={e => {
+    e.preventDefault();
+    if (prediction === null) return;
+    const replay = runProgram(script, test);
+    record(challenge.id, { prediction: prediction ? 'handles' : 'struggles', confidence, handled: curveballHandled(replay),
+      reply: replay.reply, explanation: replay.explanation });
+    reveal(replay);
+  }}>
     <h3 className="font-bold">{test.title}</h3>
     <blockquote className="border-l-4 border-line pl-3">{test.question}</blockquote>
-    <p>Will this helper give a safe, useful answer? Pick a prediction to run its blocks.</p>
-    <div className="flex flex-wrap gap-2">
-      <button className="btn bg-paper" onClick={() => predict(true)}>It will handle this</button>
-      <button className="btn bg-paper" onClick={() => predict(false)}>It will struggle</button>
-    </div>
-  </div>;
+    <fieldset><legend className="font-bold">Will this helper give a safe, useful answer?</legend>
+      <div className="mt-1 flex flex-wrap gap-2">{[true, false].map(value =>
+        <label key={String(value)} className="flex items-center gap-2 rounded border border-line px-3 py-2 cursor-pointer">
+          <input type="radio" name={name} checked={prediction === value} onChange={() => predict(value)} />
+          {value ? 'It will handle this' : 'It will struggle'}
+        </label>)}</div>
+    </fieldset>
+    <CurveballConfidence value={confidence} onChange={setConfidence} />
+    <button type="submit" className="btn bg-signal" disabled={prediction === null}>Lock in my prediction</button>
+  </form>;
 
-  const result = runProgram(script, test);
   const handled = curveballHandled(result);
   return <div className="space-y-3" aria-live="polite">
     <p className="font-bold">{prediction === handled ? 'Your prediction matched the replay.' : 'The replay went differently.'} {result.blocked && 'The helper stopped without giving useful help.'}</p>
+    {confidence && <p>Your confidence · <b>{confidence}</b> (ungraded)</p>}
     <Exchange test={test} result={result} upto={result.steps.length} challenge={challenge} helperLabel="Helper" />
-    <button className="btn bg-paper" onClick={() => predict(null)}>Try again</button>
+    <button className="btn bg-paper" onClick={() => { predict(null); setConfidence(undefined); reveal(null); }}>Try again</button>
   </div>;
 }

@@ -68,6 +68,7 @@ async function test() {
       await button('Skip to results').click();
       await page.getByTestId('curveball').waitFor();
       await page.getByTestId('cb-struggles').check();
+      await page.getByRole('radio', { name: 'Very sure', exact: true }).check();
       await page.getByTestId('cb-reason').fill('A person should check this case before sharing the answer.');
       await page.getByTestId('cb-submit').click();
       await button('Finish challenge').click();
@@ -103,6 +104,7 @@ async function test() {
     assert.equal(new Set(packet.completionOrder).size, 6);
     assert.ok(packet.workloadCredits > 0);
     const revised = packet.challenges.find(c => 'assess-' + c.id === ids[0]);
+    assert.equal(revised.curveball.confidence, 'Very sure');
     assert.equal(revised.attempts.length, 2);
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
     assert.equal(packet.creditModel, 'compute');
@@ -112,6 +114,7 @@ async function test() {
     assert.deepEqual(errors, []);
     const missionUrl = page.url();
     await page.getByRole('link', { name: 'My results', exact: true }).first().click();
+    await page.getByRole('region', { name: 'Revisit a curveball prediction' }).getByText(/Very sure/).waitFor();
     await page.getByLabel('Use saved results only').check();
     let aiCalls = 0;
     await page.route('**/functions/v1/literacy-ai', route => { aiCalls++; return route.abort(); });

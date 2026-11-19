@@ -3,7 +3,9 @@ import { cleanSettings } from './assessmentSettings';
 import { CURVEBALLS } from '../data/curveballs';
 import { catalogue, DESKS } from '../data/mission';
 import { getChallenge } from '../data/challenges';
-import { curveballHandled, runCurveball, submitCurveball } from './curveball';
+import { challengeMarkRequests } from './challengeEvidence';
+import { finalScore } from './finalScore';
+import { CONFIDENCE_LEVELS, curveballHandled, runCurveball, submitCurveball } from './curveball';
 import { newAssessment, type Desk, type Rule } from './mission';
 import type { BlockType } from '../types';
 
@@ -82,6 +84,19 @@ describe('curveballs', () => {
       launches: [{ desk: other, ids: [], reason: 'x' }] };
     expect(CURVEBALLS[other as Desk]).toBeUndefined();
     expect(submitCurveball(m as never, other as Desk, { prediction: 'struggles', reason: 'a reason' })).toBe(m);
+  });
+
+  it('saves each confidence level before reveal without changing marks or final scores', () => {
+    const m = { ...newAssessment(), assigned: ['quiz'], frozen: { quiz: ideal('quiz') }, launches: [{ desk: 'quiz', ids: ['q_marks'] }] };
+    const answer = { prediction: 'handles' as const, reason: 'I expect it to check the facts.' };
+    const unrated = submitCurveball(m, 'quiz', answer);
+    for (const confidence of CONFIDENCE_LEVELS) {
+      const saved = submitCurveball(m, 'quiz', { ...answer, confidence });
+      expect(saved.curveballs?.quiz?.confidence).toBe(confidence);
+      expect(submitCurveball(saved, 'quiz', answer)).toBe(saved);
+      expect(challengeMarkRequests(saved, {}, 'quiz')).toEqual(challengeMarkRequests(unrated, {}, 'quiz'));
+      expect(finalScore(saved, {}, [])).toEqual(finalScore(unrated, {}, []));
+    }
   });
 
   it('accepts one final prediction with a reason, only after the attack has launched', () => {

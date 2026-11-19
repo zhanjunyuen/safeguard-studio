@@ -10,7 +10,11 @@ import { getChallenge } from '../data/challenges';
 import { keyToBlock } from './scriptText';
 
 export type Desk = typeof catalogue[number]['id'];
-export interface CurveballAnswer { prediction: 'handles' | 'struggles'; reason: string }
+export interface CurveballAnswer {
+  prediction: 'handles' | 'struggles';
+  reason: string;
+  confidence?: import('./curveball').CurveballConfidenceLevel;
+}
 /** `type` is a block key: a plain block type, or an IF block saved by blockKey (e.g. "if:person:remove_pii:"). */
 export type Rule = { type: BlockType; scope: Desk | 'all' };
 export type AssessmentLevel = 1 | 2;
