@@ -44,6 +44,7 @@ const BASE_PAUSE_MS = 1500;
 const isControl = (t: string) => t === 'if' || t === 'ifelse';
 
 interface AssessmentBuild {
+  classStudentId?: string | null;
   id: Desk;
   /** Level 2 assessment: the IF-block version of the challenge (edge case, higher usefulness target) */
   level2?: boolean;
@@ -65,6 +66,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const cid = isL2 ? baseCid + '@2' : baseCid;
   // Assessment work is saved per challenge (the level is fixed for the whole assessment); practice keeps Level 1 and 2 apart.
   const id = assessment ? baseCid : cid;
+  const classTarget = assessment?.classStudentId ? { studentId: assessment.classStudentId, challenge: cid } : undefined;
   const usePractice = usePracticeStore();
   const useWork = assessment ? useAssessmentSession : usePractice;
   const challenge = getChallenge(cid);
@@ -252,7 +254,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const run = () => {
     if (mustReflect || locked) return;
     const rep = runChallenge(script, challenge);
-    recordRun(id, rep);
+    recordRun(id, rep, classTarget);
     setReport(rep);
     setRanScript(script);
     setDirty(false);
@@ -387,7 +389,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
           neighbours={last.results.flatMap(r => r.failureKey ? [r.failureKey] : [])}
           expected={reflectFor.expected}
           seed={`${reflectFor.testId}-${attemptNo}`}
-          onSubmit={(chosen, text) => reflect(id, chosen, text)}
+          onSubmit={(chosen, text) => reflect(id, chosen, text, classTarget)}
           onClose={() => setReflectFor(null)}
         />
       )}

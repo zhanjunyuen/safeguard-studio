@@ -35,7 +35,7 @@ function JoinName({ code }: { code: string }) {
   return <form onSubmit={submit} className="rounded-md border-1.5 border-ink bg-paper-card p-4 sm:p-6 space-y-4 shadow-hard" data-testid="join-name">
     <p className="label text-ink-3">Class {code}</p>
     <h2 className="text-3xl font-extrabold">What's your first name?</h2>
-    <p className="text-ink-2">Your teacher sees your results under this name. Only your first name and the class code are saved.</p>
+    <p className="text-ink-2">Your teacher sees your results under this name. Your class results include the blocks you tested and how they performed.</p>
     <div className="flex flex-wrap gap-3">
       <input value={name} onChange={e => setName(e.target.value)} required maxLength={30} autoFocus aria-label="First name"
         className="w-56 rounded border-1.5 border-ink bg-paper px-3 py-2.5 text-lg" data-testid="first-name" />
@@ -48,6 +48,7 @@ function JoinName({ code }: { code: string }) {
 export default function AssessmentChallenges() {
   const { mission: m, update, launch } = useMission();
   const joinedClass = useSession(s => s.classCode);
+  const studentId = useSession(s => s.studentId);
   const className = useSession(s => s.className);
   const deviceSettings = useTeacherSettings(s => s.settings);
   const needsName = !!m.classCode && joinedClass !== m.classCode;
@@ -100,6 +101,7 @@ export default function AssessmentChallenges() {
     const revising = m.phase === 'revise';
     const notes = revising ? 'revisionNotes' : 'designNotes';
     return <>{tracker}<Builder key={desk} assessment={{ id: desk, level2: level2, onMenu: menu, revising, workload: service, workloadModel,
+      classStudentId: m.classCode && m.classCode === joinedClass ? studentId : null,
       noteRequired: isRequired(m, revising ? 'revision' : 'design'),
       note: m[notes]?.[desk] ?? '', onNote: value => update({ [notes]: { ...m[notes], [desk]: value } }),
       onAttack: () => {

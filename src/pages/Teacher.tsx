@@ -1,3 +1,4 @@
+import TeacherQuestions from '../components/TeacherQuestions';
 import { MissionResultLink } from '../components/MissionReport';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,7 @@ const heat = (v: number | null) =>
   v === null ? 'bg-paper text-ink-3' : v >= 80 ? 'bg-pass-soft text-pass' : v >= 45 ? 'bg-partial-soft text-partial' : 'bg-fail-soft text-fail';
 
 interface Row {
+  id: string;
   name: string;
   live?: boolean;
   profile: ChallengeProfile;
@@ -30,6 +32,7 @@ interface Row {
 }
 
 interface StudentData {
+  id: string;
   name: string;
   live?: boolean;
   progress: Record<string, ChallengeProgress | undefined>;
@@ -47,29 +50,32 @@ export default function Teacher() {
   const myClass = useSession((s) => s.classCode);
   const [source, setSource] = useState<'sample' | 'live'>('sample');
   const [code, setCode] = useState(myClass ?? 'DEMO8B');
-  const [liveClass, setLiveClass] = useState<{ name: string; students: ClassStudent[] } | null>(null);
+  const [loaded, setLiveClass] = useState<{ code: string; name: string; students: ClassStudent[] } | null>(null);
+  const liveClass = loaded?.code === code ? loaded : null;
   const [liveErr, setLiveErr] = useState<string | null>(null);
 
   // Live class: poll every 5 seconds so new runs appear during the lesson.
   useEffect(() => {
     if (source !== 'live') return;
     let stop = false;
+    let timer: number;
     const load = async () => {
       const c = await fetchClass(code);
       if (stop) return;
-      if (c) { setLiveClass(c); setLiveErr(null); } else setLiveErr('No class found with that code.');
+      setLiveClass(c ? { ...c, code } : null);
+      setLiveErr(c ? null : 'No class found with that code.');
+      timer = window.setTimeout(load, 5000);
     };
     load();
-    const t = window.setInterval(load, 5000);
-    return () => { stop = true; window.clearInterval(t); };
+    return () => { stop = true; window.clearTimeout(timer); };
   }, [source, code]);
-  const [sel, setSel] = useState<string | null>(() => (usePresenter.getState().active ? 'You (live)' : null));
+  const [sel, setSel] = useState<string | null>(() => (usePresenter.getState().active ? 'local' : null));
 
   // The sample class across every challenge, computed once (it never changes).
   const sampleClass: StudentData[] = useMemo(
     () =>
       SEED_STUDENTS.map((st, i) => ({
-        name: st.name,
+        id: `sample-${i}`, name: st.name,
         progress: Object.fromEntries(CHALLENGES.map((c) => [c.id, simulateStudent(st, c.id, i)])),
         breaks: Object.fromEntries(CHALLENGES.map((c) => [c.id, simulateBreak(i, c.id)])),
       })),
@@ -77,7 +83,7 @@ export default function Teacher() {
   );
 
   const rows: Row[] = useMemo(() => {
-    const me: StudentData = { name: 'You (live)', live: true, progress: myProgress, breaks: myBreaks };
+    const me: StudentData = { id: 'local', name: 'You (live)', live: true, progress: myProgress, breaks: myBreaks };
     const students: StudentData[] = source === 'live' ? liveClass?.students ?? [] : [me, ...sampleClass];
 
     if (cid === ALL || cid.startsWith('theme:')) {
@@ -92,7 +98,7 @@ export default function Teacher() {
             profile: profileChallenge(c.id, st.progress[c.id] ?? EMPTY),
             spot: breakSummary(c, st.breaks[c.id] ?? []),
           }));
-          return { name: st.name, live: st.live, profile, spot, parts };
+          return { id: st.id, name: st.name, live: st.live, profile, spot, parts };
         })
         .filter((r) => r.parts.length);
     }
@@ -101,14 +107,14 @@ export default function Teacher() {
     return students
       .filter((st) => st.progress[cid]?.attempts.length || st.breaks[cid]?.length)
       .map((st) => ({
-        name: st.name,
+        id: st.id, name: st.name,
         live: st.live,
         profile: profileChallenge(cid, st.progress[cid] ?? EMPTY),
         spot: breakSummary(ch, st.breaks[cid] ?? []),
       }));
   }, [cid, myProgress, myBreaks, source, liveClass, sampleClass]);
 
-  const selected = rows.find((r) => r.name === sel) ?? null;
+  const selected = rows.find((r) => r.id === sel) ?? null;
   const built = rows.filter((r) => r.profile.anticipated);
   const hasData = built.length > 0;
   const isAll = cid === ALL || cid.startsWith('theme:');
@@ -131,7 +137,7 @@ export default function Teacher() {
     <div className="max-w-[1400px] mx-auto px-4 py-10" data-testid="teacher">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label text-ink-2">{source === 'live' && liveClass ? `${liveClass.name} · live` : '8B Computing · sample class'}</p>
+          <p className="label text-ink-2">{source === 'live' ? liveClass ? `${liveClass.name} · live` : 'Live class' : '8B Computing · sample class'}</p>
           <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
           <Link to="/setup" className="btn bg-signal mt-4" data-testid="open-setup">Set up an assessment</Link>
@@ -194,6 +200,8 @@ export default function Teacher() {
         />
         <Stat title="Explained failures correctly" value={reflAvg !== null ? `${reflAvg}%` : '–'} sub="Class average" />
       </dl>
+      <TeacherQuestions key={JSON.stringify([source, code, cid, selected?.id])} rows={rows}
+        pupil={selected?.id ?? null} select={setSel} scope={cid === ALL ? 'All challenges' : challengeTitle} sample={source === 'sample'} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_400px] gap-6 mt-6">
         <div className="rounded-md border-1.5 border-ink bg-paper-card overflow-x-auto">
@@ -223,12 +231,12 @@ export default function Teacher() {
               )}
               {rows.map((r) => (
                 <tr
-                  key={r.name}
-                  onClick={() => setSel(r.name)}
-                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setSel(r.name))}
+                  key={r.id}
+                  onClick={() => setSel(r.id)}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setSel(r.id))}
                   tabIndex={0}
-                  aria-selected={sel === r.name}
-                  className={`border-t border-line cursor-pointer ${sel === r.name ? 'bg-signal-soft' : 'hover:bg-paper'} ${r.live ? 'font-bold' : ''}`}
+                  aria-selected={sel === r.id}
+                  className={`border-t border-line cursor-pointer ${sel === r.id ? 'bg-signal-soft' : 'hover:bg-paper'} ${r.live ? 'font-bold' : ''}`}
                   data-testid={r.live ? 'row-live' : undefined}
                 >
                   <th scope="row" className="px-4 py-2 text-left whitespace-nowrap font-bold">

@@ -78,3 +78,15 @@ describe('final verdict task', () => {
     expect(JSON.parse(t.input).total).toBe(64);
   });
 });
+
+describe('teacher questions', () => {
+  it('keeps the question and results in the input and fixes the teaching instructions on the server', () => {
+    const evidence = { pupilsWithActivity: 2, builds: 7, scope: 'History' };
+    const task = buildTask({ task: 'teacher', question: 'What next?', evidence });
+    expect(JSON.parse(task.input)).toEqual({ question: 'What next?', evidence });
+    expect(task.instructions).toContain('concrete short activity');
+    expect(task.expect).toBe('answer');
+    expect(() => buildTask({ task: 'teacher', question: '  ', evidence })).toThrow();
+    expect(() => buildTask({ task: 'teacher', question: 'What next?', evidence: { pupilsWithActivity: 0 } })).toThrow();
+  });
+});

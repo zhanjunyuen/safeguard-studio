@@ -53,6 +53,8 @@ export interface BreakAttempt {
   broke: string[];
 }
 
+interface ClassRunTarget { studentId: string; challenge: string }
+
 interface SessionState {
   studentName: string;
   progress: Record<string, ChallengeProgress>;
@@ -60,8 +62,8 @@ interface SessionState {
   recordBreak: (cid: string, attacks: string[], broke: string[]) => void;
   get: (cid: string) => ChallengeProgress;
   setScript: (cid: string, script: ScriptBlock[], event?: Omit<LogEvent, 't'>) => void;
-  recordRun: (cid: string, report: RunReport) => void;
-  reflect: (cid: string, chosen: FailureKey, text: string) => boolean;
+  recordRun: (cid: string, report: RunReport, target?: ClassRunTarget) => void;
+  reflect: (cid: string, chosen: FailureKey, text: string, target?: ClassRunTarget) => boolean;
   reset: (cid: string) => void;
   resetAll: () => void;
   setName: (n: string) => void;
@@ -179,39 +181,34 @@ export const useAssessmentSession = createSession('school-community-challenge-wo
 export const describeAdd = (type: BlockType, index: number) =>
   `Added “${BLOCKS[type].label}” at position ${index + 1}`;
 
-// Also send every run to the class backend when the student has joined one.
-// Local behaviour is unchanged; pushRun does nothing without Supabase keys.
-{
-  const st = useSession.getState();
-  const { recordRun, reflect, recordBreak } = st;
-  useSession.setState({
-    recordRun: (cid, report) => {
-      const script = useSession.getState().get(cid).script.map(blockKey);
+// Practice follows the joined class. Assessment runs carry an explicit matching class and level.
+for (const store of [useSession, useAssessmentSession]) {
+  const { recordRun, reflect } = store.getState();
+  store.setState({
+    recordRun: (cid, report, target) => {
       recordRun(cid, report);
-      pushRun(useSession.getState().studentId, {
-        challenge: cid,
-        mode: 'build',
-        script,
-        results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
-        scores: report.scores,
-      });
+      const student = target?.studentId ?? (store === useSession ? store.getState().studentId : null);
+      if (!student) return;
+      const { script, scores, results } = store.getState().get(cid).attempts.at(-1)!;
+      pushRun(student, { challenge: target?.challenge ?? cid, mode: 'build', script, results, scores });
     },
-    reflect: (cid, chosen, text) => {
-      const pending = useSession.getState().get(cid).pendingReflection;
+    reflect: (cid, chosen, text, target) => {
+      const pending = store.getState().get(cid).pendingReflection;
       const correct = reflect(cid, chosen, text);
-      if (pending)
-        pushRun(useSession.getState().studentId, {
-          challenge: cid,
-          mode: 'reflect',
-          script: [],
-          results: [],
-          reflection: { testId: pending.testId, expected: pending.expected, chosen, correct, text },
-        });
+      const student = target?.studentId ?? (store === useSession ? store.getState().studentId : null);
+      if (student && pending) pushRun(student, {
+        challenge: target?.challenge ?? cid, mode: 'reflect', script: [], results: [],
+        reflection: { ...pending, chosen, correct, text: target ? '' : text },
+      });
       return correct;
-    },
-    recordBreak: (cid, attacks, broke) => {
-      recordBreak(cid, attacks, broke);
-      pushRun(useSession.getState().studentId, { challenge: cid, mode: 'break', script: attacks, results: broke });
     },
   });
 }
+
+const recordBreak = useSession.getState().recordBreak;
+useSession.setState({
+  recordBreak: (cid, attacks, broke) => {
+    recordBreak(cid, attacks, broke);
+    pushRun(useSession.getState().studentId, { challenge: cid, mode: 'break', script: attacks, results: broke });
+  },
+});
