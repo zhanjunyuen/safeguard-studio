@@ -91,3 +91,9 @@ Eval loss was still falling at the last step, so the run looks under-trained. Th
   - Every blind-judge disagreement on g01/g02 was re-reviewed (63 corrections logged in `data/scale/gold/review*.jsonl`); level agreement with qwen3.5-397b is 0.91 (g01) and 0.93 (g02).
   - Keys are file-scoped, which fixed 11 follow-ups that pointed at the wrong answer.
 - Run 2 at the time: 2 of 3 iterations done, best win rate 0.39 (run 1: 0.43).
+
+## Run 4 (19 Nov, 00:17): v3.1, reasoning trace inside the completion
+
+- Run `3fedd7b8-e13b-4f0a-8e50-baed27d5acd8`, dataset `b02cb57b-6e47-4652-9e4e-4724bbcc3fb0` (3,227 rows), gpt-oss-120b, 3 iterations.
+- Same rows as run 3; the only difference is that each completion starts with `"reasoning"` (concept-by-concept, from the simulator facts), so run 3 vs run 4 measures what the trace adds.
+- Why: a test upload (19 Nov) showed raw ingestion keeps only `original_prompt` / `original_completion`; a mapped `reasoning_trace` column is dropped, so runs 1–3 never saw a trace. gpt-oss-120b does report `train_with_reasoning: true`, but only a dataset column can feed it, and raw mode can't store one.
