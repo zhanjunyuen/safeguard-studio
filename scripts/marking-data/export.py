@@ -10,8 +10,26 @@ Reads data/rows/{train,test}.jsonl and data/judge/hard-cases.jsonl, and writes
                               Claude's; left out of training (handoff §6.2)
   data/adaption/summary.json  counts by kind, criterion, level, author; length stats
 Follow-up rows are kept unless the marking row they explain is a hard case.
+
+Reasoning trace: Adaption's raw upload keeps only prompt and completion (checked 19 Nov: a mapped
+reasoning_trace column is dropped), so the trace is folded into the completion itself, as the first
+field, so the model writes its reasoning before the level:
+  marks and summaries  {"reasoning": "<trace>", "criterion": ..., ...}
+  follow-ups           {"reasoning": "<trace>", "answer": "<reply to the pupil>"}
+The app's model provider must parse this JSON and never show `reasoning` to pupils.
+TRACE_IN_COMPLETION=0 writes the old completions (trace only in its own column).
 """
 import json, os, collections
+
+TRACE_IN_COMPLETION = os.environ.get('TRACE_IN_COMPLETION', '1') == '1'
+
+def completion(r):
+    """The completion as uploaded: the reasoning trace first, then the answer (see the docstring)."""
+    if not TRACE_IN_COMPLETION:
+        return r['completion']
+    if r['kind'] == 'followup':
+        return json.dumps({'reasoning': r['reasoning_trace'], 'answer': r['completion']}, ensure_ascii=False)
+    return json.dumps({'reasoning': r['reasoning_trace'], **json.loads(r['completion'])}, ensure_ascii=False)
 
 D = os.path.join(os.path.dirname(__file__), 'data')
 OUT = os.path.join(D, 'adaption')
@@ -33,7 +51,7 @@ for split in ('train', 'test'):
     cols = ['prompt', 'completion', 'reasoning_trace']
     with open(os.path.join(OUT, f'{split}.jsonl'), 'w') as fh:
         for r in keep:
-            fh.write(json.dumps({**{c: r[c] for c in cols}, 'id': r['id'], 'kind': r['kind'], 'criterion': r['criterion']}, ensure_ascii=False) + '\n')
+            fh.write(json.dumps({**{c: r[c] for c in cols}, 'completion': completion(r), 'id': r['id'], 'kind': r['kind'], 'criterion': r['criterion']}, ensure_ascii=False) + '\n')
     if split == 'train':
         with open(os.path.join(OUT, 'hard-cases.jsonl'), 'w') as fh:
             fh.write(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in dropped))

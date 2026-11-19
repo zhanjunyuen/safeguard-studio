@@ -191,6 +191,50 @@ def fbview(start, n):
         a1 = '' if crit != 'anticipation' else f" A1={'Y' if f['predictionCorrect'] else 'N'}"
         print(f"[{k}] L{level_of(crit, c_, cc)}{a1} +{','.join(got) or '-'} -{','.join(miss) or '-'}{' FLAG' if it.get('flag') else ''} | {a['text']}")
 
+def reason(cid, quote, ctx):
+    """Why a concept is present or absent, in terms of this task's simulator facts (the attack results,
+    the curveball's risk, the scenario anchors, the replay), so the reasoning trace says why, not just which."""
+    p, f = ctx['packet'], ctx['facts']
+    yes = quote is not None
+    if cid[0] == 'T':
+        broke = [a['label'] for a in p['attackCases'] if a['id'] in f['broke']] or ['nothing']
+        return {
+            'T1': (f"Names part of this build ({p['frozenBuild']}) or a safeguard it lacks.",
+                   f"Names no block in this build ({p['frozenBuild']}) and no safeguard it lacks."),
+            'T2': ("Names a kind of request and says it gets through (or should be answered).",
+                   "Does not say which kind of request gets through."),
+            'T3': (f"The attack showed: {'; '.join(broke)} got through. The prediction matches.",
+                   f"The attack showed: {'; '.join(broke)} got through. The answer does not predict that."),
+        }[cid][0 if yes else 1]
+    if cid[0] == 'A':
+        risk = p['curveball']['risk']
+        return {
+            'A2': (f"Names the risk in this case ({risk}).", f"Does not name the risk in this case ({risk})."),
+            'A3': (f"Links the request to this build ({p['frozenBuild']}): what a block covers, misses or where it sits.",
+                   f"No reasoned link to this build ({p['frozenBuild']})."),
+            'A4': ("Suggests a person or real-world check that could settle it.", "No person or real-world check is suggested."),
+        }[cid][0 if yes else 1]
+    if cid[0] == 'C':
+        L = f['anchors']['labels']
+        return {
+            'C1': (f"Gives the current detail ({L['current']}).", f"Does not give the current detail ({L['current']})."),
+            'C2': (f"Says {L['open']} is still open.", f"Does not say {L['open']} is still undecided."),
+            'C3': (f"Passes the open question to {L['person']}.", f"Does not pass the open question to {L['person']}."),
+            'C4': (f"Repeats the out-of-date detail ({L['stale']}) as true.", f"Does not repeat the out-of-date detail ({L['stale']})."),
+        }[cid][0 if yes else 1]
+    kept = not p['changed']
+    fails = [r['title'] for r in p['frozenResults'] if r['outcome'] != 'handled'] or ['none']
+    return {
+        'R1': (f"Says what happened to the build (the replay shows it was {'kept' if kept else 'changed'}).",
+               f"Does not truly say what happened to the build (the replay shows it was {'kept' if kept else 'changed'})."),
+        'R2': (f"Cites a test result that matches the replay (failing before: {'; '.join(fails)}).",
+               f"Cites no test result that matches the replay (failing before: {'; '.join(fails)})."),
+        'R3': (f"States a consequence for safety, usefulness or workload (credits {p['creditsBefore']} to {p['creditsAfter']}).",
+               "States no consequence for safety, usefulness or workload."),
+        'R4': ("Weighs two of safety, usefulness and workload against each other.",
+               "Does not weigh safety, usefulness and workload against each other."),
+    }[cid][0 if yes else 1]
+
 def convert():
     q = {json.loads(l)['k']: json.loads(l) for l in open(os.path.join(G, f'queue{SUF}.jsonl'))}
     FB = {}
@@ -214,10 +258,7 @@ def convert():
             for cid in IDS[crit]:
                 quote = given.get(cid)
                 c[cid] = quote
-                if cid == 'C4':
-                    why[cid] = (f'Repeats the out-of-date detail, so {LABEL[cid]} is not met.' if quote else 'No out-of-date detail is repeated.')
-                else:
-                    why[cid] = (f'Shown: {LABEL[cid]}.' if quote else f'Not shown: {LABEL[cid]}.')
+                why[cid] = reason(cid, quote, CTX[a['ctx']])
             missing = [cid for cid in IDS[crit] if (c[cid] is not None if cid == 'C4' else c[cid] is None)]
             if crit == 'anticipation' and not CTX[a['ctx']]['facts']['predictionCorrect']:
                 fb, ns = ('Your prediction did not match what happened: check the replay.', 'What did the helper actually do with this request, and why?')

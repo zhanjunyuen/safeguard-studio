@@ -38,9 +38,9 @@
    "deepseek-v4-flash": 329,
    "glm-5.3-flash": 259
   },
-  "charsMedian": 6978,
-  "charsMax": 8657,
-  "approxTokensMax": 2164
+  "charsMedian": 7020,
+  "charsMax": 8847,
+  "approxTokensMax": 2211
  },
  "test": {
   "rows": 84,
