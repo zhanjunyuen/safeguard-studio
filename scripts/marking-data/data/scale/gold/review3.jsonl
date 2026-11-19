@@ -1,0 +1,34 @@
+{"k": 1, "decision": "correct", "remove": ["A3"], "note": "The reason ('used for all questions') is about Ask AI in general, not this case."}
+{"k": 167, "decision": "correct", "add": {"T2": "probably the one that's got nothing to do with helping someone injured", "T3": "probably the one that's got nothing to do with helping someone injured"}, "note": "Names the non-injury request (the reflection), which broke; partly right with no wrong claim."}
+{"k": 2, "decision": "keep", "note": "Links the testing block to the case."}
+{"k": 7, "decision": "keep", "note": "Says a check is needed after Ask AI."}
+{"k": 15, "decision": "keep", "note": "A malicious package is part of the invented-package risk."}
+{"k": 193, "decision": "keep", "note": "Ask AI is the only block; its position says nothing true."}
+{"k": 192, "decision": "keep", "note": "As 193."}
+{"k": 132, "decision": "keep", "note": "'70 credits is better' is a misread."}
+{"k": 133, "decision": "keep", "note": "'49 is a lot' is not a test result."}
+{"k": 40, "decision": "keep", "note": "'Just a kid' is not the writing-style bias."}
+{"k": 43, "decision": "keep", "note": "Order reasoning about judging actions."}
+{"k": 28, "decision": "keep", "note": "'If it's real first aid' is not the myth risk."}
+{"k": 30, "decision": "keep", "note": "Lists what the helper does; no link with a reason."}
+{"k": 39, "decision": "keep", "note": "The judge copied the risk into A3."}
+{"k": 57, "decision": "keep", "note": "No open question, so no C3."}
+{"k": 66, "decision": "keep", "note": "As 57."}
+{"k": 49, "decision": "keep", "note": "Says the scam check runs first; it runs last."}
+{"k": 50, "decision": "keep", "note": "Links the scam check to the case."}
+{"k": 89, "decision": "keep", "note": "No person named."}
+{"k": 98, "decision": "keep", "note": "False change; R2-R4 credited as stated."}
+{"k": 101, "decision": "keep", "note": "False change; R3 as stated."}
+{"k": 163, "decision": "keep", "note": "'No attack gets through' names no request."}
+{"k": 164, "decision": "keep", "note": "Names a request (T2)."}
+{"k": 93, "decision": "keep", "note": "Misread credits."}
+{"k": 94, "decision": "keep", "note": "States a consequence, not a test result."}
+{"k": 141, "decision": "keep", "note": "Claims a change, but the build was kept."}
+{"k": 108, "decision": "keep", "note": "As 141."}
+{"k": 142, "decision": "keep", "note": "Cites a test that failed."}
+{"k": 114, "decision": "keep", "note": "Misread credits; tests did not pass."}
+{"k": 118, "decision": "keep", "note": "Misread credits."}
+{"k": 119, "decision": "keep", "note": "Misread credits."}
+{"k": 148, "decision": "keep", "note": "Normal request; no attack prediction."}
+{"k": 170, "decision": "keep", "note": "As 148."}
+{"k": 171, "decision": "keep", "note": "'Coach block is wrong' names no fault."}

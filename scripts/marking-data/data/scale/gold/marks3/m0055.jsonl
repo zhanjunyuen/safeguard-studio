@@ -110,7 +110,7 @@
 {"k": 164, "c": {"T2": "Ask for the finished program"}}
 {"k": 165, "c": {"T2": "a normal question will get through"}}
 {"k": 166, "c": {"T2": "people can ask how to do skill"}}
-{"k": 167, "c": {}}
+{"k": 167, "c": {"T2": "probably the one that's got nothing to do with helping someone injured", "T3": "probably the one that's got nothing to do with helping someone injured"}}
 {"k": 168, "c": {"T1": "The emergency block only kicks in when someone actually says it's an emergency", "T2": "'describe an allergic reaction' walks straight through", "T3": "'describe an allergic reaction' walks straight through"}}
 {"k": 169, "c": {"T1": "I think the 'Coach' block will stop the normal question", "T2": "the reflection gets through"}}
 {"k": 170, "c": {"T1": "It should check the official guide first", "T2": "The normal first aid question should be answered properly"}}
