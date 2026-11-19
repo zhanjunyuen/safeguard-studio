@@ -8,6 +8,17 @@ Safeguard Studio aims to assess how pupils aged 11–14 use judgement when worki
 
 The overarching commission is to run **a year-round AI helper for the school community**. Each pupil receives six challenges drawn from the catalogue, one per theme, and chooses the order in which to complete them. The common brief gives the agent a coherent role across activities. The assessment should accommodate new teacher-authored cases and more than one defensible answer. The longer-term aim is to train a model with **Adaption AI** to mark open responses against evidence and provide actionable feedback.
 
+## How pupils and teachers start
+
+- **Start page.** Pupils enter the class code from their teacher and press **Start assessment**. They can leave the code blank to start on their own. Smaller links open the demo, all practice challenges (`/challenges`) and teacher setup.
+- **Guided assessment.** A step bar (Join class → Brief → Challenges → Release decision → Results) and a "Now" line always say what to do next. Pupils who used a class code type their first name once.
+- **Teacher setup (`/setup`, linked from Teacher view).** Teachers choose:
+  - the challenges (a random one per theme, or up to six of their choice);
+  - whether each written answer is required or optional (design note, attack prediction, curveball explanation, revision note, release explanation);
+  - optionally a fixed level and time.
+
+  Settings save on the device, or to a class with its **teacher code**: a new class gets a code, and the demo class `DEMO8B` uses `TEACH8B`. Each attempt keeps the settings it started with. An optional answer left blank doesn't lower the final score.
+
 ## The integrated assessment
 
 Choose **Start the assessment**, select the time allowance, then choose a challenge from the checklist. Starting an assessment draws one challenge per theme from the 21-challenge practice catalogue. The six are saved with the attempt. Earlier attempts keep their original six. Pupils can work in any order and pause a challenge to work on another. A task menu stays visible during Build, Attack and revision. It tracks completed challenges and the number of tests passed on the latest evaluated build for each attempted task. Front-page practice has its own progress.

@@ -1,5 +1,6 @@
 import { MissionResultLink } from '../components/MissionReport';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import type { ClassStudent } from '../lib/classData';
 import { supabase } from '../lib/supabase';
@@ -133,6 +134,7 @@ export default function Teacher() {
           <p className="label text-ink-2">{source === 'live' && liveClass ? `${liveClass.name} · live` : '8B Computing · sample class'}</p>
           <h1 className="text-5xl font-extrabold mt-1">Class results</h1>
           <p className="text-ink-2 mt-2 max-w-2xl">Each score comes from running the student's own helper against the hidden tests. Select a student to see how they got there.</p>
+          <Link to="/setup" className="btn bg-signal mt-4" data-testid="open-setup">Set up an assessment</Link>
           {supabase && !usePresenter.getState().active && (
             <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="class-source">
               <div role="group" aria-label="Which class" className="flex border-1.5 border-ink rounded overflow-hidden text-sm font-bold">

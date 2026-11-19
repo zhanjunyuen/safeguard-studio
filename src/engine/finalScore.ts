@@ -1,6 +1,7 @@
 import type { ChallengeProgress } from '../store/session';
 import { assessmentBudget, evaluateDesk, serviceWorkloads } from './challengeEvidence';
-import { scoreOf, type Mark } from './marking';
+import { scoreOf, SKILL_ORDER, type Mark } from './marking';
+import { optionalSkills } from './assessmentSettings';
 import { assignedDesks, handled, type Mission } from './mission';
 import { DIMS, type Dim } from './profile';
 
@@ -65,13 +66,19 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   // Cheap only counts when the builds work: an empty helper is cheap but useless.
   const withinBudget = workloadCredits <= budget ? 1 : budget / Math.max(1, workloadCredits);
   const skills = scoreOf(marks);
+  // Skills count unless their question was optional and left blank: skipping an optional question costs nothing.
+  const optional = optionalSkills(m);
+  const counted = SKILL_ORDER.filter((c) => !(optional.includes(c) && !marks.some((x) => x.criterion === c)));
+  const answerShare = counted.length ? counted.reduce((s, c) => s + (skills.scores[c] ?? 0), 0) / (2 * counted.length) : null;
   const parts = {
-    answers: round1(WEIGHTS.answers * skills.total / skills.outOf),
+    answers: round1(WEIGHTS.answers * (answerShare ?? 0)),
     tests: round1(WEIGHTS.tests * testShare),
     workload: round1(WEIGHTS.workload * withinBudget * testShare),
     attempts: round1(WEIGHTS.attempts * challenges.reduce((s, c) => s + c.attempts, 0) / n),
   };
-  const total = Math.round(parts.answers + parts.tests + parts.workload + parts.attempts);
+  const blocksAndAttempts = parts.tests + parts.workload + parts.attempts;
+  // With every written question optional and skipped, builds and attempts make up the whole score.
+  const total = Math.round(answerShare === null ? blocksAndAttempts * 100 / (100 - WEIGHTS.answers) : parts.answers + blocksAndAttempts);
   return { total, outOf: 100, band: FINAL_BANDS.find((b) => total >= b.min)!.band, parts, skills, challenges, workloadCredits, budget };
 }
 

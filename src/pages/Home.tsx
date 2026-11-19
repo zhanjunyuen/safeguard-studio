@@ -1,45 +1,48 @@
-import { ArrowRight, Check, Circle, CircleDot, Zap } from 'lucide-react';
+import { ArrowRight, Compass, PlayCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Block from '../components/Block';
+import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
+import { cleanSettings } from '../engine/assessmentSettings';
+import { findClass } from '../lib/sync';
 import { useMission } from '../store/mission';
 import { usePresenter } from '../store/presenter';
-import Block from '../components/Block';
-import JoinClass from '../components/JoinClass';
-import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
-import { CHALLENGES } from '../data/challenges';
-import { challengeStatus, type Status } from '../engine/progress';
-import { DIM_ICON } from '../components/icons';
-import { COMPETENCY_META } from '../data/blocks';
-import { challengesIn, THEMES } from '../data/themes';
-import { useDemoSession, usePracticeStore } from '../store/session';
+import { useDemoSession, useSession } from '../store/session';
+import { useTeacherSettings } from '../store/teacherSettings';
 
-const STEPS = [
-  ['The tests are hidden.', 'Students have to think about what could go wrong before they see it happen.'],
-  ['Where a block goes matters.', 'Removing an address after it has been sent to the AI is too late, and the replay shows why.'],
-  ['Blocking everything costs marks.', 'A helper that refuses normal questions scores low on usefulness, so "always ask an adult" is not a winning strategy.'],
-  ['Students also break other helpers.', 'In Break mode they read a locked helper and plan a few attacks to find its weak spots. Wasted attacks count, so guessing scores badly.'],
-  ['Every failure has to be explained.', 'Students say why their helper failed before they can run it again. Teachers see the reasoning as well as the score.'],
-];
-
-function jumpToTheme(id: string) {
-  const heading = document.getElementById('theme-' + id);
-  heading?.focus({ preventScroll: true });
-  heading?.scrollIntoView({ block: 'start' });
-}
-
-export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
-  const useSession = usePracticeStore();
+/**
+ * The start page: one thing to do. Enter the class code from your teacher (or leave it blank)
+ * and start the assessment. The demo and the practice challenges are smaller, secondary links.
+ */
+export default function Home() {
   const nav = useNavigate();
-  const phase = useMission(s => s.mission.phase);
-  const progress = useSession(s => s.progress);
-  const presenting = usePresenter(s => s.active);
-  const breakProgress = useSession((s) => s.breakProgress);
+  const { mission: m, update, restart } = useMission();
+  const joinedCode = useSession((s) => s.classCode);
+  const deviceSettings = useTeacherSettings((s) => s.settings);
+  const [code, setCode] = useState(m.classCode ?? joinedCode ?? '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inProgress = m.phase !== 'brief';
+  const ended = m.phase === 'complete' || m.phase === 'expired';
 
-  const statusOf = (c: (typeof CHALLENGES)[number]) => challengeStatus(c, progress[c.id], breakProgress[c.id], progress[`${c.id}@2`]);
-  useEffect(() => {
-    if (scrollTo) document.getElementById(scrollTo)?.scrollIntoView();
-  }, [scrollTo]);
+  async function start(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    let classCode: string | undefined;
+    let settings = deviceSettings;
+    if (code.trim()) {
+      setBusy(true);
+      const found = await findClass(code);
+      setBusy(false);
+      if ('error' in found) { setError(found.error); return; }
+      classCode = found.code;
+      if (found.settings) settings = cleanSettings(found.settings);
+    }
+    if (inProgress) restart();
+    update({ classCode, settings, phase: 'brief' });
+    nav('/mission');
+  }
 
   const quickDemo = () => {
     useDemoSession.getState().reset('history');
@@ -48,26 +51,50 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-7 md:py-10">
-      <section className="grid md:grid-cols-[1.15fr_minmax(0,1fr)] gap-6 md:gap-12 items-center">
+    <div className="max-w-[1200px] mx-auto px-4 py-8 md:py-14">
+      <section className="grid md:grid-cols-[1.15fr_minmax(0,1fr)] gap-8 md:gap-12 items-center">
         <div>
           <p className="label text-ink-2 mb-4">AI literacy assessment · Ages 11 to 14</p>
           <h1 className="text-5xl md:text-[64px] font-extrabold leading-[0.98]">
             Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
-          <p className="mt-6 text-lg text-ink-2 max-w-[34rem] leading-relaxed">
-            Design six services for one community helper. Give each service safeguards, test it for its audience, and balance the workload across the school before deciding what to release.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            {!presenting && <button onClick={() => nav('/mission')} className="btn bg-signal text-ink">
-              {phase === 'brief' ? 'Start the assessment' : phase === 'complete' || phase === 'expired' ? 'View assessment evidence' : 'Resume assessment'} <ArrowRight size={18} aria-hidden />
-            </button>}
-            <button onClick={() => document.getElementById('challenges')?.scrollIntoView({ behavior: 'smooth' })} className="btn bg-paper-card">See all challenges</button>
+
+          {inProgress && (
+            <div className="mt-8 rounded-md border-1.5 border-ink bg-paper-card p-5 shadow-hard" data-testid="resume-card">
+              <p className="label text-ink-3">{ended ? 'Assessment finished' : 'Assessment in progress'}</p>
+              <p className="mt-1 text-lg font-bold">{ended ? (m.finalResult ? `Final score ${m.finalResult.score.total}/100 · ${m.finalResult.score.band}` : 'Your results are ready.') : `${m.completed?.length ?? 0} of ${m.assigned?.length ?? 6} challenges complete.`}</p>
+              <button onClick={() => nav('/mission')} className="btn bg-signal mt-4" data-testid="resume-assessment">
+                {ended ? 'See my results' : 'Resume assessment'} <ArrowRight size={18} aria-hidden />
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={start} className={`mt-8 ${inProgress ? 'rounded-md border border-line p-4' : ''}`} aria-label="Start the assessment">
+            {inProgress && <p className="font-bold mb-3">Or start a new assessment (this replaces the one above)</p>}
+            <label className="block font-bold" htmlFor="class-code">Class code <span className="font-normal text-ink-2">from your teacher</span></label>
+            <div className="mt-2 flex flex-wrap gap-3">
+              <input id="class-code" value={code} onChange={(e) => setCode(e.target.value)} maxLength={12} autoComplete="off" placeholder="e.g. DEMO8B"
+                className="w-44 rounded border-1.5 border-ink bg-paper-card px-3 py-2.5 font-mono text-lg uppercase" data-testid="class-code" />
+              <button disabled={busy} className={`btn ${inProgress ? 'bg-paper-card' : 'bg-signal'} text-ink text-lg`} data-testid="start-assessment-home">
+                {busy ? 'Finding your class…' : 'Start assessment'} <ArrowRight size={18} aria-hidden />
+              </button>
+            </div>
+            {error && <p className="mt-2 text-fail font-bold" role="alert">{error}</p>}
+            <p className="mt-2 text-sm text-ink-3">No code? Leave it blank to start on your own. Only your first name and class code are saved.</p>
+          </form>
+
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px]">
+            <button onClick={quickDemo} className="inline-flex items-center gap-1.5 font-bold underline underline-offset-2" data-testid="quick-demo">
+              <PlayCircle size={17} aria-hidden /> Watch the demo
+            </button>
+            <Link to="/challenges" className="inline-flex items-center gap-1.5 font-bold underline underline-offset-2" data-testid="explore-challenges">
+              <Compass size={17} aria-hidden /> Explore all challenges
+            </Link>
+            <Link to="/setup" className="text-ink-2 underline underline-offset-2">Teachers: set up an assessment</Link>
           </div>
-          {!presenting && <JoinClass />}
         </div>
 
-        <div className="relative">
+        <div className="relative hidden sm:block" aria-hidden>
           <div className="graph border-1.5 border-ink rounded-md p-4 pb-8 flex justify-center">
             <div>
               {[
@@ -75,181 +102,21 @@ export default function Home({ scrollTo }: { scrollTo?: string } = {}) {
                 <Block key="a" kind="ask_ai" label="Ask AI" color={BLOCKS.ask_ai.color} width={270} />,
                 <Block key="r" kind="reply" shape="cap" label="Reply to them" color={REPLY_COLOR} width={270} highlight="stop" />,
               ].map((b, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.1 }}>
-                  {b}
-                </motion.div>
+                <motion.div key={i} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.1 }}>{b}</motion.div>
               ))}
             </div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, rotate: 0, y: 10 }}
-            animate={{ opacity: 1, rotate: 2, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="relative -mt-6 ml-auto mr-3 max-w-[290px] bg-paper-card border-1.5 border-ink rounded shadow-hard p-4"
-          >
+          <motion.div initial={{ opacity: 0, rotate: 0, y: 10 }} animate={{ opacity: 1, rotate: 2, y: 0 }} transition={{ delay: 0.5 }}
+            className="relative -mt-6 ml-auto mr-3 max-w-[290px] bg-paper-card border-1.5 border-ink rounded shadow-hard p-4">
             <div className="flex items-center justify-between">
               <span className="label text-ink-3">Test 1 of 6</span>
               <span className="stamp text-fail text-xs">Fail</span>
             </div>
             <p className="mt-2 text-sm text-ink-2">"When was the Battle of Hastings?"</p>
             <p className="mt-1 text-[15px] font-bold">"It took place in 1067, when William of Normandy defeated King Harold II."</p>
-            <div className="mt-3"><button onClick={quickDemo} className="btn bg-paper-card" data-testid="quick-demo">Try the history demo</button></div>
           </motion.div>
         </div>
       </section>
-
-      <section id="challenges" className="mt-12">
-        <div className="flex items-end justify-between flex-wrap gap-2 border-b-1.5 border-ink pb-3 mb-6">
-          <h2 className="text-3xl font-extrabold">Practice challenges</h2>
-          <p className="text-ink-2">{CHALLENGES.length} challenges in {THEMES.length} themes. Each has six hidden tests you only see after your first run.</p>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-[12rem_minmax(0,1fr)]">
-          <nav aria-label="Practice themes" className="lg:sticky lg:top-4 self-start">
-            <label className="flex flex-wrap items-center gap-2 font-bold lg:hidden">Jump to theme
-              <select className="max-w-full rounded border-1.5 border-ink bg-paper-card p-2" defaultValue=""
-                onChange={e => { jumpToTheme(e.target.value); e.target.value = ''; }}>
-                <option disabled value="">Choose a theme</option>
-                {THEMES.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-              </select>
-            </label>
-            <div className="hidden lg:block"><p className="label mb-2">Practice themes</p>
-              {THEMES.map(t => <button key={t.id} className="block min-h-11 w-full border-t border-line py-2 text-left font-bold hover:underline"
-                onClick={() => jumpToTheme(t.id)}>{t.title}</button>)}
-            </div>
-          </nav>
-          <div className="min-w-0">
-        {THEMES.map((t, ti) => {
-          const list = challengesIn(t.id);
-          const done = list.filter((c) => statusOf(c).allDone).length;
-          const Icon = DIM_ICON[t.competency];
-          return (
-        <section key={t.id} className="mt-10 first:mt-0" aria-labelledby={`theme-${t.id}`} data-testid={`theme-${t.id}`}>
-          <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-            <div className="max-w-2xl">
-              <p className="label text-ink-3">Theme {ti + 1}</p>
-              <h3 tabIndex={-1} id={`theme-${t.id}`} className="text-2xl font-extrabold flex items-center gap-2 mt-0.5">
-                <Icon size={22} aria-hidden style={{ color: COMPETENCY_META[t.competency].color }} /> {t.title}
-              </h3>
-              <p className="text-ink-2 mt-1">{t.learn}</p>
-            </div>
-            <div className="text-right">
-              {done === list.length ? (
-                <span className="stamp text-pass text-xs">Theme complete</span>
-              ) : (
-                <span className="text-sm font-bold text-ink-2">{done} of {list.length} complete</span>
-              )}
-              <div className="mt-1.5 flex gap-1 justify-end" aria-hidden>
-                {list.map((c) => (
-                  <span key={c.id} className={`w-6 h-2 rounded-sm border border-ink ${statusOf(c).allDone ? 'bg-pass' : statusOf(c).buildState !== 'todo' || statusOf(c).breakState !== 'todo' ? 'bg-partial-soft' : 'bg-paper'}`} />
-                ))}
-              </div>
-            </div>
-          </div>
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {list.map((c) => {
-            const i = CHALLENGES.indexOf(c);
-            const { best, build, brk, buildState, breakState, allDone, level2, level2State } = statusOf(c);
-            return (
-              <div
-                key={c.id}
-                className={`flex flex-col border-1.5 border-ink rounded-md p-5 shadow-hard ${allDone ? 'bg-pass-soft' : 'bg-paper-card'}`}
-                data-testid={`card-${c.id}`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="label text-ink-3">Challenge {String(i + 1).padStart(2, '0')}</span>
-                  {allDone ? (
-                    <span className="stamp text-pass text-[11px]">Complete</span>
-                  ) : (
-                    <span className="w-3 h-3 rounded-full border-1.5 border-ink" style={{ background: c.accent }} aria-hidden />
-                  )}
-                </div>
-                <h3 className="text-2xl font-extrabold leading-tight mt-3">{c.title}</h3>
-                <p className="text-sm font-bold text-ink-2 mt-1">{c.audience}</p>
-                <p className="mt-3 text-ink-2 leading-relaxed">{c.story}</p>
-                <dl className="mt-auto pt-5 space-y-1.5 text-sm" aria-label="Your progress">
-                  <StatusLine
-                    label="Build"
-                    state={buildState}
-                    detail={
-                      best === null
-                        ? 'Not started'
-                        : buildState === 'done'
-                          ? `Done · all ${c.tests.length} passed, useful ${build.bestUseful}`
-                          : build.bestUseful !== null
-                            ? `All passed, but useful ${build.bestUseful} (needs ${build.target})`
-                            : `Best so far: ${best} of ${c.tests.length} passed`
-                    }
-                  />
-                  <StatusLine
-                    label="Break"
-                    state={breakState}
-                    detail={!brk ? 'Not started' : breakState === 'done' ? `Done · found all ${brk.total} weak spots` : `Found ${brk.found} of ${brk.total} weak spots`}
-                  />
-                  <StatusLine
-                    label="Level 2"
-                    state={level2State === 'locked' ? 'todo' : level2State}
-                    detail={
-                      level2State === 'locked'
-                        ? 'Unlocks when Build is done'
-                        : level2State === 'done'
-                          ? `Done · useful ${level2.bestUseful}`
-                          : level2State === 'todo'
-                            ? 'Ready: use IF blocks'
-                            : level2.bestUseful !== null
-                              ? `All passed, but useful ${level2.bestUseful} (needs ${level2.target})`
-                              : `Best so far: ${level2.best} of ${level2.total} passed`
-                    }
-                  />
-                </dl>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => nav(`/build/${c.id}`)} className="btn bg-signal text-sm justify-center" data-testid={`challenge-${c.id}`}>
-                    Build a helper
-                  </button>
-                  <button onClick={() => nav(`/break/${c.id}`)} className="btn bg-paper-card text-sm justify-center" data-testid={`break-${c.id}`}>
-                    <Zap size={15} aria-hidden /> Break one
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        </section>
-          );
-        })}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-24 grid md:grid-cols-[280px_1fr] gap-8">
-        <div>
-          <h2 className="text-3xl font-extrabold leading-tight">How the practice challenges work</h2>
-          <p className="text-ink-2 mt-2">The score comes from what students build and fix, rather than what they say they would do.</p>
-        </div>
-        <ol className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
-          {STEPS.map(([t, d], i) => (
-            <li key={t} className="border-t-1.5 border-ink pt-3">
-              <span className="label text-ink-3">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="text-lg font-extrabold mt-1">{t}</h3>
-              <p className="text-ink-2 mt-1 leading-relaxed">{d}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
-  );
-}
-
-
-function StatusLine({ label, state, detail }: { label: string; state: Status; detail: string }) {
-  const Icon = state === 'done' ? Check : state === 'started' ? CircleDot : Circle;
-  const cls = state === 'done' ? 'text-pass' : state === 'started' ? 'text-partial' : 'text-ink-3';
-  return (
-    <div className="flex items-center gap-2" data-state={state}>
-      <dt className="w-16 shrink-0 font-bold text-ink">{label}</dt>
-      <dd className={`flex items-center gap-1.5 font-bold ${cls}`}>
-        <Icon size={15} strokeWidth={3} aria-hidden />
-        {detail}
-      </dd>
     </div>
   );
 }

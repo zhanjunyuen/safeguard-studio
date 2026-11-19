@@ -95,7 +95,7 @@ export function challengeMarkRequests(m: Mission, progress: Record<string, Chall
     out.revision = { criterion: 'revision', text: revisionNote, before: blocks, after: evaluated.script, failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),
       creditsBefore: totalCost(frozenCases), creditsAfter: totalCost(after), challengeId: challenge.id };
   }
-  if (answer && CURVEBALLS[desk]) {
+  if (answer?.reason.trim() && CURVEBALLS[desk]) {
     out.anticipation = { criterion: 'anticipation', text: answer.reason, blocks, desk, prediction: answer.prediction, handled: curveballHandled(runCurveball(target, desk)), challengeId: challenge.id };
   }
   return out;

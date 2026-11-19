@@ -35,6 +35,10 @@ export interface Mission {
   attackHints?: AttackHint[];
   /** the final score and the AI's verdict, saved when the assessment report is first shown */
   finalResult?: import('./finalScore').FinalResult;
+  /** the teacher's settings, copied when the attempt starts */
+  settings?: import('./assessmentSettings').AssessmentSettings;
+  /** the class this attempt belongs to, if the pupil joined one */
+  classCode?: string;
   attackPlans?: Partial<Record<Desk, string[]>>;
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;
@@ -118,7 +122,7 @@ export function submitAttack(m: Mission): Mission {
   const cases = m.form === 4 ? casesFor(m, desk.id) : desk.cases;
   if (!ids.length || ids.length > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => cases.includes(id))) return m;
   const reason = m.attackReasons?.[desk.id]?.trim() ?? '';
-  if (m.form === 4 && !reason) return m;
+  if (m.form === 4 && !reason && (m.settings?.questions.attack ?? 'required') === 'required') return m;
   const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason } : { desk: desk.id, ids: [...ids] };
   return { ...m, launches: [...(m.launches ?? []), round] };
 }

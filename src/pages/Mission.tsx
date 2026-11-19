@@ -6,6 +6,9 @@ import { AttackWorkbench, ProblemMenu, RuleEditor } from '../components/MissionW
 import { allChallengesComplete, BUDGET, estimateCost, type Phase } from '../engine/mission';
 import AssessmentChallenges from '../components/AssessmentChallenges';
 import { useMission } from '../store/mission';
+import { isRequired } from '../engine/assessmentSettings';
+import AssessmentSteps from '../components/AssessmentSteps';
+import { useSession } from '../store/session';
 import TrainingCompanion from '../components/TrainingCompanion';
 import { BuildReport, MissionReport } from '../components/MissionReport';
 
@@ -45,6 +48,7 @@ function useActiveClock(active: boolean) {
 
 export default function Mission() {
   const { mission: m, update, restart } = useMission();
+  const joinedClass = useSession(s => s.classCode);
   const sequence = m.form === 4 || m.phase === 'brief';
   const ended = m.phase === 'complete' || m.phase === 'expired';
   useActiveClock(!ended && m.phase !== 'brief');
@@ -60,7 +64,8 @@ export default function Mission() {
         {!ended && m.phase !== 'brief' && <span className="font-mono">{m.minutes ? Math.floor(remaining / 60) + 'm ' + (remaining % 60) + 's left' : 'Untimed'}</span>}</div>
       {(sequence ? m.phase === 'brief' : m.phase !== 'attack') && companion}
     </header>
-    {!ended && <details className="rounded-md border border-line p-4">
+    {sequence && <AssessmentSteps mission={m} needsName={!!m.classCode && joinedClass !== m.classCode} />}
+    {!ended && m.phase !== 'brief' && <details className="rounded-md border border-line p-4">
       <summary className="cursor-pointer font-bold">Read the brief and source pack</summary><p className="my-3">{BRIEF}</p>
       <ul className="space-y-1">{SOURCE_PACK.map(([name, detail]) => <li key={name}><b>{name}</b> · {detail}</li>)}</ul>
     </details>}
@@ -99,8 +104,8 @@ export default function Mission() {
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>
         <option disabled value="">Choose a decision</option>{['Publish', 'Edit before publishing', 'Ask a person first'].map(d => <option key={d}>{d}</option>)}</select></label>
-      <Writing label="What should the club tell families? Use the source and explain who should settle any uncertainty." value={m.rationale} change={rationale => update({ rationale })} />
-      <button className={primary} disabled={!m.decision || !m.rationale.trim()} onClick={() => update({ phase: 'complete' })}>Submit assessment</button>
+      <Writing label={`What should the club tell families? Use the source and explain who should settle any uncertainty.${isRequired(m, 'release') ? '' : ' (optional)'}`} value={m.rationale} change={rationale => update({ rationale })} />
+      <button className={primary} disabled={!m.decision || (isRequired(m, 'release') && !m.rationale.trim())} onClick={() => update({ phase: 'complete' })}>Submit assessment</button>
     </Panel>}
     {ended && <Panel title={m.phase === 'expired' ? 'Time ended' : 'Your assessment evidence'}><MissionReport mission={m} />
       <details><summary className="font-bold cursor-pointer">Start a fresh assessment</summary><p className="my-2">Download the evidence first if you want to keep this attempt.</p>

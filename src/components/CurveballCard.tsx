@@ -14,7 +14,9 @@ const OUTCOME: Record<string, string> = {
 };
 
 /** The unseen curveball for one challenge: predict, explain, then see what really happens. */
-export default function CurveballCard({ desk, rules, answer, onSubmit, challengeId }: {
+export default function CurveballCard({ desk, rules, answer, onSubmit, challengeId, reasonRequired = true }: {
+  /** the teacher can make the explanation optional */
+  reasonRequired?: boolean;
   desk: Desk;
   /** e.g. "party@2" at Level 2, for the AI marker */
   challengeId?: string;
@@ -40,7 +42,7 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
         {cb.context && <p className="text-ink-2">{cb.context}</p>}
 
         {!answer ? (
-          <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (prediction && reason.trim()) onSubmit({ prediction, reason }); }}>
+          <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (prediction && (reason.trim() || !reasonRequired)) onSubmit({ prediction, reason }); }}>
             <p>You can't change your blocks for this one. No helper catches everything, so you are marked on how well you predict and explain, not on whether your helper survives.</p>
             <fieldset className="flex flex-wrap gap-3">
               <legend className="font-bold mb-1">Your prediction</legend>
@@ -50,9 +52,9 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
                 </label>
               ))}
             </fieldset>
-            <ReasoningField id="cb-reason" required label="Why? Say which of your blocks would catch it or miss it, and what a person should do."
+            <ReasoningField id="cb-reason" required={reasonRequired} label={`Why? Say which of your blocks would catch it or miss it, and what a person should do.${reasonRequired ? '' : ' (optional)'}`}
               value={reason} change={setReason} />
-            <button type="submit" className="btn bg-signal" disabled={!prediction || !reason.trim()} data-testid="cb-submit">Lock in my prediction</button>
+            <button type="submit" className="btn bg-signal" disabled={!prediction || (reasonRequired && !reason.trim())} data-testid="cb-submit">Lock in my prediction</button>
           </form>
         ) : result && (
           <div className="space-y-4">
@@ -76,8 +78,8 @@ export default function CurveballCard({ desk, rules, answer, onSubmit, challenge
               </div>
               <div className="space-y-2">
                 <p className="label text-ink-3">Your explanation</p>
-                <p className="rounded border border-line p-3">{answer.reason}</p>
-                <MarkFeedback request={{ criterion: 'anticipation', text: answer.reason, blocks: rules.map((r) => r.type), desk, prediction: answer.prediction, handled: ok, challengeId }} />
+                <p className="rounded border border-line p-3">{answer.reason || 'No explanation written (optional).'}</p>
+                {answer.reason.trim() && <MarkFeedback request={{ criterion: 'anticipation', text: answer.reason, blocks: rules.map((r) => r.type), desk, prediction: answer.prediction, handled: ok, challengeId }} />}
               </div>
             </div>
           </div>

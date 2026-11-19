@@ -97,3 +97,29 @@ export async function fetchClass(input: string): Promise<{ name: string; student
   if (error) return null;
   return { name: name as string, students: groupClassRows((data ?? []) as RunRow[]) };
 }
+
+/** A class found by its code, with the teacher's assessment settings (null = none saved). */
+export async function findClass(input: string): Promise<{ code: string; name: string; settings: unknown } | { error: string }> {
+  if (!supabase) return { error: 'Class codes need the online version of Safeguard Studio.' };
+  const found = await resolveCode(input.trim().toUpperCase());
+  if (!found) return { error: `No class with the code ${input.trim().toUpperCase()}. Check it with your teacher.` };
+  if ('error' in found) return { error: "Couldn't reach the class database. Try again, or start without a code." };
+  const { data } = await supabase.rpc('class_settings', { p_code: found.code });
+  return { code: found.code, name: found.name, settings: data ?? null };
+}
+
+/** Saves a class's assessment settings. Needs the class's teacher code. */
+export async function saveClassSettings(code: string, teacherCode: string, settings: unknown): Promise<string | null> {
+  if (!supabase) return 'Classes are not set up on this site.';
+  const { data, error } = await supabase.rpc('set_class_settings', { p_code: code.trim().toUpperCase(), p_teacher_code: teacherCode, p_settings: settings });
+  if (error) return `Could not save (${error.message}).`;
+  return data ? null : 'The class code and teacher code do not match.';
+}
+
+/** Creates a class and returns its new code. */
+export async function createClass(name: string, teacherCode: string): Promise<{ code: string } | { error: string }> {
+  if (!supabase) return { error: 'Classes are not set up on this site.' };
+  const { data, error } = await supabase.rpc('create_class', { p_name: name, p_teacher_code: teacherCode });
+  if (error || !data) return { error: `Could not create the class${error ? ` (${error.message})` : ''}. Teacher codes need at least 4 characters.` };
+  return { code: data as string };
+}

@@ -49,6 +49,8 @@ interface AssessmentAttack {
   /** Required written prediction for the plan; recorded with the launch. */
   reason: string;
   changeReason: (reason: string) => void;
+  /** the teacher can make the prediction optional (default required) */
+  reasonRequired?: boolean;
   /** true until the pupil has answered this challenge's curveball */
   curveballPending?: boolean;
   submit: () => void;
@@ -140,7 +142,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     if (tid && over?.id === 'plan') add(tid);
   };
 
-  const needsReason = !!assessment && !assessment.reason.trim();
+  const needsReason = !!assessment && assessment.reasonRequired !== false && !assessment.reason.trim();
   const go = () => {
     if (!plan.length || locked || assessment?.submitted || needsReason) return;
     const rep = launch(challenge, plan);
@@ -203,8 +205,8 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
               </div>
             ) : (
               <div className="w-full" style={{ maxWidth: STACK_W + 40 }}>
-                <ReasoningField id="attack-reason" required disabled={locked} value={assessment.reason} change={assessment.changeReason}
-                  label="Why these attacks? Say which block you expect to fail, and why. (required)" />
+                <ReasoningField id="attack-reason" required={assessment.reasonRequired !== false} disabled={locked} value={assessment.reason} change={assessment.changeReason}
+                  label={`Why these attacks? Say which block you expect to fail, and why. (${assessment.reasonRequired !== false ? 'required' : 'optional'})`} />
               </div>
             ))}
             {!assessment?.submitted && <button onClick={go} disabled={!plan.length || locked || needsReason} className="btn bg-signal text-ink text-lg px-6" data-testid="launch">

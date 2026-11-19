@@ -4,7 +4,9 @@ import PresenterBar from './components/PresenterBar';
 import { usePresenter } from './store/presenter';
 import Breaker from './pages/Breaker';
 import Builder from './pages/Builder';
+import Challenges from './pages/Challenges';
 import Home from './pages/Home';
+import TeacherSetup from './pages/TeacherSetup';
 import Mission from './pages/Mission';
 import Profile from './pages/Profile';
 import Teacher from './pages/Teacher';
@@ -51,8 +53,8 @@ export default function App() {
             <span className="font-display text-xl font-extrabold">Safeguard Studio</span>
           </NavLink>
           <nav className="main-nav flex gap-x-1 self-stretch items-stretch" aria-label="Main">
-            <NavLink to="/" end className={link}><span className="flex items-center h-full">Challenges</span></NavLink>
             {!presenting && <NavLink to="/mission" className={link}><span className="flex items-center h-full">Assessment</span></NavLink>}
+            <NavLink to="/challenges" className={link}><span className="flex items-center h-full">Challenges</span></NavLink>
             <NavLink to="/profile" className={link}><span className="flex items-center h-full">My results</span></NavLink>
             <NavLink to="/teacher" className={link}><span className="flex items-center h-full">Teacher view</span></NavLink>
           </nav>
@@ -67,7 +69,8 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/teacher" element={<Teacher />} />
           <Route path="/present" element={<PresentRoute />} />
-          <Route path="/challenges" element={<Home scrollTo="challenges" />} />
+          <Route path="/challenges" element={<Challenges />} />
+          <Route path="/setup" element={<TeacherSetup />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

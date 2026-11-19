@@ -49,6 +49,8 @@ interface AssessmentBuild {
   workload: ReturnType<typeof serviceWorkloads>[number];
   note: string;
   onNote: (value: string) => void;
+  /** whether the note must be written (the teacher's setting for this question) */
+  noteRequired?: boolean;
   onMenu: () => void;
   onAttack: () => void;
 }
@@ -305,9 +307,9 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         {costs && !locked && <details><summary className="cursor-pointer font-bold">Latest test results</summary>
           {costs.map(row => <Trace key={row.id} run={row} />)}
         </details>}
-        <ReasoningField label={assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for? (optional)'}
-          value={assessment.note} change={assessment.onNote} required={assessment.revising} rows={2} />
-        <button disabled={(assessment.revising && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
+        <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${(assessment.noteRequired ?? assessment.revising) ? 'required' : 'optional'})`}
+          value={assessment.note} change={assessment.onNote} required={assessment.noteRequired ?? assessment.revising} rows={2} />
+        <button disabled={((assessment.noteRequired ?? assessment.revising) && !assessment.note.trim()) || !evaluated || locked || mustReflect} className="btn bg-signal" onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'}</button>
       </div>}
       {isL2 && !assessment && l1.state !== 'done' ? (
         <div className="rounded-md border-1.5 border-ink bg-paper-card p-10 text-center max-w-xl mx-auto" data-testid="l2-locked">
