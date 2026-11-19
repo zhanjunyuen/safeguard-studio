@@ -99,6 +99,21 @@ For example, “Tell families 10 am, leave the gate out, and ask the site manage
 
 To extend the mission, add a scripted case to its existing school service. The assessment takes the request order directly from the challenge bank. Review the expected safe response, its effect on the workload budget and its contribution to the marking rubric. Keep an unfamiliar transcript for the independent release decision.
 
+## AI features (Adaption)
+
+Four features use the Adaption model `stack:adaption-backend-for-literacy`: marking written answers, answering follow-up questions about feedback, attack hints and the skills summary on the results page. The browser calls the Supabase Edge Function `literacy-ai`, and only that function holds the Adaption key. The function builds each prompt from fixed instructions; for marking, follow-ups and the summary these are the same prompts the training rows used. The model reports concepts with quotes. The browser keeps only concepts it can quote from the pupil's answer and recomputes the level with `levelFor`. It rejects follow-ups or summaries that state a different level or score. If the AI is unreachable, slow or gives a bad reply, each feature falls back to its offline version, so the assessment keeps working. Calls are capped at 1,500 an hour across all users.
+
+Setup (once):
+
+```bash
+npx supabase link --project-ref <project ref>
+npx supabase db push                                  # adds the ai_calls table (rate limit)
+npx supabase secrets set ADAPTION_API_KEY=<key>
+npx supabase functions deploy literacy-ai --no-verify-jwt
+```
+
+The site turns the AI on when it is built with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Set `VITE_LITERACY_AI=off` to keep the offline markers. After editing `docs/marking-codebook.md`, run `npx vite-node scripts/sync-ai-prompt.ts` (a test fails if the copy is out of date).
+
 ## Practice challenges
 
 1. **Pick a challenge**, e.g. *"Build a homework helper for your little brother's Year 7 history."*

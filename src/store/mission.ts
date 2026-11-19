@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { hintAvailable, offlineAttackHint, type AttackHintProvider } from '../engine/attackHints';
+import { getAttackHintProvider, hintAvailable, type AttackHintProvider } from '../engine/attackHints';
 import { useAssessmentSession } from './session';
-import { newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
+import { challengeIdFor, newAssessment, submitAttack, type Desk, type Mission } from '../engine/mission';
 
 interface MissionState {
   mission: Mission;
@@ -24,12 +24,12 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
     return { mission: { ...m, elapsed: expired ? m.minutes * 60 : elapsed, phase: expired ? 'expired' : m.phase } };
   }),
   launch: () => set(s => ({ mission: submitAttack(s.mission) })),
-  requestHint: async (desk, signal, provider = offlineAttackHint) => {
+  requestHint: async (desk, signal, provider = getAttackHintProvider()) => {
     const before = get().mission;
     if (signal.aborted || !hintAvailable(before, desk)) return;
     const blocks = before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type);
     const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk).map(h => h.text);
-    const text = (await provider({ desk, blocks, previousHints }, signal)).trim();
+    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk) }, signal)).trim();
     if (signal.aborted) return;
     if (!text) throw new Error('The hint provider returned an empty response.');
     set(state => {

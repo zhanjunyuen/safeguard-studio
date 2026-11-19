@@ -1,0 +1,9 @@
+# Supabase CLI settings for the Edge Function. Link once with:
+#   npx supabase link --project-ref <your project ref>
+project_id = "safeguard-studio"
+
+# literacy-ai: plain JavaScript; public (no sign-in), protected by CORS, input limits and an hourly cap.
+[functions.literacy-ai]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/literacy-ai/index.js"

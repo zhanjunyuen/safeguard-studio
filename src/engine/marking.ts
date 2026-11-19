@@ -51,13 +51,15 @@ export interface Mark {
 
 export interface PlannedCase { id: string; label: string; title: string; category: TestCategory }
 
+/** `challengeId` (e.g. "party" or "party@2" at Level 2) lets the AI marker see the challenge's story and simulator
+ *  results; the offline preview does not need it. */
 export type MarkRequest =
-  | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[] }
-  | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean }
+  | { criterion: 'testing'; text: string; blocks: BlockType[]; planned: PlannedCase[]; broke: string[]; challengeId?: string }
+  | { criterion: 'anticipation'; text: string; blocks: BlockType[]; desk: Desk; prediction: 'handles' | 'struggles'; handled: boolean; challengeId?: string }
   | { criterion: 'judgement'; text: string; decision: string; anchors?: JudgementAnchors }
   /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
    *  evaluated build; `failing` are cases the frozen build failed in evaluation or attack; credits come from the simulator. */
-  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number };
+  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number; challengeId?: string };
 
 /** What C1–C4 look for in one release-decision scenario, as regex sources (see docs/marking-codebook.md).
  *  Omitted = the ecology club scenario. */
@@ -332,11 +334,23 @@ const CONCEPT_LABEL: Record<Criterion, [string, string][]> = {
 
 const squash = (s: string) => s.replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim().toLowerCase();
 
-/** The first JSON object in a model reply (the model may wrap it in text or a code fence). */
-function jsonIn(raw: string): Record<string, unknown> | null {
-  const i = raw.indexOf('{'), j = raw.lastIndexOf('}');
+/** The JSON object in a model reply (the model may wrap it in text or a code fence). Tries the span from the
+ *  first "{" to the last "}", then each top-level {...} block, last first. */
+export function jsonIn(raw: string): Record<string, unknown> | null {
+  const parse = (s: string) => { try { const o = JSON.parse(s); return o && typeof o === 'object' && !Array.isArray(o) ? o as Record<string, unknown> : null; } catch { return null; } };
+  const clean = raw.replace(/```(?:json)?/gi, '');
+  const i = clean.indexOf('{'), j = clean.lastIndexOf('}');
   if (i < 0 || j <= i) return null;
-  try { const o = JSON.parse(raw.slice(i, j + 1)); return o && typeof o === 'object' ? o as Record<string, unknown> : null; } catch { return null; }
+  const whole = parse(clean.slice(i, j + 1));
+  if (whole) return whole;
+  const blocks: string[] = [];
+  let depth = 0, start = -1;
+  for (let k = 0; k < clean.length; k++) {
+    if (clean[k] === '{') { if (depth === 0) start = k; depth++; }
+    else if (clean[k] === '}' && depth > 0 && --depth === 0) blocks.push(clean.slice(start, k + 1));
+  }
+  for (const b of blocks.reverse()) { const o = parse(b); if (o) return o; }
+  return null;
 }
 
 /**
@@ -385,6 +399,22 @@ export function parseModelFollowUp(raw: string): string {
 /** Asks for a short summary of a pupil's skills from their marks (served by the trained model). */
 export type SkillsSummaryProvider = (marks: Mark[], signal?: AbortSignal) => Promise<string>;
 
+/** The pupil's score as fixed rules give it, from their latest mark per skill. */
+export const scoreOf = (marks: Mark[]) => skillsScore(Object.fromEntries(marks.map((m) => [m.criterion, m.level])) as Partial<Record<Criterion, Level>>);
+
+/** A plain summary without AI: the score and band, the strongest quoted evidence and one next step. */
+export const offlineSkillsSummary: SkillsSummaryProvider = async (marks) => {
+  const score = scoreOf(marks);
+  const best = [...marks].sort((a, b) => (b.level ?? -1) - (a.level ?? -1))[0];
+  const quoted = best?.concepts.find((c) => c.present && c.evidence);
+  const weakest = [...marks].filter((m) => m.level !== 2).sort((a, b) => (a.level ?? -1) - (b.level ?? -1))[0];
+  return [
+    `You scored ${score.total} out of 8: ${score.band}.`,
+    quoted && best.level ? `Your strongest skill was ${CRITERION_NAME[best.criterion].toLowerCase()}, where you wrote “${quoted.evidence}”.` : '',
+    weakest ? `Next, for ${CRITERION_NAME[weakest.criterion].toLowerCase()}: ${weakest.nextStep}` : 'Every skill reached level 2. Try explaining your choices to a classmate.',
+  ].filter(Boolean).join(' ');
+};
+
 let provider: MarkingProvider = offlineMarker;
 let followUp: FollowUpProvider = offlineFollowUp;
 /** Connect a server-backed marker (the trained model). Pass nothing to go back to the offline preview. */
@@ -394,3 +424,9 @@ export function setMarkingProvider(p?: MarkingProvider, f?: FollowUpProvider) {
 }
 export const getMarkingProvider = () => provider;
 export const getFollowUpProvider = () => followUp;
+let summary: SkillsSummaryProvider = offlineSkillsSummary;
+/** Connect a server-backed skills summary. Pass nothing to go back to the offline one. */
+export function setSkillsSummaryProvider(p?: SkillsSummaryProvider) {
+  summary = p ?? offlineSkillsSummary;
+}
+export const getSkillsSummaryProvider = () => summary;

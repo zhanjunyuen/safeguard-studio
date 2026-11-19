@@ -6,6 +6,7 @@ import { BUDGET, LEGACY_BUDGET, evaluate, evaluateBuild, evidence, handled, tota
 import { ASSIGNMENT, DESKS, missionCase } from '../data/mission';
 import { useMission } from '../store/mission';
 import MarkFeedback from './MarkFeedback';
+import SkillsSummary from './SkillsSummary';
 import { CRITERION_NAME, type Mark } from '../engine/marking';
 
 function PreviewMark({ mark }: { mark: Mark }) {
@@ -106,6 +107,7 @@ function ChallengeReport({ mission }: { mission: Mission }) {
     <p><b>Release decision</b> · {packet.transfer.decision ? packet.transfer.decision + ' · ' + packet.transfer.rationale : 'Unsubmitted'}</p>
     {packet.transfer.previewMark && <MarkFeedback request={{ criterion: 'judgement', text: packet.transfer.rationale!, decision: packet.transfer.decision! }} />}
     <RisksMet risks={packet.challenges.flatMap(c => c.curveball ? [c.curveball] : [])} />
+    <SkillsSummary mission={mission} progress={work} />
     <button className="btn bg-paper" onClick={() => exportEvidence(packet)}>Download marking evidence</button>
   </div>;
 }

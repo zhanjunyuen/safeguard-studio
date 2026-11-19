@@ -7,7 +7,7 @@ import { idealScript } from './targets';
 import { blockKey } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
 import { curveballHandled, runCurveball } from './curveball';
-import { markOffline, RUBRIC_VERSION } from './marking';
+import { markOffline, RUBRIC_VERSION, type Criterion, type MarkRequest } from './marking';
 
 /** Runs a desk's saved block keys against that desk's tests (Level 2 adds its edge case). */
 export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1) {
@@ -35,9 +35,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
     const revisionNote = m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined;
-    const planned = (id: string) => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
-    // The frozen (attacked) build run on every test: the "before" side of a revision.
-    const frozenCases = target ? evaluateDesk(d.id, target.map(r => r.type), m.level) : [];
+    const requests = challengeMarkRequests(m, progress, d.id);
     return {
       id: d.id, challengeId: challenge.id, title: challenge.title, audience: challenge.audience, story: challenge.story, volume: d.volume,
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
@@ -47,11 +45,8 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       attack: target && plan ? { rules: target, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && (plan?.reason || revisionNote) ? {
-        testing: plan?.reason ? markOffline({ criterion: 'testing', text: plan.reason, blocks: target.map(r => r.type), broke: plan.ids.filter(id => !handled(evaluate(target, id))),
-          planned: plan.ids.map(id => planned(id)) }) : undefined,
-        revision: revisionNote && evaluated ? markOffline({ criterion: 'revision', text: revisionNote, before: target.map(r => r.type), after: evaluated.script,
-          failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),
-          creditsBefore: totalCost(frozenCases), creditsAfter: totalCost(evaluated.cases) }) : undefined,
+        testing: requests.testing ? markOffline(requests.testing) : undefined,
+        revision: requests.revision ? markOffline(requests.revision) : undefined,
       } : undefined,
     };
   });
@@ -67,6 +62,42 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
     transfer: { ...TRANSFER, decision: m.phase === 'complete' ? m.decision : null, rationale: m.phase === 'complete' ? m.rationale : null,
       previewMark: m.phase === 'complete' && m.rationale.trim() ? markOffline({ criterion: 'judgement', text: m.rationale, decision: m.decision }) : undefined },
   };
+}
+
+/** The marking requests for one challenge's written answers (attack prediction, revision note,
+ *  curveball explanation), built from the simulator. Used for the preview marks and the AI marker. */
+export function challengeMarkRequests(m: Mission, progress: Record<string, ChallengeProgress>, desk: Desk): Partial<Record<Criterion, MarkRequest>> {
+  const challenge = getChallenge(challengeIdFor(m, desk))!;
+  const target = m.frozen?.[desk];
+  if (!target) return {};
+  const evaluated = (progress[desk]?.attempts ?? []).slice(-1)[0];
+  const plan = m.launches?.find(l => l.desk === desk);
+  const revisionNote = m.completed?.includes(desk) ? m.revisionNotes?.[desk] : undefined;
+  const answer = m.curveballs?.[desk];
+  const planned = (id: string) => { const t = challenge.tests.find(x => x.id === id)!; return { id, label: t.attackLabel, title: t.title, category: t.category }; };
+  const blocks = target.map(r => r.type);
+  // The frozen (attacked) build run on every test: the "before" side of a revision.
+  const frozenCases = evaluateDesk(desk, blocks, m.level);
+  const out: Partial<Record<Criterion, MarkRequest>> = {};
+  if (plan?.reason) out.testing = { criterion: 'testing', text: plan.reason, blocks, broke: plan.ids.filter(id => !handled(evaluate(target, id))), planned: plan.ids.map(planned), challengeId: challenge.id };
+  if (revisionNote && evaluated) {
+    const after = evaluateDesk(desk, evaluated.script, m.level);
+    out.revision = { criterion: 'revision', text: revisionNote, before: blocks, after: evaluated.script, failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)),
+      creditsBefore: totalCost(frozenCases), creditsAfter: totalCost(after), challengeId: challenge.id };
+  }
+  if (answer && CURVEBALLS[desk]) {
+    out.anticipation = { criterion: 'anticipation', text: answer.reason, blocks, desk, prediction: answer.prediction, handled: curveballHandled(runCurveball(target, desk)), challengeId: challenge.id };
+  }
+  return out;
+}
+
+/** The latest answer for each of the four skills (later challenges in completion order win), for the skills summary. */
+export function latestMarkRequests(m: Mission, progress: Record<string, ChallengeProgress>): MarkRequest[] {
+  const latest: Partial<Record<Criterion, MarkRequest>> = {};
+  const order = [...assignedDesks(m).map(d => d.id).filter(id => !m.completed?.includes(id)), ...(m.completed ?? [])];
+  for (const desk of order) Object.assign(latest, challengeMarkRequests(m, progress, desk));
+  if (m.phase === 'complete' && m.rationale.trim()) latest.judgement = { criterion: 'judgement', text: m.rationale, decision: m.decision };
+  return (['testing', 'anticipation', 'judgement', 'revision'] as Criterion[]).flatMap(c => latest[c] ? [latest[c]!] : []);
 }
 
 function curveballEvidence(m: Mission, desk: Desk) {
