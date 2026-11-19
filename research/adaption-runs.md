@@ -101,3 +101,12 @@ Eval loss was still falling at the last step, so the run looks under-trained. Th
 ### Run 2 result (19 Nov, 00:35)
 
 Succeeded: 3 of 3 iterations, best win rate **0.394** (run 1: 0.43), LoRA r 4, lr 1e-4, 1 epoch. The bigger v2 set did not beat run 1. v2 still had the problems found afterwards: the g01 T2 drift, 11 follow-ups on the wrong answers, generic gold reasons, and no reasoning trace. Runs 3 (v3) and 4 (v3.1, trace in completion) test those fixes.
+
+## Run 5 (19 Nov, 00:43): v3.2, gpt-oss-120b, 3 iterations
+
+- Run `c475b32c-6582-4025-83b6-3f70ead32d77`, dataset `99d8eafd-0914-4808-9813-afb155b3cd8a` (3,394 rows), reasoning first in every completion (as run 4).
+- Adds to run 4's data:
+  - g04: 120 marked generated answers aimed at Level 2. Generated answers are now 21% Level 2 (was 17%).
+  - b13: 47 short, off-topic, marker-instruction and wellbeing-concern answers. Not-enough-evidence rows go from 9 to 39.
+- New held-out evaluation set g03: 200 Claude-marked generated answers on the held-out challenges and scenarios (test split only). The test split is now 254 marking rows (213 generated, 41 Claude), so accuracy can be reported by author.
+- Blind-judge level agreement: g03 0.83 (2 of 34 disagreements corrected), g04 0.90 (1 of 12 corrected).
