@@ -2,12 +2,14 @@ import { usePresenter } from './presenter';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { BLOCKS } from '../data/blocks';
+import type { CustomAttack } from '../engine/customAttack';
 import { reflectionCase } from '../engine/reflection';
 import { blockKey } from '../engine/scriptText';
 import { pushRun } from '../lib/sync';
 import type { BlockType, FailureKey, Outcome, RunReport, Scores, ScriptBlock } from '../types';
 
 export interface Attempt {
+  owner?: string | null;
   at: number;
   script: BlockType[];
   results: { testId: string; outcome: Outcome; failureKey?: FailureKey }[];
@@ -48,9 +50,11 @@ export const freshProgress = (): ChallengeProgress => ({
 });
 
 export interface BreakAttempt {
+  owner?: string | null;
   at: number;
   attacks: string[];
   broke: string[];
+  custom?: CustomAttack;
 }
 
 interface ClassRunTarget { studentId: string; challenge: string }
@@ -59,7 +63,7 @@ interface SessionState {
   studentName: string;
   progress: Record<string, ChallengeProgress>;
   breakProgress: Record<string, BreakAttempt[]>;
-  recordBreak: (cid: string, attacks: string[], broke: string[]) => void;
+  recordBreak: (cid: string, attacks: string[], broke: string[], custom?: CustomAttack) => void;
   get: (cid: string) => ChallengeProgress;
   setScript: (cid: string, script: ScriptBlock[], event?: Omit<LogEvent, 't'>) => void;
   recordRun: (cid: string, report: RunReport, target?: ClassRunTarget) => void;
@@ -81,9 +85,9 @@ const createSession = (name: string) => create<SessionState>()(
       studentName: 'You',
       progress: {},
       breakProgress: {},
-      recordBreak: (cid, attacks, broke) =>
+      recordBreak: (cid, attacks, broke, custom) =>
         set((st) => ({
-          breakProgress: { ...st.breakProgress, [cid]: [...(st.breakProgress[cid] ?? []), { at: Date.now(), attacks, broke }] },
+          breakProgress: { ...st.breakProgress, [cid]: [...(st.breakProgress[cid] ?? []), { at: Date.now(), owner: st.studentId, attacks, broke, ...(custom && { custom }) }] },
         })),
       get: (cid) => get().progress[cid] ?? freshProgress(),
       setScript: (cid, script, event) =>
@@ -101,7 +105,7 @@ const createSession = (name: string) => create<SessionState>()(
           const p = st.progress[cid] ?? freshProgress();
           const firstFail = reflectionCase(report.results, p.attempts[p.attempts.length - 1], p.reflections);
           const attempt: Attempt = {
-            at: Date.now(),
+            at: Date.now(), owner: st.studentId,
             script: p.script.map(blockKey),
             results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
             scores: report.scores,
@@ -165,7 +169,19 @@ const createSession = (name: string) => create<SessionState>()(
       joined: (classCode, className, studentId, studentName) => set({ classCode, className, studentId, studentName }),
       leaveClass: () => set({ classCode: null, className: null, studentId: null, studentName: 'You' }),
     }),
-    { name },
+    {
+      name, version: 1,
+      migrate: (raw) => {
+        const old = raw as SessionState;
+        const owner = old.studentId ?? null;
+        return { ...old,
+          progress: Object.fromEntries(Object.entries(old.progress ?? {}).map(([id, p]) =>
+            [id, { ...p, attempts: p.attempts.map(a => ({ owner, ...a })) }])),
+          breakProgress: Object.fromEntries(Object.entries(old.breakProgress ?? {}).map(([id, attempts]) =>
+            [id, attempts.map(a => ({ owner, ...a }))])),
+        };
+      },
+    },
   ),
 );
 
@@ -207,8 +223,8 @@ for (const store of [useSession, useAssessmentSession]) {
 
 const recordBreak = useSession.getState().recordBreak;
 useSession.setState({
-  recordBreak: (cid, attacks, broke) => {
-    recordBreak(cid, attacks, broke);
-    pushRun(useSession.getState().studentId, { challenge: cid, mode: 'break', script: attacks, results: broke });
+  recordBreak: (cid, attacks, broke, custom) => {
+    recordBreak(cid, attacks, broke, custom);
+    if (attacks.length) pushRun(useSession.getState().studentId, { challenge: cid, mode: 'break', script: attacks, results: broke });
   },
 });

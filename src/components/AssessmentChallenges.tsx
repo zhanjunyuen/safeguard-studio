@@ -165,7 +165,7 @@ export default function AssessmentChallenges() {
       </label>}
       <AssessmentIntro onContinue={() => {
         useAssessmentSession.getState().resetAll();
-        update({ ...newAssessment(), classCode: m.classCode, settings, assigned: assignmentFor(settings),
+        update({ ...newAssessment(), owner: studentId, classCode: m.classCode, settings, assigned: assignmentFor(settings),
           minutes: settings.minutes ?? m.minutes, level: chosenLevel, phase: 'menu' });
       }}>Start {chosenLevel === 2 ? 'Level 2' : 'Level 1'} <ArrowRight size={18} aria-hidden /></AssessmentIntro>
     </section></>;

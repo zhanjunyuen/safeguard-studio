@@ -187,7 +187,7 @@ export default function Breaker({ assessment }: { assessment?: AssessmentAttack 
     const rep = launch(challenge, plan);
     if (assessment) assessment.submit(custom);
     else {
-      if (plan.length) recordBreak(id, plan, rep.broke);
+      recordBreak(id, plan, rep.broke, custom);
       setPracticeResult(custom);
       setPracticeDraft('');
       setPlan([]);

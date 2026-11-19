@@ -42,6 +42,7 @@ export interface Mission {
   settings?: import('./assessmentSettings').AssessmentSettings;
   /** the class this attempt belongs to, if the pupil joined one */
   classCode?: string;
+  owner?: string | null;
   attackPlans?: Partial<Record<Desk, string[]>>;
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;

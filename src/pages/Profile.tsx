@@ -1,3 +1,4 @@
+import PupilResultsQuestions from '../components/PupilResultsQuestions';
 import { MissionResultLink } from '../components/MissionReport';
 import { useMission } from '../store/mission';
 import { Link } from 'react-router-dom';
@@ -5,7 +6,7 @@ import { DIM_ICON } from '../components/icons';
 import CompetencyRadar from '../components/Radar';
 import Timeline from '../components/Timeline';
 import { COMPETENCY_META } from '../data/blocks';
-import { CHALLENGES, practiceTitle } from '../data/challenges';
+import { CHALLENGES, practiceLevels, practiceTitle } from '../data/challenges';
 import { breakSummary } from '../engine/breaker';
 import { challengeStatus } from '../engine/progress';
 import { challengesIn, THEMES } from '../data/themes';
@@ -27,7 +28,7 @@ export default function Profile() {
   const missionPhase = useMission(s => s.mission.phase);
   const progress = useSession((s) => s.progress);
   const breakProgress = useSession((s) => s.breakProgress);
-  const breaks = CHALLENGES.map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
+  const breaks = practiceLevels(CHALLENGES).map((c) => ({ c, s: breakSummary(c, breakProgress[c.id] ?? []) })).filter((x) => x.s);
   const summary = overallProfile(progress);
   const profiles = summary.parts;
 
@@ -36,6 +37,7 @@ export default function Profile() {
       <div className="max-w-xl mx-auto py-24 px-4">
         <h1 className="text-4xl font-extrabold">{missionPhase === 'brief' ? 'No results yet' : 'My results'}</h1>
         <MissionResultLink />
+        <PupilResultsQuestions />
         <p className="text-ink-2 mt-3 text-lg">Practice results appear here after you run a helper against the hidden tests.</p>
         <Link to="/" className="btn bg-signal mt-6">Choose a challenge</Link>
       </div>
@@ -79,6 +81,8 @@ export default function Profile() {
           <Link to="/" className="inline-block mt-3 font-bold underline underline-offset-2">Try another challenge</Link>
         </div>
       </div>
+
+      <PupilResultsQuestions />
 
       <div className="grid lg:grid-cols-[1fr_1.15fr] gap-6 mt-8">
         <div className="rounded-md border-1.5 border-ink bg-paper-card p-4">

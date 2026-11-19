@@ -138,6 +138,8 @@ The AI writes the verdict and the skills summary. A verdict is replaced by an of
 
 **Teacher questions.** In Teacher view, choose a class and challenge filter, then use **Ask about pupil performance** for the whole class or one pupil. Adaption receives the question and a snapshot of measured skills, first and latest builds, mistakes observed across runs, reflection accuracy and attack results. The snapshot omits pupil names, identifiers and written responses. If the service is unavailable, the panel labels its local dashboard observations. Class-linked assessment builds and reflection outcomes appear in the live results alongside practice as pupils complete them. The dashboard does not collect final assessment grades or written assessment answers.
 
+**My results.** Pupils can ask Adaption about a saved practice or assessment task, compare runs, revisit a submitted prediction, or choose a task to practise next. Each answer links to the runs it used. The `pupilResults` function task receives completed cases and saved outcomes. If AI is unavailable, the page shows the recorded evidence.
+
 **Two Supabase projects.** The classes (join, runs, teacher settings) use the class project, which the `VITE_SUPABASE_*` GitHub secrets point to. The AI function `literacy-ai` runs in a separate project that holds the `ADAPTION_API_KEY` secret. `deploy.yml` points the site at it with `VITE_LITERACY_AI_URL` and `VITE_LITERACY_AI_KEY`; the URL and publishable key are public by design. To redeploy the function after changing it:
 
 ```bash
