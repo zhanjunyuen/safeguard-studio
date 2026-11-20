@@ -2,7 +2,7 @@ import type { ChallengeProgress } from '../store/session';
 import { assessmentBudget, evaluateDesk, serviceWorkloads } from './challengeEvidence';
 import { scoreOf, SKILL_ORDER, type Mark } from './marking';
 import { optionalSkills } from './assessmentSettings';
-import { assignedDesks, handled, type Mission } from './mission';
+import { assignedDesks, handled, roundCredits, type Mission } from './mission';
 import { DIMS, type Dim } from './profile';
 import { ATTACK_HINT_LIMIT } from './attackHints';
 
@@ -13,7 +13,7 @@ import { ATTACK_HINT_LIMIT } from './attackHints';
  *
  *   Written answers     40%  the four skills marked from the pupil's answers (0–2 each)
  *   Blocks: tests       25%  share of tests the latest builds handle safely and usefully
- *   Blocks: workload    10%  keeping the projected workload within the budget, with working builds
+ *   Blocks: workload    10%  keeping assessment spending within the budget, with working builds
  *   Attempts            15%  getting each build working in few runs (1–2 runs is full marks)
  *   Independence        10%  AI hints used: each of the 3 hints costs a third of this category
  */
@@ -71,7 +71,7 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   const n = Math.max(1, challenges.length);
   const testShare = challenges.reduce((s, c) => s + c.tests, 0) / n;
   const budget = assessmentBudget(m);
-  const workloadCredits = serviceWorkloads(m, progress).reduce((s, w) => s + w.credits, 0);
+  const workloadCredits = roundCredits(serviceWorkloads(m, progress).reduce((s, w) => s + w.credits, 0));
   // Cheap only counts when the builds work: an empty helper is cheap but useless.
   const withinBudget = workloadCredits <= budget ? 1 : budget / Math.max(1, workloadCredits);
   const skills = scoreOf(marks);

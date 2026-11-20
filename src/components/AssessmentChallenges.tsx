@@ -7,7 +7,7 @@ import AssessmentIntro from './AssessmentIntro';
 import AssessmentTracker from './AssessmentTracker';
 import { Trace } from './MissionReport';
 import { getChallenge } from '../data/challenges';
-import { allChallengesComplete, challengeIdFor, newAssessment, type AssessmentLevel, type Desk } from '../engine/mission';
+import { allChallengesComplete, roundCredits, challengeIdFor, newAssessment, type AssessmentLevel, type Desk } from '../engine/mission';
 import { coreTestsPassed, ATTACK_PASS_MIN } from '../engine/breaker';
 import { blockKey } from '../engine/scriptText';
 import Builder from '../pages/Builder';
@@ -55,10 +55,10 @@ export default function AssessmentChallenges() {
   const needsName = !!m.classCode && joinedClass !== m.classCode;
   const work = useAssessmentSession(s => s.progress);
   const desk = m.focus;
-  const { assigned, level, workloadModel } = m;
+  const { assigned, level, workloadModel, launches, curveballs, frozen } = m;
   const budget = useMemo(() => assessmentBudget({ assigned, level, workloadModel }), [assigned, level, workloadModel]);
-  const workloads = useMemo(() => serviceWorkloads({ assigned, level, workloadModel }, work), [assigned, level, workloadModel, work]);
-  const used = workloads.reduce((total, service) => total + service.credits, 0);
+  const workloads = useMemo(() => serviceWorkloads({ assigned, level, workloadModel, launches, curveballs, frozen }, work), [assigned, level, workloadModel, launches, curveballs, frozen, work]);
+  const used = roundCredits(workloads.reduce((total, service) => total + service.credits, 0));
   const service = workloads.find(service => service.id === desk);
   const level2 = m.level === 2;
   const levelName = level2 ? 'Level 2 · IF blocks' : 'Level 1';
@@ -88,7 +88,7 @@ export default function AssessmentChallenges() {
     const last = work[desk]?.attempts.slice(-1)[0];
     return <>{tracker}<section className="rounded-md border border-line p-5 space-y-3">
       <h2 className="text-2xl font-extrabold">{getChallenge(desk)!.title} · Complete</h2>
-      <p>This service contributes {service.credits} credits to the whole helper. You can revise it before the release decision.</p>
+      <p>{service.spending ? 'Credits used on this task' : 'Service cost'} · {service.credits}. You can revise it before the release decision.</p>
       <button className="btn bg-signal" onClick={() => update({
         phase: 'revise', completed: m.completed?.filter(id => id !== desk),
         revising: { ...m.revising, [desk]: true }, first: m.frozen?.[desk] ?? null,
@@ -147,7 +147,7 @@ export default function AssessmentChallenges() {
         <p className="label text-ink-3">{className ? `${className} · ` : ''}Your brief</p>
         <h2 className="text-3xl font-extrabold mt-1">One helper for {count === 1 ? 'one school service' : `${count} school services`}</h2>
       </div>
-      <p>Your services share a compute budget. Credits estimate the work your blocks do on incoming requests. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
+      <p>Your credit balance starts at zero used. Build runs, launched attacks and revealed curveballs spend credits from one shared budget. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
       {settings.challenges && <p><b>Your teacher chose:</b> {settings.challenges.map(id => getChallenge(id)?.title).join(', ')}.</p>}
       <p className="text-sm text-ink-2"><b className="text-ink">Written answers you must give:</b> {required.length ? required.map(q => q.label.toLowerCase()).join(', ') : 'none (all are optional)'}. The AI marker gives feedback on each one.</p>
       {levelFixed ? <p><b>Level:</b> {chosenLevel === 2 ? 'Level 2 · IF blocks' : 'Level 1'} (set by your teacher)</p> : <fieldset className="grid gap-3 md:grid-cols-2">
@@ -184,7 +184,7 @@ export default function AssessmentChallenges() {
         const action = done ? 'Review service' : work[d.id] ? 'Resume ' + stage : 'Build service';
         return <li key={d.id}><button className="service-choice" onClick={() => open(d.id)} data-testid={'assess-' + d.id}>
           <strong>{d.title}</strong>
-          <span className="text-sm text-ink-2">{done && 'Ready · '}{d.credits} credits{latest.tested ? ` · ${latest.passed}/${latest.tested} tests passed` : ''}{level2 && ` · Target ${usefulnessTarget(d.id + '@2')}`}</span>
+          <span className="text-sm text-ink-2">{done && 'Ready · '}{d.credits} {d.spending ? 'credits used' : 'credits'}{latest.tested ? ` · ${latest.passed}/${latest.tested} tests passed` : ''}{level2 && ` · Target ${usefulnessTarget(d.id + '@2')}`}</span>
           <span className="service-action"><span className="sr-only sm:not-sr-only">{action} </span>→</span>
         </button></li>;
       })}

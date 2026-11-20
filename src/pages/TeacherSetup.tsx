@@ -1,3 +1,4 @@
+import TaskSkills from '../components/TaskSkills';
 import { ArrowLeft, Check } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -119,7 +120,7 @@ export default function TeacherSetup() {
                 const full = !on && chosen.length >= MAX_CHALLENGES;
                 return <label key={c.id} className={`flex gap-2 rounded border-1.5 p-3 cursor-pointer ${on ? 'border-ink bg-signal-soft' : 'border-line bg-paper-card'} ${full ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <input type="checkbox" className="mt-1" checked={on} disabled={full} onChange={() => toggle(c.id as Desk)} data-testid={`setup-${c.id}`} />
-                  <span><b className="block leading-tight">{c.title}</b><span className="text-sm text-ink-2">{c.audience}</span></span>
+                  <span><b className="block leading-tight">{c.title}</b><span className="text-sm text-ink-2">{c.audience}</span><TaskSkills task={c} /></span>
                 </label>;
               })}</div>
             </fieldset>;

@@ -9,7 +9,7 @@ export interface RunRow {
   mode: 'build' | 'break' | 'reflect';
   script: string[];
   results: { testId: string; outcome: Attempt['results'][number]['outcome']; failureKey?: FailureKey }[] | string[];
-  scores: (Scores & Pick<Attempt, 'blockQuality'>) | null;
+  scores: (Scores & Pick<Attempt, 'blockQuality' | 'creditsUsed'>) | null;
   reflection: { testId: string; expected: FailureKey; chosen: FailureKey; correct: boolean; text: string } | null;
   created_at: string;
 }
@@ -36,8 +36,8 @@ export function groupClassRows(rows: RunRow[]): ClassStudent[] {
     }
     const p = (s.progress[r.challenge_id] ??= empty());
     if (r.mode === 'build') {
-      const { blockQuality, ...scores } = r.scores ?? {};
-      p.attempts.push({ at, script: r.script, results: r.results as Attempt['results'], scores: scores as Scores, blockQuality });
+      const { blockQuality, creditsUsed, ...scores } = r.scores ?? {};
+      p.attempts.push({ at, script: r.script, results: r.results as Attempt['results'], scores: scores as Scores, blockQuality, creditsUsed });
     } else if (r.reflection) {
       const refl: Reflection = { attempt: p.attempts.length, ...r.reflection };
       p.reflections.push(refl);

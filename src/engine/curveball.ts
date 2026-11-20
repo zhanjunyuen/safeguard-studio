@@ -2,7 +2,7 @@ import { isRequired } from './assessmentSettings';
 import { CURVEBALLS } from '../data/curveballs';
 import type { TestResult } from '../types';
 import { runProgram } from './run';
-import { ruleScript, type CurveballAnswer, type Desk, type Mission, type Rule } from './mission';
+import { requestCredits, ruleScript, type CurveballAnswer, type Desk, type Mission, type Rule } from './mission';
 
 export const CONFIDENCE_LEVELS = ['Guessing', 'Fairly sure', 'Very sure'] as const;
 export type CurveballConfidenceLevel = typeof CONFIDENCE_LEVELS[number];
@@ -32,5 +32,6 @@ export function submitCurveball(m: Mission, desk: Desk, answer: CurveballAnswer)
   if (m.form !== 4 || !CURVEBALLS[desk] || !m.frozen?.[desk] || !m.launches?.some(l => l.desk === desk) || m.curveballs?.[desk]) return m;
   if ((!reason && isRequired(m, 'curveball')) || (answer.prediction !== 'handles' && answer.prediction !== 'struggles')) return m;
   if (answer.confidence !== undefined && !CONFIDENCE_LEVELS.includes(answer.confidence)) return m;
-  return { ...m, curveballs: { ...m.curveballs, [desk]: { prediction: answer.prediction, reason, ...(answer.confidence && { confidence: answer.confidence }) } } };
+  const receipt = m.workloadModel === 'usage' ? { creditsUsed: requestCredits(runCurveball(m.frozen[desk]!, desk)) } : {};
+  return { ...m, curveballs: { ...m.curveballs, [desk]: { prediction: answer.prediction, reason, ...receipt, ...(answer.confidence && { confidence: answer.confidence }) } } };
 }

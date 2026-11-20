@@ -5,12 +5,13 @@ import type { CustomAttack } from './customAttack';
 import { ATTACK_BUDGET } from './breaker';
 import { BLOCKS } from '../data/blocks';
 import { runProgram } from './run';
-import type { BlockType, Effect } from '../types';
+import type { BlockType, Effect, TestResult } from '../types';
 import { getChallenge } from '../data/challenges';
 import { keyToBlock } from './scriptText';
 
 export type Desk = typeof catalogue[number]['id'];
 export interface CurveballAnswer {
+  creditsUsed?: number;
   prediction: 'handles' | 'struggles';
   reason: string;
   confidence?: import('./curveball').CurveballConfidenceLevel;
@@ -30,7 +31,7 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3 | 4;
   assigned?: Desk[];
-  workloadModel?: 'case-average' | 'compute';
+  workloadModel?: 'case-average' | 'compute' | 'usage';
   /** Form 4: Level 2 uses each challenge's IF-block version (an extra edge case and a higher usefulness target). */
   level?: AssessmentLevel;
   frozen?: Partial<Record<Desk, Rule[]>>;
@@ -51,7 +52,7 @@ export interface Mission {
   /** Form 4: the pupil's written prediction for each attack plan, required before launch. */
   attackReasons?: Partial<Record<Desk, string>>;
   customDrafts?: Partial<Record<Desk, string>>;
-  launches?: { desk: Desk; ids: string[]; reason?: string; custom?: CustomAttack }[];
+  launches?: { desk: Desk; ids: string[]; creditsUsed?: number; reason?: string; custom?: CustomAttack }[];
   /** Form 4: the pupil's prediction for each challenge's unseen curveball case. */
   curveballs?: Partial<Record<Desk, CurveballAnswer>>;
   project?: string; // Earlier, pupil-authored briefs in saved reports.
@@ -73,7 +74,7 @@ export const newMission = (): Mission => ({
 });
 
 export const newAssessment = (): Mission => ({
-  ...newMission(), form: 4, workloadModel: 'compute', frozen: {}, completed: [],
+  ...newMission(), form: 4, workloadModel: 'usage', frozen: {}, completed: [],
 });
 
 /** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
@@ -131,7 +132,10 @@ const computeByBlock: Partial<Record<BlockType, number>> = {
 };
 
 export function safeguardRate(type: BlockType, model: Mission['workloadModel']) {
-  if (model === 'compute') return computeByBlock[type] ?? computeRates[BLOCKS[type].effect];
+  if (model === 'compute' || model === 'usage') {
+    const units = computeByBlock[type] ?? computeRates[BLOCKS[type].effect];
+    return model === 'usage' ? (units === 12 ? 1 : units / 10) : units;
+  }
   if (!model) return blockCredits(type);
   if (type === 'teacher_confirm') return 8;
   return executionRates[BLOCKS[type].effect];
@@ -145,20 +149,35 @@ export function estimateCost(rules: Rule[]) {
   }, 0);
 }
 
-export function evaluate(rules: Rule[], id: string, model?: Mission['workloadModel']) {
-  const { desk, test } = missionCase(id);
-  const result = runProgram(ruleScript(rules, desk.id), test);
+export const roundCredits = (amount: number) => Math.round(amount * 10) / 10;
+
+export function executionCharges(result: TestResult, model: Mission['workloadModel']) {
   let hasAnswer = false;
-  const charges = result.steps.flatMap(step => {
+  return result.steps.flatMap(step => {
     if (step.blockType === 'trigger' || step.blockType === 'reply' || step.status === 'skip') return [];
     const block = BLOCKS[step.blockType];
-    if (model === 'compute' && block.position === 'after' && !hasAnswer) return [];
+    if ((model === 'usage' || model === 'compute') && block.position === 'after' && !hasAnswer) return [];
     if (block.effect === 'ai') hasAnswer = true;
     const unit = safeguardRate(step.blockType, model);
     return unit === 0 ? [] : [{ block: step.blockType, unit }];
   });
-  const credits = desk.volume * charges.reduce((sum, item) => sum + item.unit, 0);
-  return { id, desk: desk.name, volume: desk.volume, charges, credits, result };
+}
+
+export function requestCredits(result: TestResult) {
+  return roundCredits(executionCharges(result, 'usage').reduce((sum, charge) => sum + charge.unit, 0));
+}
+
+export function evaluate(rules: Rule[], id: string, model?: Mission['workloadModel']) {
+  const { desk, test } = missionCase(id);
+  const result = runProgram(ruleScript(rules, desk.id), test);
+  const charges = executionCharges(result, model);
+  const volume = model === 'usage' ? 1 : desk.volume;
+  const credits = roundCredits(volume * charges.reduce((sum, item) => sum + item.unit, 0));
+  return { id, desk: desk.name, volume, charges, credits, result, usage: model === 'usage' };
+}
+
+export function attackCredits(rules: Rule[], ids: string[], custom?: CustomAttack) {
+  return roundCredits(ids.reduce((sum, id) => sum + evaluate(rules, id, 'usage').credits, custom ? 1 : 0));
 }
 
 export function submitAttack(m: Mission, custom?: CustomAttack): Mission {
@@ -171,7 +190,8 @@ export function submitAttack(m: Mission, custom?: CustomAttack): Mission {
   if (!count || count > ATTACK_BUDGET || new Set(ids).size !== ids.length || !ids.every(id => cases.includes(id))) return m;
   const reason = m.attackReasons?.[desk.id]?.trim() ?? '';
   if (m.form === 4 && !reason && (m.settings?.questions.attack ?? 'required') === 'required') return m;
-  const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason, ...(custom && { custom }) } : { desk: desk.id, ids: [...ids] };
+  const receipt = m.workloadModel === 'usage' ? { creditsUsed: attackCredits(m.first, ids, custom) } : {};
+  const round = m.form === 4 ? { desk: desk.id, ids: [...ids], reason, ...receipt, ...(custom && { custom }) } : { desk: desk.id, ids: [...ids] };
   return { ...m, launches: [...(m.launches ?? []), round] };
 }
 

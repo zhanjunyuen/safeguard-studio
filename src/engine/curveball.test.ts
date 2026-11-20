@@ -107,9 +107,9 @@ describe('curveballs', () => {
     const launched = { ...base, launches: [{ desk: 'quiz' as const, ids: ['q_marks'], reason: 'x' }] };
     expect(submitCurveball(launched, 'quiz', { ...answer, reason: '  ' })).toBe(launched);
     const optional = { ...launched, settings: cleanSettings({ questions: { curveball: 'optional' } }) };
-    expect(submitCurveball(optional, 'quiz', { ...answer, reason: '  ' }).curveballs?.quiz).toEqual({ prediction: 'struggles', reason: '' });
+    expect(submitCurveball(optional, 'quiz', { ...answer, reason: '  ' }).curveballs?.quiz).toEqual({ creditsUsed: expect.any(Number), prediction: 'struggles', reason: '' });
     const done = submitCurveball(launched, 'quiz', answer);
-    expect(done.curveballs?.quiz).toEqual({ prediction: 'struggles', reason: 'The textbook check only looks for wrong facts, so an unfair mark gets through.' });
+    expect(done.curveballs?.quiz).toEqual({ creditsUsed: expect.any(Number), prediction: 'struggles', reason: 'The textbook check only looks for wrong facts, so an unfair mark gets through.' });
     expect(submitCurveball(done, 'quiz', { prediction: 'handles', reason: 'changed my mind' })).toBe(done);
   });
 });

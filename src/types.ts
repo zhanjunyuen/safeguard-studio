@@ -213,6 +213,7 @@ export interface BlockQuality {
 }
 
 export interface RunReport {
+  creditsUsed?: number;
   blockQuality?: BlockQuality;
   results: TestResult[];
   scores: Scores;

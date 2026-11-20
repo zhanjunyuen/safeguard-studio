@@ -10,6 +10,7 @@ import { pushRun } from '../lib/sync';
 import type { BlockType, FailureKey, Outcome, RunReport, Scores, ScriptBlock } from '../types';
 
 export interface Attempt {
+  creditsUsed?: number;
   owner?: string | null;
   at: number;
   script: BlockType[];
@@ -119,7 +120,7 @@ const createSession = (name: string) => create<SessionState>()(
             script: p.script.map(blockKey),
             results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
             scores: report.scores,
-            blockQuality: report.blockQuality,
+            blockQuality: report.blockQuality, creditsUsed: report.creditsUsed,
           };
           return {
             progress: {
@@ -216,8 +217,8 @@ for (const store of [useSession, useAssessmentSession]) {
       recordRun(cid, report);
       const student = target?.studentId ?? (store === useSession ? store.getState().studentId : null);
       if (!student) return;
-      const { script, scores, results, blockQuality } = store.getState().get(cid).attempts.at(-1)!;
-      pushRun(student, { challenge: target?.challenge ?? cid, mode: 'build', script, results, scores: { ...scores, blockQuality } });
+      const { script, scores, results, blockQuality, creditsUsed } = store.getState().get(cid).attempts.at(-1)!;
+      pushRun(student, { challenge: target?.challenge ?? cid, mode: 'build', script, results, scores: { ...scores, blockQuality, creditsUsed } });
     },
     reflect: (cid, chosen, text, target) => {
       const pending = store.getState().get(cid).pendingReflection;

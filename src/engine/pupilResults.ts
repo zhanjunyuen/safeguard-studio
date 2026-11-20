@@ -1,3 +1,4 @@
+import { attemptCredits } from './assessmentCredits';
 import { attackCases } from '../data/attackCases';
 import { CHALLENGES, baseId, getChallenge, practiceTitle } from '../data/challenges';
 import { THEMES } from '../data/themes';
@@ -22,6 +23,7 @@ export interface PupilRun {
   cases: RecordedCase[];
   at: number;
   scores?: Scores;
+  creditsUsed?: number;
   blockQuality?: BlockQuality;
   prediction?: string;
   custom?: CustomAttack;
@@ -66,7 +68,7 @@ export function pupilRuns(practice: Record<string, ChallengeProgress>, breaks: R
       if (!a.results.length) return;
       number++;
       runs.push({ id: prefix + '-run-' + (i + 1), group, label: 'Run ' + number, kind: 'build',
-        challenge: task, script: a.script, cases: a.results, scores: a.scores, blockQuality: a.blockQuality, at: a.at, assessment });
+        challenge: task, script: a.script, cases: a.results, scores: a.scores, blockQuality: a.blockQuality, creditsUsed: assessment?.model === 'usage' ? attemptCredits(task, a) : undefined, at: a.at, assessment });
     });
     return { group, prefix };
   }
@@ -114,13 +116,13 @@ export function replayCases(run: PupilRun) {
 export function runFacts(run: PupilRun) {
   const cases = replayCases(run);
   let credits: number | undefined;
-  if (run.kind === 'build' && run.assessment && cases.length && cases.every(c => c.matches)) {
+  if (run.kind === 'build' && run.assessment && run.assessment.model !== 'usage' && cases.length && cases.every(c => c.matches)) {
     credits = run.assessment.model ? Math.ceil(cases.reduce((n, c) => n + c.replay.credits, 0) / cases.length)
       : run.script.reduce((n, key) => n + blockCredits(key), 0) * cases[0].replay.volume;
   }
   return { id: run.id, task: run.group, run: run.label, blocks: run.script.map(labelOf).join(' → ').slice(0, 680),
     cases: cases.map(c => ({ id: c.replay.id, title: c.title, skill: c.skill, outcome: c.outcome, why: c.matches ? c.replay.result.explanation.slice(0, 165) : undefined })),
-    blockQualityOutOf100: run.blockQuality?.score, skillScoresOutOf100: run.scores, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
+    blockQualityOutOf100: run.blockQuality?.score, skillScoresOutOf100: run.scores, creditsUsed: run.creditsUsed, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
     aiJudgement: run.custom && { request: run.custom.question.slice(0, 500), outcome: run.custom.outcome, explanation: run.custom.explanation.slice(0, 500) } };
 }
 
@@ -158,6 +160,7 @@ export function offlinePupilFeedback(question: string, facts: ReturnType<typeof 
       return prev && prev.outcome !== c.outcome ? [c.title + ' (' + prev.outcome + ' → ' + c.outcome + ')'] : [];
     });
     text = changes.length ? 'Changed outcomes: ' + changes.join(', ') + '.' : 'The recorded outcomes stayed the same.';
+    if (before.creditsUsed !== undefined && after.creditsUsed !== undefined) text += ` The first run used ${before.creditsUsed} credits and the second used ${after.creditsUsed}.`;
     if (before.projectedWorkloadCredits !== undefined && after.projectedWorkloadCredits !== undefined)
       text += ' Projected workload went from ' + before.projectedWorkloadCredits + ' to ' + after.projectedWorkloadCredits + ' credits.';
   } else if (suggestion) {

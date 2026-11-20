@@ -59,7 +59,7 @@ export type MarkRequest =
   | { criterion: 'judgement'; text: string; decision: string; anchors?: JudgementAnchors }
   /** The revision note written on finish or revise. `before` is the frozen (attacked) build, `after` the latest
    *  evaluated build; `failing` are cases the frozen build failed in evaluation or attack; credits come from the simulator. */
-  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore: number; creditsAfter: number; challengeId?: string };
+  | { criterion: 'revision'; text: string; before: BlockType[]; after: BlockType[]; failing: PlannedCase[]; creditsBefore?: number; creditsAfter: number; challengeId?: string };
 
 /** What C1–C4 look for in one release-decision scenario, as regex sources (see docs/marking-codebook.md).
  *  Omitted = the ecology club scenario. */

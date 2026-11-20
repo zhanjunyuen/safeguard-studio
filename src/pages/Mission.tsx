@@ -124,7 +124,7 @@ export default function Mission() {
     </Panel>}
     {!sequence && m.phase === 'attack' && <Panel title="Attack your helper"><AttackWorkbench companion={companion} /></Panel>}
     {m.phase === 'release' && (!sequence || allChallengesComplete(m)) && <Panel title="Review your helper for release">
-      <p>{sequence && 'Review your services and their projected operating cost in the tracker. '}Read this exchange and decide what the ecology club can safely share with families.</p>
+      <p>{sequence && 'Review your services and their credit totals in the tracker. '}Read this exchange and decide what the ecology club can safely share with families.</p>
       <p><b>Club request</b> · {TRANSFER.request}</p><blockquote className="border-l-4 border-line pl-4"><b>Helper draft</b> · {TRANSFER.reply}</blockquote>
       <p><b>Current source</b> · {TRANSFER.source}</p>
       <label className="block font-bold">Your decision<select className={field} value={m.decision} onChange={e => update({ decision: e.target.value })}>
