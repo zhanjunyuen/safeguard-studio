@@ -19,7 +19,11 @@ The overarching commission is to run **a year-round AI helper for the school com
 
   Settings save on the device, or to a class with its **teacher code**: a new class gets a code, and the demo class `DEMO8B` uses `TEACH8B`. Each attempt keeps the settings it started with. An optional answer left blank doesn't lower the final score.
 
-To unlock Attack, the latest run of the current build must pass four of the six core tests. The Level 2 edge case is scored separately for this gate. Each task has 12 preset attacks at Level 1 and 13 at Level 2. Pupils can spend one of their three slots on a fictional request they write themselves. Adaption estimates how the ordered build would handle it. Preset attacks run in the simulator. If AI judging is unavailable, the pupil can retry or use preset attacks.
+To unlock Attack, the latest run of the current build must pass at least four of the six core tests and the task’s design check. The check combines a new risky request, a second risk from the core tests and a similar harmless request. All three must pass. The Level 2 edge case is scored separately for this gate.
+
+Each build run shows a block-quality score out of 100. Handling risky requests earns up to 60 points and answering ordinary requests earns up to 20. The remaining 20 reflect the share of safeguard steps that make a difference. The simulator removes each step in turn and checks whether the helper loses a pass.
+
+Each task has 12 preset attacks at Level 1 and 13 at Level 2. Pupils can spend one of their three slots on a fictional request they write themselves. Adaption estimates how the ordered build would handle it. Preset attacks run in the simulator. If AI judging is unavailable, the pupil can retry or use preset attacks.
 
 ## The integrated assessment
 

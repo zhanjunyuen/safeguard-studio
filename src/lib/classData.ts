@@ -1,5 +1,5 @@
 import type { Attempt, BreakAttempt, ChallengeProgress, Reflection } from '../store/session';
-import type { BlockType, FailureKey, Scores } from '../types';
+import type { FailureKey, Scores } from '../types';
 
 /** One row from the class_runs() database function. */
 export interface RunRow {
@@ -9,7 +9,7 @@ export interface RunRow {
   mode: 'build' | 'break' | 'reflect';
   script: string[];
   results: { testId: string; outcome: Attempt['results'][number]['outcome']; failureKey?: FailureKey }[] | string[];
-  scores: Scores | null;
+  scores: (Scores & Pick<Attempt, 'blockQuality'>) | null;
   reflection: { testId: string; expected: FailureKey; chosen: FailureKey; correct: boolean; text: string } | null;
   created_at: string;
 }
@@ -36,7 +36,8 @@ export function groupClassRows(rows: RunRow[]): ClassStudent[] {
     }
     const p = (s.progress[r.challenge_id] ??= empty());
     if (r.mode === 'build') {
-      p.attempts.push({ at, script: r.script as BlockType[], results: r.results as Attempt['results'], scores: r.scores! });
+      const { blockQuality, ...scores } = r.scores ?? {};
+      p.attempts.push({ at, script: r.script, results: r.results as Attempt['results'], scores: scores as Scores, blockQuality });
     } else if (r.reflection) {
       const refl: Reflection = { attempt: p.attempts.length, ...r.reflection };
       p.reflections.push(refl);

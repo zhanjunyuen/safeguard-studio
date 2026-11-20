@@ -15,7 +15,7 @@ export function assessmentStep(m: Mission, needsName: boolean): { step: StepId; 
   if (m.phase === 'brief') return needsName
     ? { step: 'join', next: 'Type your first name to join your class.' }
     : { step: 'brief', next: 'Read the brief, check your level and time, then start.' };
-  if (m.phase === 'build') return { step: 'challenges', next: `${title}: add safeguard blocks, pass at least four of the six core tests on this build to unlock Attack.` };
+  if (m.phase === 'build') return { step: 'challenges', next: `${title}: add safeguard blocks, pass at least four of the six core tests and the design check to unlock Attack.` };
   if (m.phase === 'revise') return { step: 'challenges', next: `${title}: change or keep your blocks, run the tests again, explain your choice and finish.` };
   if (m.phase === 'attack' && m.focus) {
     const launched = m.launches?.some((l) => l.desk === m.focus);

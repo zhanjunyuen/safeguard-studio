@@ -9,6 +9,7 @@ export default function ReflectModal({
   test,
   run,
   neighbours,
+  qualityScore,
   expected,
   seed,
   onSubmit,
@@ -16,6 +17,7 @@ export default function ReflectModal({
 }: {
   test: HiddenTest;
   run: TestResult;
+  qualityScore?: number;
   neighbours: FailureKey[];
   expected: FailureKey;
   seed: string;
@@ -50,7 +52,7 @@ export default function ReflectModal({
         animate={{ opacity: 1, y: 0 }}
         className="bg-paper-card border-1.5 border-ink rounded-md shadow-hard-lg max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full p-6"
       >
-        <div className="label text-ink-3">Before you change anything</div>
+        <div className="label text-ink-3">Before you change anything{qualityScore !== undefined && <> · Block quality {qualityScore}/100</>}</div>
         <h2 id="reflect-title" className="text-2xl font-extrabold leading-tight mt-1">{reflectionPrompt(test, run)}</h2>
         <p className="mt-3"><b>Request</b> · {test.question}</p>
         <p className="mt-2"><b>Helper’s reply</b> · {run.reply}</p>

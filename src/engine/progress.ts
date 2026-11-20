@@ -11,7 +11,7 @@ export function buildStatus(id: string, total: number, p: ChallengeProgress | un
   const attempts = p?.attempts ?? [];
   const target = usefulnessTarget(id);
   const best = attempts.length ? Math.max(...attempts.map((a) => a.results.filter((r) => r.outcome === 'pass').length)) : null;
-  const allPassRuns = attempts.filter((a) => a.results.every((r) => r.outcome === 'pass'));
+  const allPassRuns = attempts.filter((a) => a.blockQuality?.designPassed !== false && a.results.every((r) => r.outcome === 'pass'));
   const bestUseful = allPassRuns.length ? Math.max(...allPassRuns.map((a) => a.scores.usefulness)) : null;
   const solved = bestUseful !== null && bestUseful >= target;
   const state: Status = !attempts.length ? 'todo' : solved ? 'done' : 'started';

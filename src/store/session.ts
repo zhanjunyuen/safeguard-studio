@@ -15,6 +15,7 @@ export interface Attempt {
   script: BlockType[];
   results: { testId: string; outcome: Outcome; failureKey?: FailureKey }[];
   scores: Scores;
+  blockQuality?: RunReport['blockQuality'];
 }
 export interface Reflection {
   owner?: string | null;
@@ -118,6 +119,7 @@ const createSession = (name: string) => create<SessionState>()(
             script: p.script.map(blockKey),
             results: report.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
             scores: report.scores,
+            blockQuality: report.blockQuality,
           };
           return {
             progress: {
@@ -214,8 +216,8 @@ for (const store of [useSession, useAssessmentSession]) {
       recordRun(cid, report);
       const student = target?.studentId ?? (store === useSession ? store.getState().studentId : null);
       if (!student) return;
-      const { script, scores, results } = store.getState().get(cid).attempts.at(-1)!;
-      pushRun(student, { challenge: target?.challenge ?? cid, mode: 'build', script, results, scores });
+      const { script, scores, results, blockQuality } = store.getState().get(cid).attempts.at(-1)!;
+      pushRun(student, { challenge: target?.challenge ?? cid, mode: 'build', script, results, scores: { ...scores, blockQuality } });
     },
     reflect: (cid, chosen, text, target) => {
       const pending = store.getState().get(cid).pendingReflection;

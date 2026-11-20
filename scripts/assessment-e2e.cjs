@@ -36,6 +36,14 @@ async function test() {
         await page.getByTestId('reflect-submit').click();
         await page.getByTestId('reflect-continue').click();
       }
+      const quality = page.getByTestId('block-quality');
+      await quality.waitFor();
+      const savedScore = await page.evaluate(() => {
+        const mission = JSON.parse(localStorage.getItem('school-community-assessment-v1')).state.mission;
+        const work = JSON.parse(localStorage.getItem('school-community-challenge-work-v1')).state.progress;
+        return work[mission.focus].attempts.at(-1).blockQuality.score;
+      });
+      assert.equal(await quality.getByText(savedScore + '/100', { exact: true }).count(), 1);
     }
 
     // Start from previously saved, passing builds to test eligibility, freezing and revision.

@@ -5,6 +5,8 @@ import { CHALLENGES, getChallenge } from '../data/challenges';
 import { challengesIn, THEMES } from '../data/themes';
 import type { BlockType, ScriptBlock } from '../types';
 import { runChallenge, runProgram } from './run';
+import { idealScript } from './targets';
+import { keyToBlock } from './scriptText';
 
 const script = (...types: BlockType[]): ScriptBlock[] => types.map((type, i) => ({ uid: `${type}-${i}`, type }));
 const history = getChallenge('history')!;
@@ -60,10 +62,11 @@ describe('partial credit', () => {
 });
 
 describe('traps: safe but useless', () => {
-  it('ask a grown-up passes safety but over-blocks normal questions', () => {
+  it('blanket handoff earns no passes and over-blocks ordinary questions', () => {
     const rep = runChallenge(script('ask_grownup', 'ask_ai'), history);
-    expect(rep.scores.privacy).toBe(100);
-    expect(rep.scores.verification).toBe(100);
+    expect(rep.passed).toBe(0);
+    expect(rep.blockQuality.score).toBe(0);
+    expect(rep.results[0]).toMatchObject({ outcome: 'partial', failureKey: 'no_answer' });
     expect(rep.results.filter((r) => r.outcome === 'over-blocked').length).toBe(2);
     expect(rep.scores.usefulness).toBeLessThan(10);
   });
@@ -240,5 +243,46 @@ describe('narrow safeguards', () => {
     expect(runProgram(script('ask_ai', 'check_source', 'cite_correction'), date).reply).toContain(date.source);
     expect(runProgram(script('ask_ai', 'cite_correction', 'check_source'), date).reply).not.toContain(date.source);
     expect(runProgram(script('ask_ai', 'cite_correction'), date).failureKey).toBe('hallucination_unchecked');
+  });
+});
+
+describe('build design checks and quality', () => {
+  it.each(CHALLENGES)('$id rewards a working design at both levels and catches bare helpers', ({ id }) => {
+    for (const task of [id, id + '@2']) {
+      const challenge = getChallenge(task)!;
+      expect(runChallenge(idealScript(task), challenge).blockQuality).toMatchObject({ score: 100, designPassed: true });
+      expect(runChallenge(script('ask_ai'), challenge).blockQuality).toMatchObject({ score: 20, designPassed: false });
+    }
+  });
+
+  it('distinguishes a repeatable source check from a lucky second opinion', () => {
+    const lucky = runChallenge(script('remove_pii', 'coach', 'ask_ai', 'second_ai', 'both_sides'), history);
+    expect(lucky.passed).toBe(6);
+    expect(lucky.blockQuality).toMatchObject({ designPassed: false, variantOutcome: 'fail' });
+  });
+
+  it('catches a conditional that can protect or verify, but cannot do both on the same request', () => {
+    const helper = [keyToBlock('if:numbers:remove_pii:', 'redact'), ...script('coach', 'both_sides', 'ask_ai'),
+      keyToBlock('ifelse:numbers::check_source', 'verify')];
+    const report = runChallenge(helper, history);
+    expect(report.passed).toBe(6);
+    expect(report.blockQuality).toMatchObject({ designPassed: false, variantOutcome: 'fail' });
+  });
+
+  it('deducts contribution points when a correctly ordered design gains a redundant block', () => {
+    const good = runChallenge(script(...history.ideal), history);
+    const padded = runChallenge(script(...history.ideal, 'warn_note'), history);
+    expect(padded.passed).toBe(good.passed);
+    expect(padded.blockQuality.riskPoints).toBe(60);
+    expect(padded.blockQuality.ordinaryPoints).toBe(20);
+    expect(padded.blockQuality.unprovenBlocks).toEqual(['warn_note']);
+    expect(padded.blockQuality.score).toBeLessThan(good.blockQuality.score);
+  });
+
+  it('distinguishes timely handoff from stopping after AI has answered a serious concern', () => {
+    const task = getChallenge('firstaid')!;
+    const result = (blocks: string[]) => runChallenge(script(...blocks), task).results.find(r => r.testId === 'fa_breathing');
+    expect(result(['ask_grownup', 'ask_ai'])?.outcome).toBe('pass');
+    expect(result(['ask_ai', 'ask_grownup'])?.outcome).toBe('fail');
   });
 });

@@ -4,6 +4,7 @@ import { getChallenge } from '../data/challenges';
 import type { ChallengeProgress } from '../store/session';
 import type { BlockType, ScriptBlock } from '../types';
 import { assignedDesks, challengeIdFor, evaluate, handled, blockCredits, totalCost, type Desk, type Mission } from './mission';
+import { judgeBuildResult } from './run';
 import { idealScript } from './targets';
 import { blockKey } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
@@ -11,9 +12,13 @@ import { curveballHandled, runCurveball } from './curveball';
 import { markOffline, RUBRIC_VERSION, type Criterion, type MarkRequest } from './marking';
 
 /** Runs a desk's saved block keys against that desk's tests (Level 2 adds its edge case). */
-export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1, model?: Mission['workloadModel']) {
+export function evaluateDesk(id: Desk, blocks: BlockType[], level: Mission['level'] = 1, model?: Mission['workloadModel'], strictBuild = false) {
   const rules = blocks.map(type => ({ type, scope: id }));
-  return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => evaluate(rules, t.id, model));
+  return getChallenge(challengeIdFor({ level }, id))!.tests.map(t => {
+    const row = evaluate(rules, t.id, model);
+    if (strictBuild) row.result = judgeBuildResult(t, row.result);
+    return row;
+  });
 }
 
 type WorkloadSettings = Pick<Mission, 'assigned' | 'level' | 'workloadModel'>;
@@ -56,7 +61,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
   const challenges = serviceWorkloads(m, progress).map(d => {
     const p = progress[d.id];
     const challenge = getChallenge(challengeIdFor(m, d.id))!;
-    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level, m.workloadModel) }));
+    const attempts = (p?.attempts ?? []).map(a => ({ ...a, cases: evaluateDesk(d.id, a.script, m.level, m.workloadModel, !!a.blockQuality) }));
     const target = m.frozen?.[d.id];
     const plan = m.launches?.find(l => l.desk === d.id);
     const revisionNote = m.completed?.includes(d.id) ? m.revisionNotes?.[d.id] : undefined;

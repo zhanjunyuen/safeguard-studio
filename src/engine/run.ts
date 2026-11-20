@@ -1,6 +1,9 @@
+import { blockKey } from './scriptText';
+import { designCheck } from '../data/designChecks';
 import { BLOCKS } from '../data/blocks';
 import { CONDITIONS, cuesOf } from './conditions';
 import type {
+  BlockQuality,
   Challenge,
   Competency,
   FailureKey,
@@ -522,10 +525,55 @@ export function scoreResults(script: ScriptBlock[], results: TestResult[]): Scor
   };
 }
 
-export function runChallenge(script: ScriptBlock[], challenge: Challenge): RunReport {
-  const results = challenge.tests.map((t) => runProgram(script, t));
+/** A build must still provide appropriate help. A consent pause and a necessary human handoff qualify. */
+export function judgeBuildResult(test: HiddenTest, result: TestResult): TestResult {
+  if (result.outcome !== 'pass' || !result.blocked) return result;
+  if (test.flags.risk === 'needs_human') {
+    if (!result.steps.some(s => s.blockType === 'ask_ai' && s.status !== 'skip')) {
+      return { ...result, blocked: false, explanation: 'The helper passed the serious concern to a grown-up before asking AI.' };
+    }
+    return { ...result, outcome: 'fail', failureKey: 'safeguard_too_late',
+      explanation: 'The AI handled the serious concern before the helper handed it to a grown-up.' };
+  }
+  return { ...result, outcome: 'partial', failureKey: 'no_answer',
+    explanation: 'The helper stopped the request. It could have handled the risk and still helped the pupil.' };
+}
+
+function runBuildCase(script: ScriptBlock[], test: HiddenTest) {
+  return judgeBuildResult(test, runProgram(script, test));
+}
+
+function scoreBlockQuality(script: ScriptBlock[], challenge: Challenge, results: TestResult[]): BlockQuality {
+  const { variant, secondRisk, control } = designCheck(challenge);
+  const variantResult = runBuildCase(script, variant);
+  const controlResult = runBuildCase(script, control);
+  const trials = [...challenge.tests, variant, control];
+  const outcomes = [...results, variantResult, controlResult];
+  const passed = (r: TestResult) => r.outcome === 'pass';
+  const risky = outcomes.filter(r => r.category !== 'usefulness');
+  const ordinary = outcomes.filter(r => r.category === 'usefulness');
+  const riskPoints = Math.round(60 * risky.filter(passed).length / risky.length);
+  const ordinaryPoints = Math.round(20 * ordinary.filter(passed).length / ordinary.length);
+
+  // Remove one placed safeguard at a time. A conditional and its branches count as one step.
+  const safeguards = script.filter(b => b.type !== 'ask_ai');
+  const unprovenBlocks = safeguards.filter(block => {
+    const without = script.filter(b => b !== block);
+    return !trials.some((test, i) => passed(outcomes[i]) && !passed(runBuildCase(without, test)));
+  }).map(blockKey);
+  const contributionPoints = safeguards.length
+    ? Math.round(20 * (safeguards.length - unprovenBlocks.length) / safeguards.length) : 0;
+
+  return { score: riskPoints + ordinaryPoints + contributionPoints, riskPoints, ordinaryPoints, contributionPoints,
+    unprovenBlocks, variantOutcome: variantResult.outcome, variantExplanation: variantResult.explanation, controlOutcome: controlResult.outcome,
+    designPassed: passed(controlResult) && passed(variantResult) && results.some(r => r.testId === secondRisk && passed(r)) };
+}
+
+export function runChallenge(script: ScriptBlock[], challenge: Challenge): RunReport & { blockQuality: BlockQuality } {
+  const results = challenge.tests.map(t => runBuildCase(script, t));
   return {
     results,
+    blockQuality: scoreBlockQuality(script, challenge, results),
     scores: scoreResults(script, results),
     passed: results.filter((r) => r.outcome === 'pass').length,
     total: results.length,

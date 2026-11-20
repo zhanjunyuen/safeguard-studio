@@ -63,7 +63,7 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   const challenges: ChallengeScore[] = assignedDesks(m).map((d) => {
     const attempts = progress[d.id]?.attempts ?? [];
     const latest = attempts.slice(-1)[0];
-    const cases = latest ? evaluateDesk(d.id, latest.script, m.level) : [];
+    const cases = latest ? evaluateDesk(d.id, latest.script, m.level, m.workloadModel, !!latest.blockQuality) : [];
     const passed = cases.filter(handled).length;
     const tests = cases.length ? passed / cases.length : 0;
     return { id: d.id, title: d.title, runs: attempts.length, passed, tested: cases.length, tests, attempts: runFactor(attempts.length) * tests };
@@ -102,7 +102,7 @@ export function assessmentRadar(m: Mission, progress: Record<string, ChallengePr
       const attempts = progress[d.id]?.attempts ?? [];
       const run = pick === 'first' ? attempts[0] : attempts.slice(-1)[0];
       if (!run) continue;
-      for (const c of evaluateDesk(d.id, run.script, m.level)) {
+      for (const c of evaluateDesk(d.id, run.script, m.level, m.workloadModel, !!run.blockQuality)) {
         const dim = c.result.category as Dim;
         const [h, t] = hit[dim] ?? [0, 0];
         hit[dim] = [h + (handled(c) ? 1 : 0), t + 1];

@@ -2,7 +2,8 @@ import { attackCases } from '../data/attackCases';
 import { CHALLENGES, baseId, getChallenge, practiceTitle } from '../data/challenges';
 import { THEMES } from '../data/themes';
 import type { BreakAttempt, ChallengeProgress } from '../store/session';
-import type { Challenge, Outcome, Scores, TestCategory } from '../types';
+import { judgeBuildResult } from './run';
+import type { BlockQuality, Challenge, Outcome, Scores, TestCategory } from '../types';
 import { blockCredits, evaluate, assignedDesks, challengeIdFor, type Mission } from './mission';
 import { labelOf } from './scriptText';
 import { jsonIn } from './marking';
@@ -21,6 +22,7 @@ export interface PupilRun {
   cases: RecordedCase[];
   at: number;
   scores?: Scores;
+  blockQuality?: BlockQuality;
   prediction?: string;
   custom?: CustomAttack;
   assessment?: { model: Mission['workloadModel'] };
@@ -64,7 +66,7 @@ export function pupilRuns(practice: Record<string, ChallengeProgress>, breaks: R
       if (!a.results.length) return;
       number++;
       runs.push({ id: prefix + '-run-' + (i + 1), group, label: 'Run ' + number, kind: 'build',
-        challenge: task, script: a.script, cases: a.results, scores: a.scores, at: a.at, assessment });
+        challenge: task, script: a.script, cases: a.results, scores: a.scores, blockQuality: a.blockQuality, at: a.at, assessment });
     });
     return { group, prefix };
   }
@@ -102,6 +104,7 @@ export function replayCases(run: PupilRun) {
     const test = bank.find(t => t.id === saved.testId);
     if (!test) return [];
     const replay = evaluate(rules, test.id, run.assessment?.model);
+    if (run.blockQuality) replay.result = judgeBuildResult(test, replay.result);
     const outcome = saved.outcome ?? (saved.exposed === undefined ? replay.result.outcome : saved.exposed ? 'weakness exposed' : 'pass');
     const matches = saved.exposed === undefined ? outcome === replay.result.outcome : saved.exposed === (replay.result.outcome !== 'pass');
     return [{ title: test.title, skill: test.category, outcome, matches, replay }];
@@ -117,7 +120,7 @@ export function runFacts(run: PupilRun) {
   }
   return { id: run.id, task: run.group, run: run.label, blocks: run.script.map(labelOf).join(' → ').slice(0, 680),
     cases: cases.map(c => ({ id: c.replay.id, title: c.title, skill: c.skill, outcome: c.outcome, why: c.matches ? c.replay.result.explanation.slice(0, 165) : undefined })),
-    skillScoresOutOf100: run.scores, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
+    blockQualityOutOf100: run.blockQuality?.score, skillScoresOutOf100: run.scores, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
     aiJudgement: run.custom && { request: run.custom.question.slice(0, 500), outcome: run.custom.outcome, explanation: run.custom.explanation.slice(0, 500) } };
 }
 

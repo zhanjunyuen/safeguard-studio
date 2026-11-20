@@ -15,6 +15,7 @@ function Replay({ run }: { run: PupilRun }) {
   useEffect(() => { title.current?.focus(); }, [run.id]);
   return <section className="mt-4 border-t border-line pt-4" aria-label="Saved run replay">
     <h3 ref={title} tabIndex={-1} className="font-extrabold">{run.group} · {run.label}</h3>
+    {run.blockQuality && <p>Block quality · {run.blockQuality.score}/100</p>}
     {run.prediction && <p className="my-2"><b>Your prediction</b> · {run.prediction}</p>}
     {replayCases(run).map(c => <details key={c.replay.id} className="mt-2 rounded border border-line p-2">
       <summary className="cursor-pointer font-bold">{c.title} · {c.outcome}</summary>

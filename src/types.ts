@@ -200,7 +200,20 @@ export interface Scores {
   usefulness: number;
 }
 
+export interface BlockQuality {
+  score: number;
+  riskPoints: number;
+  ordinaryPoints: number;
+  contributionPoints: number;
+  unprovenBlocks: BlockType[];
+  variantOutcome: Outcome;
+  variantExplanation: string;
+  controlOutcome: Outcome;
+  designPassed: boolean;
+}
+
 export interface RunReport {
+  blockQuality?: BlockQuality;
   results: TestResult[];
   scores: Scores;
   passed: number;

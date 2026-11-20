@@ -24,7 +24,7 @@ import RunPanel from '../components/RunPanel';
 import ScriptStack, { STACK_W } from '../components/ScriptStack';
 import { BLOCKS } from '../data/blocks';
 import { getChallenge } from '../data/challenges';
-import { runChallenge, runProgram } from '../engine/run';
+import { judgeBuildResult, runChallenge, runProgram } from '../engine/run';
 import { ATTACK_PASS_MIN, coreTestsPassed } from '../engine/breaker';
 import { buildStatus } from '../engine/progress';
 import { blockKey, keyToBlock, labelOf } from '../engine/scriptText';
@@ -91,7 +91,9 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   useEffect(() => {
     if (challenge && !useWork.getState().progress[id]) setScript(id, script);
     const latest = progress.attempts.slice(-1)[0];
-    setReport(assessment && latest && challenge ? runChallenge(latest.script.map((key, i) => keyToBlock(key, `saved-${i}`)), challenge) : null);
+    const saved = latest?.blockQuality && latest.script.map((key, i) => keyToBlock(key, 'saved-' + i));
+    setRanScript(saved ?? null);
+    setReport(saved && challenge ? runChallenge(saved, challenge) : null);
     setReplay(null);
     setReflectFor(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -271,9 +273,9 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   };
 
   const last = progress.attempts.slice(-1)[0];
-  const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1, assessment.workloadModel);
+  const costs = assessment && last && evaluateDesk(assessment.id, last.script, isL2 ? 2 : 1, assessment.workloadModel, !!last.blockQuality);
   const corePassed = assessment ? coreTestsPassed(assessment.id, last?.results) : 0;
-  const evaluated = last && last.script.join() === script.map(blockKey).join();
+  const evaluated = !!last?.blockQuality && last.script.join() === script.map(blockKey).join();
 
   const missingPasses = ATTACK_PASS_MIN - corePassed;
   const coreCases = assessment && getChallenge(baseCid)!.tests;
@@ -284,7 +286,8 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const reflectTest = reflectFor && challenge.tests.find((t) => t.id === reflectFor.testId);
 
   // Reconstruct the submitted attempt, including IF branches, even after a reload or draft edit.
-  const reflectRun = reflectTest && last && runProgram(last.script.map((key, i) => keyToBlock(key, String(i))), reflectTest);
+  const recordedReplay = reflectTest && last && runProgram(last.script.map((key, i) => keyToBlock(key, String(i))), reflectTest);
+  const reflectRun = recordedReplay && reflectTest && last.blockQuality ? judgeBuildResult(reflectTest, recordedReplay) : recordedReplay;
   const runButton = <button onClick={run} disabled={locked || mustReflect} title={mustReflect ? 'Explain the last failure first' : undefined}
     className="btn bg-pass text-white text-lg px-5" data-testid="run">
     <Play size={18} fill="currentColor" aria-hidden /> {locked ? 'Running…' : 'Run tests'}
@@ -292,8 +295,10 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   return (
     <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
       {assessment ? <div className="assessment-taskbar">
-        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p>{!assessment.revising && <p className="text-sm">{evaluated ? `${corePassed}/6 core tests passed` : 'Pass 4 of the 6 core tests to unlock Attack.'}
-          {retryCase && <> · {missingPasses} more {missingPasses === 1 ? 'pass' : 'passes'} to unlock Attack.{' '}
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} projected credits</p>{!assessment.revising && <p className="text-sm">{evaluated ? `${corePassed}/6 core tests passed` : 'Pass 4 of the 6 core tests and the design check to unlock Attack.'}
+          {last && !last.blockQuality && ' Run this saved build to get its first block-quality score.'}
+          {evaluated && <> · Design check {last.blockQuality?.designPassed ? 'passed' : 'needs work'}</>}
+          {retryCase && <> · {missingPasses} more {missingPasses === 1 ? 'pass' : 'passes'} needed.{' '}
             <button className="font-bold underline" onClick={() => {
               setSelected(retryCase.id);
               setPanel('results');
@@ -301,7 +306,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
             }}>Review a missed test</button></>}</p>}</div>
         <div className="flex flex-wrap gap-2">
           {mustReflect && !locked ? <button className="btn bg-paper-card" onClick={() => setReflectFor(progress.pendingReflection)}>Explain last failure</button> : runButton}
-          <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect || (!assessment.revising && corePassed < ATTACK_PASS_MIN)} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>
+          <button disabled={(noteRequired && !assessment.note.trim()) || !evaluated || locked || mustReflect || (!assessment.revising && (corePassed < ATTACK_PASS_MIN || !last?.blockQuality?.designPassed))} className="btn bg-signal" aria-label={assessment.revising ? 'Finish challenge' : 'Continue to Attack with this build'} onClick={assessment.onAttack}>{assessment.revising ? 'Finish challenge' : 'Continue to Attack'}</button>
         </div>
       </div> : (
       <div className="flex flex-wrap items-start gap-4 mb-5">
@@ -326,7 +331,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
               </Link>
             </nav>
             <p className="text-sm text-ink-2" data-testid="goal">
-              <b className="text-ink">Goal:</b> pass all {challenge.tests.length} tests <b className="text-ink">and</b> keep usefulness at {target} or more.
+              <b className="text-ink">Goal:</b> pass all {challenge.tests.length} tests and the design check <b className="text-ink">and</b> keep usefulness at {target} or more.
               {isL2 ? ' Use IF blocks so safeguards only run when they are needed.' : ' Every extra block slows the helper down.'}
             </p>
           </div>
@@ -341,7 +346,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
           <Lock size={28} aria-hidden className="mx-auto" />
           <h2 className="text-2xl font-extrabold mt-3">Level 2 is locked</h2>
           <p className="text-ink-2 mt-2">
-            Finish Level 1 first: pass all {getChallenge(baseCid)!.tests.length} tests while keeping usefulness at {l1.target} or more.
+            Finish Level 1 first: pass all {getChallenge(baseCid)!.tests.length} tests and the design check while keeping usefulness at {l1.target} or more.
             {l1.bestUseful !== null && ` Your best so far is ${l1.bestUseful}.`}
           </p>
           <Link to={`/build/${baseCid}`} className="btn bg-signal mt-5">Go to Level 1</Link>
@@ -399,6 +404,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
         <ReflectModal
           test={reflectTest}
           run={reflectRun}
+          qualityScore={last.blockQuality?.score}
           neighbours={last.results.flatMap(r => r.failureKey ? [r.failureKey] : [])}
           expected={reflectFor.expected}
           seed={`${reflectFor.testId}-${attemptNo}`}

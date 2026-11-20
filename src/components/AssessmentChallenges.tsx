@@ -94,7 +94,8 @@ export default function AssessmentChallenges() {
         revising: { ...m.revising, [desk]: true }, first: m.frozen?.[desk] ?? null,
       })}>Revise this service</button>
       <h3 className="font-bold">Latest build results</h3>
-      {last && evaluateDesk(desk, last.script, m.level, workloadModel).map(row => <Trace key={row.id} run={row} />)}
+      {last?.blockQuality && <p>Block quality · {last.blockQuality.score}/100</p>}
+      {last && evaluateDesk(desk, last.script, m.level, workloadModel, !!last.blockQuality).map(row => <Trace key={row.id} run={row} />)}
       <button className="btn bg-paper" onClick={menu}>Whole-helper overview</button>
     </section></>;
   }
@@ -108,9 +109,9 @@ export default function AssessmentChallenges() {
       onAttack: () => {
         const progress = work[desk];
         const last = progress?.attempts.slice(-1)[0];
-        if (!last || progress.pendingReflection || last.script.join() !== progress.script.map(blockKey).join()) return;
+        if (!last?.blockQuality || progress.pendingReflection || last.script.join() !== progress.script.map(blockKey).join()) return;
         if (revising) { finish(desk); return; }
-        if (coreTestsPassed(desk, last.results) < ATTACK_PASS_MIN) return;
+        if (!last.blockQuality.designPassed || coreTestsPassed(desk, last.results) < ATTACK_PASS_MIN) return;
         const rules = last.script.map(type => ({ type, scope: desk }));
         update({ phase: 'attack', first: rules, frozen: { ...m.frozen, [desk]: rules } });
       },

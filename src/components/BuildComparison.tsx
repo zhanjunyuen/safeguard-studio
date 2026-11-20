@@ -25,6 +25,10 @@ export default function BuildComparison({ before, after, runs }: BuildPair) {
       <thead><tr><th className="w-1/2" scope="col">Measure</th><th scope="col">{before.run}</th><th scope="col">{after.run}</th></tr></thead>
       <tbody className="divide-y divide-line">
         <tr><th className="py-2" scope="row">Tests passed</th><td>{passed(before)}</td><td>{passed(after)}</td></tr>
+        {(before.blockQualityOutOf100 !== undefined || after.blockQualityOutOf100 !== undefined) && <tr>
+          <th className="py-2" scope="row">Block quality /100</th>
+          <td>{before.blockQualityOutOf100 ?? 'Unscored'}</td><td>{after.blockQualityOutOf100 ?? 'Unscored'}</td>
+        </tr>}
         {runs[0].assessment && <tr><th className="py-2" scope="row">Projected credits</th><td>{before.projectedWorkloadCredits ?? 'Unavailable'}</td><td>{after.projectedWorkloadCredits ?? 'Unavailable'}</td></tr>}
         {visible.map(r => <tr key={r.id}><th className="py-1 pr-2 font-normal" scope="row">{r.title}</th><td>{status(r.a?.outcome)}</td><td>{status(r.b?.outcome)}</td></tr>)}
       </tbody>

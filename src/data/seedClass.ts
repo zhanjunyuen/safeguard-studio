@@ -102,6 +102,7 @@ export function simulateStudent(st: SeedStudent, challengeId: string, idx: numbe
       script: types,
       results: rep.results.map(({ testId, outcome, failureKey }) => ({ testId, outcome, failureKey })),
       scores: rep.scores,
+      blockQuality: rep.blockQuality,
     });
     const fail = rep.results.find((r) => r.outcome !== 'pass' && r.failureKey);
     if (fail && i < st.attempts.length - 1 && st.reflections[i] !== undefined) {

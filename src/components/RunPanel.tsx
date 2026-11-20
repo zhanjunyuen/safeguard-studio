@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { designCheck } from '../data/designChecks';
+import { labelOf } from '../engine/scriptText';
 import { BLOCKS, COMPETENCY_META } from '../data/blocks';
 import type { Challenge, Outcome, RunReport, ScriptBlock, StepStatus, TestResult, TraceStep } from '../types';
 import { DIM_ICON } from './icons';
@@ -122,7 +124,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
     return (
       <div className={panel}>
         <h2 className="text-lg font-extrabold">Test sheet</h2>
-        <p className="text-ink-2 mb-4">Your helper will face {challenge.tests.length} situations. What could go wrong? Build for it, then press Run.</p>
+        <p className="text-ink-2 mb-4">Your helper will face {challenge.tests.length} situations{mode === 'build' && ' and a design check with two additional requests'}. What could go wrong? Build for it, then press Run.</p>
         <ol className="divide-y-1.5 divide-dashed divide-line border-y-1.5 border-dashed border-line">
           {challenge.tests.map((t, i) => {
             const isSeen = seen.includes(t.id);
@@ -140,6 +142,8 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
     );
   }
 
+  const quality = mode === 'build' && report.blockQuality;
+  const check = quality && designCheck(challenge);
   const sel = report.results.find((r) => r.testId === selected) ?? report.results[0];
   const selTest = challenge.tests.find((t) => t.id === sel.testId)!;
   return (
@@ -148,14 +152,27 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
         <h2 className="text-xl font-extrabold">
           {mode === 'break'
             ? 'Preset attack replays'
-            : `${report.passed} of ${report.total} passed`}
+            : `${report.passed} of ${report.total} ${level2 ? 'level tests' : 'core tests'} passed`}
         </h2>
         <Link to="/profile" className="text-sm font-bold underline underline-offset-2 hover:no-underline">My results</Link>
       </div>
+      {quality && check && <section className="mt-3 rounded border-1.5 border-ink px-3 py-2" data-testid="block-quality">
+        <h3 className="font-extrabold">Block quality <span className="font-mono">{quality.score}/100</span></h3>
+        <p className="text-sm">Risky requests {quality.riskPoints}/60 · Ordinary requests {quality.ordinaryPoints}/20 · Safeguard contribution {quality.contributionPoints}/20</p>
+        <details key={quality.designPassed ? 'passed' : 'retry'} open={!quality.designPassed} className="mt-1 text-sm"><summary className="font-bold cursor-pointer">Design check · {quality.designPassed ? 'Passed' : 'Needs work'}</summary>
+          <p className="mt-2">Handle both risks and answer the harmless request to pass this check.</p>
+          <ul className="list-disc ml-5">
+            <li>“{check.variant.question}” · {OUTCOME_STYLE[quality.variantOutcome].label}. {quality.variantExplanation}</li>
+            <li>{challenge.tests.find(t => t.id === check.secondRisk)?.title} · {OUTCOME_STYLE[report.results.find(r => r.testId === check.secondRisk)!.outcome].label}</li>
+            <li>“{check.control.question}” · {OUTCOME_STYLE[quality.controlOutcome].label}</li></ul>
+          <p className="mt-2">Risk and ordinary-request points count full passes. A safeguard earns contribution credit if removing it loses a pass. Each IF and its branches count as one step.</p>
+          {quality.unprovenBlocks.length > 0 && <p className="mt-1">Every pass held when these steps were removed one at a time · {quality.unprovenBlocks.map(labelOf).join(' · ')}.</p>}
+        </details>
+      </section>}
       {mode === 'build' && target !== undefined && (() => {
         const u = report.scores.usefulness;
         const okU = u >= target;
-        const solved = okU && report.passed === report.total;
+        const solved = okU && report.passed === report.total && report.blockQuality?.designPassed !== false;
         return (
           <div className={`mt-2 flex items-center gap-3 rounded p-2.5 ${solved ? 'bg-pass-soft' : okU ? 'bg-paper' : 'bg-fail-soft'}`} data-testid="usefulness">
             <span className={`stamp text-[11px] ${solved ? 'text-pass' : 'text-fail'}`}>{solved ? 'Solved' : 'Not yet'}</span>
@@ -165,7 +182,7 @@ export default function RunPanel({ challenge, report, replay, selected, onSelect
                 ? usefulnessAdvice(script, report, level2, challenge)
                 : report.passed < report.total
                   ? 'Useful enough, now fix the tests that failed.'
-                  : 'Safe and useful.'}
+                  : report.blockQuality?.designPassed === false ? 'Review the requests in the design check.' : 'Safe and useful.'}
             </p>
           </div>
         );

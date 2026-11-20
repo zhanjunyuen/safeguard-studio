@@ -20,7 +20,7 @@ export default function Timeline({ profile }: { profile: ChallengeProfile }) {
             <span className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full border-1.5 border-ink ${t.passed === t.total ? 'bg-pass' : 'bg-paper-card'}`} aria-hidden />
             <div className="flex items-baseline gap-2">
               <span className="font-extrabold">Run {t.attempt}</span>
-              <span className="text-sm text-ink-2">{t.passed} of {t.total} passed</span>
+              <span className="text-sm text-ink-2">{t.passed} of {t.total} passed{t.qualityScore !== undefined && <> · Block quality {t.qualityScore}/100</>}</span>
             </div>
             <div className="text-sm space-y-0.5 mt-1">
               {t.added.map((a) => <div key={a}><span className="font-mono font-bold text-pass">+</span> {a}</div>)}

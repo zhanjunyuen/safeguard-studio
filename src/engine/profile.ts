@@ -9,6 +9,7 @@ export const DIMS: Dim[] = ['verification', 'privacy', 'integrity', 'bias', 'jud
 
 export interface TimelineItem {
   attempt: number;
+  qualityScore?: number;
   added: string[];
   removed: string[];
   reordered: boolean;
@@ -75,7 +76,7 @@ export function profileChallenge(challengeId: string, p: ChallengeProgress): Cha
     }
     const refl = p.reflections.find((r) => r.attempt === i + 1);
     return {
-      attempt: i + 1,
+      attempt: i + 1, qualityScore: at.blockQuality?.score,
       added,
       removed,
       reordered,
