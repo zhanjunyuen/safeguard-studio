@@ -135,7 +135,9 @@ const computeByBlock: Partial<Record<BlockType, number>> = {
 export function safeguardRate(type: BlockType, model: Mission['workloadModel']) {
   if (model === 'compute' || model === 'usage' || model === 'deployment') {
     const units = computeByBlock[type] ?? computeRates[BLOCKS[type].effect];
-    return model !== 'compute' ? (units === 12 ? 1 : units / 10) : units;
+    if (model === 'compute') return units;
+    const deploymentPoints = units === 12 ? 10 : units;
+    return model === 'usage' ? deploymentPoints / 10 : deploymentPoints;
   }
   if (!model) return blockCredits(type);
   if (type === 'teacher_confirm') return 8;

@@ -27,7 +27,7 @@ describe('pupil results questions', () => {
     expect(runs).toHaveLength(3);
     expect(facts.find(f => f.submittedPrediction)).toMatchObject({ submittedPrediction: mission.launches[0].reason, aiJudgement: { outcome: 'uncertain' } });
     const built = facts.filter(f => f.deploymentCreditsPerRequest !== undefined);
-    expect(built.map(f => [f.cases[0].outcome, f.deploymentCreditsPerRequest])).toEqual([['pass', 1.2], ['fail', 1]]);
+    expect(built.map(f => [f.cases[0].outcome, f.deploymentCreditsPerRequest])).toEqual([['pass', 12], ['fail', 10]]);
     const packet = { runs: facts };
     const prompt = buildTask({ task: 'pupilResults', question: 'Compare my builds', evidence: packet });
     expect(JSON.stringify(packet).length).toBeLessThan(MAX_JSON);

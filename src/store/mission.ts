@@ -63,9 +63,16 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
   },
 }), {
   name: 'school-community-assessment-v1',
-  version: 5,
+  version: 6,
   migrate: (stored, version) => {
     const { mission } = stored as Pick<MissionState, 'mission'>;
+    if (version === 5) {
+      const result = mission.finalResult;
+      if (mission.workloadModel !== 'deployment' || !result) return { mission };
+      // Live costs are derived from blocks. Only the final score stores a cost snapshot.
+      const score = { ...result.score, workloadCredits: Math.round(result.score.workloadCredits * 10), budget: Math.round(result.score.budget * 10) };
+      return { mission: { ...mission, finalResult: { ...result, score } } };
+    }
     if (mission.phase === 'complete' || mission.phase === 'expired') return { mission };
     if (version >= 2) {
       if (mission.form !== 4) return { mission };
