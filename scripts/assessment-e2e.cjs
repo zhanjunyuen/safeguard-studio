@@ -26,7 +26,7 @@ async function test() {
     await intro.waitFor({ state: 'hidden' });
     const ids = await page.locator('[data-testid^="assess-"]').evaluateAll(items => items.map(item => item.dataset.testid));
     assert.equal(ids.length, 6);
-    const tracker = page.getByRole('progressbar', { name: 'Assessment credit budget' });
+    const tracker = nav.locator('progress[aria-label="Deployment budget"]');
     const button = name => page.getByRole('button', { name, exact: true });
     async function run() {
       await page.getByTestId('run').click();
@@ -64,6 +64,7 @@ async function test() {
     }, scripts);
     await page.reload();
     for (const id of ids) {
+      const priorCost = await tracker.getAttribute('value');
       await page.getByTestId(id).click();
       await page.getByTestId('palette-ifelse').click();
       assert.equal(await button('Continue to Attack with this build').isEnabled(), false);
@@ -79,7 +80,9 @@ async function test() {
       await page.getByRole('radio', { name: 'Very sure', exact: true }).check();
       await page.getByTestId('cb-reason').fill('A person should check this case before sharing the answer.');
       await page.getByTestId('cb-submit').click();
+      assert.equal(await tracker.getAttribute('value'), priorCost);
       await button('Finish challenge').click();
+      assert.ok(Number(await tracker.getAttribute('value')) > Number(priorCost));
     }
 
     await button('Continue to release decision').click();
@@ -115,10 +118,10 @@ async function test() {
     assert.equal(revised.curveball.confidence, 'Very sure');
     assert.equal(revised.attempts.length, 2);
     assert.ok(revised.attack.rules.some(rule => rule.type.startsWith('ifelse:')));
-    assert.equal(packet.creditModel, 'usage');
+    assert.equal(packet.creditModel, 'deployment');
     assert.ok(revised.attempts.at(-1).script.every(key => !key.startsWith('ifelse:')));
     assert.match(await tracker.getAttribute('aria-valuetext'), new RegExp('^' + packet.workloadCredits + ' of ' + packet.budget + ' credits'));
-    assert.equal(packet.workloadCredits, Math.round(packet.challenges.reduce((sum, c) => sum + c.spending.builds + c.spending.attacks + c.spending.curveball, 0) * 10) / 10);
+    assert.equal(packet.workloadCredits, Math.round(packet.challenges.reduce((sum, c) => sum + c.creditsPerRequest, 0) * 10) / 10);
     assert.deepEqual(errors, []);
     const missionUrl = page.url();
     await page.getByRole('link', { name: 'My results', exact: true }).first().click();
@@ -131,7 +134,7 @@ async function test() {
     await task.selectOption({ label: matching });
     await button('Compare my builds').click();
     const comparison = page.getByRole('region', { name: 'Build comparison' });
-    await comparison.getByRole('rowheader', { name: 'Credits used this run' }).waitFor();
+    await comparison.getByRole('rowheader', { name: 'Max credits per live request' }).waitFor();
     await comparison.getByText('Compare block order').click();
     assert.equal(await comparison.locator('ol').count(), 2);
     await page.getByText('Saved results · On this device').waitFor();
@@ -189,7 +192,7 @@ async function verifyMobile(browser, url) {
   const nav = page.getByRole('navigation', { name: 'Assessment progress and tasks' });
   const toggle = nav.locator('button[aria-expanded]');
   const services = nav.getByRole('list', { name: 'Switch service' }).getByRole('button');
-  assert.match(await toggle.innerText(), /0 \/ \d+ credits used/);
+  assert.match(await toggle.innerText(), /0 \/ [\d.]+ credits deployed/);
   await page.getByTestId('assess-chat').tap();
   await page.getByTestId('palette-hide_location').tap();
   const sections = page.getByRole('navigation', { name: 'Workbench sections' });
@@ -197,14 +200,14 @@ async function verifyMobile(browser, url) {
   await page.getByTestId('stack-hide_location').waitFor();
   assert.equal(await page.getByTestId('palette-hide_location').isVisible(), false);
   assert.equal(await page.evaluate(() => document.documentElement.scrollHeight), 667);
-  assert.match(await toggle.innerText(), /0 \/ \d+ credits used/);
+  assert.match(await toggle.innerText(), /0 \/ [\d.]+ credits deployed/);
   for (let i = 0; i < 2; i++) {
     await page.getByTestId('run').tap();
     await page.getByRole('button', { name: 'Skip to results' }).tap();
     await page.getByTestId('reflect-modal').locator('fieldset button').first().tap();
     await page.getByTestId('reflect-submit').tap();
     await page.getByTestId('reflect-continue').tap();
-    assert.equal(Number((await toggle.innerText()).match(/([\d.]+) \/ /)[1]), (i + 1) * 9.6);
+    assert.equal(Number((await toggle.innerText()).match(/([\d.]+) \/ /)[1]), 0);
   }
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 375);
@@ -215,7 +218,7 @@ async function verifyMobile(browser, url) {
   await toggle.tap();
   await services.first().waitFor();
   assert.equal(await services.count(), 6);
-  assert.match(await services.filter({ hasText: 'Class Group-Chat Helper' }).innerText(), /19\.2 credits used · Builds 19\.2 · Attacks 0 · Curveball 0/);
+  assert.match(await services.filter({ hasText: 'Class Group-Chat Helper' }).innerText(), /Awaiting deployment · 0 credits/);
   await services.last().tap();
   await nav.locator('button[aria-expanded="false"]').waitFor();
   assert.match(await toggle.innerText(), /GCSE Options Adviser/);
@@ -223,10 +226,10 @@ async function verifyMobile(browser, url) {
   await services.filter({ hasText: 'Class Group-Chat Helper' }).tap();
   await page.reload();
   assert.match(await toggle.innerText(), /Class Group-Chat Helper/);
-  assert.match(await toggle.innerText(), /19\.2 \/ \d+ credits used/);
+  assert.match(await toggle.innerText(), /0 \/ [\d.]+ credits deployed/);
   await verifyRestart(page);
   assert.equal(await page.evaluate(() => localStorage.getItem('safeguard-studio-v1')), practiceSave);
-  console.log('Mobile task switching, fixed tracker, migration and cumulative credit use passed.');
+  console.log('Mobile task switching, fixed tracker, migration and free test runs passed.');
 }
 
 test().catch(error => { console.error(error); process.exitCode = 1; });

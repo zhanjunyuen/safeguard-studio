@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { getAttackHintProvider, hintAvailable, hintStage, type AttackHintProvider } from '../engine/attackHints';
 import { blockKey } from '../engine/scriptText';
 import type { CustomAttack } from '../engine/customAttack';
+import { attackCases } from '../data/attackCases';
 import { getChallenge } from '../data/challenges';
 import type { BlockType } from '../types';
 import { usePresenter } from './presenter';
@@ -37,7 +38,7 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
     const blocks = stage === 'attack'
       ? before.first!.filter(r => r.scope === 'all' || r.scope === desk).map(r => r.type)
       : (useAssessmentSession.getState().progress[desk]?.script.map(blockKey) ?? ['ask_ai']) as BlockType[];
-    const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk).map(h => h.text);
+    const previousHints = (before.attackHints ?? []).filter(h => h.desk === desk && (h.stage ?? 'attack') === stage).map(h => h.text);
     // What the pupil has already seen and chosen, so the hint builds on their own work.
     const challenge = getChallenge(challengeIdFor(before, desk));
     const lastRun = useAssessmentSession.getState().progress[desk]?.attempts.slice(-1)[0];
@@ -45,14 +46,14 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
       test: challenge?.tests.find(t => t.id === r.testId)?.title ?? r.testId,
       outcome: r.outcome === 'pass' ? 'handled' : r.outcome === 'partial' ? 'partly handled' : r.outcome === 'over-blocked' ? 'refused a normal request' : 'got through',
     }));
-    const plannedAttacks = stage === 'attack'
-      ? (before.attackPlans?.[desk] ?? []).map(id => challenge?.tests.find(t => t.id === id)?.attackLabel ?? id) : undefined;
-    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk), stage, latestResults, plannedAttacks }, signal)).trim();
+    const plannedAttacks = stage === 'attack' && challenge
+      ? (before.attackPlans?.[desk] ?? []).map(id => attackCases(challenge).find(t => t.id === id)?.attackLabel ?? id) : undefined;
+    const text = (await provider({ desk, blocks, previousHints, challengeId: challengeIdFor(before, desk), stage, latestResults, plannedAttacks, hasCustomDraft: Boolean(before.customDrafts?.[desk]?.trim()) }, signal)).trim();
     if (signal.aborted) return;
     if (!text) throw new Error('The hint provider returned an empty response.');
     set(state => {
       const m = state.mission;
-      if (m.first !== before.first || m.attackHints !== before.attackHints || !hintAvailable(m, desk)) return state;
+      if (m.first !== before.first || m.attackHints !== before.attackHints || hintStage(m, desk) !== stage) return state;
       return { mission: { ...m, attackHints: [...(m.attackHints ?? []), { desk, text, stage }] } };
     });
   },
@@ -62,12 +63,18 @@ export const useMission = create<MissionState>()(persist((set, get) => ({
   },
 }), {
   name: 'school-community-assessment-v1',
-  version: 4,
+  version: 5,
   migrate: (stored, version) => {
     const { mission } = stored as Pick<MissionState, 'mission'>;
     if (mission.phase === 'complete' || mission.phase === 'expired') return { mission };
     if (version >= 2) {
-      return { mission: mission.form === 4 ? { ...mission, workloadModel: 'usage' } : mission };
+      if (mission.form !== 4) return { mission };
+      const work = useAssessmentSession.getState().progress;
+      const deployed = Object.fromEntries((mission.completed ?? []).flatMap(id => {
+        const keys = work[id]?.attempts.at(-1)?.script ?? mission.frozen?.[id]?.map(r => r.type);
+        return keys ? [[id, keys]] : [];
+      }));
+      return { mission: { ...mission, workloadModel: 'deployment', deployed } };
     }
     return { mission: {
       ...mission, form: 3, attackPlans: {}, launches: [], focus: 'history',

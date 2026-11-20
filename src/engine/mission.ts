@@ -31,7 +31,8 @@ export interface Mission {
   elapsed: number;
   form?: 2 | 3 | 4;
   assigned?: Desk[];
-  workloadModel?: 'case-average' | 'compute' | 'usage';
+  workloadModel?: 'case-average' | 'compute' | 'usage' | 'deployment';
+  deployed?: Partial<Record<Desk, BlockType[]>>;
   /** Form 4: Level 2 uses each challenge's IF-block version (an extra edge case and a higher usefulness target). */
   level?: AssessmentLevel;
   frozen?: Partial<Record<Desk, Rule[]>>;
@@ -74,7 +75,7 @@ export const newMission = (): Mission => ({
 });
 
 export const newAssessment = (): Mission => ({
-  ...newMission(), form: 4, workloadModel: 'usage', frozen: {}, completed: [],
+  ...newMission(), form: 4, workloadModel: 'deployment', deployed: {}, frozen: {}, completed: [],
 });
 
 /** The challenge a pupil works on for a desk: "history" at Level 1, "history@2" at Level 2. */
@@ -132,9 +133,9 @@ const computeByBlock: Partial<Record<BlockType, number>> = {
 };
 
 export function safeguardRate(type: BlockType, model: Mission['workloadModel']) {
-  if (model === 'compute' || model === 'usage') {
+  if (model === 'compute' || model === 'usage' || model === 'deployment') {
     const units = computeByBlock[type] ?? computeRates[BLOCKS[type].effect];
-    return model === 'usage' ? (units === 12 ? 1 : units / 10) : units;
+    return model !== 'compute' ? (units === 12 ? 1 : units / 10) : units;
   }
   if (!model) return blockCredits(type);
   if (type === 'teacher_confirm') return 8;
@@ -170,10 +171,10 @@ export function requestCredits(result: TestResult) {
 export function evaluate(rules: Rule[], id: string, model?: Mission['workloadModel']) {
   const { desk, test } = missionCase(id);
   const result = runProgram(ruleScript(rules, desk.id), test);
-  const charges = executionCharges(result, model);
-  const volume = model === 'usage' ? 1 : desk.volume;
+  const charges = model === 'deployment' ? [] : executionCharges(result, model);
+  const volume = model === 'usage' || model === 'deployment' ? 1 : desk.volume;
   const credits = roundCredits(volume * charges.reduce((sum, item) => sum + item.unit, 0));
-  return { id, desk: desk.name, volume, charges, credits, result, usage: model === 'usage' };
+  return { id, desk: desk.name, volume, charges, credits, result, usage: model === 'usage', deployment: model === 'deployment' };
 }
 
 export function attackCredits(rules: Rule[], ids: string[], custom?: CustomAttack) {

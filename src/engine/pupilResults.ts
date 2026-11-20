@@ -1,3 +1,4 @@
+import { savedDeploymentCost } from './deploymentCost';
 import { attemptCredits } from './assessmentCredits';
 import { attackCases } from '../data/attackCases';
 import { CHALLENGES, baseId, getChallenge, practiceTitle } from '../data/challenges';
@@ -116,12 +117,13 @@ export function replayCases(run: PupilRun) {
 export function runFacts(run: PupilRun) {
   const cases = replayCases(run);
   let credits: number | undefined;
-  if (run.kind === 'build' && run.assessment && run.assessment.model !== 'usage' && cases.length && cases.every(c => c.matches)) {
+  if (run.kind === 'build' && run.assessment && run.assessment.model !== 'usage' && run.assessment.model !== 'deployment' && cases.length && cases.every(c => c.matches)) {
     credits = run.assessment.model ? Math.ceil(cases.reduce((n, c) => n + c.replay.credits, 0) / cases.length)
       : run.script.reduce((n, key) => n + blockCredits(key), 0) * cases[0].replay.volume;
   }
   return { id: run.id, task: run.group, run: run.label, blocks: run.script.map(labelOf).join(' → ').slice(0, 680),
     cases: cases.map(c => ({ id: c.replay.id, title: c.title, skill: c.skill, outcome: c.outcome, why: c.matches ? c.replay.result.explanation.slice(0, 165) : undefined })),
+    deploymentCreditsPerRequest: run.kind === 'build' && run.assessment?.model === 'deployment' ? savedDeploymentCost(run.script) : undefined,
     blockQualityOutOf100: run.blockQuality?.score, skillScoresOutOf100: run.scores, creditsUsed: run.creditsUsed, projectedWorkloadCredits: credits, submittedPrediction: run.prediction?.slice(0, 600),
     aiJudgement: run.custom && { request: run.custom.question.slice(0, 500), outcome: run.custom.outcome, explanation: run.custom.explanation.slice(0, 500) } };
 }
@@ -160,6 +162,8 @@ export function offlinePupilFeedback(question: string, facts: ReturnType<typeof 
       return prev && prev.outcome !== c.outcome ? [c.title + ' (' + prev.outcome + ' → ' + c.outcome + ')'] : [];
     });
     text = changes.length ? 'Changed outcomes: ' + changes.join(', ') + '.' : 'The recorded outcomes stayed the same.';
+    if (before.deploymentCreditsPerRequest !== undefined && after.deploymentCreditsPerRequest !== undefined)
+      text += ` The first design costs up to ${before.deploymentCreditsPerRequest} credits per live request and the second costs up to ${after.deploymentCreditsPerRequest}.`;
     if (before.creditsUsed !== undefined && after.creditsUsed !== undefined) text += ` The first run used ${before.creditsUsed} credits and the second used ${after.creditsUsed}.`;
     if (before.projectedWorkloadCredits !== undefined && after.projectedWorkloadCredits !== undefined)
       text += ' Projected workload went from ' + before.projectedWorkloadCredits + ' to ' + after.projectedWorkloadCredits + ' credits.';

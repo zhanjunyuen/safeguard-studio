@@ -68,16 +68,28 @@ describe('AI follow-ups and summary', () => {
 });
 
 describe('AI attack hints', () => {
-  it('uses the AI hint, and the offline hint when the AI gives nothing usable', async () => {
-    const ctx = { desk: 'party' as const, blocks: ['ask_ai'], previousHints: [], challengeId: 'party' };
-    reply.next = [JSON.stringify({ hint: 'Who at the party needs to know about allergies, and who does not?' })];
-    expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/allergies/);
-    expect((reply.bodies[0] as any).context.build).toBe('Ask AI');
-    reply.next = [JSON.stringify({ hint: 'Your allergy test got through: what reaches Ask AI before any check runs?' })];
-    await aiAttackHint({ ...ctx, stage: 'build', latestResults: [{ test: 'The allergy question', outcome: 'got through' }], plannedAttacks: [] }, new AbortController().signal);
-    expect((reply.bodies.at(-1) as any).context).toMatchObject({ stage: 'build', latestResults: [{ test: 'The allergy question', outcome: 'got through' }] });
-    reply.next = [JSON.stringify({ hint: '' })];
-    expect(await aiAttackHint(ctx, new AbortController().signal)).toMatch(/organiser/);
+  it('lets the model choose an attack-planning question and falls back if it offers a fix', async () => {
+    const ctx = { desk: 'party' as const, blocks: ['ask_ai'], previousHints: [], challengeId: 'party', plannedAttacks: ['Quote an unchecked poll result'] };
+    const signal = new AbortController().signal;
+    reply.next = [JSON.stringify({ hint: 'Move the privacy block before Ask AI.' })];
+    const fallback = await aiAttackHint(ctx, signal);
+    expect(fallback).toContain('You picked “Quote an unchecked poll result”');
+    const { planningQuestions } = (reply.bodies[0] as { context: { planningQuestions: string[] } }).context;
+    const comparison = planningQuestions.find(q => q.includes('for comparison'))!;
+    expect(comparison).toBeTruthy();
+    reply.next = [JSON.stringify({ hint: comparison })];
+    expect(await aiAttackHint(ctx, signal)).toBe(comparison);
+    reply.next = [JSON.stringify({ hint: 'How could you compare those replies?' })];
+    expect(await aiAttackHint(ctx, signal)).toBe(comparison);
+    expect(await aiAttackHint({ ...ctx, previousHints: [fallback] }, signal)).toMatch(/made-up detail/);
+  });
+
+  it('uses the build hint and latest results while designing the helper', async () => {
+    const hint = 'Your allergy test got through. What reaches Ask AI before the first check?';
+    reply.next = [JSON.stringify({ hint })];
+    expect(await aiAttackHint({ desk: 'party', blocks: ['ask_ai'], previousHints: [], stage: 'build',
+      latestResults: [{ test: 'The allergy question', outcome: 'got through' }] }, new AbortController().signal)).toBe(hint);
+    expect(reply.bodies[0]).toMatchObject({ context: { stage: 'build', build: 'Ask AI', latestResults: [{ test: 'The allergy question', outcome: 'got through' }] } });
   });
 });
 

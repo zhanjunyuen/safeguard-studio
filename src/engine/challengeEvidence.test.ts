@@ -73,7 +73,7 @@ describe('six required challenges', () => {
     expect(submitAttack(ready)).toBe(ready);
     expect(submitAttack({ ...ready, attackReasons: { party: '   ' } })).toEqual({ ...ready, attackReasons: { party: '   ' } });
     const launched = submitAttack({ ...ready, attackReasons: { party: '  No allergy check after Ask AI, so the label claim gets through. ' } });
-    expect(launched.launches).toEqual([{ desk: 'party', ids: ['p_allergy'], creditsUsed: 1, reason: 'No allergy check after Ask AI, so the label claim gets through.' }]);
+    expect(launched.launches).toEqual([{ desk: 'party', ids: ['p_allergy'], reason: 'No allergy check after Ask AI, so the label claim gets through.' }]);
     const party = challengeEvidence(launched, { party: freshProgress() }).challenges.find(c => c.id === 'party')!;
     expect(party.attack?.reason).toBe('No allergy check after Ask AI, so the label claim gets through.');
   });

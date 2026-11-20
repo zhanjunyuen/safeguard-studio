@@ -8,7 +8,8 @@ import { newAssessment } from './mission';
 import { idealScript } from './targets';
 
 const mark = (criterion: Criterion, level: Level): Mark => ({ criterion, level, rubricVersion: 'x', marker: 'm', concepts: [], feedback: '', nextStep: '', reviewFlag: false });
-const m = { ...newAssessment(), assigned: drawAssignment(() => 0.5) };
+const assigned = drawAssignment(() => 0.5);
+const m = { ...newAssessment(), assigned, deployed: Object.fromEntries(assigned.map(id => [id, getChallenge(id)!.ideal])) };
 
 /** Progress where every assigned challenge was built `runs` times, the last run being `keys(id)`. */
 function progressWith(runs: number, keys: (id: string) => string[]) {
@@ -36,11 +37,11 @@ describe('final score', () => {
     expect(slow.parts.attempts).toBeLessThan(quick.parts.attempts);
     expect(slow.parts.tests).toBe(quick.parts.tests);
     // A bare helper is cheap but useless: no workload points without working builds.
-    const bare = finalScore(m, progressWith(1, () => ['ask_ai']), marks);
+    const bare = finalScore({ ...m, deployed: Object.fromEntries(assigned.map(id => [id, ['ask_ai']])) }, progressWith(1, () => ['ask_ai']), marks);
     expect(bare.parts.tests).toBeLessThan(WEIGHTS.tests);
     expect(bare.parts.workload).toBeLessThan(WEIGHTS.workload);
     // With nothing done, only independence (no hints used) scores.
-    expect(finalScore(m, {}, []).total).toBe(WEIGHTS.independence);
+    expect(finalScore({ ...m, deployed: {} }, {}, []).total).toBe(WEIGHTS.independence);
   });
 
   it('counts runs with a floor', () => {

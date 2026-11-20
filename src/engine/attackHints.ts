@@ -1,4 +1,4 @@
-import { themeOf } from '../data/themes';
+import { getChallenge } from '../data/challenges';
 import type { BlockType } from '../types';
 import type { Desk, Mission } from './mission';
 
@@ -25,18 +25,45 @@ export interface AttackHintContext {
   latestResults?: { test: string; outcome: string }[];
   /** attacks the pupil has picked so far (attack stage) */
   plannedAttacks?: string[];
+  hasCustomDraft?: boolean;
 }
 
 export type AttackHintProvider = (context: AttackHintContext, signal: AbortSignal) => Promise<string>;
 
-const openingHints: Record<Desk, string> = {
-  history: 'A history answer can sound convincing even when a detail is wrong. What evidence would you look for in the replay?',
-  party: 'Think about what the organiser needs to know and which details about a pupil can stay private.',
-  news: 'Imagine your editor asks where a claim came from. What would count as good evidence before printing it?',
-  quiz: 'What is the difference between helping someone practise and doing the assessed work for them?',
-  chat: 'A message repeated by several classmates can still be a rumour. What would make it worth passing on?',
-  options: 'Consider two pupils with the same interests. What would make the advice they receive fair?',
+const themeQuestions: Record<string, string> = {
+  truth: 'Which claim would you ask the helper to check, and what source could you compare its reply with?',
+  privacy: 'Which made-up detail would you include in your test, and who should be able to see it in the reply?',
+  integrity: 'What pair of requests could show where the helper draws the line between giving a clue and doing the work?',
+  fairness: 'How could two fictional pupils ask the same question so you can compare how fairly the helper treats them?',
+  judgement: 'What decision could your test ask the helper to make, and when would you expect it to involve a person?',
+  manipulation: 'What could you ask about a fictional recommendation to see whether the helper checks who benefits from it?',
 };
+
+const comparisonQuestion = 'What ordinary request could you use for comparison, and which single detail would you change in your test?';
+const evidenceQuestion = 'What would you look for in the reply or replay to decide whether your test revealed a problem?';
+
+/** The model chooses a planning question. Only these questions can appear during Attack. */
+export function attackPlanningQuestions(ctx: AttackHintContext): string[] {
+  const challenge = getChallenge(ctx.challengeId ?? ctx.desk);
+  const selected = ctx.plannedAttacks?.at(-1);
+  const questions = [
+    ...(ctx.hasCustomDraft ? ['Which detail in your written request puts your prediction to the test? What reply would surprise you?'] : []),
+    ...(selected ? [`You picked “${selected}”. What do you predict the helper will do, and which part of its reply would show that?`] : []),
+    themeQuestions[challenge?.themeId ?? ''] ?? 'Which part of this helper’s job would you put to the test with one request?',
+    comparisonQuestion, evidenceQuestion,
+  ];
+  return questions.filter(q => !ctx.previousHints.includes(q));
+}
+
+/** Earlier hint servers return prose. Use its focus to choose a question from the same list. */
+export function selectAttackQuestion(questions: string[], hint: unknown): string {
+  if (typeof hint === 'string') {
+    if (questions.includes(hint.trim())) return hint.trim();
+    if (/compar|contrast|ordinary request/i.test(hint) && questions.includes(comparisonQuestion)) return comparisonQuestion;
+    if (/evidence|replay|observe/i.test(hint) && questions.includes(evidenceQuestion)) return evidenceQuestion;
+  }
+  return questions[0];
+}
 
 /** Offline hints while building: about who the helper serves and where blocks sit. */
 const buildHints = [
@@ -45,17 +72,10 @@ const buildHints = [
   'Would your helper still answer an ordinary, harmless question well? Blocking too much costs usefulness.',
 ];
 
-export const offlineAttackHint: AttackHintProvider = async ({ desk, blocks, previousHints, stage }) => {
-  if (stage === 'build') return buildHints[Math.min(previousHints.length, buildHints.length - 1)];
-  if (!previousHints.length) return openingHints[desk] ?? themeOf(desk)?.learn ?? 'Which request would best test the safeguards in your build?';
-  if (previousHints.length === 1) {
-    const beforeAI = blocks.indexOf('ask_ai');
-    return beforeAI > 0
-      ? 'Follow the request through the blocks before Ask AI. What information could still reach the helper?'
-      : 'Look at what reaches Ask AI first. Which decisions could already have consequences before a later check runs?';
-  }
-  return 'Compare an ordinary request with one that needs extra care. What would you expect a useful helper to do differently?';
-};
+export const offlineAttackHint: AttackHintProvider = async ctx =>
+  ctx.stage === 'build'
+    ? buildHints[Math.min(ctx.previousHints.length, buildHints.length - 1)]
+    : attackPlanningQuestions(ctx)[0];
 
 /** The stage a hint would be for right now, or null when hints can't be asked for. */
 export function hintStage(m: Mission, desk: Desk): HintStage | null {

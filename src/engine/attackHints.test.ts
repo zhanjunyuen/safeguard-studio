@@ -34,6 +34,18 @@ describe('companion attack hints', () => {
     expect(useMission.getState().mission.attackHints).toEqual([]);
   });
 
+  it('starts attack coaching from the selected card and draft, without earlier build advice', async () => {
+    useMission.getState().update({
+      attackHints: [{ desk: 'history', stage: 'build', text: 'Which block belongs first?' }],
+      attackPlans: { history: ['history-poll'] }, customDrafts: { history: 'A fictional survey question' },
+    });
+    const provider = vi.fn(async () => 'What evidence would you look for in the reply?');
+    await useMission.getState().requestHint('history', signal, provider);
+    expect(provider).toHaveBeenCalledWith(expect.objectContaining({
+      stage: 'attack', previousHints: [], plannedAttacks: ['Quote an unchecked poll result'], hasCustomDraft: true,
+    }), signal);
+  });
+
   it('only consumes delivered hints and ignores overlapping or stale replies', async () => {
     const { requestHint, update } = useMission.getState();
     await expect(requestHint('history', signal, async () => { throw Error('offline'); })).rejects.toThrow();

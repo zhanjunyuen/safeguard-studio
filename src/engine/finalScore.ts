@@ -1,5 +1,5 @@
 import type { ChallengeProgress } from '../store/session';
-import { assessmentBudget, evaluateDesk, serviceWorkloads } from './challengeEvidence';
+import { assessmentBudget, deployedEffectiveness, evaluateDesk, serviceWorkloads } from './challengeEvidence';
 import { scoreOf, SKILL_ORDER, type Mark } from './marking';
 import { optionalSkills } from './assessmentSettings';
 import { assignedDesks, handled, roundCredits, type Mission } from './mission';
@@ -70,6 +70,8 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   });
   const n = Math.max(1, challenges.length);
   const testShare = challenges.reduce((s, c) => s + c.tests, 0) / n;
+  const usefulDeploymentShare = m.workloadModel === 'deployment'
+    ? challenges.reduce((sum, task) => sum + deployedEffectiveness(m, task.id), 0) / n : testShare;
   const budget = assessmentBudget(m);
   const workloadCredits = roundCredits(serviceWorkloads(m, progress).reduce((s, w) => s + w.credits, 0));
   // Cheap only counts when the builds work: an empty helper is cheap but useless.
@@ -82,7 +84,7 @@ export function finalScore(m: Mission, progress: Record<string, ChallengeProgres
   const categories: Record<Category, number | null> = {
     answers: counted.length ? round1(100 * counted.reduce((s, c) => s + (skills.scores[c] ?? 0), 0) / (2 * counted.length)) : null,
     tests: round1(100 * testShare),
-    workload: round1(100 * withinBudget * testShare),
+    workload: round1(100 * withinBudget * usefulDeploymentShare),
     attempts: round1(100 * challenges.reduce((s, c) => s + c.attempts, 0) / n),
     independence: round1(100 * (1 - hintsUsed / ATTACK_HINT_LIMIT)),
   };

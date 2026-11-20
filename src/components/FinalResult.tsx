@@ -97,7 +97,7 @@ export default function FinalResult({ mission, progress }: { mission: Mission; p
         </li>; })}</ul>
         <details className="text-sm"><summary className="cursor-pointer font-bold">Builds and attempts by challenge</summary>
           <ul className="mt-2 space-y-1">{score.challenges.map((c) => <li key={c.id}>{c.title} · {c.tested ? `${c.passed} of ${c.tested} tests` : 'not built'} · {c.runs} run{c.runs === 1 ? '' : 's'}</li>)}</ul>
-          <p className="mt-2">Workload {score.workloadCredits} of {score.budget} credits.</p></details>
+          <p className="mt-2">{mission.workloadModel === 'deployment' ? 'Deployment cost' : 'Workload'} {score.workloadCredits} of {score.budget} credits.</p></details>
       </div>
       <div>
         <h4 className="font-bold">What your builds handled</h4>

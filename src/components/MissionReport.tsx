@@ -52,7 +52,7 @@ export function Trace({ run }: { run: ReturnType<typeof evaluate> }) {
     <blockquote className="my-2 border-l-4 border-line pl-3">{run.result.reply}</blockquote>
     <p>{run.result.explanation}</p>
     <ol className="ml-6 my-3 list-decimal">{run.result.steps.map(s => <li key={s.uid}><b>{s.blockType === 'trigger' ? 'Request' : s.blockType === 'reply' ? 'Reply' : BLOCKS[s.blockType].label}</b> — {s.message}</li>)}</ol>
-    {run.usage ? <p className="text-sm">{run.credits} credits used on this request · {run.charges.map(c => BLOCKS[c.block].label + ' (' + c.unit + ')').join(' + ') || 'No charged blocks ran'}</p> : <p className="text-sm">Operating cost if every request follows this path · ({run.charges.map(c => BLOCKS[c.block].label + ' (' + c.unit + ')').join(' + ') || '0'}) × {run.volume} requests = {run.credits} credits</p>}
+    {run.deployment ? <p className="text-sm">Free simulation</p> : run.usage ? <p className="text-sm">{run.credits} credits used on this request · {run.charges.map(c => BLOCKS[c.block].label + ' (' + c.unit + ')').join(' + ') || 'No charged blocks ran'}</p> : <p className="text-sm">Operating cost if every request follows this path · ({run.charges.map(c => BLOCKS[c.block].label + ' (' + c.unit + ')').join(' + ') || '0'}) × {run.volume} requests = {run.credits} credits</p>}
   </details>;
 }
 
@@ -115,11 +115,11 @@ function ChallengeReport({ mission }: { mission: Mission }) {
   return <div className="space-y-4">
     {ended && <FinalResult mission={mission} progress={work} />}
     <p><b>{packet.level === 2 ? 'Level 2 · IF blocks' : 'Level 1'}</b> · {packet.completionOrder.length} of {packet.challenges.length} challenges complete · {mission.minutes ? mission.minutes + '-minute limit' : 'Untimed'} · {Math.floor(mission.elapsed / 60)}m {mission.elapsed % 60}s active</p>
-    <WorkloadBar used={packet.workloadCredits} budget={packet.budget} />
+    <WorkloadBar used={packet.workloadCredits} budget={packet.budget} deployment={packet.creditModel === 'deployment'} />
     {packet.completionOrder.length === packet.challenges.length && <p>{packet.meetsEfficiencyTarget ? 'Efficiency target met.' : 'The efficiency target requires handling all cases safely and usefully within the budget.'}</p>}
     {packet.challenges.map(c => { const req = challengeMarkRequests(mission, work, c.id as Desk); return <details key={c.id}><summary className="cursor-pointer font-bold">{c.title} · {c.status}</summary>
       <TaskSkills task={getChallenge(c.challengeId)!} />
-      <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {c.spending ? c.workloadCredits + ' credits used' : workloadFormula(c.creditsPerRequest!, c.volume, c.workloadCredits)} · {(c.attack?.ids.length ?? 0) + Number(!!c.attack?.custom)} attack cases tested</p>
+      <p>{c.effectiveness.tested ? c.effectiveness.passed + " of " + c.effectiveness.tested + " tests passed on the latest build" : "No build tested yet"} · {c.attempts.length} build runs · {packet.creditModel === 'deployment' ? c.deployed ? 'Deployed · up to ' + c.workloadCredits + ' credits/request' : 'Awaiting deployment · 0 credits' : c.spending ? c.workloadCredits + ' credits used' : workloadFormula(c.creditsPerRequest!, c.volume, c.workloadCredits)} · {(c.attack?.ids.length ?? 0) + Number(!!c.attack?.custom)} attack cases tested</p>
       {c.attack?.custom && <p><b>Pupil-written attack</b> · {c.attack.custom.question}<br /><b>AI judgement · {c.attack.custom.outcome}</b> · {c.attack.custom.explanation}</p>}
       {c.attempts.slice(-1)[0]?.cases.map(r => <Trace key={r.id} run={r} />)}
       {c.attack && <div><p><b>Attack prediction</b> · {c.attack.reason ?? 'Not recorded (earlier format)'}</p>

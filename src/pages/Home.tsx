@@ -2,6 +2,7 @@ import { ArrowRight, Compass, PlayCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import companion from '../assets/companions/community.webp';
 import Block from '../components/Block';
 import { BLOCKS, REPLY_COLOR, TRIGGER_COLOR } from '../data/blocks';
 import { cleanSettings } from '../engine/assessmentSettings';
@@ -52,9 +53,12 @@ export default function Home() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 md:py-14">
-      <section className="grid md:grid-cols-[1.15fr_minmax(0,1fr)] gap-8 md:gap-12 items-center">
+      <section className="grid lg:grid-cols-[1.15fr_minmax(0,1fr)] gap-8 md:gap-12 items-center">
         <div>
-          <p className="label text-ink-2 mb-4">AI literacy assessment · Ages 11 to 14</p>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <p className="label text-ink-2">AI literacy assessment · Ages 11 to 14</p>
+            <img src={companion} alt="" className="w-16 h-16 object-contain mix-blend-multiply sm:hidden" />
+          </div>
           <h1 className="text-5xl md:text-[64px] font-extrabold leading-[0.98]">
             Build an AI helper for your <span className="bg-signal px-1.5 -mx-0.5 box-decoration-clone">school community.</span>
           </h1>
@@ -95,7 +99,7 @@ export default function Home() {
         </div>
 
         <div className="relative hidden sm:block" aria-hidden>
-          <div className="graph border-1.5 border-ink rounded-md p-4 pb-8 flex justify-center">
+          <div className="graph border-1.5 border-ink rounded-md p-4 pb-8 flex items-center justify-around gap-1">
             <div>
               {[
                 <Block key="t" kind="trigger" shape="hat" label="When someone asks…" color={TRIGGER_COLOR} textColor="#16161A" width={270} />,
@@ -105,6 +109,7 @@ export default function Home() {
                 <motion.div key={i} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.1 }}>{b}</motion.div>
               ))}
             </div>
+            <img src={companion} alt="" width={360} height={360} className="w-[30%] max-w-[180px] object-contain mix-blend-multiply" />
           </div>
           <motion.div initial={{ opacity: 0, rotate: 0, y: 10 }} animate={{ opacity: 1, rotate: 2, y: 0 }} transition={{ delay: 0.5 }}
             className="relative -mt-6 ml-auto mr-3 max-w-[290px] bg-paper-card border-1.5 border-ink rounded shadow-hard p-4">

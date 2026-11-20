@@ -1,3 +1,4 @@
+import { deploymentCost, savedDeploymentCost } from './deploymentCost';
 import { taskFocus } from '../data/testSkills';
 import { attackCases } from '../data/attackCases';
 import { BRIEF, SOURCE_PACK, TRANSFER } from '../data/mission';
@@ -6,9 +7,9 @@ import type { ChallengeProgress } from '../store/session';
 import type { BlockType, ScriptBlock } from '../types';
 import { assignedDesks, challengeIdFor, evaluate, handled, roundCredits, blockCredits, totalCost, type Desk, type Mission } from './mission';
 import { attemptCredits, taskBudget, taskSpending } from './assessmentCredits';
-import { judgeBuildResult } from './run';
-import { idealScript } from './targets';
-import { blockKey } from './scriptText';
+import { judgeBuildResult, runChallenge } from './run';
+import { idealScript, usefulnessTarget } from './targets';
+import { blockKey, keyToBlock } from './scriptText';
 import { CURVEBALLS } from '../data/curveballs';
 import { curveballHandled, runCurveball } from './curveball';
 import { markOffline, RUBRIC_VERSION, type Criterion, type MarkRequest } from './marking';
@@ -41,21 +42,38 @@ function projectedCost(m: WorkloadSettings, id: Desk, script: ScriptBlock[], vol
 }
 
 export function assessmentBudget(m: WorkloadSettings) {
+  if (m.workloadModel === 'deployment') return roundCredits(assignedDesks(m).reduce((sum, desk) =>
+    sum + deploymentCost(idealScript(challengeIdFor(m, desk.id))), 0));
   if (m.workloadModel === 'usage') return assignedDesks(m).reduce((sum, desk) => sum + taskBudget(challengeIdFor(m, desk.id)), 0);
   return assignedDesks(m).reduce((sum, desk) =>
     sum + projectedCost(m, desk.id, idealScript(challengeIdFor(m, desk.id)), desk.volume).credits, 0);
 }
 
-export function serviceWorkloads(m: WorkloadSettings & Pick<Mission, 'launches' | 'frozen' | 'curveballs'>, progress: Record<string, ChallengeProgress>) {
+export function serviceWorkloads(m: WorkloadSettings & Pick<Mission, 'launches' | 'frozen' | 'curveballs' | 'deployed'>, progress: Record<string, ChallengeProgress>) {
   // Completed assessments under the earlier compute model included projected starter builds.
   const starter: ScriptBlock[] = m.workloadModel === 'compute' ? [{ type: 'ask_ai', uid: 'starter' }] : [];
   return assignedDesks(m).map(({ id, title, volume }) => {
+    if (m.workloadModel === 'deployment') {
+      const deployed = m.deployed?.[id];
+      const perRequest = deployed ? savedDeploymentCost(deployed) : 0;
+      return { id, title, volume: 1, perRequest, credits: perRequest, deployed, spending: undefined };
+    }
     if (m.workloadModel === 'usage') {
       const spending = taskSpending(m, id, progress[id]?.attempts ?? []);
       return { id, title, volume, perRequest: undefined, credits: spending.total, spending };
     }
     return { id, title, ...projectedCost(m, id, progress[id]?.script ?? starter, volume), spending: undefined };
   });
+}
+
+/** Measures how useful and safe the deployed version is, independently of the draft or test history. */
+export function deployedEffectiveness(m: Mission, desk: Desk) {
+  const keys = m.deployed?.[desk];
+  if (!keys) return 0;
+  const id = challengeIdFor(m, desk);
+  const report = runChallenge(keys.map((key, i) => keyToBlock(key, String(i))), getChallenge(id)!);
+  const usefulness = Math.min(1, report.scores.usefulness / usefulnessTarget(id));
+  return (report.passed / report.total) * usefulness;
 }
 
 export function latestEffectiveness(progress?: ChallengeProgress) {
@@ -78,7 +96,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
       status: m.completed?.includes(d.id) ? 'completed' : p ? 'in progress' : 'unattempted',
       designNote: target ? m.designNotes?.[d.id] : undefined,
       revisionNote,
-      effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], spending: d.spending, creditsPerRequest: d.perRequest, workloadCredits: d.credits,
+      effectiveness: latestEffectiveness(p), attempts, reflections: p?.reflections ?? [], deployed: d.deployed, spending: d.spending, creditsPerRequest: d.perRequest, workloadCredits: d.credits,
       attack: target && plan ? { rules: target, custom: plan.custom, ids: plan.ids, reason: plan.reason ?? null, cases: plan.ids.map(id => evaluate(target, id, m.workloadModel)) } : null,
       curveball: curveballEvidence(m, d.id),
       previewMarks: target && (plan?.reason || revisionNote) ? {
@@ -88,7 +106,7 @@ export function challengeEvidence(m: Mission, progress: Record<string, Challenge
     };
   });
   const workloadCredits = roundCredits(challenges.reduce((sum, c) => sum + c.workloadCredits, 0));
-  const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && c.attempts.slice(-1)[0]?.cases.every(handled))
+  const meetsEfficiencyTarget = challenges.every(c => c.status === 'completed' && (m.workloadModel === 'deployment' ? deployedEffectiveness(m, c.id) === 1 : c.attempts.slice(-1)[0]?.cases.every(handled)))
     && workloadCredits <= budget;
   return {
     level: m.level ?? 1, creditModel: m.workloadModel ?? 'projected-service-volume', rubricVersion: m.assigned ? 'school-community-5' : 'school-community-4', markingRubricVersion: RUBRIC_VERSION,
@@ -121,9 +139,9 @@ export function challengeMarkRequests(m: Mission, progress: Record<string, Chall
     const after = evaluateDesk(desk, evaluated.script, m.level, m.workloadModel);
     const beforeAttempt = progress[desk]?.attempts.find(a => a.script.join() === blocks.join());
     const legacyCost = (rows: ReturnType<typeof evaluateDesk>) => m.workloadModel ? Math.ceil(meanPathCost(rows)) : totalCost(rows);
-    const creditsBefore = m.workloadModel === 'usage'
+    const creditsBefore = m.workloadModel === 'deployment' ? savedDeploymentCost(blocks) : m.workloadModel === 'usage'
       ? beforeAttempt && attemptCredits(challenge, beforeAttempt) : legacyCost(frozenCases);
-    const creditsAfter = m.workloadModel === 'usage' ? attemptCredits(challenge, evaluated) : legacyCost(after);
+    const creditsAfter = m.workloadModel === 'deployment' ? savedDeploymentCost(evaluated.script) : m.workloadModel === 'usage' ? attemptCredits(challenge, evaluated) : legacyCost(after);
     out.revision = { criterion: 'revision', text: revisionNote, before: blocks, after: evaluated.script,
       failing: frozenCases.filter(r => !handled(r)).map(r => planned(r.id)), creditsBefore, creditsAfter, challengeId: challenge.id };
   }

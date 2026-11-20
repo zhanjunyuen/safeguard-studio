@@ -8,7 +8,8 @@ import { evaluate, newAssessment } from './mission';
 import { runChallenge } from './run';
 
 const task = getChallenge('quiz')!;
-const mission = { ...newAssessment(), assigned: ['quiz'] };
+// Historical reports retain the tariff that was in force when they were completed.
+const mission = { ...newAssessment(), assigned: ['quiz'], workloadModel: 'usage' as const };
 const work = () => {
   const progress = freshProgress();
   const report = runChallenge(progress.script, task);

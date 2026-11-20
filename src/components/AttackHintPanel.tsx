@@ -12,7 +12,8 @@ export default function AttackHintPanel({ desk }: { desk: Desk }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => () => inFlight.current?.abort(), []);
   const hints = mission.attackHints ?? [];
-  const shown = hints.filter(h => h.desk === desk);
+  const stage = mission.phase === 'attack' ? 'attack' : 'build';
+  const shown = hints.filter(h => h.desk === desk && (h.stage ?? 'attack') === stage);
   const remaining = ATTACK_HINT_LIMIT - hints.length;
   const launched = mission.launches?.some(round => round.desk === desk);
   async function ask() {
@@ -37,7 +38,7 @@ export default function AttackHintPanel({ desk }: { desk: Desk }) {
       <h4 className="font-bold flex items-center gap-2"><Sparkles size={16} aria-hidden /> AI hints</h4>
       <p className="font-mono text-sm">{remaining} of {ATTACK_HINT_LIMIT} left</p>
     </div>
-    <p className="text-sm text-ink-2">A hint is a guiding question, never the answer. <b className="text-ink">Each hint you use lowers your Independence score</b> ({Math.round(100 / ATTACK_HINT_LIMIT)} points of it, worth {WEIGHTS.independence}% of your final score). Hints you already have are free to reread.</p>
+    <p className="text-sm text-ink-2">{stage === 'attack' ? 'Get a question to help plan your test request and predict what it will reveal.' : 'Get a question to help you think through your design.'} <b className="text-ink">Each hint you use lowers your Independence score</b> ({Math.round(100 / ATTACK_HINT_LIMIT)} points of it, worth {WEIGHTS.independence}% of your final score). Hints you already have are free to reread.</p>
     {shown.length > 0 && <ol className="space-y-1.5" aria-live="polite">{shown.map((h, i) =>
       <li key={i} className="rounded border-l-4 border-signal bg-paper px-3 py-1.5"><span className="label text-ink-3 mr-1">{h.stage === 'build' ? 'Build' : 'Attack'}</span>{h.text}</li>)}</ol>}
     {offered && <button className="btn bg-paper" disabled={loading || !canAsk} onClick={ask} data-testid="ask-hint">

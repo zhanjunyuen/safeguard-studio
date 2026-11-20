@@ -1,7 +1,8 @@
+import { attackCases } from '../data/attackCases';
 import { getChallenge } from '../data/challenges';
 import { askLiteracyAi } from '../lib/literacyAi';
 import { literacyAiUrl } from '../lib/supabase';
-import { offlineAttackHint, setAttackHintProvider, type AttackHintProvider } from './attackHints';
+import { attackPlanningQuestions, offlineAttackHint, selectAttackQuestion, setAttackHintProvider, type AttackHintProvider } from './attackHints';
 import { markAnchors, markPacket } from './markPacket';
 import {
   jsonIn, markOffline, offlineFollowUp, offlineSkillsSummary, parseModelFollowUp, parseModelMark, scoreOf,
@@ -107,16 +108,18 @@ export const aiSkillsSummary: SkillsSummaryProvider = async (marks, signal) => {
 
 export const aiAttackHint: AttackHintProvider = async (ctx, signal) => {
   const c = getChallenge(ctx.challengeId ?? ctx.desk);
+  const planningQuestions = ctx.stage === 'build' ? undefined : attackPlanningQuestions(ctx);
   const raw = await askLiteracyAi({
     task: 'hint',
     context: {
       challenge: c?.title, audience: c?.audience, story: c?.story, level: c?.id.endsWith('@2') ? 2 : 1,
       stage: ctx.stage ?? 'attack', build: ctx.blocks.map(labelOf).join(' → '),
-      latestResults: ctx.latestResults ?? [], plannedAttacks: ctx.plannedAttacks ?? [], attackOptions: c?.tests.map((t) => t.attackLabel) ?? [], previousHints: ctx.previousHints,
+      latestResults: ctx.latestResults ?? [], plannedAttacks: ctx.plannedAttacks ?? [], attackOptions: c ? attackCases(c).map(t => t.attackLabel) : [], previousHints: ctx.previousHints, planningQuestions,
     },
   }, signal);
   const hint = raw ? jsonIn(raw)?.hint : undefined;
   if (signal.aborted) return '';
+  if (planningQuestions) return selectAttackQuestion(planningQuestions, hint);
   return typeof hint === 'string' && hint.trim().length >= 10 && hint.length <= 400 ? hint.trim() : offlineAttackHint(ctx, signal);
 };
 

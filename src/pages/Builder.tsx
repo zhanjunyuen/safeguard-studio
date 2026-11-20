@@ -1,4 +1,4 @@
-import { buildCredits } from '../engine/assessmentCredits';
+import { deploymentCost } from '../engine/deploymentCost';
 import WorkbenchNavigation, { type WorkbenchPanel } from '../components/WorkbenchNavigation';
 import ReasoningField from '../components/ReasoningField';
 import { stackCollision } from '../components/stackCollision';
@@ -258,7 +258,6 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   const run = () => {
     if (mustReflect || locked) return;
     const rep = runChallenge(script, challenge);
-    if (assessment?.workloadModel === 'usage') rep.creditsUsed = buildCredits(challenge, script, rep.results, true);
     recordRun(id, rep, classTarget);
     setReport(rep);
     setRanScript(script);
@@ -297,7 +296,7 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
   return (
     <div className={assessment ? 'assessment-bench' : 'max-w-[1400px] mx-auto py-6 px-4'}>
       {assessment ? <div className="assessment-taskbar">
-        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · {assessment.workload.credits} {assessment.workload.spending ? 'credits used on this task' : 'projected credits'}</p>{!assessment.revising && <p className="text-sm">{evaluated ? `${corePassed}/6 core tests passed` : 'Pass 4 of the 6 core tests and the design check to unlock Attack.'}
+        <div><div className="flex items-center gap-2"><button className="overview-back" onClick={assessment.onMenu} aria-label="Whole-helper overview" title="Whole-helper overview"><ArrowLeft size={18} aria-hidden /></button><h2 className="text-lg font-extrabold">{challenge.title}</h2></div><p className="text-sm">{assessment.revising ? 'Revision' : 'Build'} · Draft · up to {deploymentCost(script)} credits/request</p>{!assessment.revising && <p className="text-sm">{evaluated ? `${corePassed}/6 core tests passed` : 'Pass 4 of the 6 core tests and the design check to unlock Attack.'}
           {last && !last.blockQuality && ' Run this saved build to get its first block-quality score.'}
           {evaluated && <> · Design check {last.blockQuality?.designPassed ? 'passed' : 'needs work'}</>}
           {retryCase && <> · {missingPasses} more {missingPasses === 1 ? 'pass' : 'passes'} needed.{' '}
@@ -382,11 +381,11 @@ export default function Builder({ assessment }: { assessment?: AssessmentBuild }
             {assessment && !locked && <details open={noteRequired || undefined} className="rounded-md border border-line bg-paper-card p-3 space-y-2">
               <summary className="font-bold cursor-pointer">{assessment.revising ? 'Revision note and task details' : 'Task details and design note'}</summary>
               <p>{challenge.audience}. {challenge.story}</p><p>Pass {challenge.tests.length} tests and aim for usefulness of {target}.</p>
-              {assessment.workload.spending ? <p>Each build tests {challenge.tests.length + 2} requests, including two design-check requests. Ask AI costs 1 credit per answer. Local checks cost less. Editing blocks and reviewing results are free.</p> : <p>{workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}. {assessment.workloadModel === 'compute' && `Ask AI uses ${safeguardRate('ask_ai', 'compute')} credits per answer. A filter that stops a request first saves those credits.`} Test runs are free. {assessment.workloadModel ? 'The estimate averages the cost of the blocks that run across the cases.' : isL2 && 'Each IF budgets for its more expensive branch.'}</p>}
+              {assessment.workloadModel === 'deployment' ? <p>Finishing this challenge deploys your helper. Its cost is the most expensive path for one live request. Tests, attacks and curveballs are free.</p> : assessment.workload.spending ? <p>Each build tests {challenge.tests.length + 2} requests, including two design-check requests. Ask AI costs 1 credit per answer. Local checks cost less. Editing blocks and reviewing results are free.</p> : <p>{workloadFormula(assessment.workload.perRequest, assessment.workload.volume, assessment.workload.credits)}. {assessment.workloadModel === 'compute' && `Ask AI uses ${safeguardRate('ask_ai', 'compute')} credits per answer. A filter that stops a request first saves those credits.`} Test runs are free. {assessment.workloadModel ? 'The estimate averages the cost of the blocks that run across the cases.' : isL2 && 'Each IF budgets for its more expensive branch.'}</p>}
               <ReasoningField label={`${assessment.revising ? 'What did the attack show, and why keep or change your blocks?' : 'Which risk are you designing for?'} (${noteRequired ? 'required' : 'optional'})`}
                 hint={assessment.revising ? 'Mention one observation, your decision, and the effect you expect.' : 'Name the risk, your design choice, and why the order matters.'} value={assessment.note} change={assessment.onNote} required={noteRequired} rows={2} />
-              {costs && !locked && <details><summary>Latest build{last?.creditsUsed !== undefined ? ' · ' + last.creditsUsed + ' credits used' : ' test costs'}</summary>{costs.map(row => <Trace key={row.id} run={row} />)}
-                {last?.creditsUsed !== undefined && last.blockQuality && <p className="text-sm">Two design-check requests · {roundCredits(last.creditsUsed - costs.reduce((sum, row) => sum + row.credits, 0))} credits</p>}
+              {costs && !locked && <details><summary>{assessment.workloadModel === 'deployment' ? 'Example request paths · free simulation' : 'Latest build'}{assessment.workloadModel === 'deployment' ? '' : last?.creditsUsed !== undefined ? ' · ' + last.creditsUsed + ' credits used' : ' test costs'}</summary>{costs.map(row => <Trace key={row.id} run={row} />)}
+                {assessment?.workloadModel === 'usage' && last?.creditsUsed !== undefined && last.blockQuality && <p className="text-sm">Two design-check requests · {roundCredits(last.creditsUsed - costs.reduce((sum, row) => sum + row.credits, 0))} credits</p>}
               </details>}
             </details>}
             {assessment && !locked && <AttackHintPanel desk={assessment.id} />}

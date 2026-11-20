@@ -55,9 +55,9 @@ export default function AssessmentChallenges() {
   const needsName = !!m.classCode && joinedClass !== m.classCode;
   const work = useAssessmentSession(s => s.progress);
   const desk = m.focus;
-  const { assigned, level, workloadModel, launches, curveballs, frozen } = m;
+  const { assigned, level, workloadModel, launches, curveballs, frozen, deployed } = m;
   const budget = useMemo(() => assessmentBudget({ assigned, level, workloadModel }), [assigned, level, workloadModel]);
-  const workloads = useMemo(() => serviceWorkloads({ assigned, level, workloadModel, launches, curveballs, frozen }, work), [assigned, level, workloadModel, launches, curveballs, frozen, work]);
+  const workloads = useMemo(() => serviceWorkloads({ assigned, level, workloadModel, launches, curveballs, frozen, deployed }, work), [assigned, level, workloadModel, launches, curveballs, frozen, deployed, work]);
   const used = roundCredits(workloads.reduce((total, service) => total + service.credits, 0));
   const service = workloads.find(service => service.id === desk);
   const level2 = m.level === 2;
@@ -77,7 +77,9 @@ export default function AssessmentChallenges() {
   }
   function finish(id: Desk) {
     if (!m.launches?.some(l => l.desk === id) || !m.curveballs?.[id] || m.completed?.includes(id)) return;
-    update({ completed: [...(m.completed ?? []), id], revising: { ...m.revising, [id]: false }, phase: 'menu', focus: undefined, first: null });
+    const keys = m.revising?.[id] ? work[id]?.attempts.at(-1)?.script : m.frozen?.[id]?.map(rule => rule.type);
+    if (!keys) return;
+    update({ deployed: { ...m.deployed, [id]: keys }, completed: [...(m.completed ?? []), id], revising: { ...m.revising, [id]: false }, phase: 'menu', focus: undefined, first: null });
   }
   const tracker = <AssessmentTracker key={m.phase === 'brief' ? 'setup' : 'assigned'} serviceCount={m.phase === 'brief' ? (m.settings ?? deviceSettings).challenges?.length ?? (m.settings ?? deviceSettings).taskCount ?? THEMES.length : workloads.length} phase={m.phase} focus={desk} levelName={levelName}
     workloadModel={workloadModel} workloads={workloads} used={used} budget={budget} completed={m.completed ?? []}
@@ -88,7 +90,7 @@ export default function AssessmentChallenges() {
     const last = work[desk]?.attempts.slice(-1)[0];
     return <>{tracker}<section className="rounded-md border border-line p-5 space-y-3">
       <h2 className="text-2xl font-extrabold">{getChallenge(desk)!.title} · Complete</h2>
-      <p>{service.spending ? 'Credits used on this task' : 'Service cost'} · {service.credits}. You can revise it before the release decision.</p>
+      <p>Deployed helper · up to {service.credits} credits per request. You can revise it before the release decision.</p>
       <button className="btn bg-signal" onClick={() => update({
         phase: 'revise', completed: m.completed?.filter(id => id !== desk),
         revising: { ...m.revising, [desk]: true }, first: m.frozen?.[desk] ?? null,
@@ -147,7 +149,7 @@ export default function AssessmentChallenges() {
         <p className="label text-ink-3">{className ? `${className} · ` : ''}Your brief</p>
         <h2 className="text-3xl font-extrabold mt-1">One helper for {count === 1 ? 'one school service' : `${count} school services`}</h2>
       </div>
-      <p>Your credit balance starts at zero used. Build runs, launched attacks and revealed curveballs spend credits from one shared budget. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
+      <p>The budget covers the cost of running your deployed helpers. Each task starts at zero. Finishing a challenge deploys its blocks. Testing and practising are free. Test your safeguards, predict an attack and a curveball, then decide what to release.</p>
       {settings.challenges && <p><b>Your teacher chose:</b> {settings.challenges.map(id => getChallenge(id)?.title).join(', ')}.</p>}
       <p className="text-sm text-ink-2"><b className="text-ink">Written answers you must give:</b> {required.length ? required.map(q => q.label.toLowerCase()).join(', ') : 'none (all are optional)'}. The AI marker gives feedback on each one.</p>
       {levelFixed ? <p><b>Level:</b> {chosenLevel === 2 ? 'Level 2 · IF blocks' : 'Level 1'} (set by your teacher)</p> : <fieldset className="grid gap-3 md:grid-cols-2">
@@ -184,7 +186,7 @@ export default function AssessmentChallenges() {
         const action = done ? 'Review service' : work[d.id] ? 'Resume ' + stage : 'Build service';
         return <li key={d.id}><button className="service-choice" onClick={() => open(d.id)} data-testid={'assess-' + d.id}>
           <strong>{d.title}</strong>
-          <span className="text-sm text-ink-2">{done && 'Ready · '}{d.credits} {d.spending ? 'credits used' : 'credits'}{latest.tested ? ` · ${latest.passed}/${latest.tested} tests passed` : ''}{level2 && ` · Target ${usefulnessTarget(d.id + '@2')}`}</span>
+          <span className="text-sm text-ink-2">{done && 'Ready · '}{d.credits} {workloadModel === 'deployment' ? 'credits/request deployed' : 'credits'}{latest.tested ? ` · ${latest.passed}/${latest.tested} tests passed` : ''}{level2 && ` · Target ${usefulnessTarget(d.id + '@2')}`}</span>
           <span className="service-action"><span className="sr-only sm:not-sr-only">{action} </span>→</span>
         </button></li>;
       })}
